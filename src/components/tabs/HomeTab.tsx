@@ -3,12 +3,49 @@ import { motion } from "framer-motion";
 import { Play, Flame, Calendar, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useSessionStats } from "@/hooks/useSessionHistory";
+import { useAuth } from "@/contexts/AuthContext";
 
 const HomeTab = () => {
-  const stats = [
-    { icon: Flame, label: "Current Streak", value: "0 days", color: "text-orange-500" },
-    { icon: Calendar, label: "This Week", value: "0/7 days", color: "text-blue-500" },
-    { icon: Trophy, label: "Best Time", value: "0:00", color: "text-yellow-500" }
+  const { data: stats } = useSessionStats();
+  const { user } = useAuth();
+
+  const formatTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m`;
+  };
+
+  const formatDuration = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
+  // Use real data if available, otherwise show placeholder
+  const displayStats = [
+    { 
+      icon: Flame, 
+      label: "Current Streak", 
+      value: "0 days", // This would come from user_streaks table
+      color: "text-orange-500" 
+    },
+    { 
+      icon: Calendar, 
+      label: "This Week", 
+      value: stats ? `${stats.thisWeekSessions}/${stats.weeklyGoal} days` : "0/7 days", 
+      color: "text-blue-500" 
+    },
+    { 
+      icon: Trophy, 
+      label: "Best Time", 
+      value: stats && stats.totalSessions > 0 ? formatDuration(stats.averageDuration) : "0:00", 
+      color: "text-yellow-500" 
+    }
   ];
 
   return (
@@ -20,13 +57,15 @@ const HomeTab = () => {
     >
       {/* Header */}
       <div className="text-center pt-4">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Welcome Back!</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">
+          Welcome Back{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}!
+        </h2>
         <p className="text-gray-600">Ready for today's plank challenge?</p>
       </div>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-3 gap-3">
-        {stats.map((stat, index) => (
+        {displayStats.map((stat, index) => (
           <motion.div
             key={stat.label}
             initial={{ scale: 0, opacity: 0 }}
@@ -72,23 +111,47 @@ const HomeTab = () => {
         </Card>
       </motion.div>
 
-      {/* Recent Activity */}
-      <motion.div
-        initial={{ y: 30, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.6, duration: 0.6 }}
-      >
-        <h3 className="text-lg font-semibold text-gray-800 mb-3">Recent Activity</h3>
-        <Card className="bg-white/80 backdrop-blur-sm border-orange-100">
-          <CardContent className="p-6 text-center">
-            <div className="text-gray-400 mb-2">
-              <Calendar className="w-12 h-12 mx-auto" />
-            </div>
-            <p className="text-gray-600">No workouts yet</p>
-            <p className="text-sm text-gray-500">Complete your first plank to see your progress here</p>
-          </CardContent>
-        </Card>
-      </motion.div>
+      {/* Progress Summary */}
+      {stats && stats.totalSessions > 0 ? (
+        <motion.div
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.6, duration: 0.6 }}
+        >
+          <h3 className="text-lg font-semibold text-gray-800 mb-3">Your Progress</h3>
+          <Card className="bg-white/80 backdrop-blur-sm border-orange-100">
+            <CardContent className="p-6">
+              <div className="grid grid-cols-2 gap-4 text-center">
+                <div>
+                  <p className="text-2xl font-bold text-gray-800">{stats.totalSessions}</p>
+                  <p className="text-sm text-gray-600">Total Sessions</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-gray-800">{formatTime(stats.totalTimeSpent)}</p>
+                  <p className="text-sm text-gray-600">Time Spent</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      ) : (
+        <motion.div
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.6, duration: 0.6 }}
+        >
+          <h3 className="text-lg font-semibold text-gray-800 mb-3">Recent Activity</h3>
+          <Card className="bg-white/80 backdrop-blur-sm border-orange-100">
+            <CardContent className="p-6 text-center">
+              <div className="text-gray-400 mb-2">
+                <Calendar className="w-12 h-12 mx-auto" />
+              </div>
+              <p className="text-gray-600">No workouts yet</p>
+              <p className="text-sm text-gray-500">Complete your first plank to see your progress here</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
     </motion.div>
   );
 };

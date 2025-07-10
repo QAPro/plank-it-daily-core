@@ -1,148 +1,192 @@
 
-import { motion } from "framer-motion";
-import { Play, Clock, Target, Star } from "lucide-react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useExercises } from "@/hooks/useExercises";
+import { useSessionTracking } from "@/hooks/useSessionTracking";
+import ExerciseCard from "@/components/ExerciseCard";
+import ExerciseDetailsModal from "@/components/ExerciseDetailsModal";
+import TimerSetup from "@/components/TimerSetup";
+import PlankTimer from "@/components/PlankTimer";
+import type { Tables } from '@/integrations/supabase/types';
+
+type Exercise = Tables<'plank_exercises'>;
+type WorkoutState = 'selection' | 'setup' | 'timer';
 
 const WorkoutTab = () => {
-  const exercises = [
-    {
-      name: "Knee Plank",
-      difficulty: 1,
-      duration: "1-2 minutes",
-      description: "A beginner-friendly plank variation that reduces load while building core strength",
-      color: "from-green-400 to-green-500"
-    },
-    {
-      name: "Forearm Plank",
-      difficulty: 1,
-      duration: "1-2 minutes",
-      description: "Perfect for beginners to build foundational core strength",
-      color: "from-emerald-400 to-emerald-500"
-    },
-    {
-      name: "High Plank",
-      difficulty: 2,
-      duration: "1-2 minutes",
-      description: "A push-up position plank that engages arms and shoulders more intensively",
-      color: "from-blue-400 to-blue-500"
-    },
-    {
-      name: "Extended Plank",
-      difficulty: 2,
-      duration: "2-3 minutes",
-      description: "Hold longer to challenge your endurance",
-      color: "from-cyan-400 to-cyan-500"
-    },
-    {
-      name: "Side Plank",
-      difficulty: 3,
-      duration: "1-2 minutes each side",
-      description: "Target your obliques and improve balance",
-      color: "from-purple-400 to-purple-500"
-    },
-    {
-      name: "Plank to Push-up",
-      difficulty: 4,
-      duration: "3-5 minutes",
-      description: "Dynamic movement combining plank and push-up",
-      color: "from-orange-400 to-orange-500"
-    },
-    {
-      name: "Plank with Leg Lift",
-      difficulty: 5,
-      duration: "2-4 minutes",
-      description: "Advanced plank variation that challenges stability and core strength",
-      color: "from-red-400 to-red-500"
-    }
-  ];
+  const [workoutState, setWorkoutState] = useState<WorkoutState>('selection');
+  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
+  const [timerDuration, setTimerDuration] = useState<number>(0);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [detailsExercise, setDetailsExercise] = useState<Exercise | null>(null);
 
-  const getDifficultyStars = (level: number) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <Star
-        key={i}
-        className={`w-4 h-4 ${
-          i < level ? "text-yellow-400 fill-current" : "text-gray-300"
-        }`}
-      />
-    ));
+  const { data: exercises, isLoading, error } = useExercises();
+  const { saveSession } = useSessionTracking();
+
+  const handleStartExercise = (exercise: Exercise) => {
+    setSelectedExercise(exercise);
+    setWorkoutState('setup');
   };
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="p-6 space-y-6"
-    >
-      {/* Header */}
-      <div className="text-center pt-4">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Choose Your Workout</h2>
-        <p className="text-gray-600">Select a plank exercise to get started</p>
-      </div>
+  const handleViewDetails = (exercise: Exercise) => {
+    setDetailsExercise(exercise);
+    setDetailsModalOpen(true);
+  };
 
-      {/* Exercise Cards */}
-      <div className="space-y-4">
-        {exercises.map((exercise, index) => (
+  const handleStartTimer = (duration: number) => {
+    setTimerDuration(duration);
+    setWorkoutState('timer');
+  };
+
+  const handleTimerComplete = async (timeElapsed: number) => {
+    if (selectedExercise) {
+      await saveSession(selectedExercise, timeElapsed);
+    }
+    
+    // Return to selection after a short delay
+    setTimeout(() => {
+      setWorkoutState('selection');
+      setSelectedExercise(null);
+      setTimerDuration(0);
+    }, 3000);
+  };
+
+  const handleBack = () => {
+    if (workoutState === 'timer') {
+      setWorkoutState('setup');
+    } else if (workoutState === 'setup') {
+      setWorkoutState('selection');
+      setSelectedExercise(null);
+    }
+  };
+
+  const handleQuickStart = () => {
+    // Quick start with forearm plank for 60 seconds
+    const forearmPlank = exercises?.find(ex => ex.name.toLowerCase().includes('forearm'));
+    if (forearmPlank) {
+      setSelectedExercise(forearmPlank);
+      setTimerDuration(60);
+      setWorkoutState('timer');
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="p-6 flex items-center justify-center">
+        <div className="text-orange-600 text-lg">Loading exercises...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 flex items-center justify-center">
+        <div className="text-red-600 text-lg">Error loading exercises. Please try again.</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-full">
+      <AnimatePresence mode="wait">
+        {workoutState === 'selection' && (
           <motion.div
-            key={exercise.name}
-            initial={{ x: -50, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.1 + index * 0.1, duration: 0.5 }}
+            key="selection"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.3 }}
+            className="p-6 space-y-6"
           >
-            <Card className="bg-white/80 backdrop-blur-sm border-orange-100 overflow-hidden">
-              <CardContent className="p-0">
-                <div className={`bg-gradient-to-r ${exercise.color} p-4 text-white`}>
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-xl font-bold">{exercise.name}</h3>
-                    <div className="flex space-x-1">
-                      {getDifficultyStars(exercise.difficulty)}
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-4 text-sm">
-                    <div className="flex items-center">
-                      <Clock className="w-4 h-4 mr-1" />
-                      {exercise.duration}
-                    </div>
-                    <div className="flex items-center">
-                      <Target className="w-4 h-4 mr-1" />
-                      Level {exercise.difficulty}
-                    </div>
-                  </div>
-                </div>
-                <div className="p-4">
-                  <p className="text-gray-600 mb-4">{exercise.description}</p>
-                  <Button
-                    className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold py-2 rounded-lg"
+            {/* Header */}
+            <div className="text-center pt-4">
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">Choose Your Workout</h2>
+              <p className="text-gray-600">Select a plank exercise to get started</p>
+            </div>
+
+            {/* Exercise Cards */}
+            <div className="space-y-4">
+              {exercises?.map((exercise, index) => (
+                <ExerciseCard
+                  key={exercise.id}
+                  exercise={exercise}
+                  index={index}
+                  onStart={handleStartExercise}
+                  onViewDetails={handleViewDetails}
+                />
+              ))}
+            </div>
+
+            {/* Quick Start */}
+            <motion.div
+              initial={{ y: 30, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.6, duration: 0.6 }}
+            >
+              <Card className="bg-gradient-to-br from-gray-800 to-gray-900 text-white border-0">
+                <CardContent className="p-6 text-center">
+                  <h3 className="text-lg font-bold mb-2">Quick 1-Minute Session</h3>
+                  <p className="text-gray-300 mb-4">Not sure what to choose? Start with our recommended daily routine</p>
+                  <Button 
+                    onClick={handleQuickStart}
+                    className="bg-white text-gray-800 hover:bg-gray-100 font-semibold py-2 px-6 rounded-lg"
                   >
                     <Play className="w-4 h-4 mr-2" />
-                    Start Exercise
+                    Quick Start
                   </Button>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </motion.div>
           </motion.div>
-        ))}
-      </div>
+        )}
 
-      {/* Quick Start */}
-      <motion.div
-        initial={{ y: 30, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.6, duration: 0.6 }}
-      >
-        <Card className="bg-gradient-to-br from-gray-800 to-gray-900 text-white border-0">
-          <CardContent className="p-6 text-center">
-            <h3 className="text-lg font-bold mb-2">Quick 5-Minute Session</h3>
-            <p className="text-gray-300 mb-4">Not sure what to choose? Start with our recommended daily routine</p>
-            <Button className="bg-white text-gray-800 hover:bg-gray-100 font-semibold py-2 px-6 rounded-lg">
-              <Play className="w-4 h-4 mr-2" />
-              Quick Start
-            </Button>
-          </CardContent>
-        </Card>
-      </motion.div>
-    </motion.div>
+        {workoutState === 'setup' && selectedExercise && (
+          <motion.div
+            key="setup"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <TimerSetup
+              exercise={selectedExercise}
+              onStart={handleStartTimer}
+              onBack={handleBack}
+            />
+          </motion.div>
+        )}
+
+        {workoutState === 'timer' && selectedExercise && (
+          <motion.div
+            key="timer"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.3 }}
+          >
+            <PlankTimer
+              exercise={selectedExercise}
+              duration={timerDuration}
+              onComplete={handleTimerComplete}
+              onBack={handleBack}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Exercise Details Modal */}
+      <ExerciseDetailsModal
+        exercise={detailsExercise}
+        isOpen={detailsModalOpen}
+        onClose={() => setDetailsModalOpen(false)}
+        onStart={(exercise) => {
+          setDetailsModalOpen(false);
+          handleStartExercise(exercise);
+        }}
+      />
+    </div>
   );
 };
 

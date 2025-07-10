@@ -7,18 +7,32 @@ import { Card, CardContent } from "@/components/ui/card";
 const WorkoutTab = () => {
   const exercises = [
     {
-      name: "Basic Plank",
+      name: "Knee Plank",
+      difficulty: 1,
+      duration: "1-2 minutes",
+      description: "A beginner-friendly plank variation that reduces load while building core strength",
+      color: "from-green-400 to-green-500"
+    },
+    {
+      name: "Forearm Plank",
       difficulty: 1,
       duration: "1-2 minutes",
       description: "Perfect for beginners to build foundational core strength",
-      color: "from-green-400 to-green-500"
+      color: "from-emerald-400 to-emerald-500"
+    },
+    {
+      name: "High Plank",
+      difficulty: 2,
+      duration: "1-2 minutes",
+      description: "A push-up position plank that engages arms and shoulders more intensively",
+      color: "from-blue-400 to-blue-500"
     },
     {
       name: "Extended Plank",
       difficulty: 2,
       duration: "2-3 minutes",
       description: "Hold longer to challenge your endurance",
-      color: "from-blue-400 to-blue-500"
+      color: "from-cyan-400 to-cyan-500"
     },
     {
       name: "Side Plank",
@@ -33,6 +47,13 @@ const WorkoutTab = () => {
       duration: "3-5 minutes",
       description: "Dynamic movement combining plank and push-up",
       color: "from-orange-400 to-orange-500"
+    },
+    {
+      name: "Plank with Leg Lift",
+      difficulty: 5,
+      duration: "2-4 minutes",
+      description: "Advanced plank variation that challenges stability and core strength",
+      color: "from-red-400 to-red-500"
     }
   ];
 

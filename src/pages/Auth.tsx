@@ -72,7 +72,7 @@ const Auth = () => {
           options: {
             emailRedirectTo: `${window.location.origin}/`,
             data: {
-              full_name: formData.fullName,
+              full_name: formData.fullName || null, // Make full name optional
               username: formData.username,
             }
           }
@@ -127,18 +127,17 @@ const Auth = () => {
               {!isLogin && (
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">
-                    Full Name
+                    Full Name <span className="text-gray-400">(optional)</span>
                   </label>
                   <div className="relative">
                     <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       type="text"
                       name="fullName"
-                      placeholder="Enter your full name"
+                      placeholder="Enter your full name (optional)"
                       value={formData.fullName}
                       onChange={handleInputChange}
                       className="pl-10"
-                      required={!isLogin}
                     />
                   </div>
                 </div>

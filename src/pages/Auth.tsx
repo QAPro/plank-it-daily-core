@@ -16,7 +16,8 @@ const Auth = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    fullName: ''
+    fullName: '',
+    username: ''
   });
   
   const { toast } = useToast();
@@ -28,12 +29,34 @@ const Auth = () => {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email: formData.email,
-          password: formData.password,
-        });
+        // Check if the identifier is an email or username
+        const isEmail = formData.email.includes('@');
+        
+        if (isEmail) {
+          // Sign in with email
+          const { error } = await supabase.auth.signInWithPassword({
+            email: formData.email,
+            password: formData.password,
+          });
 
-        if (error) throw error;
+          if (error) throw error;
+        } else {
+          // Find user by username first
+          const { data: userData, error: userError } = await supabase
+            .rpc('find_user_by_username_or_email', { identifier: formData.email });
+
+          if (userError || !userData || userData.length === 0) {
+            throw new Error('Username not found');
+          }
+
+          // Sign in with the found email
+          const { error } = await supabase.auth.signInWithPassword({
+            email: userData[0].email,
+            password: formData.password,
+          });
+
+          if (error) throw error;
+        }
 
         toast({
           title: "Welcome back!",
@@ -42,6 +65,7 @@ const Auth = () => {
         
         navigate('/');
       } else {
+        // Sign up with username
         const { error } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
@@ -49,6 +73,7 @@ const Auth = () => {
             emailRedirectTo: `${window.location.origin}/`,
             data: {
               full_name: formData.fullName,
+              username: formData.username,
             }
           }
         });
@@ -118,17 +143,37 @@ const Auth = () => {
                   </div>
                 </div>
               )}
+
+              {!isLogin && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    Username
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      type="text"
+                      name="username"
+                      placeholder="Choose a unique username"
+                      value={formData.username}
+                      onChange={handleInputChange}
+                      className="pl-10"
+                      required={!isLogin}
+                    />
+                  </div>
+                </div>
+              )}
               
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">
-                  Email
+                  {isLogin ? 'Email or Username' : 'Email'}
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
-                    type="email"
+                    type={isLogin ? 'text' : 'email'}
                     name="email"
-                    placeholder="Enter your email"
+                    placeholder={isLogin ? 'Enter your email or username' : 'Enter your email'}
                     value={formData.email}
                     onChange={handleInputChange}
                     className="pl-10"

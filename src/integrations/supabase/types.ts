@@ -129,6 +129,7 @@ export type Database = {
           full_name: string | null
           id: string
           updated_at: string | null
+          username: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -137,6 +138,7 @@ export type Database = {
           full_name?: string | null
           id: string
           updated_at?: string | null
+          username?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -145,6 +147,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           updated_at?: string | null
+          username?: string | null
         }
         Relationships: []
       }
@@ -153,7 +156,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      find_user_by_username_or_email: {
+        Args: { identifier: string }
+        Returns: {
+          user_id: string
+          email: string
+          username: string
+          full_name: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

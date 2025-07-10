@@ -3,14 +3,90 @@ import { motion } from "framer-motion";
 import { User, Settings, HelpCircle, LogOut, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useState, useEffect } from "react";
 
 const ProfileTab = () => {
+  const { user, session } = useAuth();
+  const { toast } = useToast();
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
   const menuItems = [
     { icon: User, label: "Account Settings", description: "Manage your profile and preferences" },
     { icon: Settings, label: "App Settings", description: "Notifications, privacy, and more" },
     { icon: HelpCircle, label: "Help & Support", description: "Get help and contact support" },
     { icon: Shield, label: "Privacy Policy", description: "Learn about your data protection" }
   ];
+
+  useEffect(() => {
+    if (user) {
+      fetchUserProfile();
+    }
+  }, [user]);
+
+  const fetchUserProfile = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching user profile:', error);
+      } else if (data) {
+        setUserProfile(data);
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    }
+  };
+
+  const handleSignOut = async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      toast({
+        title: "Signed out successfully",
+        description: "You've been logged out of your account.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error signing out",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getDisplayName = () => {
+    if (userProfile?.full_name) {
+      return userProfile.full_name;
+    }
+    if (userProfile?.username) {
+      return `@${userProfile.username}`;
+    }
+    return user?.email || 'User';
+  };
+
+  const getSubtitle = () => {
+    if (userProfile?.username && userProfile?.full_name) {
+      return `@${userProfile.username}`;
+    }
+    if (user?.email) {
+      return user.email;
+    }
+    return 'Ready to start your plank journey?';
+  };
 
   return (
     <motion.div
@@ -36,10 +112,14 @@ const ProfileTab = () => {
             <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <User className="w-10 h-10 text-white" />
             </div>
-            <h3 className="text-xl font-bold mb-1">Guest User</h3>
-            <p className="text-orange-100 mb-4">Ready to start your plank journey?</p>
-            <Button className="bg-white text-orange-500 hover:bg-orange-50 font-semibold py-2 px-6 rounded-lg">
-              Sign In / Sign Up
+            <h3 className="text-xl font-bold mb-1">{getDisplayName()}</h3>
+            <p className="text-orange-100 mb-4">{getSubtitle()}</p>
+            <Button 
+              onClick={handleSignOut}
+              disabled={loading}
+              className="bg-white text-orange-500 hover:bg-orange-50 font-semibold py-2 px-6 rounded-lg"
+            >
+              {loading ? 'Signing out...' : 'Sign Out'}
             </Button>
           </CardContent>
         </Card>

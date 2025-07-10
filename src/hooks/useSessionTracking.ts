@@ -2,18 +2,33 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Exercise = Tables<'plank_exercises'>;
 
+interface MilestoneEvent {
+  milestone: {
+    days: number;
+    title: string;
+    description: string;
+  };
+  isNewMilestone: boolean;
+}
+
 export const useSessionTracking = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const saveSession = async (exercise: Exercise, durationSeconds: number, notes?: string) => {
+  const saveSession = async (
+    exercise: Exercise,
+    durationSeconds: number,
+    notes?: string
+  ): Promise<MilestoneEvent | null> => {
     if (!user) {
       console.log('No user found, skipping session save');
-      return;
+      return null;
     }
 
     try {
@@ -33,17 +48,23 @@ export const useSessionTracking = () => {
           description: "Failed to save your workout session.",
           variant: "destructive",
         });
-        return;
+        return null;
       }
 
-      // Update streak
-      await updateStreak();
+      // Update streak and check for milestones
+      const milestoneEvent = await updateStreak();
+
+      // Invalidate related queries
+      queryClient.invalidateQueries({ queryKey: ['session-history'] });
+      queryClient.invalidateQueries({ queryKey: ['session-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['user-streak'] });
 
       toast({
         title: "Session Saved!",
         description: `Your ${exercise.name} session has been recorded.`,
       });
 
+      return milestoneEvent;
     } catch (error) {
       console.error('Error saving session:', error);
       toast({
@@ -51,11 +72,12 @@ export const useSessionTracking = () => {
         description: "Failed to save your workout session.",
         variant: "destructive",
       });
+      return null;
     }
   };
 
-  const updateStreak = async () => {
-    if (!user) return;
+  const updateStreak = async (): Promise<MilestoneEvent | null> => {
+    if (!user) return null;
 
     try {
       const today = new Date().toISOString().split('T')[0];
@@ -68,7 +90,7 @@ export const useSessionTracking = () => {
 
       if (fetchError) {
         console.error('Error fetching streak:', fetchError);
-        return;
+        return null;
       }
 
       if (!streak) {
@@ -85,7 +107,16 @@ export const useSessionTracking = () => {
         if (insertError) {
           console.error('Error creating streak:', insertError);
         }
-        return;
+
+        // Return first milestone event
+        return {
+          milestone: {
+            days: 1,
+            title: "First Step",
+            description: "Your journey begins!"
+          },
+          isNewMilestone: true
+        };
       }
 
       const lastWorkoutDate = streak.last_workout_date;
@@ -94,10 +125,11 @@ export const useSessionTracking = () => {
       const yesterdayStr = yesterday.toISOString().split('T')[0];
 
       let newCurrentStreak = streak.current_streak || 0;
+      const previousStreak = newCurrentStreak;
 
       if (lastWorkoutDate === today) {
         // Already worked out today, don't update streak
-        return;
+        return null;
       } else if (lastWorkoutDate === yesterdayStr) {
         // Consecutive day, increment streak
         newCurrentStreak += 1;
@@ -120,10 +152,35 @@ export const useSessionTracking = () => {
 
       if (updateError) {
         console.error('Error updating streak:', updateError);
+        return null;
       }
 
+      // Check for milestone achievement
+      const milestones = [
+        { days: 1, title: "First Step", description: "Your journey begins!" },
+        { days: 3, title: "First Steps", description: "You're building the habit!" },
+        { days: 7, title: "Week Warrior", description: "One week strong!" },
+        { days: 14, title: "Two Week Champion", description: "You're on fire!" },
+        { days: 30, title: "Monthly Master", description: "Incredible dedication!" },
+        { days: 60, title: "Unstoppable", description: "You're a plank legend!" },
+        { days: 100, title: "Century Club", description: "Welcome to elite status!" },
+      ];
+
+      const achievedMilestone = milestones.find(m => 
+        m.days === newCurrentStreak && previousStreak < m.days
+      );
+
+      if (achievedMilestone) {
+        return {
+          milestone: achievedMilestone,
+          isNewMilestone: true
+        };
+      }
+
+      return null;
     } catch (error) {
       console.error('Error updating streak:', error);
+      return null;
     }
   };
 

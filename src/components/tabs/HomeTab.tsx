@@ -1,10 +1,11 @@
 
 import { motion } from "framer-motion";
-import { Play, Flame, Calendar, Trophy } from "lucide-react";
+import { Play, Calendar, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSessionStats } from "@/hooks/useSessionHistory";
 import { useAuth } from "@/contexts/AuthContext";
+import StreakDisplay from "@/components/StreakDisplay";
 
 const HomeTab = () => {
   const { data: stats } = useSessionStats();
@@ -28,12 +29,6 @@ const HomeTab = () => {
 
   // Use real data if available, otherwise show placeholder
   const displayStats = [
-    { 
-      icon: Flame, 
-      label: "Current Streak", 
-      value: "0 days", // This would come from user_streaks table
-      color: "text-orange-500" 
-    },
     { 
       icon: Calendar, 
       label: "This Week", 
@@ -82,8 +77,11 @@ const HomeTab = () => {
         <p className="text-gray-600">Ready for today's plank challenge?</p>
       </div>
 
+      {/* Streak Display */}
+      <StreakDisplay />
+
       {/* Quick Stats */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         {displayStats.map((stat, index) => (
           <motion.div
             key={stat.label}

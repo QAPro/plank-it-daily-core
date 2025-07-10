@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import WelcomeScreen from "@/components/WelcomeScreen";
 import Dashboard from "@/components/Dashboard";
+import { StreakProvider } from "@/components/StreakProvider";
 import { motion, AnimatePresence } from "framer-motion";
 
 const Index = () => {
@@ -47,15 +48,17 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
-      <AnimatePresence mode="wait">
-        {showWelcome ? (
-          <WelcomeScreen key="welcome" onGetStarted={handleGetStarted} />
-        ) : (
-          <Dashboard key="dashboard" isAuthenticated={true} />
-        )}
-      </AnimatePresence>
-    </div>
+    <StreakProvider>
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
+        <AnimatePresence mode="wait">
+          {showWelcome ? (
+            <WelcomeScreen key="welcome" onGetStarted={handleGetStarted} />
+          ) : (
+            <Dashboard key="dashboard" isAuthenticated={true} />
+          )}
+        </AnimatePresence>
+      </div>
+    </StreakProvider>
   );
 };
 

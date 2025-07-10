@@ -48,6 +48,25 @@ const HomeTab = () => {
     }
   ];
 
+  // Get the user's full name from user_metadata or email
+  const getUserDisplayName = () => {
+    if (!user) return '';
+    
+    // Try to get full_name from user_metadata
+    const fullName = user.user_metadata?.full_name;
+    if (fullName) {
+      return `, ${fullName.split(' ')[0]}`;
+    }
+    
+    // Fallback to email username
+    if (user.email) {
+      const emailUsername = user.email.split('@')[0];
+      return `, ${emailUsername}`;
+    }
+    
+    return '';
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -58,7 +77,7 @@ const HomeTab = () => {
       {/* Header */}
       <div className="text-center pt-4">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">
-          Welcome Back{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}!
+          Welcome Back{getUserDisplayName()}!
         </h2>
         <p className="text-gray-600">Ready for today's plank challenge?</p>
       </div>

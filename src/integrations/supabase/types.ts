@@ -14,7 +14,140 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      plank_exercises: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          difficulty_level: number
+          id: string
+          image_url: string | null
+          instructions: string[] | null
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          difficulty_level: number
+          id?: string
+          image_url?: string | null
+          instructions?: string[] | null
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          difficulty_level?: number
+          id?: string
+          image_url?: string | null
+          instructions?: string[] | null
+          name?: string
+        }
+        Relationships: []
+      }
+      user_sessions: {
+        Row: {
+          completed_at: string | null
+          duration_seconds: number
+          exercise_id: string | null
+          id: string
+          notes: string | null
+          user_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          duration_seconds: number
+          exercise_id?: string | null
+          id?: string
+          notes?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          duration_seconds?: number
+          exercise_id?: string | null
+          id?: string
+          notes?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_sessions_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "plank_exercises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_streaks: {
+        Row: {
+          current_streak: number | null
+          id: string
+          last_workout_date: string | null
+          longest_streak: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          current_streak?: number | null
+          id?: string
+          last_workout_date?: string | null
+          longest_streak?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          current_streak?: number | null
+          id?: string
+          last_workout_date?: string | null
+          longest_streak?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_streaks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          email: string
+          full_name: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email: string
+          full_name?: string | null
+          id: string
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

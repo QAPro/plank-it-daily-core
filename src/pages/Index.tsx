@@ -67,7 +67,7 @@ const Index = () => {
           {showWelcome ? (
             <WelcomeScreen key="welcome" onGetStarted={handleGetStarted} />
           ) : (
-            <Dashboard key="dashboard" isAuthenticated={true} />
+            <Dashboard key="dashboard" />
           )}
         </AnimatePresence>
       </div>

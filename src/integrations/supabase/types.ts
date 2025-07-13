@@ -44,6 +44,72 @@ export type Database = {
         }
         Relationships: []
       }
+      user_assessments: {
+        Row: {
+          assessment_type: string
+          created_at: string | null
+          difficulty_rating: number | null
+          duration_seconds: number
+          id: string
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          assessment_type?: string
+          created_at?: string | null
+          difficulty_rating?: number | null
+          duration_seconds: number
+          id?: string
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          assessment_type?: string
+          created_at?: string | null
+          difficulty_rating?: number | null
+          duration_seconds?: number
+          id?: string
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_onboarding: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          experience_level: string | null
+          fitness_level: number | null
+          goals: string[] | null
+          id: string
+          preferred_duration: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          experience_level?: string | null
+          fitness_level?: number | null
+          goals?: string[] | null
+          id?: string
+          preferred_duration?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          experience_level?: string | null
+          fitness_level?: number | null
+          goals?: string[] | null
+          id?: string
+          preferred_duration?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_sessions: {
         Row: {
           completed_at: string | null

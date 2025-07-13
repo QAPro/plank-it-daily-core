@@ -1,11 +1,17 @@
-
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
+import { AchievementService } from '@/services/achievementService';
 import type { Tables } from '@/integrations/supabase/types';
+import type { UserAchievement } from '@/hooks/useUserAchievements';
 
 type Exercise = Tables<'plank_exercises'>;
+
+interface SessionResult {
+  milestoneEvent: MilestoneEvent | null;
+  newAchievements: UserAchievement[];
+}
 
 interface MilestoneEvent {
   milestone: {
@@ -25,10 +31,10 @@ export const useSessionTracking = () => {
     exercise: Exercise,
     durationSeconds: number,
     notes?: string
-  ): Promise<MilestoneEvent | null> => {
+  ): Promise<SessionResult> => {
     if (!user) {
       console.log('No user found, skipping session save');
-      return null;
+      return { milestoneEvent: null, newAchievements: [] };
     }
 
     try {
@@ -48,23 +54,28 @@ export const useSessionTracking = () => {
           description: "Failed to save your workout session.",
           variant: "destructive",
         });
-        return null;
+        return { milestoneEvent: null, newAchievements: [] };
       }
 
       // Update streak and check for milestones
       const milestoneEvent = await updateStreak();
 
+      // Check for new achievements
+      const achievementService = new AchievementService(user.id);
+      const newAchievements = await achievementService.checkAchievements();
+
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: ['session-history'] });
       queryClient.invalidateQueries({ queryKey: ['session-stats'] });
       queryClient.invalidateQueries({ queryKey: ['user-streak'] });
+      queryClient.invalidateQueries({ queryKey: ['user-achievements'] });
 
       toast({
         title: "Session Saved!",
         description: `Your ${exercise.name} session has been recorded.`,
       });
 
-      return milestoneEvent;
+      return { milestoneEvent, newAchievements };
     } catch (error) {
       console.error('Error saving session:', error);
       toast({
@@ -72,7 +83,7 @@ export const useSessionTracking = () => {
         description: "Failed to save your workout session.",
         variant: "destructive",
       });
-      return null;
+      return { milestoneEvent: null, newAchievements: [] };
     }
   };
 

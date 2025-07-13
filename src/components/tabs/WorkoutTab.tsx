@@ -10,10 +10,22 @@ import ExerciseCard from "@/components/ExerciseCard";
 import ExerciseDetailsModal from "@/components/ExerciseDetailsModal";
 import TimerSetup from "@/components/TimerSetup";
 import PlankTimer from "@/components/PlankTimer";
+import StreakMilestone from "@/components/StreakMilestone";
+import AchievementNotification from "@/components/AchievementNotification";
 import type { Tables } from '@/integrations/supabase/types';
+import type { UserAchievement } from "@/hooks/useUserAchievements";
 
 type Exercise = Tables<'plank_exercises'>;
 type WorkoutState = 'selection' | 'setup' | 'timer';
+
+interface MilestoneEvent {
+  milestone: {
+    days: number;
+    title: string;
+    description: string;
+  };
+  isNewMilestone: boolean;
+}
 
 const WorkoutTab = () => {
   const [workoutState, setWorkoutState] = useState<WorkoutState>('selection');
@@ -21,6 +33,11 @@ const WorkoutTab = () => {
   const [timerDuration, setTimerDuration] = useState<number>(0);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [detailsExercise, setDetailsExercise] = useState<Exercise | null>(null);
+  
+  // Notification states
+  const [milestoneToShow, setMilestoneToShow] = useState<MilestoneEvent | null>(null);
+  const [achievementQueue, setAchievementQueue] = useState<UserAchievement[]>([]);
+  const [currentAchievement, setCurrentAchievement] = useState<UserAchievement | null>(null);
 
   const { data: exercises, isLoading, error } = useExercises();
   const { saveSession } = useSessionTracking();
@@ -42,7 +59,18 @@ const WorkoutTab = () => {
 
   const handleTimerComplete = async (timeElapsed: number) => {
     if (selectedExercise) {
-      await saveSession(selectedExercise, timeElapsed);
+      const result = await saveSession(selectedExercise, timeElapsed);
+      
+      // Handle milestone notification
+      if (result.milestoneEvent) {
+        setMilestoneToShow(result.milestoneEvent);
+      }
+      
+      // Handle achievement notifications
+      if (result.newAchievements.length > 0) {
+        setAchievementQueue(result.newAchievements);
+        setCurrentAchievement(result.newAchievements[0]);
+      }
     }
     
     // Return to selection after a short delay
@@ -51,6 +79,25 @@ const WorkoutTab = () => {
       setSelectedExercise(null);
       setTimerDuration(0);
     }, 3000);
+  };
+
+  const handleMilestoneClose = () => {
+    setMilestoneToShow(null);
+    // Show first achievement if any
+    if (achievementQueue.length > 0 && !currentAchievement) {
+      setCurrentAchievement(achievementQueue[0]);
+    }
+  };
+
+  const handleAchievementClose = () => {
+    const remaining = achievementQueue.slice(1);
+    setAchievementQueue(remaining);
+    
+    if (remaining.length > 0) {
+      setCurrentAchievement(remaining[0]);
+    } else {
+      setCurrentAchievement(null);
+    }
   };
 
   const handleBack = () => {
@@ -186,6 +233,22 @@ const WorkoutTab = () => {
           handleStartExercise(exercise);
         }}
       />
+
+      {/* Milestone Notification */}
+      <StreakMilestone
+        milestone={milestoneToShow?.milestone || { days: 0, title: '', description: '' }}
+        onClose={handleMilestoneClose}
+        isVisible={!!milestoneToShow}
+      />
+
+      {/* Achievement Notification */}
+      {currentAchievement && (
+        <AchievementNotification
+          achievement={currentAchievement}
+          onClose={handleAchievementClose}
+          isVisible={!!currentAchievement}
+        />
+      )}
     </div>
   );
 };

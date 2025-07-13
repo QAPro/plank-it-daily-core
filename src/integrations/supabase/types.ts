@@ -44,6 +44,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_achievements: {
+        Row: {
+          achievement_name: string
+          achievement_type: string
+          description: string | null
+          earned_at: string | null
+          id: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          achievement_name: string
+          achievement_type: string
+          description?: string | null
+          earned_at?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          achievement_name?: string
+          achievement_type?: string
+          description?: string | null
+          earned_at?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_assessments: {
         Row: {
           assessment_type: string
@@ -107,6 +137,48 @@ export type Database = {
           preferred_duration?: number | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          created_at: string | null
+          difficulty_preference: string | null
+          haptic_feedback: boolean | null
+          id: string
+          preferred_workout_duration: number | null
+          reminder_time: string | null
+          sound_effects: boolean | null
+          theme_preference: string | null
+          updated_at: string | null
+          user_id: string
+          workout_reminders: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          difficulty_preference?: string | null
+          haptic_feedback?: boolean | null
+          id?: string
+          preferred_workout_duration?: number | null
+          reminder_time?: string | null
+          sound_effects?: boolean | null
+          theme_preference?: string | null
+          updated_at?: string | null
+          user_id: string
+          workout_reminders?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          difficulty_preference?: string | null
+          haptic_feedback?: boolean | null
+          id?: string
+          preferred_workout_duration?: number | null
+          reminder_time?: string | null
+          sound_effects?: boolean | null
+          theme_preference?: string | null
+          updated_at?: string | null
+          user_id?: string
+          workout_reminders?: boolean | null
         }
         Relationships: []
       }

@@ -1,51 +1,26 @@
 
 import { motion } from "framer-motion";
-import { User, Settings, HelpCircle, LogOut, Shield } from "lucide-react";
+import { Settings, HelpCircle, LogOut, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import ProfileHeader from "@/components/profile/ProfileHeader";
+import AccountStats from "@/components/profile/AccountStats";
+import PreferencesSettings from "@/components/profile/PreferencesSettings";
 
 const ProfileTab = () => {
   const { user, session } = useAuth();
   const { toast } = useToast();
-  const [userProfile, setUserProfile] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
   const menuItems = [
-    { icon: User, label: "Account Settings", description: "Manage your profile and preferences" },
     { icon: Settings, label: "App Settings", description: "Notifications, privacy, and more" },
     { icon: HelpCircle, label: "Help & Support", description: "Get help and contact support" },
     { icon: Shield, label: "Privacy Policy", description: "Learn about your data protection" }
   ];
-
-  useEffect(() => {
-    if (user) {
-      fetchUserProfile();
-    }
-  }, [user]);
-
-  const fetchUserProfile = async () => {
-    if (!user) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching user profile:', error);
-      } else if (data) {
-        setUserProfile(data);
-      }
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-    }
-  };
 
   const handleSignOut = async () => {
     setLoading(true);
@@ -68,26 +43,6 @@ const ProfileTab = () => {
     }
   };
 
-  const getDisplayName = () => {
-    if (userProfile?.full_name) {
-      return userProfile.full_name;
-    }
-    if (userProfile?.username) {
-      return `@${userProfile.username}`;
-    }
-    return user?.email || 'User';
-  };
-
-  const getSubtitle = () => {
-    if (userProfile?.username && userProfile?.full_name) {
-      return `@${userProfile.username}`;
-    }
-    if (user?.email) {
-      return user.email;
-    }
-    return 'Ready to start your plank journey?';
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -101,38 +56,36 @@ const ProfileTab = () => {
         <p className="text-gray-600">Manage your account and settings</p>
       </div>
 
-      {/* User Info */}
+      {/* Profile Header */}
+      <ProfileHeader />
+
+      {/* Account Statistics */}
       <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.1, duration: 0.5 }}
+        initial={{ y: 30, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2, duration: 0.5 }}
       >
-        <Card className="bg-gradient-to-br from-orange-500 to-amber-500 text-white border-0">
-          <CardContent className="p-6 text-center">
-            <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <User className="w-10 h-10 text-white" />
-            </div>
-            <h3 className="text-xl font-bold mb-1">{getDisplayName()}</h3>
-            <p className="text-orange-100 mb-4">{getSubtitle()}</p>
-            <Button 
-              onClick={handleSignOut}
-              disabled={loading}
-              className="bg-white text-orange-500 hover:bg-orange-50 font-semibold py-2 px-6 rounded-lg"
-            >
-              {loading ? 'Signing out...' : 'Sign Out'}
-            </Button>
-          </CardContent>
-        </Card>
+        <AccountStats />
+      </motion.div>
+
+      {/* Preferences Settings */}
+      <motion.div
+        initial={{ y: 30, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+      >
+        <PreferencesSettings />
       </motion.div>
 
       {/* Menu Items */}
       <div className="space-y-3">
+        <h3 className="text-lg font-semibold text-gray-800">More Options</h3>
         {menuItems.map((item, index) => (
           <motion.div
             key={item.label}
             initial={{ x: -50, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.2 + index * 0.1, duration: 0.5 }}
+            transition={{ delay: 0.4 + index * 0.1, duration: 0.5 }}
           >
             <Card className="bg-white/80 backdrop-blur-sm border-orange-100 hover:shadow-md transition-shadow cursor-pointer">
               <CardContent className="p-4">
@@ -151,17 +104,33 @@ const ProfileTab = () => {
         ))}
       </div>
 
+      {/* Sign Out Button */}
+      <motion.div
+        initial={{ y: 30, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.7, duration: 0.5 }}
+        className="pt-4"
+      >
+        <Button 
+          onClick={handleSignOut}
+          disabled={loading}
+          variant="destructive"
+          className="w-full bg-red-500 hover:bg-red-600 text-white"
+        >
+          <LogOut className="w-4 h-4 mr-2" />
+          {loading ? 'Signing out...' : 'Sign Out'}
+        </Button>
+      </motion.div>
+
       {/* App Info */}
       <motion.div
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.6, duration: 0.6 }}
+        transition={{ delay: 0.8, duration: 0.6 }}
       >
         <Card className="bg-white/80 backdrop-blur-sm border-orange-100">
-          <CardHeader>
-            <CardTitle className="text-center text-lg">PlankIt</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center">
+          <CardContent className="p-4 text-center">
+            <h4 className="font-bold text-lg text-gray-800 mb-1">PlankIt</h4>
             <p className="text-sm text-gray-600 mb-2">Version 1.0.0</p>
             <p className="text-xs text-gray-500">
               Build your core strength, one plank at a time

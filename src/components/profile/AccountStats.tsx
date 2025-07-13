@@ -8,12 +8,12 @@ import { useUserAchievements } from "@/hooks/useUserAchievements";
 import { format } from "date-fns";
 
 const AccountStats = () => {
-  const { sessions } = useSessionHistory();
+  const { data: sessions } = useSessionHistory();
   const { streak } = useStreakTracking();
   const { achievements } = useUserAchievements();
 
-  const totalWorkouts = sessions.length;
-  const totalTime = sessions.reduce((acc, session) => acc + session.duration_seconds, 0);
+  const totalWorkouts = sessions?.length || 0;
+  const totalTime = sessions?.reduce((acc, session) => acc + session.duration_seconds, 0) || 0;
   const averageDuration = totalWorkouts > 0 ? Math.round(totalTime / totalWorkouts) : 0;
   const joinDate = format(new Date(), 'MMMM yyyy'); // This would be user creation date in real app
 

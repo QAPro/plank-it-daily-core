@@ -40,10 +40,10 @@ export const useUserPreferences = () => {
           workout_reminders: data.workout_reminders,
           reminder_time: data.reminder_time,
           preferred_workout_duration: data.preferred_workout_duration,
-          difficulty_preference: data.difficulty_preference,
+          difficulty_preference: data.difficulty_preference as 'beginner' | 'intermediate' | 'advanced',
           sound_effects: data.sound_effects,
           haptic_feedback: data.haptic_feedback,
-          theme_preference: data.theme_preference,
+          theme_preference: data.theme_preference as 'light' | 'dark' | 'system',
         });
       }
     } catch (error) {

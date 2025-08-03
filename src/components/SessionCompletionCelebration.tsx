@@ -1,10 +1,19 @@
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Star, Clock, Target, CheckCircle, X } from "lucide-react";
+import { Trophy, Star, Clock, X } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 import type { Tables } from '@/integrations/supabase/types';
+import type { UserAchievement } from '@/hooks/useUserAchievements';
+
+// Enhanced components
+import EnhancedConfetti from "@/components/celebration/EnhancedConfetti";
+import CelebrationStats from "@/components/celebration/CelebrationStats";
+import SocialShareButtons from "@/components/celebration/SocialShareButtons";
+import CelebrationActions from "@/components/celebration/CelebrationActions";
+import { SocialSharingService } from "@/services/socialSharingService";
 
 type Exercise = Tables<'plank_exercises'>;
 
@@ -15,6 +24,16 @@ interface SessionCompletionCelebrationProps {
   timeElapsed: number;
   onClose: () => void;
   onDoAgain?: () => void;
+  // Enhanced props
+  isPersonalBest?: boolean;
+  previousBest?: number;
+  caloriesEstimate?: number;
+  newAchievements?: UserAchievement[];
+  streakDays?: number;
+  milestoneEvent?: {
+    milestone: { days: number; title: string; description: string };
+    isNewMilestone: boolean;
+  };
 }
 
 const SessionCompletionCelebration = ({ 
@@ -23,53 +42,136 @@ const SessionCompletionCelebration = ({
   duration, 
   timeElapsed, 
   onClose,
-  onDoAgain 
+  onDoAgain,
+  isPersonalBest = false,
+  previousBest,
+  caloriesEstimate = 0,
+  newAchievements = [],
+  streakDays = 0,
+  milestoneEvent
 }: SessionCompletionCelebrationProps) => {
-  const [showConfetti, setShowConfetti] = useState(false);
-  const [currentMessage, setCurrentMessage] = useState(0);
+  const [animationPhase, setAnimationPhase] = useState<'initial' | 'stats' | 'achievements' | 'social'>('initial');
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  const [showAchievements, setShowAchievements] = useState(false);
+  const { toast } = useToast();
 
   const completionPercentage = Math.min((timeElapsed / duration) * 100, 100);
   const isFullCompletion = timeElapsed >= duration;
-  
-  const celebrationMessages = [
-    isFullCompletion ? "Amazing! You did it! 🎉" : "Great effort! 💪",
-    isFullCompletion ? "Perfect form and focus!" : "You're building strength!",
-    isFullCompletion ? "You're a plank champion!" : "Progress over perfection!"
-  ];
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  // Enhanced celebration messages based on performance
+  const getCelebrationMessages = () => {
+    if (isPersonalBest) {
+      return [
+        "🏆 NEW PERSONAL BEST! 🏆",
+        "You absolutely crushed it! 💪",
+        "Your dedication is paying off! 🌟"
+      ];
+    } else if (isFullCompletion) {
+      return [
+        "Amazing! You completed the full time! 🎉",
+        "Perfect form and focus! ⭐",
+        "You're getting stronger every day! 💪"
+      ];
+    } else if (completionPercentage >= 75) {
+      return [
+        "Great effort! You're building strength! 💪",
+        "Progress over perfection! 🎯",
+        "Every second counts! Keep going! 🚀"
+      ];
+    } else {
+      return [
+        "Good start! Every journey begins with one step! 🌱",
+        "You showed up - that's what matters! ⭐",
+        "Building the habit is key! 💪"
+      ];
+    }
   };
 
+  const celebrationMessages = getCelebrationMessages();
+
+  // Enhanced motivational quote system
+  const getMotivationalQuote = () => {
+    if (isPersonalBest) {
+      return "\"Champions don't become champions in the ring. They become champions in their training, miles away from any crowd.\" - Muhammad Ali";
+    } else if (milestoneEvent) {
+      return `\"Success is the sum of small efforts repeated day in and day out.\" You've proven this for ${milestoneEvent.milestone.days} days!`;
+    } else if (completionPercentage >= 75) {
+      return "\"Strength doesn't come from what you can do. It comes from overcoming what you thought you couldn't.\"";
+    } else {
+      return "\"It's not about perfect. It's about effort. And when you bring that effort every single day, that's where transformation happens.\"";
+    }
+  };
+
+  // Animation sequence management
   useEffect(() => {
     if (isVisible) {
-      setShowConfetti(true);
-      const timer = setTimeout(() => setShowConfetti(false), 4000);
+      // Phase 1: Initial celebration (0-3s)
+      setAnimationPhase('initial');
       
-      // Cycle through celebration messages
+      const timer1 = setTimeout(() => {
+        // Phase 2: Show detailed stats (3-6s)
+        setAnimationPhase('stats');
+        
+        // Show achievements if any
+        if (newAchievements.length > 0 || milestoneEvent) {
+          setTimeout(() => {
+            setShowAchievements(true);
+          }, 1000);
+        }
+      }, 3000);
+
+      const timer2 = setTimeout(() => {
+        // Phase 3: Show achievements prominently (6-9s)
+        setAnimationPhase('achievements');
+      }, 6000);
+
+      const timer3 = setTimeout(() => {
+        // Phase 4: Show social sharing options (9s+)
+        setAnimationPhase('social');
+      }, 9000);
+
+      // Message cycling
       const messageInterval = setInterval(() => {
-        setCurrentMessage((prev) => (prev + 1) % celebrationMessages.length);
-      }, 2000);
+        setCurrentMessageIndex((prev) => (prev + 1) % celebrationMessages.length);
+      }, 2500);
 
       return () => {
-        clearTimeout(timer);
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+        clearTimeout(timer3);
         clearInterval(messageInterval);
       };
     }
-  }, [isVisible, celebrationMessages.length]);
+  }, [isVisible, celebrationMessages.length, newAchievements.length, milestoneEvent]);
+
+  const getConfettiIntensity = () => {
+    if (isPersonalBest) return 'epic';
+    if (isFullCompletion) return 'high';
+    if (completionPercentage >= 75) return 'medium';
+    return 'low';
+  };
 
   const getCompletionGradient = () => {
-    if (isFullCompletion) {
+    if (isPersonalBest) {
+      return "from-yellow-400 via-orange-500 to-red-500";
+    } else if (isFullCompletion) {
       return "from-green-400 via-emerald-500 to-teal-500";
     } else if (completionPercentage >= 75) {
       return "from-blue-400 via-cyan-500 to-blue-600";
     } else if (completionPercentage >= 50) {
-      return "from-yellow-400 via-orange-500 to-amber-500";
-    } else {
       return "from-purple-400 via-pink-500 to-rose-500";
+    } else {
+      return "from-indigo-400 via-purple-500 to-pink-500";
     }
+  };
+
+  // Create share data
+  const shareData = {
+    exercise: exercise.name,
+    duration: timeElapsed,
+    achievement: newAchievements[0]?.achievement_name,
+    personalBest: isPersonalBest,
+    streakDays
   };
 
   return (
@@ -79,7 +181,7 @@ const SessionCompletionCelebration = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6"
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           onClick={(e) => e.target === e.currentTarget && onClose()}
         >
           <motion.div
@@ -87,70 +189,69 @@ const SessionCompletionCelebration = ({
             animate={{ scale: 1, rotate: 0 }}
             exit={{ scale: 0, rotate: 10 }}
             transition={{ type: "spring", damping: 15, stiffness: 300 }}
-            className="relative max-w-md w-full"
+            className="relative max-w-md w-full max-h-[90vh] overflow-y-auto"
           >
-            {/* Confetti Effect */}
-            {showConfetti && (
-              <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl">
-                {[...Array(30)].map((_, i) => (
-                  <motion.div
-                    key={i}
-                    className="absolute w-3 h-3 rounded-full"
-                    style={{
-                      backgroundColor: [
-                        '#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', 
-                        '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8'
-                      ][i % 8],
-                      left: '50%',
-                      top: '50%',
-                    }}
-                    initial={{
-                      x: 0,
-                      y: 0,
-                      scale: 0,
-                      rotate: 0,
-                    }}
-                    animate={{
-                      x: (Math.random() - 0.5) * 600,
-                      y: (Math.random() - 0.5) * 600,
-                      scale: [0, 1, 0.5, 0],
-                      rotate: 360 * 3,
-                    }}
-                    transition={{
-                      duration: 3,
-                      delay: i * 0.05,
-                      ease: "easeOut",
-                    }}
-                  />
-                ))}
-              </div>
-            )}
+            {/* Enhanced Confetti */}
+            <EnhancedConfetti 
+              isActive={animationPhase === 'initial'} 
+              intensity={getConfettiIntensity()}
+              duration={6000}
+            />
 
-            <Card className={`bg-gradient-to-br ${getCompletionGradient()} text-white border-0 shadow-2xl`}>
-              <CardContent className="p-8 text-center relative">
+            <Card className={`bg-gradient-to-br ${getCompletionGradient()} text-white border-0 shadow-2xl relative overflow-hidden`}>
+              {/* Animated background pattern */}
+              <div className="absolute inset-0 opacity-10">
+                <motion.div
+                  animate={{
+                    rotate: 360,
+                    scale: [1, 1.1, 1]
+                  }}
+                  transition={{
+                    rotate: { duration: 20, repeat: Infinity, ease: "linear" },
+                    scale: { duration: 4, repeat: Infinity }
+                  }}
+                  className="w-full h-full"
+                  style={{
+                    backgroundImage: `radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                                     radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                                     radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%)`
+                  }}
+                />
+              </div>
+
+              <CardContent className="p-6 text-center relative z-10">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={onClose}
-                  className="absolute top-4 right-4 text-white hover:bg-white/20"
+                  className="absolute top-2 right-2 text-white hover:bg-white/20 z-20"
                 >
                   <X className="w-4 h-4" />
                 </Button>
 
-                {/* Main Icon */}
+                {/* Dynamic Main Icon with enhanced animation */}
                 <motion.div
                   animate={{ 
-                    scale: [1, 1.2, 1],
-                    rotate: [0, 10, -10, 0]
+                    scale: animationPhase === 'initial' ? [1, 1.3, 1] : [1, 1.1, 1],
+                    rotate: animationPhase === 'initial' ? [0, 15, -15, 0] : [0, 5, -5, 0]
                   }}
                   transition={{ 
-                    duration: 2, 
+                    duration: animationPhase === 'initial' ? 1 : 2, 
                     repeat: Infinity,
                     repeatType: "reverse"
                   }}
-                  className="mb-6"
+                  className="mb-4"
                 >
-                  {isFullCompletion ? (
+                  {isPersonalBest ? (
+                    <div className="relative">
+                      <Trophy className="w-16 h-16 mx-auto text-yellow-200" />
+                      <motion.div
+                        animate={{ scale: [0, 1.5, 0] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="absolute inset-0 border-4 border-yellow-300 rounded-full opacity-30"
+                      />
+                    </div>
+                  ) : isFullCompletion ? (
                     <Trophy className="w-16 h-16 mx-auto text-yellow-200" />
                   ) : (
                     <Star className="w-16 h-16 mx-auto text-yellow-200" />
@@ -159,105 +260,142 @@ const SessionCompletionCelebration = ({
 
                 {/* Dynamic Celebration Message */}
                 <motion.h2
-                  key={currentMessage}
+                  key={currentMessageIndex}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.5 }}
-                  className="text-3xl font-bold mb-4"
+                  className="text-2xl md:text-3xl font-bold mb-3"
                 >
-                  {celebrationMessages[currentMessage]}
+                  {celebrationMessages[currentMessageIndex]}
                 </motion.h2>
 
-                {/* Exercise Name */}
-                <p className="text-xl font-semibold mb-6 opacity-90">
-                  {exercise.name} Complete!
-                </p>
-
-                {/* Stats Grid */}
-                <div className="grid grid-cols-3 gap-4 mb-6">
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.3 }}
-                    className="bg-white/20 rounded-xl p-3"
-                  >
-                    <Clock className="w-6 h-6 mx-auto mb-2" />
-                    <div className="text-lg font-bold">{formatTime(timeElapsed)}</div>
-                    <div className="text-xs opacity-80">Time</div>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.4 }}
-                    className="bg-white/20 rounded-xl p-3"
-                  >
-                    <Target className="w-6 h-6 mx-auto mb-2" />
-                    <div className="text-lg font-bold">{Math.round(completionPercentage)}%</div>
-                    <div className="text-xs opacity-80">Complete</div>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.5 }}
-                    className="bg-white/20 rounded-xl p-3"
-                  >
-                    <CheckCircle className="w-6 h-6 mx-auto mb-2" />
-                    <div className="text-lg font-bold">L{exercise.difficulty_level}</div>
-                    <div className="text-xs opacity-80">Level</div>
-                  </motion.div>
-                </div>
-
-                {/* Progress Bar */}
-                <div className="w-full bg-white/20 rounded-full h-3 mb-6">
-                  <motion.div
-                    className="bg-white rounded-full h-3"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${completionPercentage}%` }}
-                    transition={{ duration: 1, delay: 0.6 }}
-                  />
-                </div>
-
-                {/* Motivational Quote */}
-                <motion.div
+                {/* Exercise Name with level */}
+                <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 1 }}
-                  className="bg-white/10 rounded-lg p-4 mb-6"
+                  transition={{ delay: 0.3 }}
+                  className="text-lg font-semibold mb-4 opacity-90"
                 >
-                  <p className="text-sm italic">
-                    {isFullCompletion 
-                      ? "\"Strength doesn't come from what you can do. It comes from overcoming the things you once thought you couldn't.\"" 
-                      : "\"Every second you held that plank was a victory. Keep building on it!\""}
+                  {exercise.name} • Level {exercise.difficulty_level} Complete!
+                </motion.p>
+
+                {/* Enhanced Stats Display */}
+                <AnimatePresence>
+                  {animationPhase !== 'initial' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6 }}
+                    >
+                      <CelebrationStats
+                        duration={timeElapsed}
+                        exercise={exercise}
+                        isPersonalBest={isPersonalBest}
+                        previousBest={previousBest}
+                        caloriesEstimate={caloriesEstimate}
+                        completionPercentage={completionPercentage}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Progress Bar - Enhanced */}
+                <div className="w-full bg-white/20 rounded-full h-3 mb-4 overflow-hidden">
+                  <motion.div
+                    className="bg-white rounded-full h-3 relative"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${completionPercentage}%` }}
+                    transition={{ duration: 1.5, delay: 0.6 }}
+                  >
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-50"
+                      animate={{ x: [-100, 200] }}
+                      transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+                    />
+                  </motion.div>
+                </div>
+
+                {/* Milestone Event */}
+                <AnimatePresence>
+                  {milestoneEvent && showAchievements && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      className="bg-yellow-400/20 border border-yellow-300/30 rounded-lg p-3 mb-4"
+                    >
+                      <div className="text-yellow-100 font-bold text-lg">
+                        🎉 {milestoneEvent.milestone.title}!
+                      </div>
+                      <div className="text-yellow-200 text-sm">
+                        {milestoneEvent.milestone.description}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* New Achievements Display */}
+                <AnimatePresence>
+                  {newAchievements.length > 0 && showAchievements && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      className="mb-4"
+                    >
+                      {newAchievements.slice(0, 3).map((achievement, index) => (
+                        <motion.div
+                          key={achievement.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.2 }}
+                          className="bg-white/10 rounded-lg p-3 mb-2 border border-white/20"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="font-semibold text-sm">
+                                🏆 {achievement.achievement_name}
+                              </div>
+                              <div className="text-xs opacity-80">
+                                {achievement.description}
+                              </div>
+                            </div>
+                            <div className="text-2xl">
+                              {achievement.metadata?.icon || '🎖️'}
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Enhanced Motivational Quote */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: animationPhase === 'achievements' ? 1 : 0.7 }}
+                  transition={{ delay: animationPhase === 'achievements' ? 0.5 : 1 }}
+                  className="bg-white/10 rounded-lg p-4 mb-4 border border-white/20"
+                >
+                  <p className="text-sm italic leading-relaxed">
+                    {getMotivationalQuote()}
                   </p>
                 </motion.div>
 
-                {/* Action Buttons */}
-                <motion.div
-                  initial={{ y: 30, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 1.2 }}
-                  className="space-y-3"
-                >
-                  <Button
-                    onClick={onClose}
-                    className="w-full bg-white text-gray-800 hover:bg-gray-100 font-semibold py-3 rounded-xl text-lg"
-                  >
-                    Awesome! 🎉
-                  </Button>
-                  
-                  {onDoAgain && (
-                    <Button
-                      onClick={onDoAgain}
-                      variant="outline"
-                      className="w-full border-white text-white hover:bg-white/20 py-3 rounded-xl"
-                    >
-                      Do it Again
-                    </Button>
+                {/* Social Sharing */}
+                <AnimatePresence>
+                  {animationPhase === 'social' && (
+                    <SocialShareButtons shareData={shareData} />
                   )}
-                </motion.div>
+                </AnimatePresence>
+
+                {/* Enhanced Action Buttons */}
+                <CelebrationActions
+                  onClose={onClose}
+                  onDoAgain={onDoAgain}
+                  exerciseName={exercise.name}
+                />
               </CardContent>
             </Card>
           </motion.div>

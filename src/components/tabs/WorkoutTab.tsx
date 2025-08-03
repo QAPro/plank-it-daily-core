@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play } from "lucide-react";
@@ -6,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useExercises } from "@/hooks/useExercises";
 import { useSessionTracking } from "@/hooks/useSessionTracking";
+import { useEnhancedSessionTracking } from "@/hooks/useEnhancedSessionTracking";
 import ExerciseCard from "@/components/ExerciseCard";
 import ExerciseDetailsModal from "@/components/ExerciseDetailsModal";
 import TimerSetup from "@/components/TimerSetup";
@@ -40,7 +40,7 @@ const WorkoutTab = () => {
   const [currentAchievement, setCurrentAchievement] = useState<UserAchievement | null>(null);
 
   const { data: exercises, isLoading, error } = useExercises();
-  const { saveSession } = useSessionTracking();
+  const { saveEnhancedSession } = useEnhancedSessionTracking();
 
   const handleStartExercise = (exercise: Exercise) => {
     setSelectedExercise(exercise);
@@ -59,7 +59,11 @@ const WorkoutTab = () => {
 
   const handleTimerComplete = async (timeElapsed: number) => {
     if (selectedExercise) {
-      const result = await saveSession(selectedExercise, timeElapsed);
+      const result = await saveEnhancedSession({
+        exercise: selectedExercise,
+        durationSeconds: timeElapsed,
+        notes: `Completed ${selectedExercise.name} workout`
+      });
       
       // Handle milestone notification
       if (result.milestoneEvent) {

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import SessionCompletionCelebration from "@/components/SessionCompletionCelebration";
@@ -7,6 +6,7 @@ import TimerControls from "@/components/timer/TimerControls";
 import TimerTips from "@/components/timer/TimerTips";
 import { useTimerState } from "@/hooks/useTimerState";
 import { useTimerAudio } from "@/hooks/useTimerAudio";
+import { useEnhancedSessionTracking } from "@/hooks/useEnhancedSessionTracking";
 import type { Tables } from '@/integrations/supabase/types';
 
 type Exercise = Tables<'plank_exercises'>;
@@ -20,10 +20,25 @@ interface PlankTimerProps {
 
 const PlankTimer = ({ exercise, duration, onComplete, onBack }: PlankTimerProps) => {
   const [showCelebration, setShowCelebration] = useState(false);
+  const [sessionResult, setSessionResult] = useState<any>(null);
   const { soundEnabled, playCompletionSound, toggleSound } = useTimerAudio();
+  const { personalBests } = useEnhancedSessionTracking();
 
-  const handleComplete = (timeElapsed: number) => {
+  const handleComplete = async (timeElapsed: number) => {
     setShowCelebration(true);
+    
+    // Calculate enhanced session data
+    const previousBest = personalBests[exercise.id];
+    const isPersonalBest = !previousBest || timeElapsed > previousBest;
+    const caloriesEstimate = Math.round(2.5 * (1 + (exercise.difficulty_level - 1) * 0.2) * (timeElapsed / 60));
+    
+    setSessionResult({
+      isPersonalBest,
+      previousBest,
+      caloriesEstimate,
+      completionPercentage: Math.min((timeElapsed / duration) * 100, 100)
+    });
+    
     onComplete(timeElapsed);
   };
 
@@ -45,16 +60,29 @@ const PlankTimer = ({ exercise, duration, onComplete, onBack }: PlankTimerProps)
 
   const handleCelebrationClose = () => {
     setShowCelebration(false);
+    setSessionResult(null);
   };
 
   const handleDoAgain = () => {
     setShowCelebration(false);
+    setSessionResult(null);
     handleReset();
   };
 
   const handleStopWithCelebration = () => {
     handleStop();
     setShowCelebration(true);
+    
+    // Calculate session data for partial completion
+    const previousBest = personalBests[exercise.id];
+    const caloriesEstimate = Math.round(2.5 * (1 + (exercise.difficulty_level - 1) * 0.2) * (timeElapsed / 60));
+    
+    setSessionResult({
+      isPersonalBest: false,
+      previousBest,
+      caloriesEstimate,
+      completionPercentage: Math.min((timeElapsed / duration) * 100, 100)
+    });
   };
 
   return (
@@ -91,7 +119,7 @@ const PlankTimer = ({ exercise, duration, onComplete, onBack }: PlankTimerProps)
         <TimerTips state={state} />
       </motion.div>
 
-      {/* Session Completion Celebration */}
+      {/* Enhanced Session Completion Celebration */}
       <SessionCompletionCelebration
         isVisible={showCelebration}
         exercise={exercise}
@@ -99,6 +127,11 @@ const PlankTimer = ({ exercise, duration, onComplete, onBack }: PlankTimerProps)
         timeElapsed={timeElapsed}
         onClose={handleCelebrationClose}
         onDoAgain={handleDoAgain}
+        isPersonalBest={sessionResult?.isPersonalBest}
+        previousBest={sessionResult?.previousBest}
+        caloriesEstimate={sessionResult?.caloriesEstimate}
+        // Note: newAchievements and milestoneEvent would be passed from parent
+        // when integrated with the full session tracking system
       />
     </>
   );

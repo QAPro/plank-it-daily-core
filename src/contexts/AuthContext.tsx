@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     console.log('AuthProvider: Initializing auth state listener');
     
-    // Set up auth state listener
+    // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
@@ -62,13 +62,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     );
 
-    // Check for existing session
+    // Check for existing session after setting up the listener
     const checkSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        console.log('Initial session check:', session?.user?.email);
-        setSession(session);
-        setUser(session?.user ?? null);
+        console.log('Initial session check:', session?.user?.email || 'No session');
+        
+        // Only update state if we haven't already received it from the listener
+        if (session) {
+          setSession(session);
+          setUser(session.user);
+        }
         setLoading(false);
       } catch (error) {
         console.error('Session check error:', error);

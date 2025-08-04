@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
@@ -159,7 +158,7 @@ const Auth = () => {
         console.log('Sign up successful, email verification required');
         toast({
           title: "Account created!",
-          description: "Please check your email to verify your account before signing in.",
+          description: "Please check your email to verify your account before signing in. The verification link will redirect you back to this app.",
         });
 
         // Clear form and switch to login

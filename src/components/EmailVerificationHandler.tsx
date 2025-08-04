@@ -19,38 +19,100 @@ const EmailVerificationHandler = () => {
 
   useEffect(() => {
     const handleEmailVerification = async () => {
-      const token = searchParams.get('token');
-      const type = searchParams.get('type');
+      console.log('Starting email verification process...');
+      console.log('URL search params:', Object.fromEntries(searchParams.entries()));
+      console.log('Full URL:', window.location.href);
 
-      console.log('Email verification attempt:', { 
-        token: !!token, 
-        type, 
-        allParams: Object.fromEntries(searchParams.entries()) 
-      });
+      // Extract verification parameters from different possible formats
+      let verificationToken = '';
+      let verificationType = 'signup';
 
-      // Check for different possible parameter formats
-      const tokenHash = token || searchParams.get('token_hash');
-      const verificationType = type || searchParams.get('verification_type') || 'signup';
+      // Try different parameter names that Supabase might use
+      const possibleTokenParams = [
+        'token_hash',
+        'token',
+        'verification_token',
+        'hash'
+      ];
 
-      if (!tokenHash) {
-        console.error('No verification token found in URL parameters');
+      const possibleTypeParams = [
+        'type',
+        'verification_type',
+        'email_type'
+      ];
+
+      // Check search params first
+      for (const param of possibleTokenParams) {
+        const value = searchParams.get(param);
+        if (value) {
+          verificationToken = value;
+          console.log(`Found token in search param '${param}':`, verificationToken);
+          break;
+        }
+      }
+
+      for (const param of possibleTypeParams) {
+        const value = searchParams.get(param);
+        if (value) {
+          verificationType = value;
+          console.log(`Found type in search param '${param}':`, verificationType);
+          break;
+        }
+      }
+
+      // If no token in search params, check URL hash fragment
+      if (!verificationToken) {
+        const hash = window.location.hash.substring(1);
+        console.log('Checking URL hash fragment:', hash);
+        
+        if (hash) {
+          const hashParams = new URLSearchParams(hash);
+          console.log('Hash params:', Object.fromEntries(hashParams.entries()));
+          
+          for (const param of possibleTokenParams) {
+            const value = hashParams.get(param);
+            if (value) {
+              verificationToken = value;
+              console.log(`Found token in hash param '${param}':`, verificationToken);
+              break;
+            }
+          }
+
+          for (const param of possibleTypeParams) {
+            const value = hashParams.get(param);
+            if (value) {
+              verificationType = value;
+              console.log(`Found type in hash param '${param}':`, verificationType);
+              break;
+            }
+          }
+        }
+      }
+
+      if (!verificationToken) {
+        console.error('No verification token found in URL');
         setVerificationStatus('error');
-        setErrorMessage('Invalid verification link. The verification token is missing from the URL.');
+        setErrorMessage('Invalid verification link. The verification token is missing from the URL. Please try clicking the link in your email again or request a new verification email.');
         return;
       }
 
       try {
-        console.log('Attempting email verification with:', { tokenHash, verificationType });
+        console.log('Attempting email verification with token:', verificationToken.substring(0, 10) + '...');
+        console.log('Verification type:', verificationType);
 
         // Clean up any existing auth state before verification
         cleanupAuthState();
 
         const { data, error } = await supabase.auth.verifyOtp({
-          token_hash: tokenHash,
+          token_hash: verificationToken,
           type: verificationType as any
         });
 
-        console.log('Verification result:', { data, error });
+        console.log('Verification result:', { 
+          success: !!data?.user, 
+          userEmail: data?.user?.email,
+          error: error?.message 
+        });
 
         if (error) {
           console.error('Email verification error:', error);
@@ -82,7 +144,7 @@ const EmailVerificationHandler = () => {
 
           // Redirect to dashboard after a brief delay
           setTimeout(() => {
-            window.location.href = '/';
+            navigate('/');
           }, 2000);
         } else {
           console.warn('Verification returned no error but no user data');

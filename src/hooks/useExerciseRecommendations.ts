@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { SmartRecommendationsService } from '@/services/smartRecommendationsService';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Exercise = Tables<'plank_exercises'>;
@@ -53,45 +54,52 @@ export const useExerciseRecommendations = () => {
     mutationFn: async () => {
       if (!user) throw new Error('User not authenticated');
 
-      // Fetch user preferences and performance data
-      const [prefsResult, performanceResult, exercisesResult] = await Promise.all([
-        supabase.from('user_preferences').select('*').eq('user_id', user.id).single(),
-        supabase.from('user_exercise_performance').select('*').eq('user_id', user.id),
-        supabase.from('plank_exercises').select('*').order('difficulty_level')
-      ]);
-
-      if (prefsResult.error || exercisesResult.error) {
-        throw new Error('Failed to fetch user data');
-      }
-
-      const preferences = prefsResult.data as UserPreferences;
-      const performance = performanceResult.data as ExercisePerformance[];
-      const exercises = exercisesResult.data as Exercise[];
-
       // Clear existing recommendations
       await supabase
         .from('user_exercise_recommendations')
         .delete()
         .eq('user_id', user.id);
 
-      // Generate new recommendations based on user data
-      const recommendations = generateSmartRecommendations(preferences, performance, exercises);
+      // Use the smart recommendations service
+      const smartService = new SmartRecommendationsService(user.id);
+      const smartRecommendations = await smartService.generateSmartRecommendations();
 
-      // Insert new recommendations
+      // Handle rest day recommendation
+      if (smartRecommendations.length === 1 && smartRecommendations[0].rest_recommendation) {
+        return { restDay: true, recommendations: [] };
+      }
+
+      // Convert to database format and insert
+      const dbRecommendations = smartRecommendations.map(rec => ({
+        user_id: user.id,
+        exercise_id: rec.exercise_id,
+        recommendation_type: rec.recommendation_type,
+        confidence_score: rec.confidence_score,
+        reasoning: rec.reasoning,
+      }));
+
       const { error: insertError } = await supabase
         .from('user_exercise_recommendations')
-        .insert(recommendations);
+        .insert(dbRecommendations);
 
       if (insertError) throw insertError;
 
-      return recommendations;
+      return { restDay: false, recommendations: dbRecommendations };
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['exercise-recommendations'] });
-      toast({
-        title: "Recommendations Updated",
-        description: "Your personalized exercise recommendations have been refreshed!",
-      });
+      
+      if (result.restDay) {
+        toast({
+          title: "Rest Day Recommended",
+          description: "Your body needs recovery. Take a well-deserved break!",
+        });
+      } else {
+        toast({
+          title: "Recommendations Updated",
+          description: "Your personalized exercise recommendations have been refreshed!",
+        });
+      }
     },
     onError: (error) => {
       console.error('Error generating recommendations:', error);
@@ -103,84 +111,84 @@ export const useExerciseRecommendations = () => {
     },
   });
 
+  // Legacy smart recommendation algorithm for fallback
+  const generateSmartRecommendations = (
+    preferences: UserPreferences,
+    performance: ExercisePerformance[],
+    exercises: Exercise[]
+  ): Omit<ExerciseRecommendation, 'id' | 'created_at' | 'expires_at'>[] => {
+    const recommendations: Omit<ExerciseRecommendation, 'id' | 'created_at' | 'expires_at'>[] = [];
+    const performanceMap = new Map(performance.map(p => [p.exercise_id, p]));
+
+    exercises.forEach(exercise => {
+      const userPerformance = performanceMap.get(exercise.id);
+      const isFavorite = preferences.favorite_exercises?.includes(exercise.id);
+      const isAvoided = preferences.avoided_exercises?.includes(exercise.id);
+
+      if (isAvoided) return; // Skip avoided exercises
+
+      let recommendationType: string | null = null;
+      let confidenceScore = 0;
+      let reasoning = '';
+
+      // Beginner-friendly recommendation
+      if (preferences.difficulty_preference === 'beginner' && exercise.is_beginner_friendly) {
+        recommendationType = 'beginner_friendly';
+        confidenceScore = 0.8;
+        reasoning = 'Perfect for your current fitness level';
+      }
+
+      // Progressive challenge - fix the type comparison issue
+      if (userPerformance && userPerformance.success_rate > 0.7) {
+        const currentExerciseDifficulty = exercises.find(e => e.id === userPerformance.exercise_id)?.difficulty_level || 1;
+        const nextLevel = currentExerciseDifficulty + 1;
+        if (nextLevel <= 5 && exercise.difficulty_level === nextLevel) {
+          recommendationType = 'progressive_challenge';
+          confidenceScore = 0.9;
+          reasoning = 'Ready to level up based on your performance';
+        }
+      }
+
+      // Variety boost
+      if (!userPerformance && exercise.difficulty_level <= getDifficultyLevel(preferences.difficulty_preference)) {
+        recommendationType = 'variety_boost';
+        confidenceScore = 0.6;
+        reasoning = 'Add variety to your workout routine';
+      }
+
+      // Skill building
+      if (exercise.primary_muscles && exercise.primary_muscles.includes('core')) {
+        recommendationType = 'skill_building';
+        confidenceScore = 0.7;
+        reasoning = 'Excellent for core strength development';
+      }
+
+      // Favorite boost
+      if (isFavorite) {
+        confidenceScore = Math.min(confidenceScore + 0.2, 1.0);
+        reasoning += ' (One of your favorites!)';
+      }
+
+      if (recommendationType && confidenceScore > 0) {
+        recommendations.push({
+          user_id: preferences.user_id,
+          exercise_id: exercise.id,
+          recommendation_type: recommendationType,
+          confidence_score: confidenceScore,
+          reasoning: reasoning,
+        });
+      }
+    });
+
+    return recommendations.sort((a, b) => b.confidence_score - a.confidence_score);
+  };
+
   return {
     recommendations,
     isLoading,
     generateRecommendations: generateRecommendationsMutation.mutate,
     isGenerating: generateRecommendationsMutation.isPending,
   };
-};
-
-// Smart recommendation algorithm
-const generateSmartRecommendations = (
-  preferences: UserPreferences,
-  performance: ExercisePerformance[],
-  exercises: Exercise[]
-): Omit<ExerciseRecommendation, 'id' | 'created_at' | 'expires_at'>[] => {
-  const recommendations: Omit<ExerciseRecommendation, 'id' | 'created_at' | 'expires_at'>[] = [];
-  const performanceMap = new Map(performance.map(p => [p.exercise_id, p]));
-
-  exercises.forEach(exercise => {
-    const userPerformance = performanceMap.get(exercise.id);
-    const isFavorite = preferences.favorite_exercises?.includes(exercise.id);
-    const isAvoided = preferences.avoided_exercises?.includes(exercise.id);
-
-    if (isAvoided) return; // Skip avoided exercises
-
-    let recommendationType: string | null = null;
-    let confidenceScore = 0;
-    let reasoning = '';
-
-    // Beginner-friendly recommendation
-    if (preferences.difficulty_preference === 'beginner' && exercise.is_beginner_friendly) {
-      recommendationType = 'beginner_friendly';
-      confidenceScore = 0.8;
-      reasoning = 'Perfect for your current fitness level';
-    }
-
-    // Progressive challenge - fix the type comparison issue
-    if (userPerformance && userPerformance.success_rate > 0.7) {
-      const currentExerciseDifficulty = exercises.find(e => e.id === userPerformance.exercise_id)?.difficulty_level || 1;
-      const nextLevel = currentExerciseDifficulty + 1;
-      if (nextLevel <= 5 && exercise.difficulty_level === nextLevel) {
-        recommendationType = 'progressive_challenge';
-        confidenceScore = 0.9;
-        reasoning = 'Ready to level up based on your performance';
-      }
-    }
-
-    // Variety boost
-    if (!userPerformance && exercise.difficulty_level <= getDifficultyLevel(preferences.difficulty_preference)) {
-      recommendationType = 'variety_boost';
-      confidenceScore = 0.6;
-      reasoning = 'Add variety to your workout routine';
-    }
-
-    // Skill building
-    if (exercise.primary_muscles && exercise.primary_muscles.includes('core')) {
-      recommendationType = 'skill_building';
-      confidenceScore = 0.7;
-      reasoning = 'Excellent for core strength development';
-    }
-
-    // Favorite boost
-    if (isFavorite) {
-      confidenceScore = Math.min(confidenceScore + 0.2, 1.0);
-      reasoning += ' (One of your favorites!)';
-    }
-
-    if (recommendationType && confidenceScore > 0) {
-      recommendations.push({
-        user_id: preferences.user_id,
-        exercise_id: exercise.id,
-        recommendation_type: recommendationType,
-        confidence_score: confidenceScore,
-        reasoning: reasoning,
-      });
-    }
-  });
-
-  return recommendations.sort((a, b) => b.confidence_score - a.confidence_score);
 };
 
 const getDifficultyLevel = (preference: string): number => {

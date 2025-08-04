@@ -1,13 +1,18 @@
 
 import { motion } from "framer-motion";
-import { Play, Calendar, Trophy } from "lucide-react";
+import { Play, Calendar, Trophy, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSessionStats } from "@/hooks/useSessionHistory";
 import { useAuth } from "@/contexts/AuthContext";
 import StreakDisplay from "@/components/StreakDisplay";
+import RecommendationsDashboard from "@/components/RecommendationsDashboard";
 
-const HomeTab = () => {
+interface HomeTabProps {
+  onExerciseSelect?: (exerciseId: string) => void;
+}
+
+const HomeTab = ({ onExerciseSelect }: HomeTabProps) => {
   const { data: stats } = useSessionStats();
   const { user } = useAuth();
 
@@ -100,32 +105,13 @@ const HomeTab = () => {
         ))}
       </div>
 
-      {/* Today's Workout */}
+      {/* Smart Recommendations Dashboard */}
       <motion.div
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.4, duration: 0.6 }}
       >
-        <Card className="bg-gradient-to-br from-orange-500 to-amber-500 text-white border-0 shadow-xl">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-xl font-bold">Today's Challenge</h3>
-                <p className="text-orange-100">Basic Plank Hold</p>
-              </div>
-              <div className="text-right">
-                <p className="text-2xl font-bold">5:00</p>
-                <p className="text-orange-100 text-sm">minutes</p>
-              </div>
-            </div>
-            <Button
-              className="w-full bg-white text-orange-500 hover:bg-orange-50 font-semibold py-3 rounded-xl"
-            >
-              <Play className="w-5 h-5 mr-2" />
-              Start Workout
-            </Button>
-          </CardContent>
-        </Card>
+        <RecommendationsDashboard onExerciseSelect={onExerciseSelect} />
       </motion.div>
 
       {/* Progress Summary */}
@@ -133,7 +119,7 @@ const HomeTab = () => {
         <motion.div
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.6, duration: 0.6 }}
+          transition={{ delay: 0.8, duration: 0.6 }}
         >
           <h3 className="text-lg font-semibold text-gray-800 mb-3">Your Progress</h3>
           <Card className="bg-white/80 backdrop-blur-sm border-orange-100">
@@ -155,7 +141,7 @@ const HomeTab = () => {
         <motion.div
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.6, duration: 0.6 }}
+          transition={{ delay: 0.8, duration: 0.6 }}
         >
           <h3 className="text-lg font-semibold text-gray-800 mb-3">Recent Activity</h3>
           <Card className="bg-white/80 backdrop-blur-sm border-orange-100">

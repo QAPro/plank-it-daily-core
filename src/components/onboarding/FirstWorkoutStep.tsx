@@ -34,7 +34,7 @@ const FirstWorkoutStep = ({ data, onNext, onBack }: FirstWorkoutStepProps) => {
 
   const targetTime = getTargetTime();
 
-  // Mock exercise for celebration component
+  // Complete mock exercise for celebration component with all required properties
   const mockExercise = {
     id: 'onboarding-plank',
     name: 'First Plank',
@@ -42,7 +42,13 @@ const FirstWorkoutStep = ({ data, onNext, onBack }: FirstWorkoutStepProps) => {
     description: 'Your first plank workout',
     created_at: new Date().toISOString(),
     image_url: null,
-    instructions: null
+    instructions: ['Hold plank position', 'Keep core tight', 'Breathe steadily'],
+    category: 'core_strength',
+    equipment_needed: [],
+    estimated_calories_per_minute: 2.5,
+    is_beginner_friendly: true,
+    primary_muscles: ['core', 'abdominals'],
+    tags: ['beginner', 'core']
   };
 
   const handleComplete = () => {

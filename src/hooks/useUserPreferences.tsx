@@ -12,6 +12,10 @@ export interface UserPreferences {
   sound_effects: boolean;
   haptic_feedback: boolean;
   theme_preference: 'light' | 'dark' | 'system';
+  favorite_exercises: string[];
+  avoided_exercises: string[];
+  auto_progression: boolean;
+  progression_sensitivity: number;
 }
 
 export const useUserPreferences = () => {
@@ -44,6 +48,10 @@ export const useUserPreferences = () => {
           sound_effects: data.sound_effects,
           haptic_feedback: data.haptic_feedback,
           theme_preference: data.theme_preference as 'light' | 'dark' | 'system',
+          favorite_exercises: data.favorite_exercises || [],
+          avoided_exercises: data.avoided_exercises || [],
+          auto_progression: data.auto_progression,
+          progression_sensitivity: data.progression_sensitivity,
         });
       }
     } catch (error) {

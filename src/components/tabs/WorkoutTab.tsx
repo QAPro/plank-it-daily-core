@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, Sparkles, RefreshCw } from "lucide-react";
@@ -251,6 +250,10 @@ const WorkoutTab = () => {
     }
   };
 
+  const handleRefreshRecommendations = () => {
+    generateRecommendations();
+  };
+
   if (exercisesLoading || recommendationsLoading) {
     return (
       <div className="p-6 flex items-center justify-center">
@@ -284,7 +287,7 @@ const WorkoutTab = () => {
               <div className="flex items-center justify-center gap-2 mb-2">
                 <h2 className="text-2xl font-bold text-gray-800">Smart Workout Selection</h2>
                 <Button
-                  onClick={generateRecommendations}
+                  onClick={handleRefreshRecommendations}
                   disabled={isGenerating}
                   size="sm"
                   variant="outline"

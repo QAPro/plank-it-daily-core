@@ -138,9 +138,10 @@ const generateSmartRecommendations = (
       reasoning = 'Perfect for your current fitness level';
     }
 
-    // Progressive challenge
+    // Progressive challenge - fix the type comparison issue
     if (userPerformance && userPerformance.success_rate > 0.7) {
-      const nextLevel = exercise.difficulty_level === userPerformance.exercise_id ? exercise.difficulty_level + 1 : exercise.difficulty_level;
+      const currentExerciseDifficulty = exercises.find(e => e.id === userPerformance.exercise_id)?.difficulty_level || 1;
+      const nextLevel = currentExerciseDifficulty + 1;
       if (nextLevel <= 5 && exercise.difficulty_level === nextLevel) {
         recommendationType = 'progressive_challenge';
         confidenceScore = 0.9;

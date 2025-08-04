@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
@@ -13,7 +12,7 @@ const EnhancedConfetti = ({
   intensity = 'medium', 
   duration = 4000 
 }: EnhancedConfettiProps) => {
-  const [particles, setParticles] = useState<Array<{ id: number; color: string; size: number }>>([]);
+  const [particles, setParticles] = useState<Array<{ id: number; color: string; size: number; shape: string }>>([]);
 
   const intensityConfig = {
     low: { count: 20, sizeRange: [2, 4] },

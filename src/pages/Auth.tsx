@@ -39,14 +39,36 @@ const Auth = () => {
             password: formData.password,
           });
 
-          if (error) throw error;
+          if (error) {
+            if (error.message.includes('Email not confirmed')) {
+              toast({
+                title: "Email not verified",
+                description: "Please check your email and click the verification link before signing in.",
+                variant: "destructive",
+              });
+            } else if (error.message.includes('Invalid login credentials')) {
+              toast({
+                title: "Invalid credentials",
+                description: "Please check your email and password and try again.",
+                variant: "destructive",
+              });
+            } else {
+              throw error;
+            }
+            return;
+          }
         } else {
           // Find user by username first
           const { data: userData, error: userError } = await supabase
             .rpc('find_user_by_username_or_email', { identifier: formData.email });
 
           if (userError || !userData || userData.length === 0) {
-            throw new Error('Username not found');
+            toast({
+              title: "Username not found",
+              description: "Please check your username or try signing in with your email instead.",
+              variant: "destructive",
+            });
+            return;
           }
 
           // Sign in with the found email
@@ -55,7 +77,18 @@ const Auth = () => {
             password: formData.password,
           });
 
-          if (error) throw error;
+          if (error) {
+            if (error.message.includes('Invalid login credentials')) {
+              toast({
+                title: "Invalid credentials",
+                description: "Please check your password and try again.",
+                variant: "destructive",
+              });
+            } else {
+              throw error;
+            }
+            return;
+          }
         }
 
         toast({
@@ -65,30 +98,56 @@ const Auth = () => {
         
         navigate('/');
       } else {
-        // Sign up with username
+        // Store email for potential verification resend
+        localStorage.setItem('pendingVerificationEmail', formData.email);
+
+        // Sign up with proper email redirect configuration
         const { error } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
           options: {
-            emailRedirectTo: `${window.location.origin}/`,
+            emailRedirectTo: `${window.location.origin}/auth/verify`,
             data: {
-              full_name: formData.fullName || null, // Make full name optional
+              full_name: formData.fullName || null,
               username: formData.username,
             }
           }
         });
 
-        if (error) throw error;
+        if (error) {
+          if (error.message.includes('User already registered')) {
+            toast({
+              title: "Account already exists",
+              description: "An account with this email already exists. Please sign in instead.",
+              variant: "destructive",
+            });
+            setIsLogin(true);
+          } else if (error.message.includes('Password should be at least')) {
+            toast({
+              title: "Weak password",
+              description: "Password should be at least 6 characters long.",
+              variant: "destructive",
+            });
+          } else {
+            throw error;
+          }
+          return;
+        }
 
         toast({
           title: "Account created!",
-          description: "Please check your email to verify your account.",
+          description: "Please check your email to verify your account before signing in.",
         });
+
+        // Clear form and switch to login
+        setFormData({ email: '', password: '', fullName: '', username: '' });
+        setIsLogin(true);
       }
     } catch (error: any) {
+      console.error('Auth error:', error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
     } finally {

@@ -10,6 +10,7 @@ import { useWebVitals } from "@/hooks/usePerformanceMonitoring";
 import { analytics } from "@/services/analyticsService";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import EmailVerify from "./pages/EmailVerify";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
 
@@ -42,6 +43,7 @@ const AppContent = () => {
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
+        <Route path="/auth/verify" element={<EmailVerify />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>

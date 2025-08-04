@@ -1,7 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 
-interface ValidationResult {
+export interface ValidationResult {
   category: string;
   test: string;
   status: 'pass' | 'fail' | 'warning';

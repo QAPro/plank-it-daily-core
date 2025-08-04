@@ -27,12 +27,20 @@ Object.defineProperty(window, 'matchMedia', {
   }),
 })
 
-// Mock IntersectionObserver
-global.IntersectionObserver = class IntersectionObserver {
-  constructor() {}
-  disconnect() {}
-  observe() {}
-  unobserve() {}
+// Mock IntersectionObserver with proper implementation
+global.IntersectionObserver = class MockIntersectionObserver implements IntersectionObserver {
+  readonly root: Element | null = null;
+  readonly rootMargin: string = '';
+  readonly thresholds: ReadonlyArray<number> = [];
+
+  constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {}
+  
+  disconnect(): void {}
+  observe(target: Element): void {}
+  unobserve(target: Element): void {}
+  takeRecords(): IntersectionObserverEntry[] {
+    return [];
+  }
 }
 
 // Mock ResizeObserver

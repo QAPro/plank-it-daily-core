@@ -39,23 +39,23 @@ const DevTools = () => {
   const getStatusBadgeVariant = (status: ValidationResult['status']) => {
     switch (status) {
       case 'pass':
-        return 'default';
+        return 'default' as const;
       case 'warning':
-        return 'secondary';
+        return 'secondary' as const;
       case 'fail':
-        return 'destructive';
+        return 'destructive' as const;
       default:
-        return 'outline';
+        return 'outline' as const;
     }
   };
 
-  const groupedResults = validationResults.reduce((acc, result) => {
+  const groupedResults = validationResults.reduce((acc: Record<string, ValidationResult[]>, result) => {
     if (!acc[result.category]) {
       acc[result.category] = [];
     }
     acc[result.category].push(result);
     return acc;
-  }, {} as Record<string, ValidationResult[]>);
+  }, {});
 
   const summary = {
     total: validationResults.length,

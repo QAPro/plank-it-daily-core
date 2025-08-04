@@ -1,10 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
-import { AchievementService } from '@/services/achievementService';
+import { EnhancedAchievementService } from '@/services/enhancedAchievementService';
 import type { Tables } from '@/integrations/supabase/types';
 import type { UserAchievement } from '@/hooks/useUserAchievements';
 
@@ -132,15 +131,18 @@ export const useEnhancedSessionTracking = () => {
       // Update streak and get milestone
       const milestoneEvent = await updateStreakWithEnhancement();
 
-      // Check for new achievements
-      const achievementService = new AchievementService(user.id);
-      const newAchievements = await achievementService.checkAchievements();
+      // Check for new achievements using enhanced service
+      const achievementService = new EnhancedAchievementService(user.id);
+      const regularAchievements = await achievementService.checkAchievements();
+      const specialAchievements = await achievementService.checkSpecialAchievements();
+      const newAchievements = [...regularAchievements, ...specialAchievements];
 
       // Invalidate queries
       queryClient.invalidateQueries({ queryKey: ['session-history'] });
       queryClient.invalidateQueries({ queryKey: ['session-stats'] });
       queryClient.invalidateQueries({ queryKey: ['user-streak'] });
       queryClient.invalidateQueries({ queryKey: ['user-achievements'] });
+      queryClient.invalidateQueries({ queryKey: ['achievement-progress'] });
 
       // Show success toast
       toast({
@@ -247,7 +249,7 @@ export const useEnhancedSessionTracking = () => {
         .eq('user_id', user.id);
 
       if (updateError) {
-        console.error('Error updating streak:', updateError);
+        console.error('Error updating enhanced streak:', updateError);
         return null;
       }
 

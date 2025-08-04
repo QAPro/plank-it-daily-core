@@ -62,32 +62,74 @@ export type Database = {
         }
         Relationships: []
       }
+      user_achievement_progress: {
+        Row: {
+          achievement_id: string
+          created_at: string | null
+          current_progress: number | null
+          id: string
+          last_updated: string | null
+          progress_data: Json | null
+          target_progress: number
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          created_at?: string | null
+          current_progress?: number | null
+          id?: string
+          last_updated?: string | null
+          progress_data?: Json | null
+          target_progress: number
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          created_at?: string | null
+          current_progress?: number | null
+          id?: string
+          last_updated?: string | null
+          progress_data?: Json | null
+          target_progress?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_achievements: {
         Row: {
           achievement_name: string
           achievement_type: string
+          category: string | null
           description: string | null
           earned_at: string | null
           id: string
           metadata: Json | null
+          points: number | null
+          rarity: string | null
           user_id: string
         }
         Insert: {
           achievement_name: string
           achievement_type: string
+          category?: string | null
           description?: string | null
           earned_at?: string | null
           id?: string
           metadata?: Json | null
+          points?: number | null
+          rarity?: string | null
           user_id: string
         }
         Update: {
           achievement_name?: string
           achievement_type?: string
+          category?: string | null
           description?: string | null
           earned_at?: string | null
           id?: string
           metadata?: Json | null
+          points?: number | null
+          rarity?: string | null
           user_id?: string
         }
         Relationships: []
@@ -193,6 +235,45 @@ export type Database = {
           id?: string
           reasoning?: string | null
           recommendation_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_monthly_stats: {
+        Row: {
+          created_at: string | null
+          exercises_tried: number | null
+          id: string
+          improvement_percentage: number | null
+          month_start: string
+          personal_bests: number | null
+          sessions_count: number | null
+          total_duration: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          exercises_tried?: number | null
+          id?: string
+          improvement_percentage?: number | null
+          month_start: string
+          personal_bests?: number | null
+          sessions_count?: number | null
+          total_duration?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          exercises_tried?: number | null
+          id?: string
+          improvement_percentage?: number | null
+          month_start?: string
+          personal_bests?: number | null
+          sessions_count?: number | null
+          total_duration?: number | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -363,6 +444,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_weekly_stats: {
+        Row: {
+          average_duration: number | null
+          created_at: string | null
+          days_active: number | null
+          id: string
+          sessions_count: number | null
+          total_duration: number | null
+          updated_at: string | null
+          user_id: string
+          week_start: string
+        }
+        Insert: {
+          average_duration?: number | null
+          created_at?: string | null
+          days_active?: number | null
+          id?: string
+          sessions_count?: number | null
+          total_duration?: number | null
+          updated_at?: string | null
+          user_id: string
+          week_start: string
+        }
+        Update: {
+          average_duration?: number | null
+          created_at?: string | null
+          days_active?: number | null
+          id?: string
+          sessions_count?: number | null
+          total_duration?: number | null
+          updated_at?: string | null
+          user_id?: string
+          week_start?: string
+        }
+        Relationships: []
       }
       users: {
         Row: {

@@ -1,13 +1,17 @@
-import { useState } from "react";
+
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play } from "lucide-react";
+import { Play, Sparkles, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useExercises } from "@/hooks/useExercises";
-import { useSessionTracking } from "@/hooks/useSessionTracking";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
+import { useExerciseRecommendations } from "@/hooks/useExerciseRecommendations";
+import { useExercisePerformance } from "@/hooks/useExercisePerformance";
 import { useEnhancedSessionTracking } from "@/hooks/useEnhancedSessionTracking";
-import ExerciseCard from "@/components/ExerciseCard";
+import EnhancedExerciseCard from "@/components/EnhancedExerciseCard";
 import ExerciseDetailsModal from "@/components/ExerciseDetailsModal";
+import ExerciseFilters, { FilterState } from "@/components/ExerciseFilters";
 import TimerSetup from "@/components/TimerSetup";
 import PlankTimer from "@/components/PlankTimer";
 import StreakMilestone from "@/components/StreakMilestone";
@@ -34,13 +38,120 @@ const WorkoutTab = () => {
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [detailsExercise, setDetailsExercise] = useState<Exercise | null>(null);
   
+  // Filter state
+  const [filters, setFilters] = useState<FilterState>({
+    search: '',
+    difficulty: [],
+    categories: [],
+    tags: [],
+    showFavoritesOnly: false,
+    showRecommendedOnly: false,
+    hasPerformanceData: null,
+    sortBy: 'name',
+    sortOrder: 'asc',
+  });
+  
   // Notification states
   const [milestoneToShow, setMilestoneToShow] = useState<MilestoneEvent | null>(null);
   const [achievementQueue, setAchievementQueue] = useState<UserAchievement[]>([]);
   const [currentAchievement, setCurrentAchievement] = useState<UserAchievement | null>(null);
 
-  const { data: exercises, isLoading, error } = useExercises();
+  const { data: exercises, isLoading: exercisesLoading, error: exercisesError } = useExercises();
+  const { preferences, updatePreferences } = useUserPreferences();
+  const { recommendations, isLoading: recommendationsLoading, generateRecommendations, isGenerating } = useExerciseRecommendations();
+  const { performanceData, updatePerformance } = useExercisePerformance();
   const { saveEnhancedSession } = useEnhancedSessionTracking();
+
+  // Memoized filtered and sorted exercises
+  const { filteredExercises, availableCategories, availableTags } = useMemo(() => {
+    if (!exercises) return { filteredExercises: [], availableCategories: [], availableTags: [] };
+
+    const recommendationMap = new Map(recommendations?.map(r => [r.exercise_id, r]) || []);
+    const performanceMap = new Map(performanceData?.map(p => [p.exercise_id, p]) || []);
+    const favorites = preferences?.favorite_exercises || [];
+
+    // Get available filter options
+    const categories = [...new Set(exercises.map(e => e.category).filter(Boolean))];
+    const tags = [...new Set(exercises.flatMap(e => e.tags || []))];
+
+    // Apply filters
+    let filtered = exercises.filter(exercise => {
+      // Search filter
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase();
+        const matchesSearch = 
+          exercise.name.toLowerCase().includes(searchLower) ||
+          exercise.description?.toLowerCase().includes(searchLower) ||
+          exercise.tags?.some(tag => tag.toLowerCase().includes(searchLower));
+        if (!matchesSearch) return false;
+      }
+
+      // Difficulty filter
+      if (filters.difficulty.length > 0) {
+        if (!filters.difficulty.includes(exercise.difficulty_level)) return false;
+      }
+
+      // Category filter
+      if (filters.categories.length > 0) {
+        if (!exercise.category || !filters.categories.includes(exercise.category)) return false;
+      }
+
+      // Tags filter
+      if (filters.tags.length > 0) {
+        if (!exercise.tags || !filters.tags.some(tag => exercise.tags?.includes(tag))) return false;
+      }
+
+      // Favorites filter
+      if (filters.showFavoritesOnly) {
+        if (!favorites.includes(exercise.id)) return false;
+      }
+
+      // Recommendations filter
+      if (filters.showRecommendedOnly) {
+        if (!recommendationMap.has(exercise.id)) return false;
+      }
+
+      // Performance data filter
+      if (filters.hasPerformanceData !== null) {
+        const hasPerformance = performanceMap.has(exercise.id);
+        if (filters.hasPerformanceData !== hasPerformance) return false;
+      }
+
+      return true;
+    });
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let compareValue = 0;
+      
+      switch (filters.sortBy) {
+        case 'name':
+          compareValue = a.name.localeCompare(b.name);
+          break;
+        case 'difficulty':
+          compareValue = a.difficulty_level - b.difficulty_level;
+          break;
+        case 'recommendation':
+          const aRec = recommendationMap.get(a.id);
+          const bRec = recommendationMap.get(b.id);
+          compareValue = (bRec?.confidence_score || 0) - (aRec?.confidence_score || 0);
+          break;
+        case 'performance':
+          const aPerf = performanceMap.get(a.id);
+          const bPerf = performanceMap.get(b.id);
+          compareValue = (bPerf?.best_duration_seconds || 0) - (aPerf?.best_duration_seconds || 0);
+          break;
+      }
+
+      return filters.sortOrder === 'desc' ? -compareValue : compareValue;
+    });
+
+    return {
+      filteredExercises: filtered,
+      availableCategories: categories,
+      availableTags: tags,
+    };
+  }, [exercises, recommendations, performanceData, preferences, filters]);
 
   const handleStartExercise = (exercise: Exercise) => {
     setSelectedExercise(exercise);
@@ -65,6 +176,12 @@ const WorkoutTab = () => {
         notes: `Completed ${selectedExercise.name} workout`
       });
       
+      // Update performance tracking
+      updatePerformance({
+        exerciseId: selectedExercise.id,
+        durationSeconds: timeElapsed,
+      });
+      
       // Handle milestone notification
       if (result.milestoneEvent) {
         setMilestoneToShow(result.milestoneEvent);
@@ -85,9 +202,21 @@ const WorkoutTab = () => {
     }, 3000);
   };
 
+  const handleToggleFavorite = async (exerciseId: string) => {
+    if (!preferences) return;
+    
+    const currentFavorites = preferences.favorite_exercises || [];
+    const isFavorite = currentFavorites.includes(exerciseId);
+    
+    const newFavorites = isFavorite
+      ? currentFavorites.filter(id => id !== exerciseId)
+      : [...currentFavorites, exerciseId];
+    
+    await updatePreferences({ favorite_exercises: newFavorites });
+  };
+
   const handleMilestoneClose = () => {
     setMilestoneToShow(null);
-    // Show first achievement if any
     if (achievementQueue.length > 0 && !currentAchievement) {
       setCurrentAchievement(achievementQueue[0]);
     }
@@ -114,7 +243,6 @@ const WorkoutTab = () => {
   };
 
   const handleQuickStart = () => {
-    // Quick start with forearm plank for 60 seconds
     const forearmPlank = exercises?.find(ex => ex.name.toLowerCase().includes('forearm'));
     if (forearmPlank) {
       setSelectedExercise(forearmPlank);
@@ -123,7 +251,7 @@ const WorkoutTab = () => {
     }
   };
 
-  if (isLoading) {
+  if (exercisesLoading || recommendationsLoading) {
     return (
       <div className="p-6 flex items-center justify-center">
         <div className="text-orange-600 text-lg">Loading exercises...</div>
@@ -131,7 +259,7 @@ const WorkoutTab = () => {
     );
   }
 
-  if (error) {
+  if (exercisesError) {
     return (
       <div className="p-6 flex items-center justify-center">
         <div className="text-red-600 text-lg">Error loading exercises. Please try again.</div>
@@ -151,23 +279,83 @@ const WorkoutTab = () => {
             transition={{ duration: 0.3 }}
             className="p-6 space-y-6"
           >
-            {/* Header */}
+            {/* Header with Smart Recommendations */}
             <div className="text-center pt-4">
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">Choose Your Workout</h2>
-              <p className="text-gray-600">Select a plank exercise to get started</p>
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <h2 className="text-2xl font-bold text-gray-800">Smart Workout Selection</h2>
+                <Button
+                  onClick={generateRecommendations}
+                  disabled={isGenerating}
+                  size="sm"
+                  variant="outline"
+                  className="text-xs"
+                >
+                  {isGenerating ? (
+                    <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-3 h-3 mr-1" />
+                  )}
+                  Refresh Recommendations
+                </Button>
+              </div>
+              <p className="text-gray-600">Personalized exercises based on your progress and preferences</p>
             </div>
+
+            {/* Filters */}
+            <ExerciseFilters
+              exercises={exercises || []}
+              filters={filters}
+              onFiltersChange={setFilters}
+              availableCategories={availableCategories}
+              availableTags={availableTags}
+              hasRecommendations={!!recommendations?.length}
+            />
 
             {/* Exercise Cards */}
             <div className="space-y-4">
-              {exercises?.map((exercise, index) => (
-                <ExerciseCard
-                  key={exercise.id}
-                  exercise={exercise}
-                  index={index}
-                  onStart={handleStartExercise}
-                  onViewDetails={handleViewDetails}
-                />
-              ))}
+              {filteredExercises.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">No exercises match your current filters.</p>
+                  <Button
+                    variant="outline"
+                    onClick={() => setFilters({
+                      search: '',
+                      difficulty: [],
+                      categories: [],
+                      tags: [],
+                      showFavoritesOnly: false,
+                      showRecommendedOnly: false,
+                      hasPerformanceData: null,
+                      sortBy: 'name',
+                      sortOrder: 'asc',
+                    })}
+                    className="mt-2"
+                  >
+                    Clear Filters
+                  </Button>
+                </div>
+              ) : (
+                filteredExercises.map((exercise, index) => {
+                  const recommendation = recommendations?.find(r => r.exercise_id === exercise.id);
+                  const performance = performanceData?.find(p => p.exercise_id === exercise.id);
+                  const isFavorite = preferences?.favorite_exercises?.includes(exercise.id) || false;
+
+                  return (
+                    <EnhancedExerciseCard
+                      key={exercise.id}
+                      exercise={exercise}
+                      index={index}
+                      onStart={handleStartExercise}
+                      onViewDetails={handleViewDetails}
+                      performance={performance}
+                      recommendationType={recommendation?.recommendation_type}
+                      confidenceScore={recommendation?.confidence_score}
+                      isFavorite={isFavorite}
+                      onToggleFavorite={handleToggleFavorite}
+                    />
+                  );
+                })
+              )}
             </div>
 
             {/* Quick Start */}

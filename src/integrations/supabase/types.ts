@@ -10,37 +10,55 @@ export type Database = {
   // Allows to automatically instanciate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.3 (519615d)"
+    PostgrestVersion: "12.2.12 (cd3cf9e)"
   }
   public: {
     Tables: {
       plank_exercises: {
         Row: {
+          category: string | null
           created_at: string | null
           description: string | null
           difficulty_level: number
+          equipment_needed: string[] | null
+          estimated_calories_per_minute: number | null
           id: string
           image_url: string | null
           instructions: string[] | null
+          is_beginner_friendly: boolean | null
           name: string
+          primary_muscles: string[] | null
+          tags: string[] | null
         }
         Insert: {
+          category?: string | null
           created_at?: string | null
           description?: string | null
           difficulty_level: number
+          equipment_needed?: string[] | null
+          estimated_calories_per_minute?: number | null
           id?: string
           image_url?: string | null
           instructions?: string[] | null
+          is_beginner_friendly?: boolean | null
           name: string
+          primary_muscles?: string[] | null
+          tags?: string[] | null
         }
         Update: {
+          category?: string | null
           created_at?: string | null
           description?: string | null
           difficulty_level?: number
+          equipment_needed?: string[] | null
+          estimated_calories_per_minute?: number | null
           id?: string
           image_url?: string | null
           instructions?: string[] | null
+          is_beginner_friendly?: boolean | null
           name?: string
+          primary_muscles?: string[] | null
+          tags?: string[] | null
         }
         Relationships: []
       }
@@ -104,6 +122,81 @@ export type Database = {
         }
         Relationships: []
       }
+      user_exercise_performance: {
+        Row: {
+          average_duration_seconds: number
+          best_duration_seconds: number
+          created_at: string
+          difficulty_rating: number | null
+          exercise_id: string
+          id: string
+          last_session_at: string | null
+          success_rate: number | null
+          total_sessions: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          average_duration_seconds?: number
+          best_duration_seconds?: number
+          created_at?: string
+          difficulty_rating?: number | null
+          exercise_id: string
+          id?: string
+          last_session_at?: string | null
+          success_rate?: number | null
+          total_sessions?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          average_duration_seconds?: number
+          best_duration_seconds?: number
+          created_at?: string
+          difficulty_rating?: number | null
+          exercise_id?: string
+          id?: string
+          last_session_at?: string | null
+          success_rate?: number | null
+          total_sessions?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_exercise_recommendations: {
+        Row: {
+          confidence_score: number
+          created_at: string
+          exercise_id: string
+          expires_at: string
+          id: string
+          reasoning: string | null
+          recommendation_type: string
+          user_id: string
+        }
+        Insert: {
+          confidence_score?: number
+          created_at?: string
+          exercise_id: string
+          expires_at?: string
+          id?: string
+          reasoning?: string | null
+          recommendation_type: string
+          user_id: string
+        }
+        Update: {
+          confidence_score?: number
+          created_at?: string
+          exercise_id?: string
+          expires_at?: string
+          id?: string
+          reasoning?: string | null
+          recommendation_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_onboarding: {
         Row: {
           completed_at: string | null
@@ -142,11 +235,15 @@ export type Database = {
       }
       user_preferences: {
         Row: {
+          auto_progression: boolean | null
+          avoided_exercises: string[] | null
           created_at: string | null
           difficulty_preference: string | null
+          favorite_exercises: string[] | null
           haptic_feedback: boolean | null
           id: string
           preferred_workout_duration: number | null
+          progression_sensitivity: number | null
           reminder_time: string | null
           sound_effects: boolean | null
           theme_preference: string | null
@@ -155,11 +252,15 @@ export type Database = {
           workout_reminders: boolean | null
         }
         Insert: {
+          auto_progression?: boolean | null
+          avoided_exercises?: string[] | null
           created_at?: string | null
           difficulty_preference?: string | null
+          favorite_exercises?: string[] | null
           haptic_feedback?: boolean | null
           id?: string
           preferred_workout_duration?: number | null
+          progression_sensitivity?: number | null
           reminder_time?: string | null
           sound_effects?: boolean | null
           theme_preference?: string | null
@@ -168,11 +269,15 @@ export type Database = {
           workout_reminders?: boolean | null
         }
         Update: {
+          auto_progression?: boolean | null
+          avoided_exercises?: string[] | null
           created_at?: string | null
           difficulty_preference?: string | null
+          favorite_exercises?: string[] | null
           haptic_feedback?: boolean | null
           id?: string
           preferred_workout_duration?: number | null
+          progression_sensitivity?: number | null
           reminder_time?: string | null
           sound_effects?: boolean | null
           theme_preference?: string | null

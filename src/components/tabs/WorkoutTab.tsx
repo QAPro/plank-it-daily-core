@@ -93,21 +93,36 @@ const WorkoutTab = () => {
   // Convert simple filters to the format expected by ExerciseFilters
   const convertToFilterState = (simpleFilters: SimpleFilters) => ({
     search: simpleFilters.searchTerm,
-    difficulty: [simpleFilters.difficulty],
+    difficulty: simpleFilters.difficulty === 'all' ? [] : [parseInt(simpleFilters.difficulty)],
     categories: simpleFilters.category === 'all' ? [] : [simpleFilters.category],
     tags: [],
     showFavoritesOnly: false,
+    showRecommendedOnly: false,
+    hasPerformanceData: null,
     sortBy: 'name' as const,
     sortOrder: 'asc' as const
   });
 
   const handleFiltersChange = (newFilters: any) => {
     setFilters({
-      difficulty: newFilters.difficulty?.[0] || 'all',
-      category: newFilters.categories?.[0] || 'all',
+      difficulty: newFilters.difficulty?.length > 0 ? newFilters.difficulty[0].toString() : 'all',
+      category: newFilters.categories?.length > 0 ? newFilters.categories[0] : 'all',
       searchTerm: newFilters.search || '',
     });
   };
+
+  // Get available categories and tags for the filters
+  const availableCategories = useMemo(() => {
+    if (!exercises) return [];
+    const categories = new Set(exercises.map(ex => ex.category).filter(Boolean));
+    return Array.from(categories);
+  }, [exercises]);
+
+  const availableTags = useMemo(() => {
+    if (!exercises) return [];
+    const tags = new Set(exercises.flatMap(ex => ex.tags || []).filter(Boolean));
+    return Array.from(tags);
+  }, [exercises]);
 
   if (exercisesLoading || recommendationsLoading) {
     return (
@@ -246,8 +261,12 @@ const WorkoutTab = () => {
             transition={{ delay: 0.3, duration: 0.5 }}
           >
             <ExerciseFilters 
+              exercises={exercises || []}
               filters={convertToFilterState(filters)} 
-              onFiltersChange={handleFiltersChange} 
+              onFiltersChange={handleFiltersChange}
+              availableCategories={availableCategories}
+              availableTags={availableTags}
+              hasRecommendations={!!recommendations && recommendations.length > 0}
             />
           </motion.div>
 

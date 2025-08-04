@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, Loader2, Mail } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { cleanupAuthState } from '@/utils/authCleanup';
 
 const EmailVerificationHandler = () => {
   const [searchParams] = useSearchParams();
@@ -21,18 +22,32 @@ const EmailVerificationHandler = () => {
       const token = searchParams.get('token');
       const type = searchParams.get('type');
 
-      console.log('Email verification attempt:', { token: !!token, type });
+      console.log('Email verification attempt:', { 
+        token: !!token, 
+        type, 
+        allParams: Object.fromEntries(searchParams.entries()) 
+      });
 
-      if (!token || type !== 'signup') {
+      // Check for different possible parameter formats
+      const tokenHash = token || searchParams.get('token_hash');
+      const verificationType = type || searchParams.get('verification_type') || 'signup';
+
+      if (!tokenHash) {
+        console.error('No verification token found in URL parameters');
         setVerificationStatus('error');
-        setErrorMessage('Invalid verification link. The link may be malformed or missing required parameters.');
+        setErrorMessage('Invalid verification link. The verification token is missing from the URL.');
         return;
       }
 
       try {
+        console.log('Attempting email verification with:', { tokenHash, verificationType });
+
+        // Clean up any existing auth state before verification
+        cleanupAuthState();
+
         const { data, error } = await supabase.auth.verifyOtp({
-          token_hash: token,
-          type: 'signup'
+          token_hash: tokenHash,
+          type: verificationType as any
         });
 
         console.log('Verification result:', { data, error });
@@ -42,30 +57,43 @@ const EmailVerificationHandler = () => {
           setVerificationStatus('error');
           
           if (error.message.includes('expired') || error.message.includes('not found')) {
-            setErrorMessage('This verification link has expired or has already been used. Please request a new one.');
-          } else if (error.message.includes('invalid')) {
-            setErrorMessage('This verification link is invalid. Please check the link or request a new one.');
+            setErrorMessage('This verification link has expired or has already been used. Please request a new verification email.');
+          } else if (error.message.includes('invalid') || error.message.includes('Invalid')) {
+            setErrorMessage('This verification link is invalid. Please check the link or request a new verification email.');
+          } else if (error.message.includes('Email link is invalid')) {
+            setErrorMessage('The verification link format is invalid. Please request a new verification email.');
           } else {
             setErrorMessage(`Verification failed: ${error.message}`);
           }
           return;
         }
 
-        setVerificationStatus('success');
-        toast({
-          title: "Email verified successfully!",
-          description: "You can now access your account.",
-        });
+        if (data && data.user) {
+          console.log('Email verification successful for user:', data.user.email);
+          setVerificationStatus('success');
+          
+          // Clean up the pending verification email
+          localStorage.removeItem('pendingVerificationEmail');
+          
+          toast({
+            title: "Email verified successfully!",
+            description: "You can now access your account.",
+          });
 
-        // Redirect to dashboard after a brief delay
-        setTimeout(() => {
-          navigate('/', { replace: true });
-        }, 2000);
+          // Redirect to dashboard after a brief delay
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 2000);
+        } else {
+          console.warn('Verification returned no error but no user data');
+          setVerificationStatus('error');
+          setErrorMessage('Verification completed but no user data was returned. Please try signing in.');
+        }
 
       } catch (error: any) {
         console.error('Unexpected verification error:', error);
         setVerificationStatus('error');
-        setErrorMessage(`An unexpected error occurred: ${error.message}`);
+        setErrorMessage(`An unexpected error occurred during verification: ${error.message}`);
       }
     };
 
@@ -86,6 +114,7 @@ const EmailVerificationHandler = () => {
     }
 
     setIsResending(true);
+    console.log('Resending verification email to:', email);
 
     try {
       const { error } = await supabase.auth.resend({
@@ -97,18 +126,21 @@ const EmailVerificationHandler = () => {
       });
 
       if (error) {
+        console.error('Resend verification error:', error);
         toast({
           title: "Error",
           description: `Failed to resend verification: ${error.message}`,
           variant: "destructive",
         });
       } else {
+        console.log('Verification email resent successfully');
         toast({
           title: "Verification email sent!",
           description: "Please check your email for a new verification link.",
         });
       }
     } catch (error: any) {
+      console.error('Unexpected resend error:', error);
       toast({
         title: "Error",
         description: `Failed to resend verification: ${error.message}`,

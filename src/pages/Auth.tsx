@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
+import { handleAuthSignIn } from '@/utils/authCleanup';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -33,10 +34,11 @@ const Auth = () => {
         const isEmail = formData.email.includes('@');
         
         if (isEmail) {
-          // Sign in with email
-          const { error } = await supabase.auth.signInWithPassword({
+          console.log('Attempting email sign in...');
+          // Sign in with email using the robust helper
+          const { error } = await handleAuthSignIn({
             email: formData.email,
-            password: formData.password,
+            password: formData.password
           });
 
           if (error) {
@@ -58,6 +60,7 @@ const Auth = () => {
             return;
           }
         } else {
+          console.log('Attempting username sign in...');
           // Find user by username first
           const { data: userData, error: userError } = await supabase
             .rpc('find_user_by_username_or_email', { identifier: formData.email });
@@ -71,10 +74,10 @@ const Auth = () => {
             return;
           }
 
-          // Sign in with the found email
-          const { error } = await supabase.auth.signInWithPassword({
+          // Sign in with the found email using the robust helper
+          const { error } = await handleAuthSignIn({
             email: userData[0].email,
-            password: formData.password,
+            password: formData.password
           });
 
           if (error) {
@@ -96,25 +99,38 @@ const Auth = () => {
           description: "You've been successfully logged in.",
         });
         
-        navigate('/');
+        // The handleAuthSignIn will handle the redirect
       } else {
+        console.log('Attempting sign up...');
+        
+        // Validate required fields for signup
+        if (!formData.username.trim()) {
+          toast({
+            title: "Username required",
+            description: "Please enter a username to create your account.",
+            variant: "destructive",
+          });
+          return;
+        }
+
         // Store email for potential verification resend
         localStorage.setItem('pendingVerificationEmail', formData.email);
 
-        // Sign up with proper email redirect configuration
+        // Sign up with proper email redirect configuration and user metadata
         const { error } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
           options: {
             emailRedirectTo: `${window.location.origin}/auth/verify`,
             data: {
-              full_name: formData.fullName || null,
-              username: formData.username,
+              full_name: formData.fullName.trim() || null,
+              username: formData.username.trim(),
             }
           }
         });
 
         if (error) {
+          console.error('Sign up error:', error);
           if (error.message.includes('User already registered')) {
             toast({
               title: "Account already exists",
@@ -128,12 +144,19 @@ const Auth = () => {
               description: "Password should be at least 6 characters long.",
               variant: "destructive",
             });
+          } else if (error.message.includes('Username already exists')) {
+            toast({
+              title: "Username taken",
+              description: "This username is already taken. Please choose a different one.",
+              variant: "destructive",
+            });
           } else {
             throw error;
           }
           return;
         }
 
+        console.log('Sign up successful, email verification required');
         toast({
           title: "Account created!",
           description: "Please check your email to verify your account before signing in.",
@@ -205,7 +228,7 @@ const Auth = () => {
               {!isLogin && (
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">
-                    Username
+                    Username <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -217,8 +240,15 @@ const Auth = () => {
                       onChange={handleInputChange}
                       className="pl-10"
                       required={!isLogin}
+                      minLength={3}
+                      maxLength={20}
+                      pattern="^[a-zA-Z0-9_]+$"
+                      title="Username must be 3-20 characters long and contain only letters, numbers, and underscores"
                     />
                   </div>
+                  <p className="text-xs text-gray-500">
+                    3-20 characters, letters, numbers, and underscores only
+                  </p>
                 </div>
               )}
               
@@ -254,6 +284,7 @@ const Auth = () => {
                     onChange={handleInputChange}
                     className="pl-10 pr-10"
                     required
+                    minLength={6}
                   />
                   <button
                     type="button"
@@ -278,6 +309,7 @@ const Auth = () => {
               <button
                 onClick={() => setIsLogin(!isLogin)}
                 className="text-orange-600 hover:text-orange-700 text-sm font-medium"
+                disabled={loading}
               >
                 {isLogin 
                   ? "Don't have an account? Sign up" 

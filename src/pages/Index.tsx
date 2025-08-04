@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -8,6 +7,7 @@ import Dashboard from "@/components/Dashboard";
 import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
 import { StreakProvider } from "@/components/StreakProvider";
 import { motion, AnimatePresence } from "framer-motion";
+import DevTools from '@/components/DevTools';
 
 const Index = () => {
   const [showWelcome, setShowWelcome] = useState(true);
@@ -61,17 +61,20 @@ const Index = () => {
   }
 
   return (
-    <StreakProvider>
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
-        <AnimatePresence mode="wait">
-          {showWelcome ? (
-            <WelcomeScreen key="welcome" onGetStarted={handleGetStarted} />
-          ) : (
-            <Dashboard key="dashboard" />
-          )}
-        </AnimatePresence>
-      </div>
-    </StreakProvider>
+    <>
+      <StreakProvider>
+        <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
+          <AnimatePresence mode="wait">
+            {showWelcome ? (
+              <WelcomeScreen key="welcome" onGetStarted={handleGetStarted} />
+            ) : (
+              <Dashboard key="dashboard" />
+            )}
+          </AnimatePresence>
+        </div>
+      </StreakProvider>
+      <DevTools />
+    </>
   );
 };
 

@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
 
@@ -13,7 +12,7 @@ export interface Achievement {
   description: string;
   icon: string;
   condition: {
-    type: 'streak_days' | 'total_duration' | 'session_duration' | 'weekly_consistency' | 'monthly_sessions' | 'improvement';
+    type: 'streak_days' | 'total_duration' | 'session_duration' | 'weekly_consistency' | 'monthly_sessions' | 'improvement' | 'morning_sessions' | 'evening_sessions' | 'exercise_variety' | 'perfect_sessions' | 'achievements_earned';
     value: number;
     period?: 'week' | 'month';
   };
@@ -203,7 +202,7 @@ export const ACHIEVEMENTS: Achievement[] = [
 ];
 
 export class AchievementService {
-  private userId: string;
+  protected userId: string;
 
   constructor(userId: string) {
     this.userId = userId;
@@ -238,7 +237,7 @@ export class AchievementService {
     return newAchievements;
   }
 
-  private async checkSingleAchievement(achievement: Achievement): Promise<boolean> {
+  protected async checkSingleAchievement(achievement: Achievement): Promise<boolean> {
     switch (achievement.condition.type) {
       case 'streak_days':
         return this.checkStreakAchievement(achievement.condition.value);
@@ -336,7 +335,7 @@ export class AchievementService {
     return (bestSession - firstSession) >= targetImprovement;
   }
 
-  private async awardAchievement(achievement: Achievement): Promise<UserAchievement | null> {
+  protected async awardAchievement(achievement: Achievement): Promise<UserAchievement | null> {
     try {
       const { data, error } = await supabase
         .from('user_achievements')

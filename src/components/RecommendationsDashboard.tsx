@@ -10,10 +10,6 @@ import { useSessionStats } from "@/hooks/useSessionHistory";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Tables } from "@/integrations/supabase/types";
 
-type ExerciseRecommendation = Tables<'user_exercise_recommendations'> & {
-  plank_exercises: Tables<'plank_exercises'> | null;
-};
-
 interface RecommendationsDashboardProps {
   onExerciseSelect?: (exerciseId: string) => void;
 }
@@ -107,6 +103,10 @@ const RecommendationsDashboard = ({ onExerciseSelect }: RecommendationsDashboard
   const dailySuggestion = getDailyWorkoutSuggestion();
   const DailySuggestionIcon = dailySuggestion.icon;
 
+  const handleGenerateRecommendations = () => {
+    generateRecommendations();
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -153,7 +153,7 @@ const RecommendationsDashboard = ({ onExerciseSelect }: RecommendationsDashboard
                 </div>
               </div>
               <Button
-                onClick={generateRecommendations}
+                onClick={handleGenerateRecommendations}
                 disabled={isGenerating}
                 size="sm"
                 variant="outline"
@@ -188,7 +188,7 @@ const RecommendationsDashboard = ({ onExerciseSelect }: RecommendationsDashboard
             <div className="text-center py-8">
               <Sparkles className="w-12 h-12 mx-auto text-gray-300 mb-3" />
               <p className="text-gray-500 mb-4">No recommendations available yet</p>
-              <Button onClick={generateRecommendations} disabled={isGenerating}>
+              <Button onClick={handleGenerateRecommendations} disabled={isGenerating}>
                 {isGenerating ? (
                   <>
                     <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
@@ -205,9 +205,13 @@ const RecommendationsDashboard = ({ onExerciseSelect }: RecommendationsDashboard
           ) : (
             <div className="space-y-4">
               {recommendations.slice(0, 5).map((recommendation, index) => {
-                if (!recommendation.plank_exercises) return null;
-                
+                // Handle the case where plank_exercises might be null or an error
                 const exercise = recommendation.plank_exercises;
+                if (!exercise || typeof exercise !== 'object' || !('id' in exercise)) {
+                  console.warn('Invalid exercise data:', exercise);
+                  return null;
+                }
+                
                 const RecommendationIcon = getRecommendationIcon(recommendation.recommendation_type);
                 
                 return (

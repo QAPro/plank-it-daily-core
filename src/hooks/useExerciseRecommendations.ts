@@ -9,7 +9,9 @@ import type { Tables } from '@/integrations/supabase/types';
 type Exercise = Tables<'plank_exercises'>;
 type UserPreferences = Tables<'user_preferences'>;
 type ExercisePerformance = Tables<'user_exercise_performance'>;
-type ExerciseRecommendation = Tables<'user_exercise_recommendations'>;
+type ExerciseRecommendation = Tables<'user_exercise_recommendations'> & {
+  plank_exercises: Exercise | null;
+};
 
 export const useExerciseRecommendations = () => {
   const { user } = useAuth();
@@ -18,34 +20,45 @@ export const useExerciseRecommendations = () => {
 
   const { data: recommendations, isLoading } = useQuery({
     queryKey: ['exercise-recommendations', user?.id],
-    queryFn: async () => {
+    queryFn: async (): Promise<ExerciseRecommendation[]> => {
       if (!user) return [];
 
-      const { data, error } = await supabase
+      // First get the recommendations
+      const { data: recommendationsData, error: recommendationsError } = await supabase
         .from('user_exercise_recommendations')
-        .select(`
-          *,
-          plank_exercises (
-            id,
-            name,
-            description,
-            difficulty_level,
-            category,
-            tags,
-            primary_muscles,
-            is_beginner_friendly
-          )
-        `)
+        .select('*')
         .eq('user_id', user.id)
         .gt('expires_at', new Date().toISOString())
         .order('confidence_score', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching recommendations:', error);
-        throw error;
+      if (recommendationsError) {
+        console.error('Error fetching recommendations:', recommendationsError);
+        throw recommendationsError;
       }
 
-      return data;
+      if (!recommendationsData || recommendationsData.length === 0) {
+        return [];
+      }
+
+      // Then get the exercises for these recommendations
+      const exerciseIds = recommendationsData.map(rec => rec.exercise_id);
+      const { data: exercisesData, error: exercisesError } = await supabase
+        .from('plank_exercises')
+        .select('*')
+        .in('id', exerciseIds);
+
+      if (exercisesError) {
+        console.error('Error fetching exercises:', exercisesError);
+        throw exercisesError;
+      }
+
+      // Combine the data
+      const exercisesMap = new Map(exercisesData?.map(ex => [ex.id, ex]) || []);
+      
+      return recommendationsData.map(rec => ({
+        ...rec,
+        plank_exercises: exercisesMap.get(rec.exercise_id) || null
+      }));
     },
     enabled: !!user,
   });
@@ -116,8 +129,8 @@ export const useExerciseRecommendations = () => {
     preferences: UserPreferences,
     performance: ExercisePerformance[],
     exercises: Exercise[]
-  ): Omit<ExerciseRecommendation, 'id' | 'created_at' | 'expires_at'>[] => {
-    const recommendations: Omit<ExerciseRecommendation, 'id' | 'created_at' | 'expires_at'>[] = [];
+  ): Omit<Tables<'user_exercise_recommendations'>, 'id' | 'created_at' | 'expires_at'>[] => {
+    const recommendations: Omit<Tables<'user_exercise_recommendations'>, 'id' | 'created_at' | 'expires_at'>[] = [];
     const performanceMap = new Map(performance.map(p => [p.exercise_id, p]));
 
     exercises.forEach(exercise => {

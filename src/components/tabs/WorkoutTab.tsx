@@ -15,10 +15,18 @@ import type { Tables } from "@/integrations/supabase/types";
 
 type Exercise = Tables<'plank_exercises'>;
 
+// Define a simple filter state that matches what we actually use
+interface SimpleFilters {
+  difficulty: string;
+  category: string;
+  searchTerm: string;
+}
+
 const WorkoutTab = () => {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [showTimer, setShowTimer] = useState(false);
-  const [filters, setFilters] = useState({
+  const [selectedDuration, setSelectedDuration] = useState(60); // Default 60 seconds
+  const [filters, setFilters] = useState<SimpleFilters>({
     difficulty: 'all',
     category: 'all',
     searchTerm: '',
@@ -60,8 +68,9 @@ const WorkoutTab = () => {
       .filter(Boolean);
   }, [recommendations, exercises]);
 
-  const handleExerciseSelect = (exercise: Exercise) => {
+  const handleExerciseSelect = (exercise: Exercise, duration?: number) => {
     setSelectedExercise(exercise);
+    setSelectedDuration(duration || 60);
     setShowTimer(true);
   };
 
@@ -72,6 +81,32 @@ const WorkoutTab = () => {
 
   const handleRefreshRecommendations = () => {
     generateRecommendations();
+  };
+
+  const handleTimerComplete = (duration: number) => {
+    console.log('Timer completed with duration:', duration);
+    // Handle completion logic here
+    setShowTimer(false);
+    setSelectedExercise(null);
+  };
+
+  // Convert simple filters to the format expected by ExerciseFilters
+  const convertToFilterState = (simpleFilters: SimpleFilters) => ({
+    search: simpleFilters.searchTerm,
+    difficulty: [simpleFilters.difficulty],
+    categories: simpleFilters.category === 'all' ? [] : [simpleFilters.category],
+    tags: [],
+    showFavoritesOnly: false,
+    sortBy: 'name' as const,
+    sortOrder: 'asc' as const
+  });
+
+  const handleFiltersChange = (newFilters: any) => {
+    setFilters({
+      difficulty: newFilters.difficulty?.[0] || 'all',
+      category: newFilters.categories?.[0] || 'all',
+      searchTerm: newFilters.search || '',
+    });
   };
 
   if (exercisesLoading || recommendationsLoading) {
@@ -90,7 +125,9 @@ const WorkoutTab = () => {
       <div className="h-full">
         <PlankTimer 
           exercise={selectedExercise}
+          duration={selectedDuration}
           onBack={handleBackToList}
+          onComplete={handleTimerComplete}
         />
       </div>
     );
@@ -208,7 +245,10 @@ const WorkoutTab = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
           >
-            <ExerciseFilters filters={filters} onFiltersChange={setFilters} />
+            <ExerciseFilters 
+              filters={convertToFilterState(filters)} 
+              onFiltersChange={handleFiltersChange} 
+            />
           </motion.div>
 
           {/* Exercise Grid */}
@@ -238,9 +278,11 @@ const WorkoutTab = () => {
                 >
                   <EnhancedExerciseCard
                     exercise={exercise}
-                    onSelect={() => handleExerciseSelect(exercise)}
-                    isRecommended={recommendedExerciseIds.has(exercise.id)}
-                    recommendationData={recommendations?.find(rec => rec.exercise_id === exercise.id)}
+                    index={index}
+                    onStart={() => handleExerciseSelect(exercise)}
+                    onViewDetails={(exercise) => console.log('View details for:', exercise.name)}
+                    recommendationType={recommendations?.find(rec => rec.exercise_id === exercise.id)?.recommendation_type}
+                    confidenceScore={recommendations?.find(rec => rec.exercise_id === exercise.id)?.confidence_score}
                   />
                 </motion.div>
               ))

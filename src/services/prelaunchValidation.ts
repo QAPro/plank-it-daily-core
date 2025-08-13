@@ -46,7 +46,6 @@ export class PreLaunchValidationService extends ValidationService {
   private async validateAuthConfiguration(): Promise<ValidationResult[]> {
     const results: ValidationResult[] = [];
 
-    // Test authentication flow completeness
     try {
       const { supabase } = await import('@/integrations/supabase/client');
       
@@ -89,31 +88,74 @@ export class PreLaunchValidationService extends ValidationService {
     try {
       const { supabase } = await import('@/integrations/supabase/client');
       
-      // Test key tables exist and are accessible
-      const tables = ['plank_exercises', 'user_streaks', 'user_onboarding'];
-      
-      for (const table of tables) {
-        try {
-          const { data, error } = await supabase
-            .from(table)
-            .select('*')
-            .limit(1);
-          
-          results.push({
-            category: 'Database',
-            test: `Table: ${table}`,
-            status: error ? 'warning' : 'pass',
-            message: error ? `Table access issue: ${error.message}` : `Table ${table} accessible`,
-          });
-        } catch (error) {
-          results.push({
-            category: 'Database',
-            test: `Table: ${table}`,
-            status: 'fail',
-            message: `Failed to access table ${table}`,
-            details: error,
-          });
-        }
+      // Test key tables exist and are accessible - using explicit table names
+      // Test plank_exercises table
+      try {
+        const { data, error } = await supabase
+          .from('plank_exercises')
+          .select('*')
+          .limit(1);
+        
+        results.push({
+          category: 'Database',
+          test: 'Table: plank_exercises',
+          status: error ? 'warning' : 'pass',
+          message: error ? `Table access issue: ${error.message}` : 'Table plank_exercises accessible',
+        });
+      } catch (error) {
+        results.push({
+          category: 'Database',
+          test: 'Table: plank_exercises',
+          status: 'fail',
+          message: 'Failed to access table plank_exercises',
+          details: error,
+        });
+      }
+
+      // Test user_streaks table
+      try {
+        const { data, error } = await supabase
+          .from('user_streaks')
+          .select('*')
+          .limit(1);
+        
+        results.push({
+          category: 'Database',
+          test: 'Table: user_streaks',
+          status: error ? 'warning' : 'pass',
+          message: error ? `Table access issue: ${error.message}` : 'Table user_streaks accessible',
+        });
+      } catch (error) {
+        results.push({
+          category: 'Database',
+          test: 'Table: user_streaks',
+          status: 'fail',
+          message: 'Failed to access table user_streaks',
+          details: error,
+        });
+      }
+
+      // Test user_onboarding table
+      try {
+        const { data, error } = await supabase
+          .from('user_onboarding')
+          .select('*')
+          .limit(1);
+        
+        results.push({
+          category: 'Database',
+          test: 'Table: user_onboarding',
+          status: error ? 'warning' : 'pass',
+          message: error ? `Table access issue: ${error.message}` : 'Table user_onboarding accessible',
+        });
+      } catch (error) {
+        results.push({
+          category: 'Database',
+          test: 'Table: user_onboarding',
+          status: 'fail',
+          message: 'Failed to access table user_onboarding',
+          details: error,
+        });
       }
 
       // Test if exercises data exists

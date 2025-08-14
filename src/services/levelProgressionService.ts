@@ -17,7 +17,7 @@ export interface LevelUnlock {
   feature_name: string;
   feature_description: string;
   icon: string;
-  category: 'feature' | 'exercise' | 'customization' | 'social';
+  category: string; // Changed from union type to string to match database
 }
 
 export interface XPTransaction {

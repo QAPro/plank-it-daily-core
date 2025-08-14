@@ -41,7 +41,7 @@ const customRender = (
 export * from '@testing-library/react';
 export { customRender as render };
 
-// Test data factories
+// Test data factories - Updated to match actual database schema
 export const createMockUser = (overrides = {}) => ({
   id: 'test-user-id',
   email: 'test@example.com',
@@ -53,9 +53,16 @@ export const createMockExercise = (overrides = {}) => ({
   id: 'test-exercise-id',
   name: 'Standard Plank',
   description: 'Basic plank exercise',
-  difficulty_level: 'beginner',
-  target_duration: 30,
+  difficulty_level: 1,
+  category: 'core',
+  primary_muscles: ['core', 'shoulders'],
+  equipment_needed: [],
+  estimated_calories_per_minute: 5,
+  image_url: '',
   instructions: ['Get into plank position', 'Hold for target time'],
+  is_beginner_friendly: true,
+  tags: ['core', 'beginner'],
+  created_at: '2024-01-01T00:00:00Z',
   ...overrides,
 });
 

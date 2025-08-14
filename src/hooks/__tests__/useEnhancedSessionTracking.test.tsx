@@ -1,6 +1,6 @@
 
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useEnhancedSessionTracking } from '../useEnhancedSessionTracking';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { mockSupabase, setupSupabaseMocks, resetSupabaseMocks } from '@/__tests__/utils/mock-supabase';
@@ -132,7 +132,7 @@ describe('useEnhancedSessionTracking', () => {
   });
 
   it('should complete session successfully', async () => {
-    mockSupabase.from.mockImplementation((table) => {
+    mockSupabase.from.mockImplementation((table: string) => {
       if (table === 'user_sessions') {
         return {
           insert: vi.fn(() => ({
@@ -143,6 +143,10 @@ describe('useEnhancedSessionTracking', () => {
               }),
             })),
           })),
+          select: vi.fn(),
+          update: vi.fn(),
+          upsert: vi.fn(),
+          delete: vi.fn(),
         };
       }
       if (table === 'user_streaks') {
@@ -158,9 +162,12 @@ describe('useEnhancedSessionTracking', () => {
           update: vi.fn(() => ({
             eq: vi.fn().mockResolvedValue({ error: null }),
           })),
+          insert: vi.fn(),
+          upsert: vi.fn(),
+          delete: vi.fn(),
         };
       }
-      return mockSupabase.from();
+      return mockSupabase.from(table);
     });
 
     const { result } = renderHook(() => useEnhancedSessionTracking(), {

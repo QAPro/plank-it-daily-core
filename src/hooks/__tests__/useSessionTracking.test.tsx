@@ -54,10 +54,14 @@ describe('useSessionTracking', () => {
     const mockExercise = createMockExercise();
     const duration = 45;
 
-    mockSupabase.from.mockImplementation((table) => {
+    mockSupabase.from.mockImplementation((table: string) => {
       if (table === 'user_sessions') {
         return {
           insert: vi.fn().mockResolvedValue({ error: null }),
+          select: vi.fn(),
+          update: vi.fn(),
+          upsert: vi.fn(),
+          delete: vi.fn(),
         };
       }
       if (table === 'user_streaks') {
@@ -73,9 +77,12 @@ describe('useSessionTracking', () => {
           update: vi.fn(() => ({
             eq: vi.fn().mockResolvedValue({ error: null }),
           })),
+          insert: vi.fn(),
+          upsert: vi.fn(),
+          delete: vi.fn(),
         };
       }
-      return mockSupabase.from();
+      return mockSupabase.from(table);
     });
 
     const { result } = renderHook(() => useSessionTracking(), {
@@ -92,10 +99,14 @@ describe('useSessionTracking', () => {
     const mockExercise = createMockExercise();
     const duration = 45;
 
-    mockSupabase.from.mockImplementation(() => ({
+    mockSupabase.from.mockImplementation((table: string) => ({
       insert: vi.fn().mockResolvedValue({ 
         error: { message: 'Database error' } 
       }),
+      select: vi.fn(),
+      update: vi.fn(),
+      upsert: vi.fn(),
+      delete: vi.fn(),
     }));
 
     const { result } = renderHook(() => useSessionTracking(), {

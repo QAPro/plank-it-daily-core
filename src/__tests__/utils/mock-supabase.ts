@@ -1,37 +1,37 @@
 
 import { vi } from 'vitest';
 
-// Mock Supabase client
+// Mock Supabase client with proper typing
 export const mockSupabase = {
-  from: vi.fn(() => ({
-    select: vi.fn(() => ({
-      eq: vi.fn(() => ({
-        maybeSingle: vi.fn(),
-        single: vi.fn(),
-        order: vi.fn(() => ({
-          limit: vi.fn(),
+  from: vi.fn((table: string) => ({
+    select: vi.fn((columns: string = '*') => ({
+      eq: vi.fn((column: string, value: any) => ({
+        maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+        single: vi.fn().mockResolvedValue({ data: null, error: null }),
+        order: vi.fn((column: string, options?: any) => ({
+          limit: vi.fn((count: number) => Promise.resolve({ data: [], error: null })),
         })),
       })),
-      gte: vi.fn(() => ({
-        eq: vi.fn(),
+      gte: vi.fn((column: string, value: any) => ({
+        eq: vi.fn((column: string, value: any) => Promise.resolve({ data: [], error: null })),
       })),
-      order: vi.fn(() => ({
-        limit: vi.fn(),
-        ascending: vi.fn(),
+      order: vi.fn((column: string, options?: any) => ({
+        limit: vi.fn((count: number) => Promise.resolve({ data: [], error: null })),
+        ascending: vi.fn(() => Promise.resolve({ data: [], error: null })),
       })),
-      limit: vi.fn(),
+      limit: vi.fn((count: number) => Promise.resolve({ data: [], error: null })),
     })),
-    insert: vi.fn(() => ({
-      select: vi.fn(() => ({
-        single: vi.fn(),
+    insert: vi.fn((data: any) => ({
+      select: vi.fn((columns?: string) => ({
+        single: vi.fn().mockResolvedValue({ data: null, error: null }),
       })),
     })),
-    update: vi.fn(() => ({
-      eq: vi.fn(),
+    update: vi.fn((data: any) => ({
+      eq: vi.fn((column: string, value: any) => Promise.resolve({ error: null })),
     })),
-    upsert: vi.fn(),
+    upsert: vi.fn((data: any) => Promise.resolve({ error: null })),
     delete: vi.fn(() => ({
-      eq: vi.fn(),
+      eq: vi.fn((column: string, value: any) => Promise.resolve({ error: null })),
     })),
   })),
   auth: {

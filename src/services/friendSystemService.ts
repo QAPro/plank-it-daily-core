@@ -53,177 +53,268 @@ export class FriendSystemManager {
   async searchUsers(query: string, currentUserId: string): Promise<FriendProfile[]> {
     if (query.length < 2) return [];
 
-    const { data: users } = await supabase
-      .from('users')
-      .select('id, username, full_name, avatar_url, current_level, is_online')
-      .or(`username.ilike.%${query}%,full_name.ilike.%${query}%,email.ilike.%${query}%`)
-      .neq('id', currentUserId)
-      .limit(10);
+    try {
+      const { data: users } = await supabase
+        .from('users')
+        .select('id, username, full_name, avatar_url, current_level')
+        .or(`username.ilike.%${query}%,full_name.ilike.%${query}%,email.ilike.%${query}%`)
+        .neq('id', currentUserId)
+        .limit(10);
 
-    if (!users) return [];
+      if (!users) return [];
 
-    // Get additional stats for each user
-    const userProfiles = await Promise.all(
-      users.map(async (user) => {
-        const stats = await this.getUserStats(user.id);
-        return {
-          ...user,
-          ...stats,
-          privacy_settings: {
-            show_workouts: true,
-            show_achievements: true,
-            show_streak: true
-          }
-        };
-      })
-    );
+      // Get additional stats for each user
+      const userProfiles = await Promise.all(
+        users.map(async (user) => {
+          const stats = await this.getUserStats(user.id);
+          return {
+            ...user,
+            username: user.username || '',
+            full_name: user.full_name || '',
+            ...stats,
+            is_online: false, // Default for now
+            privacy_settings: {
+              show_workouts: true,
+              show_achievements: true,
+              show_streak: true
+            }
+          };
+        })
+      );
 
-    return userProfiles;
+      return userProfiles;
+    } catch (error) {
+      console.error('Error searching users:', error);
+      return [];
+    }
   }
 
   async sendFriendRequest(userId: string, targetUserId: string): Promise<boolean> {
-    // Check if friendship already exists using raw query since table types aren't updated yet
-    const { data: existingFriendship } = await supabase
-      .rpc('check_existing_friendship', { user1: userId, user2: targetUserId })
-      .single();
+    try {
+      // Check if friendship already exists
+      const { data: existingFriendship } = await supabase
+        .from('friends')
+        .select('id')
+        .or(`and(user_id.eq.${userId},friend_user_id.eq.${targetUserId}),and(user_id.eq.${targetUserId},friend_user_id.eq.${userId})`)
+        .maybeSingle();
 
-    if (existingFriendship) {
-      throw new Error('Friendship already exists or request pending');
+      if (existingFriendship) {
+        throw new Error('Friendship already exists or request pending');
+      }
+
+      // Create friend request
+      const { error } = await supabase
+        .from('friends')
+        .insert({
+          user_id: userId,
+          friend_user_id: targetUserId,
+          status: 'pending'
+        });
+
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error sending friend request:', error);
+      throw error;
     }
-
-    // Create friend request using raw query
-    const { error } = await supabase
-      .rpc('send_friend_request', { sender_id: userId, receiver_id: targetUserId });
-
-    if (error) throw error;
-    return true;
   }
 
   async acceptFriendRequest(userId: string, requestId: string): Promise<boolean> {
-    // Use raw query since types aren't updated
-    const { error } = await supabase
-      .rpc('accept_friend_request', { user_id: userId, request_id: requestId });
+    try {
+      const { error } = await supabase
+        .from('friends')
+        .update({ 
+          status: 'accepted', 
+          accepted_at: new Date().toISOString() 
+        })
+        .eq('id', requestId)
+        .eq('friend_user_id', userId);
 
-    if (error) throw error;
-    return true;
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error accepting friend request:', error);
+      throw error;
+    }
   }
 
   async declineFriendRequest(userId: string, requestId: string): Promise<boolean> {
-    // Use raw query since types aren't updated
-    const { error } = await supabase
-      .rpc('decline_friend_request', { user_id: userId, request_id: requestId });
+    try {
+      const { error } = await supabase
+        .from('friends')
+        .delete()
+        .eq('id', requestId)
+        .eq('friend_user_id', userId);
 
-    if (error) throw error;
-    return true;
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error declining friend request:', error);
+      throw error;
+    }
   }
 
   async getFriendsList(userId: string): Promise<FriendProfile[]> {
-    // Use raw query to get friends
-    const { data: friends } = await supabase
-      .rpc('get_friends_list', { user_id: userId });
+    try {
+      // Get accepted friendships
+      const { data: friendships } = await supabase
+        .from('friends')
+        .select(`
+          *,
+          friend_user:users!friends_friend_user_id_fkey(id, username, full_name, avatar_url, current_level),
+          user:users!friends_user_id_fkey(id, username, full_name, avatar_url, current_level)
+        `)
+        .or(`user_id.eq.${userId},friend_user_id.eq.${userId}`)
+        .eq('status', 'accepted');
 
-    if (!friends) return [];
+      if (!friendships) return [];
 
-    // Get additional stats for each friend
-    const friendProfiles = await Promise.all(
-      friends.map(async (friend: any) => {
-        const stats = await this.getUserStats(friend.id);
-        return {
-          ...friend,
-          ...stats,
-          privacy_settings: {
-            show_workouts: true,
-            show_achievements: true,
-            show_streak: true
-          }
-        };
-      })
-    );
+      // Get friend profiles with stats
+      const friendProfiles = await Promise.all(
+        friendships.map(async (friendship: any) => {
+          const friend = friendship.user_id === userId ? friendship.friend_user : friendship.user;
+          const stats = await this.getUserStats(friend.id);
+          
+          return {
+            ...friend,
+            username: friend.username || '',
+            full_name: friend.full_name || '',
+            ...stats,
+            is_online: false, // Default for now
+            privacy_settings: {
+              show_workouts: true,
+              show_achievements: true,
+              show_streak: true
+            }
+          };
+        })
+      );
 
-    return friendProfiles;
+      return friendProfiles;
+    } catch (error) {
+      console.error('Error getting friends list:', error);
+      return [];
+    }
   }
 
   async getPendingRequests(userId: string): Promise<any[]> {
-    // Use raw query to get pending requests
-    const { data: requests } = await supabase
-      .rpc('get_pending_requests', { user_id: userId });
+    try {
+      const { data: requests } = await supabase
+        .from('friends')
+        .select(`
+          *,
+          requester:users!friends_user_id_fkey(id, username, full_name, avatar_url, current_level)
+        `)
+        .eq('friend_user_id', userId)
+        .eq('status', 'pending');
 
-    return requests || [];
+      return requests?.map(request => ({
+        ...request,
+        requester: {
+          ...request.requester,
+          username: request.requester?.username || '',
+          full_name: request.requester?.full_name || ''
+        }
+      })) || [];
+    } catch (error) {
+      console.error('Error getting pending requests:', error);
+      return [];
+    }
   }
 
   async getFriendActivities(userId: string): Promise<FriendActivity[]> {
-    // Use raw query to get friend activities
-    const { data: activities } = await supabase
-      .rpc('get_friend_activities', { user_id: userId });
-
-    return activities || [];
+    try {
+      // For now, return empty array until activities table is properly set up
+      console.log('Getting friend activities for user:', userId);
+      return [];
+    } catch (error) {
+      console.error('Error getting friend activities:', error);
+      return [];
+    }
   }
 
   async addReaction(userId: string, activityId: string, reactionType: string): Promise<void> {
-    const { error } = await supabase
-      .rpc('add_reaction', { 
-        user_id: userId, 
-        activity_id: activityId, 
-        reaction_type: reactionType 
-      });
-
-    if (error) throw error;
+    try {
+      console.log('Adding reaction:', { userId, activityId, reactionType });
+      // Placeholder for now
+    } catch (error) {
+      console.error('Error adding reaction:', error);
+      throw error;
+    }
   }
 
   async removeReaction(userId: string, activityId: string): Promise<void> {
-    const { error } = await supabase
-      .rpc('remove_reaction', { user_id: userId, activity_id: activityId });
-
-    if (error) throw error;
+    try {
+      console.log('Removing reaction:', { userId, activityId });
+      // Placeholder for now
+    } catch (error) {
+      console.error('Error removing reaction:', error);
+      throw error;
+    }
   }
 
   async createActivity(userId: string, activityType: string, activityData: any): Promise<void> {
-    const { error } = await supabase
-      .rpc('create_activity', { 
-        user_id: userId, 
-        activity_type: activityType, 
-        activity_data: activityData 
-      });
-
-    if (error) throw error;
+    try {
+      console.log('Creating activity:', { userId, activityType, activityData });
+      // Placeholder for now
+    } catch (error) {
+      console.error('Error creating activity:', error);
+      throw error;
+    }
   }
 
   async removeFriend(userId: string, friendId: string): Promise<boolean> {
-    const { error } = await supabase
-      .rpc('remove_friend', { user_id: userId, friend_id: friendId });
+    try {
+      const { error } = await supabase
+        .from('friends')
+        .delete()
+        .or(`and(user_id.eq.${userId},friend_user_id.eq.${friendId}),and(user_id.eq.${friendId},friend_user_id.eq.${userId})`);
 
-    if (error) throw error;
-    return true;
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error removing friend:', error);
+      throw error;
+    }
   }
 
   private async getUserStats(userId: string) {
-    // Get current streak
-    const { data: streakData } = await supabase
-      .from('user_streaks')
-      .select('current_streak')
-      .eq('user_id', userId)
-      .maybeSingle();
+    try {
+      // Get current streak
+      const { data: streakData } = await supabase
+        .from('user_streaks')
+        .select('current_streak')
+        .eq('user_id', userId)
+        .maybeSingle();
 
-    // Get total workouts
-    const { count: totalWorkouts } = await supabase
-      .from('user_sessions')
-      .select('*', { count: 'exact' })
-      .eq('user_id', userId);
+      // Get total workouts
+      const { count: totalWorkouts } = await supabase
+        .from('user_sessions')
+        .select('*', { count: 'exact' })
+        .eq('user_id', userId);
 
-    // Get last workout
-    const { data: lastWorkout } = await supabase
-      .from('user_sessions')
-      .select('completed_at')
-      .eq('user_id', userId)
-      .order('completed_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      // Get last workout
+      const { data: lastWorkout } = await supabase
+        .from('user_sessions')
+        .select('completed_at')
+        .eq('user_id', userId)
+        .order('completed_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-    return {
-      current_streak: streakData?.current_streak || 0,
-      total_workouts: totalWorkouts || 0,
-      last_workout: lastWorkout?.completed_at
-    };
+      return {
+        current_streak: streakData?.current_streak || 0,
+        total_workouts: totalWorkouts || 0,
+        last_workout: lastWorkout?.completed_at
+      };
+    } catch (error) {
+      console.error('Error getting user stats:', error);
+      return {
+        current_streak: 0,
+        total_workouts: 0,
+        last_workout: undefined
+      };
+    }
   }
 }
 

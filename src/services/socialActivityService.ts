@@ -134,11 +134,11 @@ export class SocialActivityManager {
   
   private async createActivity(userId: string, type: string, data: ActivityData): Promise<void> {
     try {
-      // Get user's privacy settings - use a fallback if the column doesn't exist yet
+      // Get user's privacy settings with fallback
       let visibility = 'friends'; // default visibility
       
       try {
-        const { data: user } = await (supabase as any)
+        const { data: user } = await supabase
           .from('users')
           .select('privacy_settings')
           .eq('id', userId)
@@ -151,27 +151,34 @@ export class SocialActivityManager {
         console.log('Privacy settings not available yet, using default visibility');
       }
       
-      // Use raw SQL insert to avoid TypeScript issues with new tables
-      const { error } = await supabase.rpc('create_friend_activity', {
-        p_user_id: userId,
-        p_activity_type: type,
-        p_activity_data: data,
-        p_visibility: visibility
+      // Use edge function invoke instead of RPC
+      const { error } = await supabase.functions.invoke('create_friend_activity', {
+        body: {
+          p_user_id: userId,
+          p_activity_type: type,
+          p_activity_data: data,
+          p_visibility: visibility
+        }
       });
 
       if (error) {
-        // Fallback: try direct insert if RPC doesn't exist
-        const { error: insertError } = await (supabase as any)
-          .from('friend_activities')
-          .insert({
-            user_id: userId,
-            activity_type: type,
-            activity_data: data,
-            visibility: visibility
-          });
-        
-        if (insertError) {
-          console.error('Error creating activity:', insertError);
+        console.error('Error creating activity via edge function:', error);
+        // Fallback: try direct insert with proper type casting
+        try {
+          const { error: insertError } = await (supabase as any)
+            .from('friend_activities')
+            .insert({
+              user_id: userId,
+              activity_type: type,
+              activity_data: data,
+              visibility: visibility
+            });
+          
+          if (insertError) {
+            console.error('Error creating activity via direct insert:', insertError);
+          }
+        } catch (fallbackError) {
+          console.error('Fallback insert also failed:', fallbackError);
         }
       }
     } catch (error) {

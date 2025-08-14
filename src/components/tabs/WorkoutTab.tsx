@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, Sparkles, RefreshCw } from "lucide-react";
@@ -139,10 +138,8 @@ const WorkoutTab = () => {
     return (
       <div className="h-full">
         <PlankTimer 
-          exercise={selectedExercise}
-          duration={selectedDuration}
-          onBack={handleBackToList}
-          onComplete={handleTimerComplete}
+          selectedExercise={selectedExercise}
+          onExerciseChange={setSelectedExercise}
         />
       </div>
     );

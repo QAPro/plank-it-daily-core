@@ -217,7 +217,9 @@ const PlankTimer = ({ selectedExercise, onExerciseChange }: PlankTimerProps) => 
       {/* Session Completion Celebration */}
       {showCelebration && completedSession && (
         <SessionCompletionCelebration
-          session={completedSession}
+          duration={completedSession.duration}
+          exercise={completedSession.exercise}
+          achievements={completedSession.achievements}
           onClose={handleCloseCelebration}
         />
       )}

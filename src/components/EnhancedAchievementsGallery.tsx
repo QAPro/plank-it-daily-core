@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Trophy, Clock, Star, Target, Award, Search } from "lucide-react";
@@ -134,7 +133,8 @@ const EnhancedAchievementsGallery = () => {
   // Calculate total points from achievements (using metadata if available, otherwise default)
   const totalPoints = useMemo(() => {
     return earnedAchievements?.reduce((sum, achievement) => {
-      const points = achievement.metadata?.points || achievement.points || 0;
+      // Try metadata.points first, then points property, then default to 0
+      const points = achievement.metadata?.points || (achievement as any).points || 0;
       return sum + points;
     }, 0) || 0;
   }, [earnedAchievements]);

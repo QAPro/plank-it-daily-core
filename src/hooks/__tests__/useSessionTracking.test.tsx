@@ -3,7 +3,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useSessionTracking } from '../useSessionTracking';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { mockSupabase, setupSupabaseMocks, resetSupabaseMocks } from '@/__tests__/utils/mock-supabase';
+import { setupSupabaseMocks, resetSupabaseMocks } from '@/__tests__/utils/mock-supabase';
 import { createMockUser, createMockExercise } from '@/__tests__/utils/test-utils';
 
 setupSupabaseMocks();
@@ -54,18 +54,11 @@ describe('useSessionTracking', () => {
     const mockExercise = createMockExercise();
     const duration = 45;
 
-    mockSupabase.from.mockImplementation((table: string) => {
-      if (table === 'user_sessions') {
-        return {
+    // Mock successful database operations with proper return types
+    vi.doMock('@/integrations/supabase/client', () => ({
+      supabase: {
+        from: vi.fn(() => ({
           insert: vi.fn().mockResolvedValue({ error: null }),
-          select: vi.fn(),
-          update: vi.fn(),
-          upsert: vi.fn(),
-          delete: vi.fn(),
-        };
-      }
-      if (table === 'user_streaks') {
-        return {
           select: vi.fn(() => ({
             eq: vi.fn(() => ({
               maybeSingle: vi.fn().mockResolvedValue({
@@ -77,13 +70,9 @@ describe('useSessionTracking', () => {
           update: vi.fn(() => ({
             eq: vi.fn().mockResolvedValue({ error: null }),
           })),
-          insert: vi.fn(),
-          upsert: vi.fn(),
-          delete: vi.fn(),
-        };
-      }
-      return mockSupabase.from(table);
-    });
+        })),
+      },
+    }));
 
     const { result } = renderHook(() => useSessionTracking(), {
       wrapper: createWrapper(),
@@ -99,14 +88,15 @@ describe('useSessionTracking', () => {
     const mockExercise = createMockExercise();
     const duration = 45;
 
-    mockSupabase.from.mockImplementation((table: string) => ({
-      insert: vi.fn().mockResolvedValue({ 
-        error: { message: 'Database error' } 
-      }),
-      select: vi.fn(),
-      update: vi.fn(),
-      upsert: vi.fn(),
-      delete: vi.fn(),
+    // Mock database error
+    vi.doMock('@/integrations/supabase/client', () => ({
+      supabase: {
+        from: vi.fn(() => ({
+          insert: vi.fn().mockResolvedValue({ 
+            error: { message: 'Database error' } 
+          }),
+        })),
+      },
     }));
 
     const { result } = renderHook(() => useSessionTracking(), {

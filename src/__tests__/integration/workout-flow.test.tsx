@@ -1,9 +1,9 @@
 
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { render as customRender, createMockUser, createMockExercise } from '@/__tests__/utils/test-utils';
-import { setupSupabaseMocks, mockSupabase } from '@/__tests__/utils/mock-supabase';
+import { setupSupabaseMocks, resetSupabaseMocks } from '@/__tests__/utils/mock-supabase';
 import Dashboard from '@/components/Dashboard';
 
 setupSupabaseMocks();
@@ -51,28 +51,7 @@ vi.mock('@/components/tabs/WorkoutTab', () => ({
 
 describe('Workout Flow Integration', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    
-    // Mock successful database operations
-    mockSupabase.from.mockImplementation((table: string) => {
-      switch (table) {
-        case 'plank_exercises':
-          return {
-            select: vi.fn(() => ({
-              order: vi.fn().mockResolvedValue({
-                data: [createMockExercise()],
-                error: null,
-              }),
-            })),
-          };
-        case 'user_sessions':
-          return {
-            insert: vi.fn().mockResolvedValue({ error: null }),
-          };
-        default:
-          return mockSupabase.from(table);
-      }
-    });
+    resetSupabaseMocks();
   });
 
   it('should complete full workout flow', async () => {

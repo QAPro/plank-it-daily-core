@@ -3,7 +3,7 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useEnhancedSessionTracking } from '../useEnhancedSessionTracking';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { mockSupabase, setupSupabaseMocks, resetSupabaseMocks } from '@/__tests__/utils/mock-supabase';
+import { setupSupabaseMocks, resetSupabaseMocks } from '@/__tests__/utils/mock-supabase';
 import { createMockUser, createMockExercise } from '@/__tests__/utils/test-utils';
 
 setupSupabaseMocks();
@@ -132,9 +132,10 @@ describe('useEnhancedSessionTracking', () => {
   });
 
   it('should complete session successfully', async () => {
-    mockSupabase.from.mockImplementation((table: string) => {
-      if (table === 'user_sessions') {
-        return {
+    // Mock successful database operations without type conflicts
+    vi.doMock('@/integrations/supabase/client', () => ({
+      supabase: {
+        from: vi.fn(() => ({
           insert: vi.fn(() => ({
             select: vi.fn(() => ({
               single: vi.fn().mockResolvedValue({
@@ -143,14 +144,6 @@ describe('useEnhancedSessionTracking', () => {
               }),
             })),
           })),
-          select: vi.fn(),
-          update: vi.fn(),
-          upsert: vi.fn(),
-          delete: vi.fn(),
-        };
-      }
-      if (table === 'user_streaks') {
-        return {
           select: vi.fn(() => ({
             eq: vi.fn(() => ({
               single: vi.fn().mockResolvedValue({
@@ -162,13 +155,9 @@ describe('useEnhancedSessionTracking', () => {
           update: vi.fn(() => ({
             eq: vi.fn().mockResolvedValue({ error: null }),
           })),
-          insert: vi.fn(),
-          upsert: vi.fn(),
-          delete: vi.fn(),
-        };
-      }
-      return mockSupabase.from(table);
-    });
+        })),
+      },
+    }));
 
     const { result } = renderHook(() => useEnhancedSessionTracking(), {
       wrapper: createWrapper(),

@@ -131,6 +131,14 @@ const EnhancedAchievementsGallery = () => {
     }
   };
 
+  // Calculate total points from achievements (using metadata if available, otherwise default)
+  const totalPoints = useMemo(() => {
+    return earnedAchievements?.reduce((sum, achievement) => {
+      const points = achievement.metadata?.points || achievement.points || 0;
+      return sum + points;
+    }, 0) || 0;
+  }, [earnedAchievements]);
+
   if (achievementsLoading || progressLoading) {
     return (
       <div className="space-y-6">
@@ -195,7 +203,7 @@ const EnhancedAchievementsGallery = () => {
         <Card>
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-purple-600 mb-1">
-              {earnedAchievements?.reduce((sum, a) => sum + (a.points || 0), 0) || 0}
+              {totalPoints}
             </div>
             <div className="text-sm text-gray-600">Points</div>
           </CardContent>

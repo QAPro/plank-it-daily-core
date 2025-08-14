@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -5,7 +6,6 @@ import { useExercises } from './useExercises';
 import { toast } from 'sonner';
 import { useStreak } from '@/components/StreakProvider';
 import { ExpandedAchievementEngine } from '@/services/expandedAchievementService';
-import EnhancedAchievementCelebration from '@/components/achievements/EnhancedAchievementCelebration';
 
 interface CompletedSession {
   id: string;
@@ -18,7 +18,7 @@ interface CompletedSession {
 
 export const useEnhancedSessionTracking = () => {
   const { user } = useAuth();
-  const { exercises, isLoading: isLoadingExercises } = useExercises();
+  const { data: exercises, isLoading: isLoadingExercises } = useExercises();
   const [selectedExercise, setSelectedExercise] = useState<any>(null);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [sessionDuration, setSessionDuration] = useState(0);
@@ -81,7 +81,7 @@ export const useEnhancedSessionTracking = () => {
 
       const today = new Date();
       const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-      const lastWorkoutDate = userStreak?.last_workout ? new Date(userStreak.last_workout) : null;
+      const lastWorkoutDate = userStreak?.last_workout_date ? new Date(userStreak.last_workout_date) : null;
 
       let newStreak = 1;
       if (lastWorkoutDate) {
@@ -105,7 +105,7 @@ export const useEnhancedSessionTracking = () => {
       const updates = {
         user_id: user.id,
         current_streak: newStreak,
-        last_workout: todayMidnight.toISOString(),
+        last_workout_date: todayMidnight.toISOString().split('T')[0],
         longest_streak: Math.max(newStreak, userStreak?.longest_streak || 0),
       };
 

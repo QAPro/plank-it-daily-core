@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface EnhancedActivity {
@@ -134,17 +133,21 @@ export class SocialActivityManager {
   
   private async createActivity(userId: string, type: string, data: ActivityData): Promise<void> {
     try {
-      // Get user's privacy settings with fallback
+      // Get user's privacy settings with fallback - handle column not existing
       let visibility = 'friends'; // default visibility
       
       try {
-        const { data: user } = await supabase
+        // Try to get privacy settings, but handle gracefully if column doesn't exist
+        const userQuery = supabase
           .from('users')
-          .select('privacy_settings')
+          .select('*')
           .eq('id', userId)
           .single();
         
-        if (user?.privacy_settings) {
+        const { data: user } = await userQuery;
+        
+        // Check if user data exists and has privacy_settings property
+        if (user && 'privacy_settings' in user && user.privacy_settings) {
           visibility = this.determineVisibility(type, user.privacy_settings);
         }
       } catch (error) {

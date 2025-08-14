@@ -14,6 +14,97 @@ export type Database = {
   }
   public: {
     Tables: {
+      challenge_participants: {
+        Row: {
+          challenge_id: string
+          completed: boolean | null
+          completed_at: string | null
+          id: string
+          joined_at: string | null
+          progress_data: Json | null
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          completed?: boolean | null
+          completed_at?: string | null
+          id?: string
+          joined_at?: string | null
+          progress_data?: Json | null
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          completed?: boolean | null
+          completed_at?: string | null
+          id?: string
+          joined_at?: string | null
+          progress_data?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_participants_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "community_challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_challenges: {
+        Row: {
+          challenge_type: string
+          created_at: string | null
+          created_by: string
+          description: string | null
+          end_date: string
+          id: string
+          is_public: boolean | null
+          participant_count: number | null
+          start_date: string
+          target_data: Json
+          template_id: string | null
+          title: string
+        }
+        Insert: {
+          challenge_type?: string
+          created_at?: string | null
+          created_by: string
+          description?: string | null
+          end_date: string
+          id?: string
+          is_public?: boolean | null
+          participant_count?: number | null
+          start_date: string
+          target_data?: Json
+          template_id?: string | null
+          title: string
+        }
+        Update: {
+          challenge_type?: string
+          created_at?: string | null
+          created_by?: string
+          description?: string | null
+          end_date?: string
+          id?: string
+          is_public?: boolean | null
+          participant_count?: number | null
+          start_date?: string
+          target_data?: Json
+          template_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_challenges_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "share_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       feature_unlocks: {
         Row: {
           feature_name: string
@@ -115,6 +206,77 @@ export type Database = {
           name?: string
           primary_muscles?: string[] | null
           tags?: string[] | null
+        }
+        Relationships: []
+      }
+      share_analytics: {
+        Row: {
+          content_type: string
+          engagement_data: Json | null
+          id: string
+          platform: string
+          shared_at: string | null
+          template_id: string | null
+          user_id: string
+        }
+        Insert: {
+          content_type: string
+          engagement_data?: Json | null
+          id?: string
+          platform: string
+          shared_at?: string | null
+          template_id?: string | null
+          user_id: string
+        }
+        Update: {
+          content_type?: string
+          engagement_data?: Json | null
+          id?: string
+          platform?: string
+          shared_at?: string | null
+          template_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "share_analytics_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "share_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      share_templates: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_public: boolean | null
+          name: string
+          template_data: Json
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_public?: boolean | null
+          name: string
+          template_data?: Json
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_public?: boolean | null
+          name?: string
+          template_data?: Json
+          type?: string
+          updated_at?: string | null
         }
         Relationships: []
       }

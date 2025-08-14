@@ -784,6 +784,10 @@ export type Database = {
           username: string
         }[]
       }
+      increment_challenge_participants: {
+        Args: { challenge_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

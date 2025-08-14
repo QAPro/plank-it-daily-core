@@ -36,7 +36,7 @@ export class EnhancedSocialSharingService {
       id: template.id,
       name: template.name,
       type: template.type as ShareTemplate['type'],
-      template_data: template.template_data as ShareTemplate['template_data'],
+      template_data: (template.template_data as unknown) as ShareTemplate['template_data'],
       is_public: template.is_public,
       created_by: template.created_by,
       created_at: template.created_at,
@@ -74,7 +74,7 @@ export class EnhancedSocialSharingService {
       id: data.id,
       name: data.name,
       type: data.type as ShareTemplate['type'],
-      template_data: data.template_data as ShareTemplate['template_data'],
+      template_data: (data.template_data as unknown) as ShareTemplate['template_data'],
       is_public: data.is_public,
       created_by: data.created_by,
       created_at: data.created_at,
@@ -383,7 +383,7 @@ export class EnhancedSocialSharingService {
         content_type: analytics.content_type,
         template_id: analytics.template_id,
         shared_at: analytics.shared_at,
-        engagement_data: analytics.engagement_data as ShareAnalytics['engagement_data']
+        engagement_data: (analytics.engagement_data as unknown) as ShareAnalytics['engagement_data']
       }));
     } catch (error) {
       console.error('Error fetching share analytics:', error);

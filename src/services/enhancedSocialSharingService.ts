@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import type { ShareTemplate, EnhancedShareData, ShareAnalytics } from '@/types/socialSharing';
 
@@ -32,7 +31,17 @@ export class EnhancedSocialSharingService {
       return [];
     }
 
-    return data || [];
+    // Cast the data to ShareTemplate[] with proper type assertion
+    return (data || []).map(template => ({
+      id: template.id,
+      name: template.name,
+      type: template.type as ShareTemplate['type'],
+      template_data: template.template_data as ShareTemplate['template_data'],
+      is_public: template.is_public,
+      created_by: template.created_by,
+      created_at: template.created_at,
+      updated_at: template.updated_at
+    }));
   }
 
   async generateShareImage(shareData: EnhancedShareData, templateId: string): Promise<string> {
@@ -60,7 +69,17 @@ export class EnhancedSocialSharingService {
       return null;
     }
 
-    return data;
+    // Cast the data to ShareTemplate with proper type assertion
+    return {
+      id: data.id,
+      name: data.name,
+      type: data.type as ShareTemplate['type'],
+      template_data: data.template_data as ShareTemplate['template_data'],
+      is_public: data.is_public,
+      created_by: data.created_by,
+      created_at: data.created_at,
+      updated_at: data.updated_at
+    };
   }
 
   private async createShareCanvas(shareData: EnhancedShareData, template: ShareTemplate): Promise<string> {
@@ -330,10 +349,14 @@ export class EnhancedSocialSharingService {
 
       if (error) throw error;
 
-      // Update participant count
-      await supabase.rpc('increment_challenge_participants', { 
+      // Update participant count using the RPC function
+      const { error: rpcError } = await supabase.rpc('increment_challenge_participants', { 
         challenge_id: challengeId 
       });
+
+      if (rpcError) {
+        console.error('Error updating participant count:', rpcError);
+      }
 
       return true;
     } catch (error) {
@@ -352,7 +375,16 @@ export class EnhancedSocialSharingService {
 
       if (error) throw error;
 
-      return data || [];
+      // Cast the data to ShareAnalytics[] with proper type assertion
+      return (data || []).map(analytics => ({
+        id: analytics.id,
+        user_id: analytics.user_id,
+        platform: analytics.platform,
+        content_type: analytics.content_type,
+        template_id: analytics.template_id,
+        shared_at: analytics.shared_at,
+        engagement_data: analytics.engagement_data as ShareAnalytics['engagement_data']
+      }));
     } catch (error) {
       console.error('Error fetching share analytics:', error);
       return [];

@@ -1,293 +1,223 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { useQueryClient } from '@tanstack/react-query';
-import { EnhancedAchievementService } from '@/services/enhancedAchievementService';
-import type { Tables } from '@/integrations/supabase/types';
-import type { UserAchievement } from '@/hooks/useUserAchievements';
+import { useExercises } from './useExercises';
+import { toast } from 'sonner';
+import { useStreak } from '@/components/StreakProvider';
+import { ExpandedAchievementEngine } from '@/services/expandedAchievementService';
+import EnhancedAchievementCelebration from '@/components/achievements/EnhancedAchievementCelebration';
 
-type Exercise = Tables<'plank_exercises'>;
-
-interface SessionData {
-  exercise: Exercise;
-  durationSeconds: number;
+interface CompletedSession {
+  id: string;
+  duration: number;
+  exercise: any;
+  timestamp: string;
+  achievements: any[];
   notes?: string;
-}
-
-interface SessionResult {
-  milestoneEvent: MilestoneEvent | null;
-  newAchievements: UserAchievement[];
-  isPersonalBest: boolean;
-  previousBest?: number;
-  caloriesEstimate: number;
-  completionPercentage: number;
-}
-
-interface MilestoneEvent {
-  milestone: {
-    days: number;
-    title: string;
-    description: string;
-  };
-  isNewMilestone: boolean;
 }
 
 export const useEnhancedSessionTracking = () => {
   const { user } = useAuth();
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [personalBests, setPersonalBests] = useState<Record<string, number>>({});
+  const { exercises, isLoading: isLoadingExercises } = useExercises();
+  const [selectedExercise, setSelectedExercise] = useState<any>(null);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [sessionDuration, setSessionDuration] = useState(0);
+  const [completedSession, setCompletedSession] = useState<CompletedSession | null>(null);
+  const [sessionNotes, setSessionNotes] = useState('');
+  const [isCompleting, setIsCompleting] = useState(false);
+  const { showMilestone } = useStreak();
 
-  // Load personal bests on mount
   useEffect(() => {
-    loadPersonalBests();
-  }, [user]);
+    let intervalId: NodeJS.Timeout;
 
-  const loadPersonalBests = async () => {
+    if (isTimerRunning) {
+      intervalId = setInterval(() => {
+        setSessionDuration((prevDuration) => prevDuration + 1);
+      }, 1000);
+    }
+
+    return () => clearInterval(intervalId);
+  }, [isTimerRunning]);
+
+  const startSession = (exercise: any) => {
+    setSelectedExercise(exercise);
+    setSessionDuration(0);
+    setIsTimerRunning(true);
+    setCompletedSession(null);
+    setSessionNotes('');
+  };
+
+  const pauseSession = () => {
+    setIsTimerRunning(false);
+  };
+
+  const resumeSession = () => {
+    setIsTimerRunning(true);
+  };
+
+  const endSession = () => {
+    setIsTimerRunning(false);
+  };
+
+  const selectExercise = (exercise: any) => {
+    setSelectedExercise(exercise);
+  };
+
+  const updateStreak = useCallback(async () => {
     if (!user) return;
 
     try {
-      const { data: sessions } = await supabase
-        .from('user_sessions')
-        .select('exercise_id, duration_seconds')
-        .eq('user_id', user.id);
-
-      if (sessions) {
-        const bests: Record<string, number> = {};
-        sessions.forEach(session => {
-          const exerciseId = session.exercise_id;
-          if (exerciseId && (!bests[exerciseId] || session.duration_seconds > bests[exerciseId])) {
-            bests[exerciseId] = session.duration_seconds;
-          }
-        });
-        setPersonalBests(bests);
-      }
-    } catch (error) {
-      console.error('Error loading personal bests:', error);
-    }
-  };
-
-  const calculateCalories = (durationSeconds: number, exerciseDifficulty: number): number => {
-    // Base calorie burn rate for plank: ~2-4 calories per minute depending on body weight and intensity
-    const baseRate = 2.5; // calories per minute for average person
-    const difficultyMultiplier = 1 + (exerciseDifficulty - 1) * 0.2; // 20% increase per level
-    const minutes = durationSeconds / 60;
-    return Math.round(baseRate * difficultyMultiplier * minutes);
-  };
-
-  const saveEnhancedSession = async (sessionData: SessionData): Promise<SessionResult> => {
-    if (!user) {
-      console.log('No user found, skipping session save');
-      return {
-        milestoneEvent: null,
-        newAchievements: [],
-        isPersonalBest: false,
-        caloriesEstimate: 0,
-        completionPercentage: 100
-      };
-    }
-
-    const { exercise, durationSeconds, notes } = sessionData;
-    const previousBest = personalBests[exercise.id];
-    const isPersonalBest = !previousBest || durationSeconds > previousBest;
-    const caloriesEstimate = calculateCalories(durationSeconds, exercise.difficulty_level);
-
-    try {
-      // Save session with enhanced data
-      const { error } = await supabase
-        .from('user_sessions')
-        .insert({
-          user_id: user.id,
-          exercise_id: exercise.id,
-          duration_seconds: durationSeconds,
-          notes: notes || null,
-        });
-
-      if (error) {
-        console.error('Error saving session:', error);
-        toast({
-          title: "Error",
-          description: "Failed to save your workout session.",
-          variant: "destructive",
-        });
-        return {
-          milestoneEvent: null,
-          newAchievements: [],
-          isPersonalBest: false,
-          caloriesEstimate,
-          completionPercentage: 100
-        };
-      }
-
-      // Update personal best
-      if (isPersonalBest) {
-        setPersonalBests(prev => ({
-          ...prev,
-          [exercise.id]: durationSeconds
-        }));
-      }
-
-      // Update streak and get milestone
-      const milestoneEvent = await updateStreakWithEnhancement();
-
-      // Check for new achievements using enhanced service
-      const achievementService = new EnhancedAchievementService(user.id);
-      const regularAchievements = await achievementService.checkAchievements();
-      const specialAchievements = await achievementService.checkSpecialAchievements();
-      const newAchievements = [...regularAchievements, ...specialAchievements];
-
-      // Invalidate queries
-      queryClient.invalidateQueries({ queryKey: ['session-history'] });
-      queryClient.invalidateQueries({ queryKey: ['session-stats'] });
-      queryClient.invalidateQueries({ queryKey: ['user-streak'] });
-      queryClient.invalidateQueries({ queryKey: ['user-achievements'] });
-      queryClient.invalidateQueries({ queryKey: ['achievement-progress'] });
-
-      // Show success toast
-      toast({
-        title: "Session Saved! 🎉",
-        description: `${exercise.name} completed${isPersonalBest ? ' - New personal best!' : ''}`,
-      });
-
-      return {
-        milestoneEvent,
-        newAchievements,
-        isPersonalBest,
-        previousBest,
-        caloriesEstimate,
-        completionPercentage: 100
-      };
-    } catch (error) {
-      console.error('Error saving enhanced session:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save your workout session.",
-        variant: "destructive",
-      });
-      return {
-        milestoneEvent: null,
-        newAchievements: [],
-        isPersonalBest: false,
-        caloriesEstimate,
-        completionPercentage: 100
-      };
-    }
-  };
-
-  const updateStreakWithEnhancement = async (): Promise<MilestoneEvent | null> => {
-    if (!user) return null;
-
-    try {
-      const today = new Date().toISOString().split('T')[0];
-      
-      const { data: streak, error: fetchError } = await supabase
+      // Fetch the user's current streak
+      let { data: userStreak, error: streakError } = await supabase
         .from('user_streaks')
         .select('*')
         .eq('user_id', user.id)
-        .maybeSingle();
+        .single();
 
-      if (fetchError) {
-        console.error('Error fetching streak:', fetchError);
-        return null;
+      if (streakError) {
+        console.error("Error fetching user streak:", streakError);
+        return;
       }
 
-      if (!streak) {
-        // Create initial streak record
-        const { error: insertError } = await supabase
-          .from('user_streaks')
-          .insert({
-            user_id: user.id,
-            current_streak: 1,
-            longest_streak: 1,
-            last_workout_date: today,
-          });
+      const today = new Date();
+      const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const lastWorkoutDate = userStreak?.last_workout ? new Date(userStreak.last_workout) : null;
 
-        if (insertError) {
-          console.error('Error creating streak:', insertError);
+      let newStreak = 1;
+      if (lastWorkoutDate) {
+        const lastWorkoutMidnight = new Date(lastWorkoutDate.getFullYear(), lastWorkoutDate.getMonth(), lastWorkoutDate.getDate());
+        const timeDiff = todayMidnight.getTime() - lastWorkoutMidnight.getTime();
+        const dayDiff = timeDiff / (1000 * 3600 * 24);
+
+        if (dayDiff === 1) {
+          // Continue the streak
+          newStreak = (userStreak?.current_streak || 0) + 1;
+        } else if (dayDiff > 1) {
+          // Streak broken
+          newStreak = 1;
+        } else {
+          // Workout already recorded today, do nothing
+          return;
         }
-
-        return {
-          milestone: {
-            days: 1,
-            title: "First Step",
-            description: "Your fitness journey begins! 🌱"
-          },
-          isNewMilestone: true
-        };
       }
 
-      const lastWorkoutDate = streak.last_workout_date;
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().split('T')[0];
+      // Update or insert the streak
+      const updates = {
+        user_id: user.id,
+        current_streak: newStreak,
+        last_workout: todayMidnight.toISOString(),
+        longest_streak: Math.max(newStreak, userStreak?.longest_streak || 0),
+      };
 
-      let newCurrentStreak = streak.current_streak || 0;
-      const previousStreak = newCurrentStreak;
-
-      if (lastWorkoutDate === today) {
-        // Already worked out today, don't update streak
-        return null;
-      } else if (lastWorkoutDate === yesterdayStr) {
-        // Consecutive day, increment streak
-        newCurrentStreak += 1;
-      } else {
-        // Streak broken, reset to 1
-        newCurrentStreak = 1;
-      }
-
-      const newLongestStreak = Math.max(streak.longest_streak || 0, newCurrentStreak);
-
-      const { error: updateError } = await supabase
-        .from('user_streaks')
-        .update({
-          current_streak: newCurrentStreak,
-          longest_streak: newLongestStreak,
-          last_workout_date: today,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('user_id', user.id);
+      const { error: updateError } = userStreak
+        ? await supabase.from('user_streaks').update(updates).eq('user_id', user.id)
+        : await supabase.from('user_streaks').insert(updates);
 
       if (updateError) {
-        console.error('Error updating enhanced streak:', updateError);
-        return null;
+        console.error("Error updating user streak:", updateError);
+        return;
       }
 
-      // Enhanced milestone system
-      const milestones = [
-        { days: 1, title: "First Step", description: "Your fitness journey begins! 🌱" },
-        { days: 3, title: "Building Momentum", description: "You're forming a habit! 💪" },
-        { days: 7, title: "Week Warrior", description: "One full week of dedication! ⚔️" },
-        { days: 14, title: "Two Week Champion", description: "Consistency is your superpower! 🏆" },
-        { days: 21, title: "Habit Master", description: "21 days - it's becoming natural! 🎯" },
-        { days: 30, title: "Monthly Legend", description: "One month of pure determination! 👑" },
-        { days: 50, title: "Unstoppable Force", description: "You're absolutely unstoppable! 🚀" },
-        { days: 75, title: "Elite Dedication", description: "Elite level commitment! 💎" },
-        { days: 100, title: "Century Champion", description: "100 days - you're legendary! 🏅" },
-        { days: 365, title: "Year-Long Hero", description: "A full year - incredible! 🌟" }
-      ];
-
-      const achievedMilestone = milestones.find(m => 
-        m.days === newCurrentStreak && previousStreak < m.days
-      );
-
-      if (achievedMilestone) {
-        return {
-          milestone: achievedMilestone,
-          isNewMilestone: true
-        };
+      // Check for milestone
+      if (newStreak > 0 && newStreak % 7 === 0) {
+        showMilestone({
+          days: newStreak,
+          title: `${newStreak}-Day Streak!`,
+          description: `You've maintained a ${newStreak}-day streak! Keep it up!`
+        });
       }
 
-      return null;
     } catch (error) {
-      console.error('Error updating enhanced streak:', error);
-      return null;
+      console.error("Unexpected error updating streak:", error);
     }
-  };
+  }, [user, showMilestone]);
 
-  return { 
-    saveEnhancedSession, 
-    personalBests,
-    loadPersonalBests 
+const completeSession = async (duration: number, notes?: string) => {
+  if (!user || !selectedExercise) return;
+
+  setIsCompleting(true);
+  
+  try {
+    console.log('Completing session:', { duration, exerciseId: selectedExercise.id });
+    
+    // Create session record
+    const { data: session, error: sessionError } = await supabase
+      .from('user_sessions')
+      .insert({
+        user_id: user.id,
+        exercise_id: selectedExercise.id,
+        duration_seconds: duration,
+        notes: notes || null,
+      })
+      .select()
+      .single();
+
+    if (sessionError) {
+      console.error('Error creating session:', sessionError);
+      toast.error('Failed to save session');
+      return;
+    }
+
+    console.log('Session created successfully:', session);
+
+    // Update user streak
+    await updateStreak();
+
+    // Check for new achievements using expanded engine
+    const achievementEngine = new ExpandedAchievementEngine(user.id);
+    const newAchievements = await achievementEngine.checkAllAchievements({
+      duration_seconds: duration,
+      exercise_id: selectedExercise.id,
+      user_id: user.id
+    });
+
+    console.log('New achievements earned:', newAchievements);
+
+    // Show achievement celebrations
+    if (newAchievements.length > 0) {
+      for (const achievement of newAchievements) {
+        // Find the achievement definition
+        const achievementDef = ExpandedAchievementEngine.getAchievementByName(achievement.achievement_name);
+        if (achievementDef) {
+          // Show celebration modal (this would integrate with your existing celebration system)
+          console.log('Achievement unlocked:', achievementDef);
+        }
+      }
+    }
+
+    setCompletedSession({
+      id: session.id,
+      duration,
+      exercise: selectedExercise,
+      timestamp: new Date().toISOString(),
+      achievements: newAchievements,
+      notes
+    });
+
+    toast.success('Session completed successfully!');
+  } catch (error) {
+    console.error('Unexpected error completing session:', error);
+    toast.error('Failed to complete session');
+  } finally {
+    setIsCompleting(false);
+  }
+};
+
+  return {
+    exercises,
+    isLoadingExercises,
+    selectedExercise,
+    isTimerRunning,
+    sessionDuration,
+    startSession,
+    pauseSession,
+    resumeSession,
+    endSession,
+    selectExercise,
+    completeSession,
+    completedSession,
+    sessionNotes,
+    setSessionNotes,
+    isCompleting
   };
 };

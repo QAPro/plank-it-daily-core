@@ -49,7 +49,54 @@ export interface FriendReaction {
   created_at: string;
 }
 
+// Local storage keys for simulated friend system
+const FRIENDS_STORAGE_KEY = 'friends_data';
+const PENDING_REQUESTS_KEY = 'pending_requests';
+
+interface StoredFriend extends Friend {
+  friend_profile: FriendProfile;
+}
+
+interface StoredPendingRequest {
+  id: string;
+  requester_id: string;
+  target_id: string;
+  created_at: string;
+  requester: {
+    id: string;
+    username: string;
+    full_name: string;
+    avatar_url?: string;
+  };
+}
+
 export class FriendSystemManager {
+  private getStoredFriends(): StoredFriend[] {
+    try {
+      const stored = localStorage.getItem(FRIENDS_STORAGE_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  private setStoredFriends(friends: StoredFriend[]): void {
+    localStorage.setItem(FRIENDS_STORAGE_KEY, JSON.stringify(friends));
+  }
+
+  private getStoredRequests(): StoredPendingRequest[] {
+    try {
+      const stored = localStorage.getItem(PENDING_REQUESTS_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  private setStoredRequests(requests: StoredPendingRequest[]): void {
+    localStorage.setItem(PENDING_REQUESTS_KEY, JSON.stringify(requests));
+  }
+
   async searchUsers(query: string, currentUserId: string): Promise<FriendProfile[]> {
     if (query.length < 2) return [];
 
@@ -72,7 +119,7 @@ export class FriendSystemManager {
             username: user.username || '',
             full_name: user.full_name || '',
             ...stats,
-            is_online: false, // Default for now
+            is_online: false,
             privacy_settings: {
               show_workouts: true,
               show_achievements: true,
@@ -92,26 +139,48 @@ export class FriendSystemManager {
   async sendFriendRequest(userId: string, targetUserId: string): Promise<boolean> {
     try {
       // Check if friendship already exists
-      const { data: existingFriendship } = await supabase
-        .from('friends')
-        .select('id')
-        .or(`and(user_id.eq.${userId},friend_user_id.eq.${targetUserId}),and(user_id.eq.${targetUserId},friend_user_id.eq.${userId})`)
-        .maybeSingle();
+      const friends = this.getStoredFriends();
+      const requests = this.getStoredRequests();
+      
+      const existingFriendship = friends.find(f => 
+        (f.user_id === userId && f.friend_user_id === targetUserId) ||
+        (f.user_id === targetUserId && f.friend_user_id === userId)
+      );
 
-      if (existingFriendship) {
+      const existingRequest = requests.find(r =>
+        (r.requester_id === userId && r.target_id === targetUserId) ||
+        (r.requester_id === targetUserId && r.target_id === userId)
+      );
+
+      if (existingFriendship || existingRequest) {
         throw new Error('Friendship already exists or request pending');
       }
 
-      // Create friend request
-      const { error } = await supabase
-        .from('friends')
-        .insert({
-          user_id: userId,
-          friend_user_id: targetUserId,
-          status: 'pending'
-        });
+      // Get requester profile
+      const { data: requester } = await supabase
+        .from('users')
+        .select('id, username, full_name, avatar_url')
+        .eq('id', userId)
+        .single();
 
-      if (error) throw error;
+      if (!requester) throw new Error('User not found');
+
+      // Create friend request
+      const newRequest: StoredPendingRequest = {
+        id: Math.random().toString(36).substr(2, 9),
+        requester_id: userId,
+        target_id: targetUserId,
+        created_at: new Date().toISOString(),
+        requester: {
+          id: requester.id,
+          username: requester.username || '',
+          full_name: requester.full_name || '',
+          avatar_url: requester.avatar_url
+        }
+      };
+
+      requests.push(newRequest);
+      this.setStoredRequests(requests);
       return true;
     } catch (error) {
       console.error('Error sending friend request:', error);
@@ -121,16 +190,40 @@ export class FriendSystemManager {
 
   async acceptFriendRequest(userId: string, requestId: string): Promise<boolean> {
     try {
-      const { error } = await supabase
-        .from('friends')
-        .update({ 
-          status: 'accepted', 
-          accepted_at: new Date().toISOString() 
-        })
-        .eq('id', requestId)
-        .eq('friend_user_id', userId);
+      const requests = this.getStoredRequests();
+      const requestIndex = requests.findIndex(r => r.id === requestId && r.target_id === userId);
+      
+      if (requestIndex === -1) {
+        throw new Error('Request not found');
+      }
 
-      if (error) throw error;
+      const request = requests[requestIndex];
+      
+      // Get both user profiles
+      const [requesterProfile, targetProfile] = await Promise.all([
+        this.getUserProfile(request.requester_id),
+        this.getUserProfile(userId)
+      ]);
+
+      // Create friendship entries
+      const friends = this.getStoredFriends();
+      const friendship: StoredFriend = {
+        id: Math.random().toString(36).substr(2, 9),
+        user_id: request.requester_id,
+        friend_user_id: userId,
+        status: 'accepted',
+        created_at: request.created_at,
+        accepted_at: new Date().toISOString(),
+        friend_profile: targetProfile
+      };
+
+      friends.push(friendship);
+      this.setStoredFriends(friends);
+
+      // Remove the request
+      requests.splice(requestIndex, 1);
+      this.setStoredRequests(requests);
+
       return true;
     } catch (error) {
       console.error('Error accepting friend request:', error);
@@ -140,13 +233,15 @@ export class FriendSystemManager {
 
   async declineFriendRequest(userId: string, requestId: string): Promise<boolean> {
     try {
-      const { error } = await supabase
-        .from('friends')
-        .delete()
-        .eq('id', requestId)
-        .eq('friend_user_id', userId);
+      const requests = this.getStoredRequests();
+      const requestIndex = requests.findIndex(r => r.id === requestId && r.target_id === userId);
+      
+      if (requestIndex === -1) {
+        throw new Error('Request not found');
+      }
 
-      if (error) throw error;
+      requests.splice(requestIndex, 1);
+      this.setStoredRequests(requests);
       return true;
     } catch (error) {
       console.error('Error declining friend request:', error);
@@ -156,37 +251,15 @@ export class FriendSystemManager {
 
   async getFriendsList(userId: string): Promise<FriendProfile[]> {
     try {
-      // Get accepted friendships
-      const { data: friendships } = await supabase
-        .from('friends')
-        .select(`
-          *,
-          friend_user:users!friends_friend_user_id_fkey(id, username, full_name, avatar_url, current_level),
-          user:users!friends_user_id_fkey(id, username, full_name, avatar_url, current_level)
-        `)
-        .or(`user_id.eq.${userId},friend_user_id.eq.${userId}`)
-        .eq('status', 'accepted');
+      const friends = this.getStoredFriends();
+      const userFriends = friends.filter(f => 
+        f.user_id === userId || f.friend_user_id === userId
+      );
 
-      if (!friendships) return [];
-
-      // Get friend profiles with stats
       const friendProfiles = await Promise.all(
-        friendships.map(async (friendship: any) => {
-          const friend = friendship.user_id === userId ? friendship.friend_user : friendship.user;
-          const stats = await this.getUserStats(friend.id);
-          
-          return {
-            ...friend,
-            username: friend.username || '',
-            full_name: friend.full_name || '',
-            ...stats,
-            is_online: false, // Default for now
-            privacy_settings: {
-              show_workouts: true,
-              show_achievements: true,
-              show_streak: true
-            }
-          };
+        userFriends.map(async (friendship) => {
+          const friendId = friendship.user_id === userId ? friendship.friend_user_id : friendship.user_id;
+          return await this.getUserProfile(friendId);
         })
       );
 
@@ -199,23 +272,14 @@ export class FriendSystemManager {
 
   async getPendingRequests(userId: string): Promise<any[]> {
     try {
-      const { data: requests } = await supabase
-        .from('friends')
-        .select(`
-          *,
-          requester:users!friends_user_id_fkey(id, username, full_name, avatar_url, current_level)
-        `)
-        .eq('friend_user_id', userId)
-        .eq('status', 'pending');
-
-      return requests?.map(request => ({
-        ...request,
-        requester: {
-          ...request.requester,
-          username: request.requester?.username || '',
-          full_name: request.requester?.full_name || ''
-        }
-      })) || [];
+      const requests = this.getStoredRequests();
+      return requests
+        .filter(r => r.target_id === userId)
+        .map(request => ({
+          id: request.id,
+          created_at: request.created_at,
+          users: request.requester
+        }));
     } catch (error) {
       console.error('Error getting pending requests:', error);
       return [];
@@ -224,7 +288,7 @@ export class FriendSystemManager {
 
   async getFriendActivities(userId: string): Promise<FriendActivity[]> {
     try {
-      // For now, return empty array until activities table is properly set up
+      // Return empty array for now - can be implemented later
       console.log('Getting friend activities for user:', userId);
       return [];
     } catch (error) {
@@ -265,17 +329,51 @@ export class FriendSystemManager {
 
   async removeFriend(userId: string, friendId: string): Promise<boolean> {
     try {
-      const { error } = await supabase
-        .from('friends')
-        .delete()
-        .or(`and(user_id.eq.${userId},friend_user_id.eq.${friendId}),and(user_id.eq.${friendId},friend_user_id.eq.${userId})`);
+      const friends = this.getStoredFriends();
+      const friendshipIndex = friends.findIndex(f =>
+        (f.user_id === userId && f.friend_user_id === friendId) ||
+        (f.user_id === friendId && f.friend_user_id === userId)
+      );
 
-      if (error) throw error;
+      if (friendshipIndex !== -1) {
+        friends.splice(friendshipIndex, 1);
+        this.setStoredFriends(friends);
+      }
+
       return true;
     } catch (error) {
       console.error('Error removing friend:', error);
       throw error;
     }
+  }
+
+  private async getUserProfile(userId: string): Promise<FriendProfile> {
+    const { data: user } = await supabase
+      .from('users')
+      .select('id, username, full_name, avatar_url, current_level')
+      .eq('id', userId)
+      .single();
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const stats = await this.getUserStats(userId);
+
+    return {
+      id: user.id,
+      username: user.username || '',
+      full_name: user.full_name || '',
+      avatar_url: user.avatar_url,
+      current_level: user.current_level || 1,
+      ...stats,
+      is_online: false,
+      privacy_settings: {
+        show_workouts: true,
+        show_achievements: true,
+        show_streak: true
+      }
+    };
   }
 
   private async getUserStats(userId: string) {

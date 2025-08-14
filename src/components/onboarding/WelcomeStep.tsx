@@ -48,7 +48,7 @@ const WelcomeStep = ({ onNext }: WelcomeStepProps) => {
             P
           </motion.div>
         </div>
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome to PlankIt!</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome to PlankCoach!</h1>
         <p className="text-lg text-gray-600 max-w-md">
           Let's set up your personalized plank journey in just a few steps
         </p>

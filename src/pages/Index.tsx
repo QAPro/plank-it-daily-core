@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -24,7 +25,7 @@ const Index = () => {
 
     if (user && isOnboardingComplete !== null) {
       // Check for existing session (will be replaced with onboarding check)
-      const hasSeenWelcome = localStorage.getItem('plankit-welcome-seen');
+      const hasSeenWelcome = localStorage.getItem('plankcoach-welcome-seen');
       if (hasSeenWelcome || isOnboardingComplete) {
         setShowWelcome(false);
       }
@@ -32,7 +33,7 @@ const Index = () => {
   }, [user, authLoading, isOnboardingComplete, navigate]);
 
   const handleGetStarted = () => {
-    localStorage.setItem('plankit-welcome-seen', 'true');
+    localStorage.setItem('plankcoach-welcome-seen', 'true');
     setShowWelcome(false);
   };
 

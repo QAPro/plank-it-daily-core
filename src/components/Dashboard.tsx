@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Home, User, Dumbbell, BarChart3, Trophy } from "lucide-react";
@@ -36,7 +37,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-orange-700">
-                Plank<span className="text-gray-800">It</span>
+                Plank<span className="text-gray-800">Coach</span>
               </h1>
             </div>
             <div className="flex items-center space-x-4">

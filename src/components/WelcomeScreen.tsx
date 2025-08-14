@@ -55,7 +55,7 @@ const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
             P
           </motion.div>
         </div>
-        <h1 className="text-4xl font-bold text-gray-800 mb-2">PlankIt</h1>
+        <h1 className="text-4xl font-bold text-gray-800 mb-2">PlankCoach</h1>
         <p className="text-lg text-gray-600">Build Your Core, Build Your Strength</p>
       </motion.div>
 

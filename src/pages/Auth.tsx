@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
@@ -194,7 +195,7 @@ const Auth = () => {
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold text-orange-600">
-              {isLogin ? 'Welcome Back' : 'Join PlankIt'}
+              {isLogin ? 'Welcome Back' : 'Join PlankCoach'}
             </CardTitle>
             <CardDescription>
               {isLogin 

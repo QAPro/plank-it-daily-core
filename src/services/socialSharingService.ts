@@ -28,7 +28,7 @@ export class SocialSharingService {
       message += ` 📅 ${streakDays}-day streak!`;
     }
     
-    message += " #PlankChallenge #Fitness #CoreStrength";
+    message += " #PlankCoach #Fitness #CoreStrength";
     
     return message;
   }

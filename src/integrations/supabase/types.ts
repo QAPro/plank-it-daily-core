@@ -14,6 +14,62 @@ export type Database = {
   }
   public: {
     Tables: {
+      feature_unlocks: {
+        Row: {
+          feature_name: string
+          id: string
+          unlock_level: number
+          unlocked_at: string | null
+          user_id: string
+        }
+        Insert: {
+          feature_name: string
+          id?: string
+          unlock_level: number
+          unlocked_at?: string | null
+          user_id: string
+        }
+        Update: {
+          feature_name?: string
+          id?: string
+          unlock_level?: number
+          unlocked_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feature_unlocks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      level_unlocks: {
+        Row: {
+          category: string
+          feature_description: string
+          feature_name: string
+          icon: string
+          level: number
+        }
+        Insert: {
+          category: string
+          feature_description: string
+          feature_name: string
+          icon: string
+          level: number
+        }
+        Update: {
+          category?: string
+          feature_description?: string
+          feature_name?: string
+          icon?: string
+          level?: number
+        }
+        Relationships: []
+      }
       plank_exercises: {
         Row: {
           category: string | null
@@ -485,31 +541,72 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string | null
+          current_level: number | null
           email: string
           full_name: string | null
           id: string
+          total_xp: number | null
           updated_at: string | null
           username: string | null
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string | null
+          current_level?: number | null
           email: string
           full_name?: string | null
           id: string
+          total_xp?: number | null
           updated_at?: string | null
           username?: string | null
         }
         Update: {
           avatar_url?: string | null
           created_at?: string | null
+          current_level?: number | null
           email?: string
           full_name?: string | null
           id?: string
+          total_xp?: number | null
           updated_at?: string | null
           username?: string | null
         }
         Relationships: []
+      }
+      xp_transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          description: string | null
+          id: string
+          source: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          source: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          source?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xp_transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

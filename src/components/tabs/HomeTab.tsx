@@ -7,6 +7,8 @@ import { useSessionStats } from "@/hooks/useSessionHistory";
 import { useAuth } from "@/contexts/AuthContext";
 import StreakDisplay from "@/components/StreakDisplay";
 import RecommendationsDashboard from "@/components/RecommendationsDashboard";
+import LevelProgressBar from "@/components/level/LevelProgressBar";
+import { useLevelProgression } from "@/hooks/useLevelProgression";
 
 interface HomeTabProps {
   onExerciseSelect?: (exerciseId: string) => void;
@@ -15,6 +17,7 @@ interface HomeTabProps {
 const HomeTab = ({ onExerciseSelect }: HomeTabProps) => {
   const { data: stats } = useSessionStats();
   const { user } = useAuth();
+  const { userLevel, loading: levelLoading } = useLevelProgression();
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -81,6 +84,17 @@ const HomeTab = ({ onExerciseSelect }: HomeTabProps) => {
         </h2>
         <p className="text-gray-600">Ready for today's plank challenge?</p>
       </div>
+
+      {/* Level Progress Bar */}
+      {!levelLoading && userLevel && (
+        <motion.div
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.1, duration: 0.6 }}
+        >
+          <LevelProgressBar userLevel={userLevel} />
+        </motion.div>
+      )}
 
       {/* Streak Display */}
       <StreakDisplay />

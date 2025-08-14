@@ -1,18 +1,12 @@
+
 import { useState, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { awardXP } from '@/services/levelProgressionService';
 import { useLevelProgression } from './useLevelProgression';
-import { useFriendActivityTracking } from './useFriendActivityTracking';
 
 export const useXPTracking = () => {
   const { user } = useAuth();
   const { refetch } = useLevelProgression();
-  const { 
-    trackWorkoutActivity, 
-    trackAchievementActivity, 
-    trackLevelUpActivity, 
-    trackStreakMilestoneActivity 
-  } = useFriendActivityTracking();
   
   const [xpNotification, setXpNotification] = useState<{
     amount: number;
@@ -56,29 +50,9 @@ export const useXPTracking = () => {
               isVisible: true,
               oldLevel: result.newLevel!.current_level - 1,
               newLevel: result.newLevel!,
-              unlocks: [] // Will be populated with actual unlocks
+              unlocks: []
             });
           }, 1000);
-
-          // Track level up activity for friends
-          await trackLevelUpActivity({
-            old_level: result.newLevel.current_level - 1,
-            new_level: result.newLevel.current_level,
-            level_title: result.newLevel.level_title
-          });
-        }
-
-        // Track friend activities based on source
-        switch (source) {
-          case 'workout':
-            await trackWorkoutActivity(data);
-            break;
-          case 'achievement':
-            await trackAchievementActivity(data);
-            break;
-          case 'streak':
-            await trackStreakMilestoneActivity(data);
-            break;
         }
 
         // Refresh level data
@@ -87,7 +61,7 @@ export const useXPTracking = () => {
     } catch (error) {
       console.error('Error tracking XP:', error);
     }
-  }, [user, refetch, trackWorkoutActivity, trackAchievementActivity, trackLevelUpActivity, trackStreakMilestoneActivity]);
+  }, [user, refetch]);
 
   const hideXPNotification = useCallback(() => {
     setXpNotification(prev => ({ ...prev, isVisible: false }));

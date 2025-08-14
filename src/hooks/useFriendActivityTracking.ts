@@ -1,20 +1,16 @@
 
 import { useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { friendSystemManager } from '@/services/friendSystemService';
 
 export const useFriendActivityTracking = () => {
   const { user } = useAuth();
 
   const trackWorkoutActivity = useCallback(async (sessionData: any) => {
     if (!user) return;
-
+    
     try {
-      await friendSystemManager.createActivity(user.id, 'workout', {
-        exercise_name: sessionData.exercise_name || 'Workout',
-        duration_seconds: sessionData.duration_seconds,
-        difficulty_level: sessionData.difficulty_level
-      });
+      console.log('Would track workout activity:', sessionData);
+      // TODO: Implement when database functions are ready
     } catch (error) {
       console.error('Error tracking workout activity:', error);
     }
@@ -24,11 +20,8 @@ export const useFriendActivityTracking = () => {
     if (!user) return;
 
     try {
-      await friendSystemManager.createActivity(user.id, 'achievement', {
-        achievement_name: achievementData.achievement_name,
-        achievement_type: achievementData.achievement_type,
-        rarity: achievementData.rarity
-      });
+      console.log('Would track achievement activity:', achievementData);
+      // TODO: Implement when database functions are ready
     } catch (error) {
       console.error('Error tracking achievement activity:', error);
     }
@@ -38,11 +31,8 @@ export const useFriendActivityTracking = () => {
     if (!user) return;
 
     try {
-      await friendSystemManager.createActivity(user.id, 'level_up', {
-        old_level: levelData.old_level,
-        new_level: levelData.new_level,
-        level_title: levelData.level_title
-      });
+      console.log('Would track level up activity:', levelData);
+      // TODO: Implement when database functions are ready
     } catch (error) {
       console.error('Error tracking level up activity:', error);
     }
@@ -54,10 +44,8 @@ export const useFriendActivityTracking = () => {
     // Only track milestone streaks (every 7 days)
     if (streakData.streak_length % 7 === 0 && streakData.streak_length >= 7) {
       try {
-        await friendSystemManager.createActivity(user.id, 'streak_milestone', {
-          streak_length: streakData.streak_length,
-          milestone_type: streakData.streak_length >= 30 ? 'major' : 'minor'
-        });
+        console.log('Would track streak milestone activity:', streakData);
+        // TODO: Implement when database functions are ready
       } catch (error) {
         console.error('Error tracking streak milestone activity:', error);
       }

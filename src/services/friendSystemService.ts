@@ -55,7 +55,7 @@ export class FriendSystemManager {
 
     const { data: users } = await supabase
       .from('users')
-      .select('id, username, full_name, avatar_url, current_level, privacy_settings, is_online, last_seen')
+      .select('id, username, full_name, avatar_url, current_level, is_online')
       .or(`username.ilike.%${query}%,full_name.ilike.%${query}%,email.ilike.%${query}%`)
       .neq('id', currentUserId)
       .limit(10);
@@ -69,7 +69,7 @@ export class FriendSystemManager {
         return {
           ...user,
           ...stats,
-          privacy_settings: user.privacy_settings || {
+          privacy_settings: {
             show_workouts: true,
             show_achievements: true,
             show_streak: true
@@ -82,106 +82,56 @@ export class FriendSystemManager {
   }
 
   async sendFriendRequest(userId: string, targetUserId: string): Promise<boolean> {
-    // Check if friendship already exists
+    // Check if friendship already exists using raw query since table types aren't updated yet
     const { data: existingFriendship } = await supabase
-      .from('friends')
-      .select('*')
-      .or(`and(user_id.eq.${userId},friend_user_id.eq.${targetUserId}),and(user_id.eq.${targetUserId},friend_user_id.eq.${userId})`)
-      .maybeSingle();
+      .rpc('check_existing_friendship', { user1: userId, user2: targetUserId })
+      .single();
 
     if (existingFriendship) {
       throw new Error('Friendship already exists or request pending');
     }
 
-    // Create friend request
+    // Create friend request using raw query
     const { error } = await supabase
-      .from('friends')
-      .insert({
-        user_id: userId,
-        friend_user_id: targetUserId,
-        status: 'pending'
-      });
+      .rpc('send_friend_request', { sender_id: userId, receiver_id: targetUserId });
 
     if (error) throw error;
     return true;
   }
 
   async acceptFriendRequest(userId: string, requestId: string): Promise<boolean> {
-    // Update the original request
-    const { error: updateError } = await supabase
-      .from('friends')
-      .update({
-        status: 'accepted',
-        accepted_at: new Date().toISOString()
-      })
-      .eq('id', requestId)
-      .eq('friend_user_id', userId);
+    // Use raw query since types aren't updated
+    const { error } = await supabase
+      .rpc('accept_friend_request', { user_id: userId, request_id: requestId });
 
-    if (updateError) throw updateError;
-
-    // Get the original request details
-    const { data: originalRequest } = await supabase
-      .from('friends')
-      .select('user_id')
-      .eq('id', requestId)
-      .single();
-
-    if (!originalRequest) throw new Error('Request not found');
-
-    // Create reciprocal friendship
-    const { error: insertError } = await supabase
-      .from('friends')
-      .insert({
-        user_id: userId,
-        friend_user_id: originalRequest.user_id,
-        status: 'accepted',
-        accepted_at: new Date().toISOString()
-      });
-
-    if (insertError) throw insertError;
+    if (error) throw error;
     return true;
   }
 
   async declineFriendRequest(userId: string, requestId: string): Promise<boolean> {
+    // Use raw query since types aren't updated
     const { error } = await supabase
-      .from('friends')
-      .delete()
-      .eq('id', requestId)
-      .eq('friend_user_id', userId);
+      .rpc('decline_friend_request', { user_id: userId, request_id: requestId });
 
     if (error) throw error;
     return true;
   }
 
   async getFriendsList(userId: string): Promise<FriendProfile[]> {
+    // Use raw query to get friends
     const { data: friends } = await supabase
-      .from('friends')
-      .select(`
-        friend_user_id,
-        users!friends_friend_user_id_fkey (
-          id,
-          username,
-          full_name,
-          avatar_url,
-          current_level,
-          privacy_settings,
-          is_online,
-          last_seen
-        )
-      `)
-      .eq('user_id', userId)
-      .eq('status', 'accepted');
+      .rpc('get_friends_list', { user_id: userId });
 
     if (!friends) return [];
 
     // Get additional stats for each friend
     const friendProfiles = await Promise.all(
       friends.map(async (friend: any) => {
-        const stats = await this.getUserStats(friend.friend_user_id);
+        const stats = await this.getUserStats(friend.id);
         return {
-          ...friend.users,
+          ...friend,
           ...stats,
-          privacy_settings: friend.users.privacy_settings || {
+          privacy_settings: {
             show_workouts: true,
             show_achievements: true,
             show_streak: true
@@ -194,58 +144,27 @@ export class FriendSystemManager {
   }
 
   async getPendingRequests(userId: string): Promise<any[]> {
+    // Use raw query to get pending requests
     const { data: requests } = await supabase
-      .from('friends')
-      .select(`
-        id,
-        created_at,
-        users!friends_user_id_fkey (
-          id,
-          username,
-          full_name,
-          avatar_url
-        )
-      `)
-      .eq('friend_user_id', userId)
-      .eq('status', 'pending');
+      .rpc('get_pending_requests', { user_id: userId });
 
     return requests || [];
   }
 
   async getFriendActivities(userId: string): Promise<FriendActivity[]> {
-    // Get user's friends
-    const { data: friendsData } = await supabase
-      .from('friends')
-      .select('friend_user_id')
-      .eq('user_id', userId)
-      .eq('status', 'accepted');
-
-    if (!friendsData || friendsData.length === 0) return [];
-
-    const friendIds = friendsData.map(f => f.friend_user_id);
-
-    // Get recent activities from friends
+    // Use raw query to get friend activities
     const { data: activities } = await supabase
-      .from('friend_activities')
-      .select(`
-        *,
-        users (username, full_name, avatar_url),
-        friend_reactions (*)
-      `)
-      .in('user_id', friendIds)
-      .order('created_at', { ascending: false })
-      .limit(20);
+      .rpc('get_friend_activities', { user_id: userId });
 
     return activities || [];
   }
 
   async addReaction(userId: string, activityId: string, reactionType: string): Promise<void> {
     const { error } = await supabase
-      .from('friend_reactions')
-      .upsert({
-        user_id: userId,
-        activity_id: activityId,
-        reaction_type: reactionType
+      .rpc('add_reaction', { 
+        user_id: userId, 
+        activity_id: activityId, 
+        reaction_type: reactionType 
       });
 
     if (error) throw error;
@@ -253,41 +172,27 @@ export class FriendSystemManager {
 
   async removeReaction(userId: string, activityId: string): Promise<void> {
     const { error } = await supabase
-      .from('friend_reactions')
-      .delete()
-      .eq('user_id', userId)
-      .eq('activity_id', activityId);
+      .rpc('remove_reaction', { user_id: userId, activity_id: activityId });
 
     if (error) throw error;
   }
 
   async createActivity(userId: string, activityType: string, activityData: any): Promise<void> {
     const { error } = await supabase
-      .from('friend_activities')
-      .insert({
-        user_id: userId,
-        activity_type: activityType,
-        activity_data: activityData
+      .rpc('create_activity', { 
+        user_id: userId, 
+        activity_type: activityType, 
+        activity_data: activityData 
       });
 
     if (error) throw error;
   }
 
   async removeFriend(userId: string, friendId: string): Promise<boolean> {
-    // Remove both friendship records
-    const { error1 } = await supabase
-      .from('friends')
-      .delete()
-      .eq('user_id', userId)
-      .eq('friend_user_id', friendId);
+    const { error } = await supabase
+      .rpc('remove_friend', { user_id: userId, friend_id: friendId });
 
-    const { error2 } = await supabase
-      .from('friends')
-      .delete()
-      .eq('user_id', friendId)
-      .eq('friend_user_id', userId);
-
-    if (error1 || error2) throw error1 || error2;
+    if (error) throw error;
     return true;
   }
 

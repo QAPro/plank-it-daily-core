@@ -6,7 +6,7 @@ import { Loader2, Activity } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import EnhancedActivityCard from './EnhancedActivityCard';
-import ActivityFilters from './ActivityFilters';
+import ActivityFiltersComponent from './ActivityFilters';
 
 const FriendActivityFeed = () => {
   const { user } = useAuth();
@@ -99,7 +99,7 @@ const FriendActivityFeed = () => {
         <h2 className="text-xl font-semibold text-gray-800">Friend Activity</h2>
       </div>
 
-      <ActivityFilters 
+      <ActivityFiltersComponent 
         filters={filters} 
         onFiltersChange={setFilters}
         activityCount={activities.length}

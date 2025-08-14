@@ -1,14 +1,15 @@
 
 import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Heart, MessageCircle, Share2, Sparkles, Timer, Trophy, Flame, TrendingUp } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { Textarea } from '@/components/ui/textarea';
+import { Heart, MessageCircle, Share2, Trophy, Flame, Zap, Clock, Target } from 'lucide-react';
+import { EnhancedActivity } from '@/services/socialActivityService';
+import { socialActivityManager } from '@/services/socialActivityService';
 import { toast } from 'sonner';
-import { socialActivityManager, type EnhancedActivity } from '@/services/socialActivityService';
+import { formatDistanceToNow } from 'date-fns';
 
 interface EnhancedActivityCardProps {
   activity: EnhancedActivity;
@@ -16,211 +17,42 @@ interface EnhancedActivityCardProps {
   onUpdate: () => void;
 }
 
-const reactionEmojis = {
-  cheer: '🎉',
-  fire: '🔥',
-  strong: '💪',
-  clap: '👏',
-  heart: '❤️'
-};
-
 const EnhancedActivityCard = ({ activity, currentUserId, onUpdate }: EnhancedActivityCardProps) => {
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [isCommenting, setIsCommenting] = useState(false);
-  const [reactingTo, setReactingTo] = useState<string | null>(null);
 
-  const getActivityContent = () => {
-    const data = activity.activity_data;
-    const user = activity.users;
-    
-    switch (activity.activity_type) {
-      case 'workout':
-        return (
-          <div className="workout-activity">
-            <div className="flex items-center gap-2 mb-3">
-              <Timer className="w-5 h-5 text-orange-500" />
-              <div className="flex-1">
-                <p className="text-gray-800">
-                  <span className="font-semibold">{user.full_name || user.username}</span>
-                  <span className="ml-1">completed a {formatDuration(data.duration || 0)} {data.exercise_name}</span>
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 text-sm text-gray-600 bg-gray-50 rounded-lg p-3">
-              <div className="flex items-center gap-1">
-                <Timer className="w-4 h-4" />
-                <span>{formatDuration(data.duration || 0)}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Trophy className="w-4 h-4" />
-                <span>Level {data.difficulty_level}</span>
-              </div>
-              {data.calories_burned && (
-                <div className="flex items-center gap-1">
-                  <Flame className="w-4 h-4 text-orange-500" />
-                  <span>{data.calories_burned} cal</span>
-                </div>
-              )}
-            </div>
-          </div>
-        );
-        
-      case 'achievement':
-        return (
-          <div className="achievement-activity">
-            <div className="flex items-center gap-2 mb-3">
-              <Trophy className="w-5 h-5 text-yellow-500" />
-              <div className="flex-1">
-                <p className="text-gray-800">
-                  <span className="font-semibold">{user.full_name || user.username}</span>
-                  <span className="ml-1">unlocked "{data.achievement_name}"</span>
-                </p>
-              </div>
-            </div>
-            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-3">
-              <div className="flex items-center gap-2 mb-2">
-                <Badge 
-                  variant="secondary" 
-                  className={`${
-                    data.achievement_rarity === 'legendary' ? 'bg-purple-100 text-purple-800' :
-                    data.achievement_rarity === 'epic' ? 'bg-blue-100 text-blue-800' :
-                    data.achievement_rarity === 'rare' ? 'bg-green-100 text-green-800' :
-                    'bg-gray-100 text-gray-800'
-                  }`}
-                >
-                  {data.achievement_rarity?.toUpperCase()}
-                </Badge>
-              </div>
-              <p className="text-sm text-gray-700">{data.achievement_description}</p>
-            </div>
-          </div>
-        );
-        
-      case 'personal_best':
-        return (
-          <div className="personal-best-activity">
-            <div className="flex items-center gap-2 mb-3">
-              <TrendingUp className="w-5 h-5 text-green-500" />
-              <div className="flex-1">
-                <p className="text-gray-800">
-                  <span className="font-semibold">{user.full_name || user.username}</span>
-                  <span className="ml-1">set a new personal best!</span>
-                </p>
-              </div>
-            </div>
-            <div className="bg-green-50 rounded-lg p-3">
-              <div className="text-sm text-gray-600 mb-1">{data.exercise_name}</div>
-              <div className="flex items-center gap-2 text-lg font-semibold">
-                <span className="text-gray-500 line-through">{formatDuration(data.previous_best || 0)}</span>
-                <span>→</span>
-                <span className="text-green-600">{formatDuration(data.new_best || 0)}</span>
-                <Badge variant="secondary" className="bg-green-100 text-green-800 ml-2">
-                  +{formatDuration(data.improvement || 0)}
-                </Badge>
-              </div>
-            </div>
-          </div>
-        );
-        
-      case 'streak_milestone':
-        return (
-          <div className="streak-activity">
-            <div className="flex items-center gap-2 mb-3">
-              <Flame className="w-5 h-5 text-orange-500" />
-              <div className="flex-1">
-                <p className="text-gray-800">
-                  <span className="font-semibold">{user.full_name || user.username}</span>
-                  <span className="ml-1">achieved a {data.streak_length}-day streak!</span>
-                </p>
-              </div>
-            </div>
-            <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-lg p-3 text-center">
-              <div className="text-3xl font-bold text-orange-600 mb-1">{data.streak_length}</div>
-              <div className="text-sm text-orange-700">days in a row</div>
-            </div>
-          </div>
-        );
-
-      case 'level_up':
-        return (
-          <div className="level-up-activity">
-            <div className="flex items-center gap-2 mb-3">
-              <Sparkles className="w-5 h-5 text-purple-500" />
-              <div className="flex-1">
-                <p className="text-gray-800">
-                  <span className="font-semibold">{user.full_name || user.username}</span>
-                  <span className="ml-1">reached level {data.new_level}!</span>
-                </p>
-              </div>
-            </div>
-            <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-3">
-              <div className="flex items-center justify-center gap-2 text-lg font-semibold">
-                <span className="text-gray-500">Level {data.old_level}</span>
-                <span>→</span>
-                <span className="text-purple-600">Level {data.new_level}</span>
-              </div>
-              {data.new_title && (
-                <div className="text-center text-sm text-purple-700 mt-1">{data.new_title}</div>
-              )}
-            </div>
-          </div>
-        );
-        
-      default:
-        return (
-          <div className="generic-activity">
-            <p className="text-gray-800">
-              <span className="font-semibold">{user.full_name || user.username}</span>
-              <span className="ml-1">had some activity</span>
-            </p>
-          </div>
-        );
-    }
-  };
-
-  const formatDuration = (seconds: number): string => {
-    if (seconds < 60) return `${seconds}s`;
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return remainingSeconds > 0 ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`;
-  };
+  const userReaction = activity.friend_reactions?.find(r => r.user_id === currentUserId);
+  const reactionCounts = activity.friend_reactions?.reduce((acc, reaction) => {
+    acc[reaction.reaction_type] = (acc[reaction.reaction_type] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>) || {};
 
   const handleReaction = async (reactionType: string) => {
-    if (!currentUserId) return;
-
-    setReactingTo(reactionType);
-
     try {
-      const existingReaction = activity.friend_reactions.find(r => r.user_id === currentUserId);
-
-      if (existingReaction?.reaction_type === reactionType) {
+      if (userReaction?.reaction_type === reactionType) {
         await socialActivityManager.removeReaction(currentUserId, activity.id);
+        toast.success('Reaction removed');
       } else {
         await socialActivityManager.addReaction(currentUserId, activity.id, reactionType);
+        toast.success('Reaction added');
       }
-
       onUpdate();
     } catch (error) {
-      console.error('Error handling reaction:', error);
       toast.error('Failed to update reaction');
-    } finally {
-      setReactingTo(null);
     }
   };
 
-  const handleAddComment = async () => {
-    if (!newComment.trim() || !currentUserId) return;
-
+  const handleComment = async () => {
+    if (!newComment.trim()) return;
+    
     setIsCommenting(true);
-
     try {
       await socialActivityManager.addComment(currentUserId, activity.id, newComment.trim());
       setNewComment('');
+      toast.success('Comment added');
       onUpdate();
-      toast.success('Comment added!');
     } catch (error) {
-      console.error('Error adding comment:', error);
       toast.error('Failed to add comment');
     } finally {
       setIsCommenting(false);
@@ -229,77 +61,130 @@ const EnhancedActivityCard = ({ activity, currentUserId, onUpdate }: EnhancedAct
 
   const handleShare = async () => {
     try {
-      const shareText = `Check out this activity from ${activity.users.full_name || activity.users.username} on PlankIt!`;
-      
-      if (navigator.share) {
-        await navigator.share({
-          title: 'PlankIt Activity',
-          text: shareText,
-          url: window.location.href
-        });
-      } else {
-        await navigator.clipboard.writeText(shareText);
-        toast.success('Activity copied to clipboard!');
-      }
-
       await socialActivityManager.incrementShareCount(activity.id);
+      toast.success('Activity shared!');
       onUpdate();
     } catch (error) {
-      console.error('Error sharing activity:', error);
+      toast.error('Failed to share activity');
     }
   };
 
-  const userReaction = activity.friend_reactions.find(r => r.user_id === currentUserId);
-  const reactionCounts = activity.friend_reactions.reduce((acc, reaction) => {
-    acc[reaction.reaction_type] = (acc[reaction.reaction_type] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const getActivityIcon = () => {
+    switch (activity.activity_type) {
+      case 'workout':
+        return <Zap className="h-5 w-5 text-blue-500" />;
+      case 'achievement':
+        return <Trophy className="h-5 w-5 text-yellow-500" />;
+      case 'streak_milestone':
+        return <Flame className="h-5 w-5 text-orange-500" />;
+      case 'level_up':
+        return <Target className="h-5 w-5 text-green-500" />;
+      case 'personal_best':
+        return <Trophy className="h-5 w-5 text-purple-500" />;
+      default:
+        return <Clock className="h-5 w-5 text-gray-500" />;
+    }
+  };
+
+  const getActivityTitle = () => {
+    switch (activity.activity_type) {
+      case 'workout':
+        return `${activity.users.full_name} completed a workout`;
+      case 'achievement':
+        return `${activity.users.full_name} earned an achievement`;
+      case 'streak_milestone':
+        return `${activity.users.full_name} hit a streak milestone`;
+      case 'level_up':
+        return `${activity.users.full_name} leveled up`;
+      case 'personal_best':
+        return `${activity.users.full_name} set a personal best`;
+      default:
+        return `${activity.users.full_name} had an activity`;
+    }
+  };
+
+  const getActivityDescription = () => {
+    const data = activity.activity_data;
+    switch (activity.activity_type) {
+      case 'workout':
+        return `${data.exercise_name || 'Exercise'} for ${data.duration || 0} seconds (Level ${data.difficulty_level || 1})`;
+      case 'achievement':
+        return `${data.achievement_name || 'Achievement'}: ${data.achievement_description || 'Great job!'}`;
+      case 'streak_milestone':
+        return `${data.streak_length || 0} day ${data.streak_type || 'daily'} streak!`;
+      case 'level_up':
+        return `Advanced from Level ${data.old_level || 1} to Level ${data.new_level || 2}`;
+      case 'personal_best':
+        return `New best: ${data.new_best || 0}s (improved by ${data.improvement || 0}s)`;
+      default:
+        return 'Activity completed';
+    }
+  };
+
+  const reactions = [
+    { type: 'cheer', emoji: '👏', label: 'Cheer' },
+    { type: 'fire', emoji: '🔥', label: 'Fire' },
+    { type: 'strong', emoji: '💪', label: 'Strong' },
+    { type: 'heart', emoji: '❤️', label: 'Love' },
+    { type: 'clap', emoji: '🎉', label: 'Celebrate' }
+  ];
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardContent className="p-6">
-        <div className="flex items-start space-x-4 mb-4">
-          <Avatar className="w-12 h-12">
-            <AvatarImage src={activity.users.avatar_url} alt={activity.users.full_name} />
+    <Card className="w-full">
+      <CardHeader className="pb-3">
+        <div className="flex items-start space-x-3">
+          <Avatar className="w-10 h-10">
+            <AvatarImage src={activity.users.avatar_url} />
             <AvatarFallback>
               {activity.users.full_name?.charAt(0) || activity.users.username?.charAt(0) || 'U'}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1">
-            <span className="text-sm text-gray-500">
-              {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
-            </span>
+          
+          <div className="flex-1 space-y-2">
+            <div className="flex items-center space-x-2">
+              {getActivityIcon()}
+              <div>
+                <p className="font-semibold text-gray-900">{getActivityTitle()}</p>
+                <p className="text-sm text-gray-600">{getActivityDescription()}</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-4 text-sm text-gray-500">
+              <span>{formatDistanceToNow(new Date(activity.created_at))} ago</span>
+              {activity.activity_data.calories_burned && (
+                <Badge variant="secondary" className="bg-green-100 text-green-800">
+                  {activity.activity_data.calories_burned} cal
+                </Badge>
+              )}
+              {activity.activity_data.achievement_rarity && (
+                <Badge variant="secondary" className={
+                  activity.activity_data.achievement_rarity === 'rare' ? 'bg-purple-100 text-purple-800' :
+                  activity.activity_data.achievement_rarity === 'epic' ? 'bg-orange-100 text-orange-800' :
+                  'bg-gray-100 text-gray-800'
+                }>
+                  {activity.activity_data.achievement_rarity}
+                </Badge>
+              )}
+            </div>
           </div>
         </div>
+      </CardHeader>
 
-        <div className="mb-4">
-          {getActivityContent()}
-        </div>
-
-        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+      <CardContent className="pt-0">
+        <div className="flex items-center justify-between border-t border-gray-100 pt-3">
           <div className="flex items-center space-x-1">
-            {Object.entries(reactionEmojis).map(([reactionType, emoji]) => {
-              const count = reactionCounts[reactionType] || 0;
-              const isActive = userReaction?.reaction_type === reactionType;
-              
-              return (
-                <Button
-                  key={reactionType}
-                  variant={isActive ? "default" : "ghost"}
-                  size="sm"
-                  className={`h-8 px-2 ${
-                    isActive 
-                      ? 'bg-orange-500 hover:bg-orange-600 text-white' 
-                      : 'hover:bg-orange-50'
-                  }`}
-                  onClick={() => handleReaction(reactionType)}
-                  disabled={reactingTo === reactionType}
-                >
-                  <span className="mr-1">{emoji}</span>
-                  {count > 0 && <span className="text-xs">{count}</span>}
-                </Button>
-              );
-            })}
+            {reactions.map((reaction) => (
+              <Button
+                key={reaction.type}
+                variant={userReaction?.reaction_type === reaction.type ? "default" : "ghost"}
+                size="sm"
+                className="h-8 px-2 text-xs"
+                onClick={() => handleReaction(reaction.type)}
+              >
+                <span className="mr-1">{reaction.emoji}</span>
+                {reactionCounts[reaction.type] || 0}
+              </Button>
+            ))}
           </div>
 
           <div className="flex items-center space-x-2">
@@ -307,67 +192,62 @@ const EnhancedActivityCard = ({ activity, currentUserId, onUpdate }: EnhancedAct
               variant="ghost"
               size="sm"
               onClick={() => setShowComments(!showComments)}
-              className="text-gray-600 hover:text-gray-800"
+              className="h-8 px-2 text-xs"
             >
-              <MessageCircle className="w-4 h-4 mr-1" />
-              {activity.activity_comments.length}
+              <MessageCircle className="h-4 w-4 mr-1" />
+              {activity.activity_comments?.length || 0}
             </Button>
             
             <Button
               variant="ghost"
               size="sm"
               onClick={handleShare}
-              className="text-gray-600 hover:text-gray-800"
+              className="h-8 px-2 text-xs"
             >
-              <Share2 className="w-4 h-4 mr-1" />
-              {activity.shares_count > 0 && activity.shares_count}
+              <Share2 className="h-4 w-4 mr-1" />
+              {activity.shares_count || 0}
             </Button>
           </div>
         </div>
 
         {showComments && (
-          <div className="mt-4 pt-4 border-t border-gray-100">
-            <div className="space-y-3 mb-4">
-              {activity.activity_comments.map((comment) => (
-                <div key={comment.id} className="flex items-start space-x-3">
-                  <Avatar className="w-8 h-8">
-                    <AvatarImage src={comment.users.avatar_url} alt={comment.users.username} />
-                    <AvatarFallback>
-                      {comment.users.full_name?.charAt(0) || comment.users.username?.charAt(0) || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <div className="bg-gray-50 rounded-lg p-3">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <span className="font-semibold text-sm text-gray-800">
-                          {comment.users.full_name || comment.users.username}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-700">{comment.content}</p>
-                    </div>
+          <div className="mt-4 space-y-3 border-t border-gray-100 pt-3">
+            {activity.activity_comments?.map((comment) => (
+              <div key={comment.id} className="flex space-x-3">
+                <Avatar className="w-8 h-8">
+                  <AvatarImage src={comment.users.avatar_url} />
+                  <AvatarFallback>
+                    {comment.users.full_name?.charAt(0) || comment.users.username?.charAt(0) || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <div className="bg-gray-50 rounded-lg px-3 py-2">
+                    <p className="font-semibold text-sm text-gray-900">
+                      {comment.users.full_name || comment.users.username}
+                    </p>
+                    <p className="text-sm text-gray-700">{comment.content}</p>
                   </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {formatDistanceToNow(new Date(comment.created_at))} ago
+                  </p>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
 
-            <div className="flex items-center space-x-2">
-              <Input
-                type="text"
-                placeholder="Add an encouraging comment..."
+            <div className="flex space-x-2">
+              <Textarea
+                placeholder="Write a comment..."
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleAddComment()}
-                className="flex-1"
+                className="flex-1 min-h-[60px] resize-none"
+                disabled={isCommenting}
               />
               <Button
-                onClick={handleAddComment}
+                onClick={handleComment}
                 disabled={!newComment.trim() || isCommenting}
                 size="sm"
               >
-                {isCommenting ? 'Posting...' : 'Post'}
+                Post
               </Button>
             </div>
           </div>

@@ -3,7 +3,6 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Home, User, Dumbbell, BarChart3, Trophy } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { LevelProgressionProvider } from "@/components/level/LevelProgressionProvider";
 import TabNavigation from "@/components/TabNavigation";
 
 const Dashboard = () => {
@@ -25,11 +24,7 @@ const Dashboard = () => {
     );
   }
 
-  return (
-    <LevelProgressionProvider>
-      <TabNavigation />
-    </LevelProgressionProvider>
-  );
+  return <TabNavigation />;
 };
 
 export default Dashboard;

@@ -7,6 +7,7 @@ import WelcomeScreen from "@/components/WelcomeScreen";
 import Dashboard from "@/components/Dashboard";
 import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
 import { StreakProvider } from "@/components/StreakProvider";
+import { LevelProgressionProvider } from "@/components/level/LevelProgressionProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import DevTools from '@/components/DevTools';
 
@@ -78,24 +79,30 @@ const Index = () => {
   // Show onboarding flow if user hasn't completed it yet
   if (isOnboardingComplete === false && !showWelcome) {
     console.log('Index: Showing onboarding flow');
-    return <OnboardingFlow onComplete={handleOnboardingComplete} />;
+    return (
+      <LevelProgressionProvider>
+        <OnboardingFlow onComplete={handleOnboardingComplete} />
+      </LevelProgressionProvider>
+    );
   }
 
   console.log('Index: Rendering main content', { showWelcome });
 
   return (
-    <StreakProvider>
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
-        <AnimatePresence mode="wait">
-          {showWelcome ? (
-            <WelcomeScreen key="welcome" onGetStarted={handleGetStarted} />
-          ) : (
-            <Dashboard key="dashboard" />
-          )}
-        </AnimatePresence>
-      </div>
-      <DevTools />
-    </StreakProvider>
+    <LevelProgressionProvider>
+      <StreakProvider>
+        <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
+          <AnimatePresence mode="wait">
+            {showWelcome ? (
+              <WelcomeScreen key="welcome" onGetStarted={handleGetStarted} />
+            ) : (
+              <Dashboard key="dashboard" />
+            )}
+          </AnimatePresence>
+        </div>
+        <DevTools />
+      </StreakProvider>
+    </LevelProgressionProvider>
   );
 };
 

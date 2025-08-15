@@ -6,7 +6,7 @@ import WorkoutTab from '@/components/tabs/WorkoutTab';
 import StatsTab from '@/components/tabs/StatsTab';
 import AchievementsTab from '@/components/tabs/AchievementsTab';
 import ProfileTab from '@/components/tabs/ProfileTab';
-import FriendsTab from './components/tabs/FriendsTab';
+import FriendsTab from './tabs/FriendsTab';
 import { Users, User, Lock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useLevelProgressionContext } from './level/LevelProgressionProvider';

@@ -2,13 +2,14 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
-import { Users, UserPlus, Activity, Settings, TrendingUp } from 'lucide-react';
+import { Users, UserPlus, Activity, Settings, TrendingUp, Trophy } from 'lucide-react';
 import FriendsList from '../friends/FriendsList';
 import FriendSearch from '../friends/FriendSearch';
 import FriendActivityFeed from '../friends/FriendActivityFeed';
 import FriendRequests from '../friends/FriendRequests';
 import PrivacySettings from '../friends/PrivacySettings';
 import SocialInsightsDashboard from '../friends/SocialInsightsDashboard';
+import ChallengeList from '../challenges/ChallengeList';
 
 const FriendsTab = () => {
   const [activeTab, setActiveTab] = useState('activity');
@@ -17,14 +18,18 @@ const FriendsTab = () => {
     <div className="container mx-auto p-4 max-w-6xl">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800 mb-2">Friends & Social</h1>
-        <p className="text-gray-600">Connect with friends and share your fitness journey</p>
+        <p className="text-gray-600">Connect with friends and join community challenges</p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="activity" className="flex items-center gap-2">
             <Activity className="w-4 h-4" />
             <span className="hidden sm:inline">Activity</span>
+          </TabsTrigger>
+          <TabsTrigger value="challenges" className="flex items-center gap-2">
+            <Trophy className="w-4 h-4" />
+            <span className="hidden sm:inline">Challenges</span>
           </TabsTrigger>
           <TabsTrigger value="insights" className="flex items-center gap-2">
             <TrendingUp className="w-4 h-4" />
@@ -54,6 +59,10 @@ const FriendsTab = () => {
               <FriendActivityFeed />
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="challenges" className="mt-6">
+          <ChallengeList />
         </TabsContent>
 
         <TabsContent value="insights" className="mt-6">

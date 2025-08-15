@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { EnhancedAchievementService } from '@/services/enhancedAchievementService';
+import { useChallengeTracking } from '@/hooks/useChallengeTracking';
 import type { Tables } from '@/integrations/supabase/types';
 import type { UserAchievement } from '@/hooks/useUserAchievements';
 
@@ -26,6 +27,7 @@ export const useSessionTracking = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { updateChallengeProgress } = useChallengeTracking();
 
   const saveSession = async (
     exercise: Exercise,
@@ -56,6 +58,17 @@ export const useSessionTracking = () => {
         });
         return { milestoneEvent: null, newAchievements: [] };
       }
+
+      // Prepare session data for challenge tracking
+      const sessionData = {
+        exercise_name: exercise.name,
+        duration_seconds: durationSeconds,
+        difficulty_level: exercise.difficulty_level,
+        exercise_id: exercise.id
+      };
+
+      // Update challenge progress
+      await updateChallengeProgress(sessionData);
 
       // Update streak and check for milestones
       const milestoneEvent = await updateStreak();

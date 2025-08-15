@@ -6,10 +6,10 @@ export interface ChallengeParticipant {
   id: string;
   user_id: string;
   challenge_id: string;
-  joined_at: string;
-  progress_data: any;
-  completed: boolean;
-  completed_at?: string;
+  joined_at: string | null;
+  progress_data: any | null;
+  completed: boolean | null;
+  completed_at: string | null;
   users?: {
     id: string;
     username: string;
@@ -31,6 +31,18 @@ export interface ChallengeProgress {
 }
 
 export class ChallengeService {
+  private mapParticipant(p: any): ChallengeParticipant {
+    return {
+      id: p.id,
+      user_id: p.user_id,
+      challenge_id: p.challenge_id,
+      joined_at: p.joined_at ?? null,
+      progress_data: p.progress_data ?? null,
+      completed: p.completed ?? false,
+      completed_at: p.completed_at ?? null,
+    };
+  }
+
   async getAvailableChallenges(userId?: string): Promise<ChallengeWithParticipants[]> {
     try {
       // First get all public challenges
@@ -48,10 +60,9 @@ export class ChallengeService {
 
       if (!challenges) return [];
 
-      // For each challenge, get participants with user info
+      // For each challenge, get participants (no user profile fetch due to RLS)
       const challengesWithParticipants = await Promise.all(
         challenges.map(async (challenge) => {
-          // Get participants for this challenge
           const { data: participants } = await supabase
             .from('challenge_participants')
             .select(`
@@ -65,24 +76,12 @@ export class ChallengeService {
             `)
             .eq('challenge_id', challenge.id);
 
-          // Get user info for participants
-          const participantsWithUsers = participants ? await Promise.all(
-            participants.map(async (participant) => {
-              const { data: user } = await supabase
-                .from('users')
-                .select('id, username, full_name, avatar_url')
-                .eq('id', participant.user_id)
-                .maybeSingle();
-
-              return {
-                ...participant,
-                users: user
-              };
-            })
-          ) : [];
+          const participantsMapped: ChallengeParticipant[] = (participants || []).map((p) =>
+            this.mapParticipant(p)
+          );
 
           // Get user participation if userId provided
-          let userParticipation = null;
+          let userParticipation: ChallengeParticipant | undefined = undefined;
           if (userId) {
             const { data: participation } = await supabase
               .from('challenge_participants')
@@ -90,15 +89,17 @@ export class ChallengeService {
               .eq('challenge_id', challenge.id)
               .eq('user_id', userId)
               .maybeSingle();
-            
-            userParticipation = participation;
+
+            if (participation) {
+              userParticipation = this.mapParticipant(participation);
+            }
           }
 
           return {
             ...challenge,
-            challenge_participants: participantsWithUsers,
-            user_participation: userParticipation
-          };
+            challenge_participants: participantsMapped,
+            user_participation: userParticipation,
+          } as ChallengeWithParticipants;
         })
       );
 
@@ -129,19 +130,22 @@ export class ChallengeService {
             .from('community_challenges')
             .select('*')
             .eq('id', participation.challenge_id)
-            .single();
+            .maybeSingle();
 
           if (!challenge) return null;
 
+          const mappedParticipation = this.mapParticipant(participation);
+
           return {
             ...challenge,
-            challenge_participants: [participation],
-            user_participation: participation
-          };
+            challenge_participants: [mappedParticipation],
+            user_participation: mappedParticipation,
+          } as ChallengeWithParticipants | null;
         })
       );
 
-      return challenges.filter((c): c is ChallengeWithParticipants => c !== null);
+      // Avoid type predicate to prevent TS2677 mismatch; cast after filtering
+      return challenges.filter((c) => c !== null) as ChallengeWithParticipants[];
     } catch (error) {
       console.error('Error in getUserChallenges:', error);
       return [];
@@ -155,13 +159,13 @@ export class ChallengeService {
         .insert({
           user_id: userId,
           challenge_id: challengeId,
-          progress_data: { current_progress: 0 }
+          progress_data: { current_progress: 0 },
         });
 
       if (!error) {
-        // Increment participant count
+        // Increment participant count via existing RPC
         await supabase.rpc('increment_challenge_participants', {
-          challenge_id: challengeId
+          challenge_id: challengeId,
         });
       }
 
@@ -181,12 +185,15 @@ export class ChallengeService {
         .eq('challenge_id', challengeId);
 
       if (!error) {
-        // Decrement participant count
-        const { error: updateError } = await supabase
+        // Recompute participant_count safely (no supabase.raw available)
+        const { count } = await supabase
+          .from('challenge_participants')
+          .select('id', { count: 'exact', head: true })
+          .eq('challenge_id', challengeId);
+
+        await supabase
           .from('community_challenges')
-          .update({ 
-            participant_count: supabase.raw('participant_count - 1')
-          })
+          .update({ participant_count: count || 0 })
           .eq('id', challengeId);
       }
 
@@ -197,18 +204,14 @@ export class ChallengeService {
     }
   }
 
-  async updateChallengeProgress(
-    userId: string, 
-    challengeId: string, 
-    sessionData: any
-  ): Promise<void> {
+  async updateChallengeProgress(userId: string, challengeId: string, sessionData: any): Promise<void> {
     try {
       const { data: participation } = await supabase
         .from('challenge_participants')
         .select('progress_data')
         .eq('user_id', userId)
         .eq('challenge_id', challengeId)
-        .single();
+        .maybeSingle();
 
       if (!participation) return;
 
@@ -216,7 +219,7 @@ export class ChallengeService {
         .from('community_challenges')
         .select('challenge_type, target_data')
         .eq('id', challengeId)
-        .single();
+        .maybeSingle();
 
       if (!challenge) return;
 
@@ -240,11 +243,10 @@ export class ChallengeService {
         .update({
           progress_data: { current_progress: newProgress },
           completed: isCompleted,
-          completed_at: isCompleted ? new Date().toISOString() : null
+          completed_at: isCompleted ? new Date().toISOString() : null,
         })
         .eq('user_id', userId)
         .eq('challenge_id', challengeId);
-
     } catch (error) {
       console.error('Error updating challenge progress:', error);
     }
@@ -271,30 +273,16 @@ export class ChallengeService {
         return [];
       }
 
-      if (!participants) return [];
+      const mapped: ChallengeParticipant[] = (participants || []).map((p) => this.mapParticipant(p));
 
-      // Get user info and sort by progress
-      const participantsWithUsers = await Promise.all(
-        participants.map(async (participant) => {
-          const { data: user } = await supabase
-            .from('users')
-            .select('id, username, full_name, avatar_url')
-            .eq('id', participant.user_id)
-            .maybeSingle();
+      // Sort by progress (highest first) without attaching extra fields
+      const sorted = mapped.sort((a, b) => {
+        const aProg = (a.progress_data as any)?.current_progress || 0;
+        const bProg = (b.progress_data as any)?.current_progress || 0;
+        return bProg - aProg;
+      });
 
-          const progressData = participant.progress_data as any;
-          const currentProgress = progressData?.current_progress || 0;
-
-          return {
-            ...participant,
-            users: user,
-            current_progress: currentProgress
-          };
-        })
-      );
-
-      // Sort by progress (highest first)
-      return participantsWithUsers.sort((a, b) => b.current_progress - a.current_progress);
+      return sorted;
     } catch (error) {
       console.error('Error in getChallengeLeaderboard:', error);
       return [];
@@ -320,20 +308,12 @@ export class ChallengeService {
     }
   }
 
-  private checkChallengeCompletion(
-    challengeType: string,
-    targetData: any,
-    currentProgress: number
-  ): boolean {
+  private checkChallengeCompletion(challengeType: string, targetData: any, currentProgress: number): boolean {
     const target = targetData?.target_value || 0;
     return currentProgress >= target;
   }
 
-  calculateChallengeProgress(
-    challengeType: string,
-    targetData: any,
-    progressData: any
-  ): ChallengeProgress {
+  calculateChallengeProgress(challengeType: string, targetData: any, progressData: any): ChallengeProgress {
     const currentValue = progressData?.current_progress || 0;
     const targetValue = targetData?.target_value || 1;
     const percentage = Math.min((currentValue / targetValue) * 100, 100);
@@ -343,7 +323,7 @@ export class ChallengeService {
       current_value: currentValue,
       target_value: targetValue,
       percentage,
-      is_completed: isCompleted
+      is_completed: isCompleted,
     };
   }
 }

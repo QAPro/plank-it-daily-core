@@ -9,6 +9,7 @@ import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
 import { StreakProvider } from "@/components/StreakProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import DevTools from '@/components/DevTools';
+import { AuthProvider } from "@/contexts/AuthContext";
 
 const Index = () => {
   const [showWelcome, setShowWelcome] = useState(true);
@@ -62,7 +63,7 @@ const Index = () => {
   }
 
   return (
-    <>
+    <AuthProvider>
       <StreakProvider>
         <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
           <AnimatePresence mode="wait">
@@ -75,7 +76,7 @@ const Index = () => {
         </div>
       </StreakProvider>
       <DevTools />
-    </>
+    </AuthProvider>
   );
 };
 

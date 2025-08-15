@@ -707,6 +707,7 @@ export type Database = {
           email: string
           full_name: string | null
           id: string
+          subscription_tier: string
           total_xp: number | null
           updated_at: string | null
           username: string | null
@@ -718,6 +719,7 @@ export type Database = {
           email: string
           full_name?: string | null
           id: string
+          subscription_tier?: string
           total_xp?: number | null
           updated_at?: string | null
           username?: string | null
@@ -729,6 +731,7 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
+          subscription_tier?: string
           total_xp?: number | null
           updated_at?: string | null
           username?: string | null

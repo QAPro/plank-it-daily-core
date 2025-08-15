@@ -8,7 +8,6 @@ import Auth from "@/pages/Auth";
 import EmailVerify from "@/pages/EmailVerify";
 import ProductionCheck from "@/pages/ProductionCheck";
 import NotFound from "@/pages/NotFound";
-import EmailVerificationHandler from "@/components/EmailVerificationHandler";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
 const queryClient = new QueryClient({
@@ -28,10 +27,10 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <Router>
-            <EmailVerificationHandler />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/auth/verify" element={<EmailVerify />} />
               <Route path="/verify-email" element={<EmailVerify />} />
               <Route path="/production-check" element={<ProductionCheck />} />
               <Route path="*" element={<NotFound />} />

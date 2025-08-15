@@ -16,18 +16,25 @@ const Index = () => {
   const { isOnboardingComplete, loading: onboardingLoading, markOnboardingComplete } = useOnboarding();
   const navigate = useNavigate();
 
+  console.log('Index: Current state', { 
+    user: user?.email, 
+    authLoading, 
+    onboardingLoading, 
+    isOnboardingComplete,
+    showWelcome 
+  });
+
   useEffect(() => {
-    console.log('Index: Auth state check', { user: user?.email, authLoading, isOnboardingComplete, onboardingLoading });
+    console.log('Index: Auth state change detected', { user: user?.email, authLoading });
     
     if (!authLoading && !user) {
-      console.log('Index: No user, redirecting to auth');
+      console.log('Index: No authenticated user, redirecting to /auth');
       navigate('/auth');
       return;
     }
 
-    if (user && isOnboardingComplete !== null && !onboardingLoading) {
-      console.log('Index: User authenticated, checking welcome state');
-      // Check for existing session (will be replaced with onboarding check)
+    if (user && !onboardingLoading && isOnboardingComplete !== null) {
+      console.log('Index: User authenticated, checking welcome/onboarding state');
       const hasSeenWelcome = localStorage.getItem('plankcoach-welcome-seen');
       if (hasSeenWelcome || isOnboardingComplete) {
         console.log('Index: Hiding welcome screen');
@@ -50,7 +57,7 @@ const Index = () => {
 
   // Show loading while checking auth state or onboarding status
   if (authLoading || onboardingLoading) {
-    console.log('Index: Showing loading state', { authLoading, onboardingLoading });
+    console.log('Index: Showing loading state');
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center">
         <div className="text-orange-600 text-lg">Loading...</div>
@@ -63,7 +70,7 @@ const Index = () => {
     console.log('Index: No user found, should redirect');
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center">
-        <div className="text-orange-600 text-lg">Redirecting...</div>
+        <div className="text-orange-600 text-lg">Redirecting to login...</div>
       </div>
     );
   }

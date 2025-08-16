@@ -52,6 +52,39 @@ export type Database = {
           },
         ]
       }
+      coaching_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          message_type: string
+          trigger_condition: Json | null
+          user_id: string | null
+          voice_variant: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          message_type: string
+          trigger_condition?: Json | null
+          user_id?: string | null
+          voice_variant?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          message_type?: string
+          trigger_condition?: Json | null
+          user_id?: string | null
+          voice_variant?: string | null
+        }
+        Relationships: []
+      }
       community_challenges: {
         Row: {
           challenge_type: string
@@ -361,6 +394,90 @@ export type Database = {
         }
         Relationships: []
       }
+      timer_sessions_detailed: {
+        Row: {
+          breathing_guidance_used: boolean | null
+          coaching_enabled: boolean | null
+          completion_rate: number
+          created_at: string
+          duration_seconds: number
+          exercise_id: string | null
+          id: string
+          performance_metrics: Json | null
+          target_duration: number
+          theme_used: string | null
+          user_feedback: Json | null
+          user_id: string
+        }
+        Insert: {
+          breathing_guidance_used?: boolean | null
+          coaching_enabled?: boolean | null
+          completion_rate?: number
+          created_at?: string
+          duration_seconds: number
+          exercise_id?: string | null
+          id?: string
+          performance_metrics?: Json | null
+          target_duration: number
+          theme_used?: string | null
+          user_feedback?: Json | null
+          user_id: string
+        }
+        Update: {
+          breathing_guidance_used?: boolean | null
+          coaching_enabled?: boolean | null
+          completion_rate?: number
+          created_at?: string
+          duration_seconds?: number
+          exercise_id?: string | null
+          id?: string
+          performance_metrics?: Json | null
+          target_duration?: number
+          theme_used?: string | null
+          user_feedback?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      timer_themes: {
+        Row: {
+          color_scheme: Json
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_featured: boolean | null
+          is_public: boolean | null
+          name: string
+          updated_at: string
+          visual_effects: Json
+        }
+        Insert: {
+          color_scheme?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_featured?: boolean | null
+          is_public?: boolean | null
+          name: string
+          updated_at?: string
+          visual_effects?: Json
+        }
+        Update: {
+          color_scheme?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_featured?: boolean | null
+          is_public?: boolean | null
+          name?: string
+          updated_at?: string
+          visual_effects?: Json
+        }
+        Relationships: []
+      }
       user_achievement_progress: {
         Row: {
           achievement_id: string
@@ -615,54 +732,81 @@ export type Database = {
       }
       user_preferences: {
         Row: {
+          adaptive_timing: boolean | null
           auto_progression: boolean | null
           avoided_exercises: string[] | null
+          background_music: boolean | null
+          breathing_guidance: boolean | null
+          coaching_voice: string | null
           created_at: string | null
           difficulty_preference: string | null
           favorite_exercises: string[] | null
+          form_reminders: boolean | null
           haptic_feedback: boolean | null
           id: string
+          music_volume: number | null
           preferred_workout_duration: number | null
           progression_sensitivity: number | null
           reminder_time: string | null
           sound_effects: boolean | null
           theme_preference: string | null
+          timer_sound_pack: string | null
+          timer_theme: string | null
           updated_at: string | null
           user_id: string
+          vibration_intensity: number | null
           workout_reminders: boolean | null
         }
         Insert: {
+          adaptive_timing?: boolean | null
           auto_progression?: boolean | null
           avoided_exercises?: string[] | null
+          background_music?: boolean | null
+          breathing_guidance?: boolean | null
+          coaching_voice?: string | null
           created_at?: string | null
           difficulty_preference?: string | null
           favorite_exercises?: string[] | null
+          form_reminders?: boolean | null
           haptic_feedback?: boolean | null
           id?: string
+          music_volume?: number | null
           preferred_workout_duration?: number | null
           progression_sensitivity?: number | null
           reminder_time?: string | null
           sound_effects?: boolean | null
           theme_preference?: string | null
+          timer_sound_pack?: string | null
+          timer_theme?: string | null
           updated_at?: string | null
           user_id: string
+          vibration_intensity?: number | null
           workout_reminders?: boolean | null
         }
         Update: {
+          adaptive_timing?: boolean | null
           auto_progression?: boolean | null
           avoided_exercises?: string[] | null
+          background_music?: boolean | null
+          breathing_guidance?: boolean | null
+          coaching_voice?: string | null
           created_at?: string | null
           difficulty_preference?: string | null
           favorite_exercises?: string[] | null
+          form_reminders?: boolean | null
           haptic_feedback?: boolean | null
           id?: string
+          music_volume?: number | null
           preferred_workout_duration?: number | null
           progression_sensitivity?: number | null
           reminder_time?: string | null
           sound_effects?: boolean | null
           theme_preference?: string | null
+          timer_sound_pack?: string | null
+          timer_theme?: string | null
           updated_at?: string | null
           user_id?: string
+          vibration_intensity?: number | null
           workout_reminders?: boolean | null
         }
         Relationships: []

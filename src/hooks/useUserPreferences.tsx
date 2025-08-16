@@ -16,6 +16,16 @@ export interface UserPreferences {
   avoided_exercises: string[];
   auto_progression: boolean;
   progression_sensitivity: number;
+  // Enhanced timer V2 fields:
+  timer_theme: string;
+  timer_sound_pack: string;
+  coaching_voice: string;
+  breathing_guidance: boolean;
+  form_reminders: boolean;
+  adaptive_timing: boolean;
+  background_music: boolean;
+  music_volume: number;
+  vibration_intensity: number;
 }
 
 export const useUserPreferences = () => {
@@ -52,6 +62,16 @@ export const useUserPreferences = () => {
           avoided_exercises: data.avoided_exercises || [],
           auto_progression: data.auto_progression,
           progression_sensitivity: data.progression_sensitivity,
+          // Enhanced timer V2 fields with defaults if missing
+          timer_theme: data.timer_theme ?? 'default',
+          timer_sound_pack: data.timer_sound_pack ?? 'classic',
+          coaching_voice: data.coaching_voice ?? 'encouraging',
+          breathing_guidance: data.breathing_guidance ?? true,
+          form_reminders: data.form_reminders ?? true,
+          adaptive_timing: data.adaptive_timing ?? true,
+          background_music: data.background_music ?? false,
+          music_volume: Number(data.music_volume ?? 0.3),
+          vibration_intensity: Number(data.vibration_intensity ?? 3),
         });
       }
     } catch (error) {

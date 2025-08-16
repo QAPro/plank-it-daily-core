@@ -6,6 +6,10 @@ import { Play, Pause, Square, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import { useEnhancedSessionTracking } from '@/hooks/useEnhancedSessionTracking';
 import SessionCompletionCelebration from './SessionCompletionCelebration';
+import CoachingOverlay from '@/components/timer/CoachingOverlay';
+import BreathingGuide from '@/components/timer/BreathingGuide';
+import { useUserPreferences } from '@/hooks/useUserPreferences';
+import { useCoachingMessages } from '@/hooks/useCoachingMessages';
 
 interface PlankTimerProps {
   selectedExercise: any;
@@ -29,7 +33,12 @@ const PlankTimer = ({ selectedExercise, onExerciseChange }: PlankTimerProps) => 
     isCompleting
   } = useEnhancedSessionTracking();
 
+  const { preferences } = useUserPreferences();
+  const { randomOfType } = useCoachingMessages();
+
   const [showCelebration, setShowCelebration] = useState(false);
+  const [coachMessage, setCoachMessage] = useState<string | null>(null);
+  const [coachVisible, setCoachVisible] = useState(false);
 
   useEffect(() => {
     if (completedSession) {
@@ -86,6 +95,25 @@ const PlankTimer = ({ selectedExercise, onExerciseChange }: PlankTimerProps) => 
     handleReset();
   };
 
+  // Coaching message surfacing every ~20s while running
+  useEffect(() => {
+    if (!isTimerRunning) {
+      setCoachVisible(false);
+      return;
+    }
+    if (sessionDuration > 0 && sessionDuration % 20 === 0) {
+      const msg = preferences?.form_reminders
+        ? randomOfType('form_reminder') || randomOfType('encouragement')
+        : randomOfType('encouragement');
+      if (msg) {
+        setCoachMessage(msg);
+        setCoachVisible(true);
+        const t = setTimeout(() => setCoachVisible(false), 5000);
+        return () => clearTimeout(t);
+      }
+    }
+  }, [isTimerRunning, sessionDuration, preferences?.form_reminders, randomOfType]);
+
   if (isLoadingExercises) {
     return (
       <Card>
@@ -140,6 +168,12 @@ const PlankTimer = ({ selectedExercise, onExerciseChange }: PlankTimerProps) => 
                 <p>Primary Muscles: {selectedExercise.primary_muscles?.join(', ')}</p>
               </div>
             )}
+          </div>
+
+          {/* Coaching + Breathing */}
+          <div className="space-y-3">
+            <CoachingOverlay message={coachMessage} visible={coachVisible} />
+            <BreathingGuide enabled={Boolean(preferences?.breathing_guidance)} running={isTimerRunning} />
           </div>
 
           {/* Timer Controls */}

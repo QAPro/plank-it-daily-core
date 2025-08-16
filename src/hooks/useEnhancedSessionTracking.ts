@@ -160,6 +160,26 @@ const completeSession = async (duration: number, notes?: string) => {
 
     console.log('Session created successfully:', session);
 
+    // Record detailed timer session for analytics
+    const { error: detailedError } = await supabase
+      .from('timer_sessions_detailed')
+      .insert({
+        user_id: user.id,
+        exercise_id: selectedExercise.id,
+        duration_seconds: duration,
+        target_duration: duration,
+        completion_rate: 1,
+        theme_used: null,
+        coaching_enabled: false,
+        breathing_guidance_used: false,
+        performance_metrics: {},
+        user_feedback: {},
+      });
+
+    if (detailedError) {
+      console.error('Error inserting detailed timer session:', detailedError);
+    }
+
     // Update user streak
     await updateStreak();
 

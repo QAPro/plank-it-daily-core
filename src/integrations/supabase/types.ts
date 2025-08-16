@@ -105,6 +105,87 @@ export type Database = {
           },
         ]
       }
+      custom_workout_exercises: {
+        Row: {
+          created_at: string
+          custom_workout_id: string
+          duration_seconds: number
+          exercise_id: string
+          id: string
+          order_index: number
+          rest_after_seconds: number
+        }
+        Insert: {
+          created_at?: string
+          custom_workout_id: string
+          duration_seconds: number
+          exercise_id: string
+          id?: string
+          order_index: number
+          rest_after_seconds?: number
+        }
+        Update: {
+          created_at?: string
+          custom_workout_id?: string
+          duration_seconds?: number
+          exercise_id?: string
+          id?: string
+          order_index?: number
+          rest_after_seconds?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_custom_workout_exercises_exercise"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "plank_exercises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_custom_workout_exercises_workout"
+            columns: ["custom_workout_id"]
+            isOneToOne: false
+            referencedRelation: "custom_workouts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      custom_workouts: {
+        Row: {
+          created_at: string
+          description: string | null
+          difficulty_level: number
+          id: string
+          is_public: boolean
+          name: string
+          total_duration: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          difficulty_level?: number
+          id?: string
+          is_public?: boolean
+          name: string
+          total_duration?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          difficulty_level?: number
+          id?: string
+          is_public?: boolean
+          name?: string
+          total_duration?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       feature_unlocks: {
         Row: {
           feature_name: string
@@ -735,6 +816,99 @@ export type Database = {
           total_xp?: number | null
           updated_at?: string | null
           username?: string | null
+        }
+        Relationships: []
+      }
+      workout_ratings: {
+        Row: {
+          created_at: string
+          custom_workout_id: string | null
+          id: string
+          rating: number
+          review: string | null
+          template_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          custom_workout_id?: string | null
+          id?: string
+          rating: number
+          review?: string | null
+          template_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          custom_workout_id?: string | null
+          id?: string
+          rating?: number
+          review?: string | null
+          template_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_workout_ratings_template"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "workout_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_workout_ratings_workout"
+            columns: ["custom_workout_id"]
+            isOneToOne: false
+            referencedRelation: "custom_workouts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workout_templates: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          difficulty_level: number
+          id: string
+          is_featured: boolean | null
+          name: string
+          rating_average: number | null
+          rating_count: number | null
+          updated_at: string
+          workout_data: Json
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          difficulty_level?: number
+          id?: string
+          is_featured?: boolean | null
+          name: string
+          rating_average?: number | null
+          rating_count?: number | null
+          updated_at?: string
+          workout_data?: Json
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          difficulty_level?: number
+          id?: string
+          is_featured?: boolean | null
+          name?: string
+          rating_average?: number | null
+          rating_count?: number | null
+          updated_at?: string
+          workout_data?: Json
         }
         Relationships: []
       }

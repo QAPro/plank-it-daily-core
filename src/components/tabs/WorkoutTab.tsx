@@ -11,6 +11,8 @@ import { useExercises } from "@/hooks/useExercises";
 import { useExerciseRecommendations } from "@/hooks/useExerciseRecommendations";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Tables } from "@/integrations/supabase/types";
+import FeatureGuard from "@/components/access/FeatureGuard";
+import CustomWorkoutManager from "@/components/custom-workouts/CustomWorkoutManager";
 
 type Exercise = Tables<'plank_exercises'>;
 
@@ -48,13 +50,11 @@ const WorkoutTab = () => {
     });
   }, [exercises, filters]);
 
-  // Get recommended exercise IDs for highlighting
   const recommendedExerciseIds = useMemo(() => {
     if (!recommendations) return new Set<string>();
     return new Set(recommendations.map(rec => rec.exercise_id));
   }, [recommendations]);
 
-  // Get top recommended exercises
   const topRecommendedExercises = useMemo(() => {
     if (!recommendations || !exercises) return [];
     
@@ -110,7 +110,6 @@ const WorkoutTab = () => {
     });
   };
 
-  // Get available categories and tags for the filters
   const availableCategories = useMemo(() => {
     if (!exercises) return [];
     const categories = new Set(exercises.map(ex => ex.category).filter(Boolean));
@@ -209,7 +208,7 @@ const WorkoutTab = () => {
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.1 * index, duration: 0.3 }}
                           className="flex items-center justify-between p-4 bg-white rounded-lg border border-orange-100 hover:border-orange-300 transition-all cursor-pointer group"
-                          onClick={() => handleExerciseSelect(exercise)}
+                          onClick={() => handleExerciseSelect(exercise as any)}
                         >
                           <div className="flex items-center space-x-4 flex-1">
                             <div className="w-12 h-12 rounded-lg bg-orange-500 flex items-center justify-center">
@@ -217,15 +216,15 @@ const WorkoutTab = () => {
                             </div>
                             <div className="flex-1">
                               <div className="flex items-center space-x-2 mb-1">
-                                <h4 className="font-semibold text-gray-800">{exercise.name}</h4>
+                                <h4 className="font-semibold text-gray-800">{(exercise as any).name}</h4>
                                 <Badge variant="outline">
-                                  Level {exercise.difficulty_level}
+                                  Level {(exercise as any).difficulty_level}
                                 </Badge>
                                 <Badge className="bg-orange-100 text-orange-800">
                                   {Math.round((recommendation as any).confidence_score * 100)}% match
                                 </Badge>
                               </div>
-                              <p className="text-sm text-gray-600 mb-1">{exercise.description}</p>
+                              <p className="text-sm text-gray-600 mb-1">{(exercise as any).description}</p>
                               <p className="text-xs text-orange-600 font-medium">
                                 {(recommendation as any).reasoning}
                               </p>
@@ -236,7 +235,7 @@ const WorkoutTab = () => {
                             className="bg-orange-500 hover:bg-orange-600 opacity-0 group-hover:opacity-100 transition-opacity"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleExerciseSelect(exercise);
+                              handleExerciseSelect(exercise as any);
                             }}
                           >
                             <Play className="w-4 h-4 mr-1" />
@@ -250,6 +249,36 @@ const WorkoutTab = () => {
               </Card>
             </motion.div>
           )}
+
+          {/* Pro-Gated Custom Workout Manager */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <FeatureGuard
+              feature="custom_workouts"
+              fallback={
+                <Card className="border-dashed">
+                  <CardHeader>
+                    <CardTitle>Custom Workouts (Pro)</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-sm text-muted-foreground">
+                    Create, edit, and save your own workouts with Pro. Upgrade to unlock this feature.
+                  </CardContent>
+                </Card>
+              }
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle>Custom Workouts (Pro)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CustomWorkoutManager />
+                </CardContent>
+              </Card>
+            </FeatureGuard>
+          </motion.div>
 
           {/* Filters */}
           <motion.div

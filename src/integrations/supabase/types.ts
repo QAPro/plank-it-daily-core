@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_settings: {
+        Row: {
+          description: string | null
+          id: string
+          is_public: boolean | null
+          setting_key: string
+          setting_value: Json
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          setting_key: string
+          setting_value?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       analytics_insights: {
         Row: {
           action_required: boolean | null
@@ -267,6 +297,136 @@ export type Database = {
         }
         Relationships: []
       }
+      event_challenges: {
+        Row: {
+          badge_reward: string | null
+          challenge_description: string | null
+          challenge_title: string
+          challenge_type: string
+          created_at: string
+          difficulty_level: number | null
+          event_id: string
+          id: string
+          is_active: boolean | null
+          points_reward: number | null
+          target_criteria: Json
+        }
+        Insert: {
+          badge_reward?: string | null
+          challenge_description?: string | null
+          challenge_title: string
+          challenge_type: string
+          created_at?: string
+          difficulty_level?: number | null
+          event_id: string
+          id?: string
+          is_active?: boolean | null
+          points_reward?: number | null
+          target_criteria: Json
+        }
+        Update: {
+          badge_reward?: string | null
+          challenge_description?: string | null
+          challenge_title?: string
+          challenge_type?: string
+          created_at?: string
+          difficulty_level?: number | null
+          event_id?: string
+          id?: string
+          is_active?: boolean | null
+          points_reward?: number | null
+          target_criteria?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_challenges_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "seasonal_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_participants: {
+        Row: {
+          completion_date: string | null
+          event_id: string
+          final_score: number | null
+          id: string
+          is_completed: boolean | null
+          joined_at: string
+          progress_data: Json | null
+          rank_position: number | null
+          user_id: string
+        }
+        Insert: {
+          completion_date?: string | null
+          event_id: string
+          final_score?: number | null
+          id?: string
+          is_completed?: boolean | null
+          joined_at?: string
+          progress_data?: Json | null
+          rank_position?: number | null
+          user_id: string
+        }
+        Update: {
+          completion_date?: string | null
+          event_id?: string
+          final_score?: number | null
+          id?: string
+          is_completed?: boolean | null
+          joined_at?: string
+          progress_data?: Json | null
+          rank_position?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_participants_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "seasonal_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feature_flags: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          feature_name: string
+          id: string
+          is_enabled: boolean
+          rollout_percentage: number | null
+          target_audience: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          feature_name: string
+          id?: string
+          is_enabled?: boolean
+          rollout_percentage?: number | null
+          target_audience?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          feature_name?: string
+          id?: string
+          is_enabled?: boolean
+          rollout_percentage?: number | null
+          target_audience?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       feature_unlocks: {
         Row: {
           feature_name: string
@@ -295,6 +455,193 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fitness_leagues: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          league_type: string
+          max_participants_per_division: number | null
+          name: string
+          ranking_algorithm: string | null
+          season_duration_days: number | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          league_type?: string
+          max_participants_per_division?: number | null
+          name: string
+          ranking_algorithm?: string | null
+          season_duration_days?: number | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          league_type?: string
+          max_participants_per_division?: number | null
+          name?: string
+          ranking_algorithm?: string | null
+          season_duration_days?: number | null
+        }
+        Relationships: []
+      }
+      league_divisions: {
+        Row: {
+          current_participants: number | null
+          division_level: number
+          division_name: string
+          id: string
+          league_id: string
+          max_rating: number | null
+          min_rating: number | null
+          promotion_threshold: number | null
+          relegation_threshold: number | null
+        }
+        Insert: {
+          current_participants?: number | null
+          division_level: number
+          division_name: string
+          id?: string
+          league_id: string
+          max_rating?: number | null
+          min_rating?: number | null
+          promotion_threshold?: number | null
+          relegation_threshold?: number | null
+        }
+        Update: {
+          current_participants?: number | null
+          division_level?: number
+          division_name?: string
+          id?: string
+          league_id?: string
+          max_rating?: number | null
+          min_rating?: number | null
+          promotion_threshold?: number | null
+          relegation_threshold?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "league_divisions_league_id_fkey"
+            columns: ["league_id"]
+            isOneToOne: false
+            referencedRelation: "fitness_leagues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      league_participants: {
+        Row: {
+          current_rating: number | null
+          current_streak: number | null
+          division_id: string
+          id: string
+          joined_at: string
+          last_match_at: string | null
+          league_id: string
+          longest_streak: number | null
+          matches_played: number | null
+          matches_won: number | null
+          peak_rating: number | null
+          season_points: number | null
+          user_id: string
+        }
+        Insert: {
+          current_rating?: number | null
+          current_streak?: number | null
+          division_id: string
+          id?: string
+          joined_at?: string
+          last_match_at?: string | null
+          league_id: string
+          longest_streak?: number | null
+          matches_played?: number | null
+          matches_won?: number | null
+          peak_rating?: number | null
+          season_points?: number | null
+          user_id: string
+        }
+        Update: {
+          current_rating?: number | null
+          current_streak?: number | null
+          division_id?: string
+          id?: string
+          joined_at?: string
+          last_match_at?: string | null
+          league_id?: string
+          longest_streak?: number | null
+          matches_played?: number | null
+          matches_won?: number | null
+          peak_rating?: number | null
+          season_points?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "league_participants_division_id_fkey"
+            columns: ["division_id"]
+            isOneToOne: false
+            referencedRelation: "league_divisions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "league_participants_league_id_fkey"
+            columns: ["league_id"]
+            isOneToOne: false
+            referencedRelation: "fitness_leagues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      league_seasons: {
+        Row: {
+          created_at: string
+          end_date: string
+          id: string
+          is_active: boolean | null
+          league_id: string
+          season_number: number
+          season_rewards: Json | null
+          start_date: string
+          total_participants: number | null
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          id?: string
+          is_active?: boolean | null
+          league_id: string
+          season_number: number
+          season_rewards?: Json | null
+          start_date: string
+          total_participants?: number | null
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          id?: string
+          is_active?: boolean | null
+          league_id?: string
+          season_number?: number
+          season_rewards?: Json | null
+          start_date?: string
+          total_participants?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "league_seasons_league_id_fkey"
+            columns: ["league_id"]
+            isOneToOne: false
+            referencedRelation: "fitness_leagues"
             referencedColumns: ["id"]
           },
         ]
@@ -440,6 +787,60 @@ export type Database = {
           name?: string
           primary_muscles?: string[] | null
           tags?: string[] | null
+        }
+        Relationships: []
+      }
+      seasonal_events: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          current_participants: number | null
+          description: string | null
+          end_date: string
+          event_type: string
+          id: string
+          is_active: boolean | null
+          max_participants: number | null
+          participation_requirements: Json | null
+          reward_data: Json | null
+          start_date: string
+          theme_data: Json | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          current_participants?: number | null
+          description?: string | null
+          end_date: string
+          event_type?: string
+          id?: string
+          is_active?: boolean | null
+          max_participants?: number | null
+          participation_requirements?: Json | null
+          reward_data?: Json | null
+          start_date: string
+          theme_data?: Json | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          current_participants?: number | null
+          description?: string | null
+          end_date?: string
+          event_type?: string
+          id?: string
+          is_active?: boolean | null
+          max_participants?: number | null
+          participation_requirements?: Json | null
+          reward_data?: Json | null
+          start_date?: string
+          theme_data?: Json | null
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -595,6 +996,181 @@ export type Database = {
           name?: string
           updated_at?: string
           visual_effects?: Json
+        }
+        Relationships: []
+      }
+      tournament_matches: {
+        Row: {
+          completed_at: string | null
+          id: string
+          match_data: Json | null
+          match_number: number
+          participant1_id: string | null
+          participant2_id: string | null
+          round_number: number
+          scheduled_at: string | null
+          status: string | null
+          tournament_id: string
+          winner_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          id?: string
+          match_data?: Json | null
+          match_number: number
+          participant1_id?: string | null
+          participant2_id?: string | null
+          round_number: number
+          scheduled_at?: string | null
+          status?: string | null
+          tournament_id: string
+          winner_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          id?: string
+          match_data?: Json | null
+          match_number?: number
+          participant1_id?: string | null
+          participant2_id?: string | null
+          round_number?: number
+          scheduled_at?: string | null
+          status?: string | null
+          tournament_id?: string
+          winner_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tournament_matches_participant1_id_fkey"
+            columns: ["participant1_id"]
+            isOneToOne: false
+            referencedRelation: "tournament_participants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournament_matches_participant2_id_fkey"
+            columns: ["participant2_id"]
+            isOneToOne: false
+            referencedRelation: "tournament_participants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournament_matches_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "tournaments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tournament_matches_winner_id_fkey"
+            columns: ["winner_id"]
+            isOneToOne: false
+            referencedRelation: "tournament_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tournament_participants: {
+        Row: {
+          current_round: number | null
+          elimination_round: number | null
+          id: string
+          is_eliminated: boolean | null
+          registered_at: string
+          seed_position: number | null
+          total_score: number | null
+          tournament_id: string
+          user_id: string
+        }
+        Insert: {
+          current_round?: number | null
+          elimination_round?: number | null
+          id?: string
+          is_eliminated?: boolean | null
+          registered_at?: string
+          seed_position?: number | null
+          total_score?: number | null
+          tournament_id: string
+          user_id: string
+        }
+        Update: {
+          current_round?: number | null
+          elimination_round?: number | null
+          id?: string
+          is_eliminated?: boolean | null
+          registered_at?: string
+          seed_position?: number | null
+          total_score?: number | null
+          tournament_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tournament_participants_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "tournaments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tournaments: {
+        Row: {
+          bracket_size: number
+          created_at: string
+          created_by: string | null
+          current_participants: number | null
+          description: string | null
+          entry_requirements: Json | null
+          id: string
+          max_participants: number | null
+          prize_pool: Json | null
+          registration_end: string
+          registration_start: string
+          status: string | null
+          title: string
+          tournament_end: string
+          tournament_start: string
+          tournament_type: string
+          updated_at: string
+        }
+        Insert: {
+          bracket_size: number
+          created_at?: string
+          created_by?: string | null
+          current_participants?: number | null
+          description?: string | null
+          entry_requirements?: Json | null
+          id?: string
+          max_participants?: number | null
+          prize_pool?: Json | null
+          registration_end: string
+          registration_start: string
+          status?: string | null
+          title: string
+          tournament_end: string
+          tournament_start: string
+          tournament_type?: string
+          updated_at?: string
+        }
+        Update: {
+          bracket_size?: number
+          created_at?: string
+          created_by?: string | null
+          current_participants?: number | null
+          description?: string | null
+          entry_requirements?: Json | null
+          id?: string
+          max_participants?: number | null
+          prize_pool?: Json | null
+          registration_end?: string
+          registration_start?: string
+          status?: string | null
+          title?: string
+          tournament_end?: string
+          tournament_start?: string
+          tournament_type?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1033,6 +1609,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_sessions: {
         Row: {
           completed_at: string | null
@@ -1327,13 +1924,24 @@ export type Database = {
           username: string
         }[]
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       increment_challenge_participants: {
         Args: { challenge_id: string }
         Returns: undefined
       }
+      is_admin: {
+        Args: { _user_id?: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1460,6 +2068,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const

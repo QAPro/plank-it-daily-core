@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_insights: {
+        Row: {
+          action_required: boolean | null
+          category: string | null
+          description: string
+          expires_at: string
+          generated_at: string
+          id: string
+          insight_data: Json | null
+          insight_type: string
+          is_read: boolean | null
+          priority_level: number | null
+          relevance_score: number
+          title: string
+          user_id: string
+        }
+        Insert: {
+          action_required?: boolean | null
+          category?: string | null
+          description: string
+          expires_at?: string
+          generated_at?: string
+          id?: string
+          insight_data?: Json | null
+          insight_type: string
+          is_read?: boolean | null
+          priority_level?: number | null
+          relevance_score?: number
+          title: string
+          user_id: string
+        }
+        Update: {
+          action_required?: boolean | null
+          category?: string | null
+          description?: string
+          expires_at?: string
+          generated_at?: string
+          id?: string
+          insight_data?: Json | null
+          insight_type?: string
+          is_read?: boolean | null
+          priority_level?: number | null
+          relevance_score?: number
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       challenge_participants: {
         Row: {
           challenge_id: string
@@ -275,6 +323,78 @@ export type Database = {
         }
         Relationships: []
       }
+      ml_predictions: {
+        Row: {
+          confidence_score: number
+          expires_at: string
+          generated_at: string
+          id: string
+          input_data_hash: string | null
+          is_active: boolean | null
+          model_version: string | null
+          prediction_data: Json
+          prediction_type: string
+          user_id: string
+        }
+        Insert: {
+          confidence_score?: number
+          expires_at?: string
+          generated_at?: string
+          id?: string
+          input_data_hash?: string | null
+          is_active?: boolean | null
+          model_version?: string | null
+          prediction_data: Json
+          prediction_type: string
+          user_id: string
+        }
+        Update: {
+          confidence_score?: number
+          expires_at?: string
+          generated_at?: string
+          id?: string
+          input_data_hash?: string | null
+          is_active?: boolean | null
+          model_version?: string | null
+          prediction_data?: Json
+          prediction_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      performance_benchmarks: {
+        Row: {
+          data_period: string | null
+          exercise_id: string | null
+          id: string
+          last_updated: string
+          metric_type: string
+          percentile_data: Json
+          sample_size: number
+          user_segment: string
+        }
+        Insert: {
+          data_period?: string | null
+          exercise_id?: string | null
+          id?: string
+          last_updated?: string
+          metric_type: string
+          percentile_data: Json
+          sample_size: number
+          user_segment: string
+        }
+        Update: {
+          data_period?: string | null
+          exercise_id?: string | null
+          id?: string
+          last_updated?: string
+          metric_type?: string
+          percentile_data?: Json
+          sample_size?: number
+          user_segment?: string
+        }
+        Relationships: []
+      }
       plank_exercises: {
         Row: {
           category: string | null
@@ -478,6 +598,45 @@ export type Database = {
         }
         Relationships: []
       }
+      training_load_history: {
+        Row: {
+          actual_load: number | null
+          created_at: string
+          date: string
+          id: string
+          load_score: number | null
+          notes: string | null
+          planned_load: number | null
+          recovery_score: number | null
+          stress_indicators: Json | null
+          user_id: string
+        }
+        Insert: {
+          actual_load?: number | null
+          created_at?: string
+          date: string
+          id?: string
+          load_score?: number | null
+          notes?: string | null
+          planned_load?: number | null
+          recovery_score?: number | null
+          stress_indicators?: Json | null
+          user_id: string
+        }
+        Update: {
+          actual_load?: number | null
+          created_at?: string
+          date?: string
+          id?: string
+          load_score?: number | null
+          notes?: string | null
+          planned_load?: number | null
+          recovery_score?: number | null
+          stress_indicators?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_achievement_progress: {
         Row: {
           achievement_id: string
@@ -651,6 +810,69 @@ export type Database = {
           id?: string
           reasoning?: string | null
           recommendation_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_goals: {
+        Row: {
+          achievement_probability: number | null
+          category: string | null
+          completed_at: string | null
+          created_at: string
+          current_value: number | null
+          description: string | null
+          estimated_completion_date: string | null
+          goal_type: string
+          id: string
+          is_active: boolean | null
+          measurement_unit: string | null
+          milestone_values: Json | null
+          priority_level: number | null
+          target_date: string
+          target_value: number
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_probability?: number | null
+          category?: string | null
+          completed_at?: string | null
+          created_at?: string
+          current_value?: number | null
+          description?: string | null
+          estimated_completion_date?: string | null
+          goal_type: string
+          id?: string
+          is_active?: boolean | null
+          measurement_unit?: string | null
+          milestone_values?: Json | null
+          priority_level?: number | null
+          target_date: string
+          target_value: number
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_probability?: number | null
+          category?: string | null
+          completed_at?: string | null
+          created_at?: string
+          current_value?: number | null
+          description?: string | null
+          estimated_completion_date?: string | null
+          goal_type?: string
+          id?: string
+          is_active?: boolean | null
+          measurement_unit?: string | null
+          milestone_values?: Json | null
+          priority_level?: number | null
+          target_date?: string
+          target_value?: number
+          title?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

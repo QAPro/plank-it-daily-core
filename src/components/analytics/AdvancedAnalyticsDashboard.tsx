@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,6 +22,7 @@ import {
   ConsistencyHeatmap,
   PerformanceRadarChart 
 } from '@/components/charts/AdvancedCharts';
+import MLInsightsPanel from '@/components/analytics/MLInsightsPanel';
 
 type TimeframeType = 'week' | 'month' | 'quarter' | 'year';
 
@@ -255,6 +255,9 @@ const AdvancedAnalyticsDashboard = () => {
               </CardContent>
             </Card>
           </div>
+
+          {/* ML Insights Panel */}
+          <MLInsightsPanel />
         </TabsContent>
 
         <TabsContent value="progress" className="space-y-6">

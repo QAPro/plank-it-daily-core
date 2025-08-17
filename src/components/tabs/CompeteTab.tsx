@@ -1,17 +1,18 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useLeagues } from '@/hooks/useLeagues';
 import { useTournaments } from '@/hooks/useTournaments';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Trophy, Users, Star, Calendar, Target } from 'lucide-react';
-import { format } from 'date-fns';
+import { Trophy, Star } from 'lucide-react';
+import LeagueOverview from '@/components/leagues/LeagueOverview';
+import TournamentCard from '@/components/tournaments/TournamentCard';
 
 const CompeteTab = () => {
   const { leagues, loading: leaguesLoading, joinLeague } = useLeagues();
   const { tournaments, loading: tournamentsLoading, register } = useTournaments();
+
+  // Find user's active league
+  const activeLeague = leagues.find(league => league.joined);
 
   return (
     <div className="container mx-auto p-4">
@@ -27,6 +28,11 @@ const CompeteTab = () => {
         </TabsList>
 
         <TabsContent value="leagues" className="mt-6">
+          {/* Active League Overview */}
+          {activeLeague && (
+            <LeagueOverview league={activeLeague} />
+          )}
+
           {leaguesLoading ? (
             <div className="text-center text-gray-600">Loading leagues...</div>
           ) : leagues.length === 0 ? (
@@ -38,56 +44,39 @@ const CompeteTab = () => {
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
               {leagues.map((league) => (
-                <Card key={league.id} className="relative">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="text-lg">{league.name}</CardTitle>
-                        <Badge variant="outline" className="mt-1">
-                          {league.league_type.replace('_', ' ')}
-                        </Badge>
-                      </div>
-                      {league.joined && (
-                        <Badge variant="default" className="bg-blue-500">
-                          Joined
-                        </Badge>
+                <div key={league.id} className="p-4 border rounded-lg">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="text-lg font-semibold">{league.name}</h3>
+                      {league.description && (
+                        <p className="text-gray-600 text-sm mt-1">{league.description}</p>
                       )}
                     </div>
-                    {league.description && (
-                      <CardDescription className="mt-2">{league.description}</CardDescription>
+                    {league.joined && (
+                      <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                        Joined
+                      </span>
                     )}
-                  </CardHeader>
+                  </div>
 
-                  <CardContent className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Target className="w-4 h-4" />
-                      <span>{league.divisions.length} divisions available</span>
+                  <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
+                    <Trophy className="w-4 h-4" />
+                    <span>{league.divisions.length} divisions available</span>
+                  </div>
+
+                  {!league.joined ? (
+                    <button 
+                      onClick={() => joinLeague(league.id)}
+                      className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                    >
+                      Join League
+                    </button>
+                  ) : (
+                    <div className="text-center py-2 text-blue-600 font-medium">
+                      ✓ You're competing!
                     </div>
-
-                    {league.participant && (
-                      <div className="space-y-2 p-3 bg-blue-50 rounded-lg">
-                        <div className="text-sm font-medium text-blue-800">Your Stats</div>
-                        <div className="grid grid-cols-2 gap-2 text-sm text-blue-700">
-                          <div>Rating: {league.participant.current_rating}</div>
-                          <div>Matches: {league.participant.matches_played}</div>
-                        </div>
-                      </div>
-                    )}
-
-                    {!league.joined ? (
-                      <Button 
-                        onClick={() => joinLeague(league.id)}
-                        className="w-full mt-4"
-                      >
-                        Join League
-                      </Button>
-                    ) : (
-                      <div className="text-center py-2 text-blue-600 font-medium">
-                        ✓ You're competing!
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+                  )}
+                </div>
               ))}
             </div>
           )}
@@ -103,73 +92,13 @@ const CompeteTab = () => {
               <p className="text-gray-500">Check back soon for new tournaments!</p>
             </div>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-2">
               {tournaments.map((tournament) => (
-                <Card key={tournament.id} className="relative">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="text-lg">{tournament.title}</CardTitle>
-                        <Badge 
-                          variant={tournament.status === 'registration' ? 'default' : 'secondary'}
-                          className="mt-1"
-                        >
-                          {tournament.status}
-                        </Badge>
-                      </div>
-                      {tournament.registered && (
-                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                          Registered
-                        </Badge>
-                      )}
-                    </div>
-                    {tournament.description && (
-                      <CardDescription className="mt-2">{tournament.description}</CardDescription>
-                    )}
-                  </CardHeader>
-
-                  <CardContent className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Calendar className="w-4 h-4" />
-                      <span>
-                        Registration: {format(new Date(tournament.registration_start), 'MMM d')} - {format(new Date(tournament.registration_end), 'MMM d')}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Users className="w-4 h-4" />
-                      <span>
-                        {tournament.current_participants || 0} / {tournament.max_participants} registered
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Trophy className="w-4 h-4" />
-                      <span>Tournament: {format(new Date(tournament.tournament_start), 'MMM d')} - {format(new Date(tournament.tournament_end), 'MMM d')}</span>
-                    </div>
-
-                    {!tournament.registered && tournament.status === 'registration' ? (
-                      <Button 
-                        onClick={() => register(tournament.id)}
-                        className="w-full mt-4"
-                        disabled={tournament.current_participants >= tournament.max_participants}
-                      >
-                        {tournament.current_participants >= tournament.max_participants 
-                          ? 'Tournament Full' 
-                          : 'Register'
-                        }
-                      </Button>
-                    ) : tournament.registered ? (
-                      <div className="text-center py-2 text-green-600 font-medium">
-                        ✓ You're registered!
-                      </div>
-                    ) : (
-                      <div className="text-center py-2 text-gray-500">
-                        Registration closed
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+                <TournamentCard
+                  key={tournament.id}
+                  tournament={tournament}
+                  onRegister={register}
+                />
               ))}
             </div>
           )}

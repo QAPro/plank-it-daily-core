@@ -32,7 +32,6 @@ async function searchUsersRaw(identifier: string): Promise<AdminUserSummary[]> {
     throw error;
   }
 
-  // The RPC returns: user_id, email, username, full_name
   const rows = (data as any[]) || [];
   return rows.map((r) => ({
     id: r.user_id,
@@ -59,7 +58,8 @@ async function getUserRoles(userId: string): Promise<AppRole[]> {
 
 async function grantAdminRole(userId: string, reason?: string): Promise<boolean> {
   console.log("[adminUserService] grantAdminRole", userId, reason);
-  const { data, error } = await supabase.rpc("grant_admin_role", {
+  const clientAny = supabase as any;
+  const { data, error } = await clientAny.rpc("grant_admin_role", {
     _target_user_id: userId,
     _reason: reason ?? null,
   });
@@ -74,7 +74,8 @@ async function grantAdminRole(userId: string, reason?: string): Promise<boolean>
 
 async function revokeAdminRole(userId: string, reason?: string): Promise<boolean> {
   console.log("[adminUserService] revokeAdminRole", userId, reason);
-  const { data, error } = await supabase.rpc("revoke_admin_role", {
+  const clientAny = supabase as any;
+  const { data, error } = await clientAny.rpc("revoke_admin_role", {
     _target_user_id: userId,
     _reason: reason ?? null,
   });
@@ -89,7 +90,8 @@ async function revokeAdminRole(userId: string, reason?: string): Promise<boolean
 
 async function getFeatureOverrides(userId: string): Promise<UserFeatureOverride[]> {
   console.log("[adminUserService] getFeatureOverrides", userId);
-  const { data, error } = await supabase
+  const clientAny = supabase as any;
+  const { data, error } = await clientAny
     .from("user_feature_overrides")
     .select("*")
     .eq("user_id", userId)
@@ -100,7 +102,7 @@ async function getFeatureOverrides(userId: string): Promise<UserFeatureOverride[
     throw error;
   }
 
-  return (data as UserFeatureOverride[]) || [];
+  return (data as unknown as UserFeatureOverride[]) || [];
 }
 
 type SetOverrideArgs = {
@@ -115,7 +117,8 @@ async function setFeatureOverride(args: SetOverrideArgs): Promise<boolean> {
   const { userId, featureName, isEnabled, reason, expiresAt } = args;
   console.log("[adminUserService] setFeatureOverride", args);
 
-  const { data, error } = await supabase.rpc("set_user_feature_override", {
+  const clientAny = supabase as any;
+  const { data, error } = await clientAny.rpc("set_user_feature_override", {
     _target_user_id: userId,
     _feature_name: featureName,
     _is_enabled: isEnabled,

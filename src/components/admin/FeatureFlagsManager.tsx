@@ -1,0 +1,236 @@
+
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Plus, Edit, RefreshCw, Users, Globe, Target } from 'lucide-react';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+
+const FeatureFlagsManager = () => {
+  const { flags, loading, toggle, upsert, refetch } = useFeatureFlags();
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [newFlag, setNewFlag] = useState({
+    feature_name: '',
+    description: '',
+    target_audience: 'all',
+    rollout_percentage: 100,
+    is_enabled: true
+  });
+
+  const handleToggle = async (flagName: string, currentEnabled: boolean) => {
+    await toggle(flagName, !currentEnabled);
+  };
+
+  const handleCreateFlag = async () => {
+    if (!newFlag.feature_name.trim()) return;
+    
+    await upsert(newFlag);
+    setShowCreateDialog(false);
+    setNewFlag({
+      feature_name: '',
+      description: '',
+      target_audience: 'all',
+      rollout_percentage: 100,
+      is_enabled: true
+    });
+  };
+
+  const getAudienceIcon = (audience: string) => {
+    switch (audience) {
+      case 'all': return Globe;
+      case 'beta': return Users;
+      default: return Target;
+    }
+  };
+
+  const getAudienceBadgeColor = (audience: string) => {
+    switch (audience) {
+      case 'all': return 'bg-green-100 text-green-800 border-green-200';
+      case 'beta': return 'bg-blue-100 text-blue-800 border-blue-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="p-8 text-center">
+          <RefreshCw className="w-8 h-8 animate-spin text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-600">Loading feature flags...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800">Feature Flags</h2>
+          <p className="text-gray-600 mt-1">Control which features are available to users</p>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <Button variant="outline" onClick={refetch} size="sm">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
+          
+          <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                New Flag
+              </Button>
+            </DialogTrigger>
+            
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create New Feature Flag</DialogTitle>
+                <DialogDescription>
+                  Add a new feature flag to control app functionality
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="feature-name">Feature Name</Label>
+                  <Input
+                    id="feature-name"
+                    value={newFlag.feature_name}
+                    onChange={(e) => setNewFlag({ ...newFlag, feature_name: e.target.value })}
+                    placeholder="e.g., new_dashboard_layout"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    value={newFlag.description}
+                    onChange={(e) => setNewFlag({ ...newFlag, description: e.target.value })}
+                    placeholder="Describe what this feature flag controls..."
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="audience">Target Audience</Label>
+                    <Input
+                      id="audience"
+                      value={newFlag.target_audience}
+                      onChange={(e) => setNewFlag({ ...newFlag, target_audience: e.target.value })}
+                      placeholder="all, beta, premium..."
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="rollout">Rollout %</Label>
+                    <Input
+                      id="rollout"
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={newFlag.rollout_percentage}
+                      onChange={(e) => setNewFlag({ ...newFlag, rollout_percentage: parseInt(e.target.value) || 0 })}
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={newFlag.is_enabled}
+                    onCheckedChange={(checked) => setNewFlag({ ...newFlag, is_enabled: checked })}
+                  />
+                  <Label>Enable immediately</Label>
+                </div>
+                
+                <div className="flex justify-end gap-3 pt-4">
+                  <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleCreateFlag}>
+                    Create Flag
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+
+      <div className="grid gap-4">
+        {flags.map((flag) => {
+          const AudienceIcon = getAudienceIcon(flag.target_audience || 'all');
+          
+          return (
+            <Card key={flag.id} className={`transition-all ${flag.is_enabled ? 'border-green-200' : 'border-gray-200'}`}>
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <CardTitle className="text-lg">{flag.feature_name}</CardTitle>
+                    <Badge variant={flag.is_enabled ? "default" : "secondary"}>
+                      {flag.is_enabled ? 'Enabled' : 'Disabled'}
+                    </Badge>
+                  </div>
+                  
+                  <Switch
+                    checked={flag.is_enabled}
+                    onCheckedChange={() => handleToggle(flag.feature_name, flag.is_enabled)}
+                  />
+                </div>
+                
+                {flag.description && (
+                  <CardDescription>{flag.description}</CardDescription>
+                )}
+              </CardHeader>
+              
+              <CardContent className="pt-0">
+                <div className="flex items-center gap-4 text-sm text-gray-600">
+                  <div className="flex items-center gap-1">
+                    <AudienceIcon className="w-4 h-4" />
+                    <Badge variant="outline" className={getAudienceBadgeColor(flag.target_audience || 'all')}>
+                      {flag.target_audience || 'all'}
+                    </Badge>
+                  </div>
+                  
+                  <div className="flex items-center gap-1">
+                    <Target className="w-4 h-4" />
+                    <span>{flag.rollout_percentage || 100}% rollout</span>
+                  </div>
+                  
+                  {flag.created_at && (
+                    <div className="text-xs text-gray-500">
+                      Created {new Date(flag.created_at).toLocaleDateString()}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+        
+        {flags.length === 0 && (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <Flag className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">No Feature Flags</h3>
+              <p className="text-gray-600 mb-4">Create your first feature flag to start controlling app features.</p>
+              <Button onClick={() => setShowCreateDialog(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Create First Flag
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default FeatureFlagsManager;

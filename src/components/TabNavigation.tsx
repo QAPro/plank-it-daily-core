@@ -12,14 +12,38 @@ import CompeteTab from './tabs/CompeteTab';
 import { Users, User, Lock, Calendar, Trophy as TrophyIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useLevelProgressionContext } from './level/LevelProgressionProvider';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 
 const TabNavigation = () => {
   const [activeTab, setActiveTab] = useState("home");
   
-  const { isFeatureUnlocked } = useLevelProgressionContext();
-  const isFriendsUnlocked = isFeatureUnlocked('friends_system');
-  const isEventsUnlocked = isFeatureUnlocked('seasonal_events');
-  const isCompeteUnlocked = isFeatureUnlocked('competitive_features');
+  const { isFeatureUnlocked, userLevel } = useLevelProgressionContext();
+  const { flags } = useFeatureFlags();
+  
+  // Helper function to check if a feature is both unlocked by level AND enabled by feature flag
+  const isFeatureAvailable = (featureName: string, levelRequirement: number) => {
+    const levelUnlocked = (userLevel?.current_level || 0) >= levelRequirement;
+    const featureUnlocked = isFeatureUnlocked(featureName);
+    const featureFlag = flags.find(flag => flag.feature_name === featureName);
+    const flagEnabled = featureFlag?.is_enabled !== false; // Default to true if flag doesn't exist
+    
+    return (levelUnlocked || featureUnlocked) && flagEnabled;
+  };
+
+  // Get reason why feature is locked
+  const getFeatureLockReason = (featureName: string, levelRequirement: number) => {
+    const levelUnlocked = (userLevel?.current_level || 0) >= levelRequirement;
+    const featureFlag = flags.find(flag => flag.feature_name === featureName);
+    const flagEnabled = featureFlag?.is_enabled !== false;
+    
+    if (!flagEnabled) return 'Admin Disabled';
+    if (!levelUnlocked) return `Level ${levelRequirement}`;
+    return 'Locked';
+  };
+
+  const isFriendsAvailable = isFeatureAvailable('friends_system', 10);
+  const isEventsAvailable = isFeatureAvailable('seasonal_events', 5);
+  const isCompeteAvailable = isFeatureAvailable('competitive_features', 8);
 
   return (
     <div className="pb-20">
@@ -46,7 +70,7 @@ const TabNavigation = () => {
               <span className="text-xs">Achievements</span>
             </TabsTrigger>
 
-            {isEventsUnlocked ? (
+            {isEventsAvailable ? (
               <TabsTrigger value="events" className="flex flex-col items-center justify-center h-full">
                 <Calendar className="w-4 h-4 mb-1" />
                 <span className="text-xs">Events</span>
@@ -61,11 +85,11 @@ const TabNavigation = () => {
                   <Calendar className="w-4 h-4 mb-1" />
                   <Lock className="w-2 h-2 absolute -top-1 -right-1 text-gray-400" />
                 </div>
-                <span className="text-xs">Level 5</span>
+                <span className="text-xs">{getFeatureLockReason('seasonal_events', 5)}</span>
               </TabsTrigger>
             )}
 
-            {isCompeteUnlocked ? (
+            {isCompeteAvailable ? (
               <TabsTrigger value="compete" className="flex flex-col items-center justify-center h-full">
                 <TrophyIcon className="w-4 h-4 mb-1" />
                 <span className="text-xs">Compete</span>
@@ -80,11 +104,11 @@ const TabNavigation = () => {
                   <TrophyIcon className="w-4 h-4 mb-1" />
                   <Lock className="w-2 h-2 absolute -top-1 -right-1 text-gray-400" />
                 </div>
-                <span className="text-xs">Level 8</span>
+                <span className="text-xs">{getFeatureLockReason('competitive_features', 8)}</span>
               </TabsTrigger>
             )}
             
-            {isFriendsUnlocked ? (
+            {isFriendsAvailable ? (
               <TabsTrigger value="friends" className="flex flex-col items-center justify-center h-full">
                 <Users className="w-4 h-4 mb-1" />
                 <span className="text-xs">Friends</span>
@@ -99,7 +123,7 @@ const TabNavigation = () => {
                   <Users className="w-4 h-4 mb-1" />
                   <Lock className="w-2 h-2 absolute -top-1 -right-1 text-gray-400" />
                 </div>
-                <span className="text-xs">Level 10</span>
+                <span className="text-xs">{getFeatureLockReason('friends_system', 10)}</span>
               </TabsTrigger>
             )}
             
@@ -127,7 +151,7 @@ const TabNavigation = () => {
         </TabsContent>
         
         <TabsContent value="events" className="mt-0">
-          {isEventsUnlocked ? (
+          {isEventsAvailable ? (
             <EventsTab />
           ) : (
             <div className="container mx-auto p-4 text-center">
@@ -137,10 +161,12 @@ const TabNavigation = () => {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">Events Locked</h3>
                 <p className="text-gray-600 mb-4">
-                  Reach Level 5 to unlock Seasonal Events and special challenges!
+                  {getFeatureLockReason('seasonal_events', 5) === 'Admin Disabled' 
+                    ? 'This feature has been temporarily disabled by administrators.'
+                    : 'Reach Level 5 to unlock Seasonal Events and special challenges!'}
                 </p>
                 <Badge variant="secondary" className="bg-gradient-to-r from-orange-500 to-amber-500 text-white">
-                  Unlocks at Level 5
+                  {getFeatureLockReason('seasonal_events', 5)}
                 </Badge>
               </div>
             </div>
@@ -148,7 +174,7 @@ const TabNavigation = () => {
         </TabsContent>
 
         <TabsContent value="compete" className="mt-0">
-          {isCompeteUnlocked ? (
+          {isCompeteAvailable ? (
             <CompeteTab />
           ) : (
             <div className="container mx-auto p-4 text-center">
@@ -158,10 +184,12 @@ const TabNavigation = () => {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">Competition Locked</h3>
                 <p className="text-gray-600 mb-4">
-                  Reach Level 8 to unlock Leagues, Tournaments, and competitive features!
+                  {getFeatureLockReason('competitive_features', 8) === 'Admin Disabled'
+                    ? 'This feature has been temporarily disabled by administrators.'
+                    : 'Reach Level 8 to unlock Leagues, Tournaments, and competitive features!'}
                 </p>
                 <Badge variant="secondary" className="bg-gradient-to-r from-orange-500 to-amber-500 text-white">
-                  Unlocks at Level 8
+                  {getFeatureLockReason('competitive_features', 8)}
                 </Badge>
               </div>
             </div>
@@ -169,7 +197,7 @@ const TabNavigation = () => {
         </TabsContent>
         
         <TabsContent value="friends" className="mt-0">
-          {isFriendsUnlocked ? (
+          {isFriendsAvailable ? (
             <FriendsTab />
           ) : (
             <div className="container mx-auto p-4 text-center">
@@ -179,10 +207,12 @@ const TabNavigation = () => {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">Friends Locked</h3>
                 <p className="text-gray-600 mb-4">
-                  Reach Level 10 to unlock the Friends feature and connect with others!
+                  {getFeatureLockReason('friends_system', 10) === 'Admin Disabled'
+                    ? 'This feature has been temporarily disabled by administrators.'
+                    : 'Reach Level 10 to unlock the Friends feature and connect with others!'}
                 </p>
                 <Badge variant="secondary" className="bg-gradient-to-r from-orange-500 to-amber-500 text-white">
-                  Unlocks at Level 10
+                  {getFeatureLockReason('friends_system', 10)}
                 </Badge>
               </div>
             </div>

@@ -10,17 +10,36 @@ import { useState } from "react";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import AccountStats from "@/components/profile/AccountStats";
 import PreferencesSettings from "@/components/profile/PreferencesSettings";
+import AdminDashboard from "@/components/admin/AdminDashboard";
+import { useAdmin } from "@/hooks/useAdmin";
 
 const ProfileTab = () => {
   const { user, session } = useAuth();
   const { toast } = useToast();
+  const { isAdmin } = useAdmin();
   const [loading, setLoading] = useState(false);
+  const [showAdminDashboard, setShowAdminDashboard] = useState(false);
 
   const menuItems = [
     { icon: Settings, label: "App Settings", description: "Notifications, privacy, and more" },
     { icon: HelpCircle, label: "Help & Support", description: "Get help and contact support" },
     { icon: Shield, label: "Privacy Policy", description: "Learn about your data protection" }
   ];
+
+  // Add admin option if user is admin
+  if (isAdmin) {
+    menuItems.unshift({
+      icon: Shield,
+      label: "Admin Dashboard",
+      description: "Manage app features and settings"
+    });
+  }
+
+  const handleMenuClick = (label: string) => {
+    if (label === "Admin Dashboard") {
+      setShowAdminDashboard(true);
+    }
+  };
 
   const handleSignOut = async () => {
     setLoading(true);
@@ -42,6 +61,26 @@ const ProfileTab = () => {
       setLoading(false);
     }
   };
+
+  if (showAdminDashboard) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="mb-4">
+          <Button 
+            variant="outline" 
+            onClick={() => setShowAdminDashboard(false)}
+          >
+            ← Back to Profile
+          </Button>
+        </div>
+        <AdminDashboard />
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
@@ -87,11 +126,18 @@ const ProfileTab = () => {
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.4 + index * 0.1, duration: 0.5 }}
           >
-            <Card className="bg-white/80 backdrop-blur-sm border-orange-100 hover:shadow-md transition-shadow cursor-pointer">
+            <Card 
+              className="bg-white/80 backdrop-blur-sm border-orange-100 hover:shadow-md transition-shadow cursor-pointer"
+              onClick={() => handleMenuClick(item.label)}
+            >
               <CardContent className="p-4">
                 <div className="flex items-center">
-                  <div className="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center mr-4">
-                    <item.icon className="w-5 h-5 text-orange-500" />
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-4 ${
+                    item.label === "Admin Dashboard" ? "bg-red-50" : "bg-orange-50"
+                  }`}>
+                    <item.icon className={`w-5 h-5 ${
+                      item.label === "Admin Dashboard" ? "text-red-500" : "text-orange-500"
+                    }`} />
                   </div>
                   <div className="flex-1">
                     <h4 className="font-medium text-gray-800">{item.label}</h4>

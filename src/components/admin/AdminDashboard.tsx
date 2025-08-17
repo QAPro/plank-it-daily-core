@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,6 +5,7 @@ import { Shield, Settings, Users, Flag } from 'lucide-react';
 import FeatureFlagsManager from './FeatureFlagsManager';
 import { useAdmin } from '@/hooks/useAdmin';
 import UserManagement from './UserManagement';
+import AdminAnalyticsDashboard from './analytics/AdminAnalyticsDashboard';
 
 const AdminDashboard = () => {
   const { isAdmin, loading } = useAdmin();
@@ -80,15 +80,7 @@ const AdminDashboard = () => {
         </TabsContent>
 
         <TabsContent value="analytics" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Analytics & Insights</CardTitle>
-              <CardDescription>Coming soon - view app usage and performance metrics</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-500">Analytics dashboard will be implemented in Phase 4.</p>
-            </CardContent>
-          </Card>
+          <AdminAnalyticsDashboard />
         </TabsContent>
       </Tabs>
     </div>

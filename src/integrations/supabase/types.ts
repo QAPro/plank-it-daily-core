@@ -2035,9 +2035,64 @@ export type Database = {
           username: string
         }[]
       }
+      get_active_users_metrics: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          metric_type: string
+          metric_value: number
+          period_label: string
+        }[]
+      }
+      get_admin_activity_summary: {
+        Args: { days_back?: number }
+        Returns: {
+          action_count: number
+          action_type: string
+          last_action_at: string
+        }[]
+      }
+      get_feature_flag_analytics: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          adoption_rate: number
+          enabled_evaluations: number
+          feature_name: string
+          total_evaluations: number
+          unique_users: number
+        }[]
+      }
+      get_user_engagement_summary: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          active_this_week: number
+          active_today: number
+          avg_session_duration: number
+          avg_sessions_per_user: number
+          total_sessions: number
+          total_users: number
+        }[]
+      }
       get_user_feature_flag: {
         Args: { _feature_name: string; _user_id: string }
         Returns: Json
+      }
+      get_user_registration_trends: {
+        Args: { days_back?: number }
+        Returns: {
+          cumulative_users: number
+          date: string
+          new_users: number
+        }[]
+      }
+      get_workout_completion_analytics: {
+        Args: { days_back?: number }
+        Returns: {
+          avg_duration: number
+          completion_rate: number
+          exercise_name: string
+          popularity_rank: number
+          total_attempts: number
+        }[]
       }
       has_role: {
         Args: {

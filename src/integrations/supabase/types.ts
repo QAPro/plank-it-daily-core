@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      ab_test_assignments: {
+        Row: {
+          assigned_at: string | null
+          assignment_hash: string
+          feature_name: string
+          id: string
+          user_id: string
+          variant: string
+        }
+        Insert: {
+          assigned_at?: string | null
+          assignment_hash: string
+          feature_name: string
+          id?: string
+          user_id: string
+          variant: string
+        }
+        Update: {
+          assigned_at?: string | null
+          assignment_hash?: string
+          feature_name?: string
+          id?: string
+          user_id?: string
+          variant?: string
+        }
+        Relationships: []
+      }
       admin_settings: {
         Row: {
           description: string | null
@@ -391,37 +418,85 @@ export type Database = {
           },
         ]
       }
+      feature_cohorts: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          rules: Json
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          rules?: Json
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          rules?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       feature_flags: {
         Row: {
+          ab_test_config: Json | null
+          cohort_rules: Json | null
           created_at: string
           created_by: string | null
           description: string | null
           feature_name: string
           id: string
           is_enabled: boolean
+          rollout_end_date: string | null
           rollout_percentage: number | null
+          rollout_start_date: string | null
+          rollout_strategy: string | null
           target_audience: string | null
           updated_at: string
         }
         Insert: {
+          ab_test_config?: Json | null
+          cohort_rules?: Json | null
           created_at?: string
           created_by?: string | null
           description?: string | null
           feature_name: string
           id?: string
           is_enabled?: boolean
+          rollout_end_date?: string | null
           rollout_percentage?: number | null
+          rollout_start_date?: string | null
+          rollout_strategy?: string | null
           target_audience?: string | null
           updated_at?: string
         }
         Update: {
+          ab_test_config?: Json | null
+          cohort_rules?: Json | null
           created_at?: string
           created_by?: string | null
           description?: string | null
           feature_name?: string
           id?: string
           is_enabled?: boolean
+          rollout_end_date?: string | null
           rollout_percentage?: number | null
+          rollout_start_date?: string | null
+          rollout_strategy?: string | null
           target_audience?: string | null
           updated_at?: string
         }
@@ -1315,6 +1390,38 @@ export type Database = {
         }
         Relationships: []
       }
+      user_cohort_memberships: {
+        Row: {
+          assigned_at: string | null
+          cohort_id: string | null
+          expires_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string | null
+          cohort_id?: string | null
+          expires_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string | null
+          cohort_id?: string | null
+          expires_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_cohort_memberships_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "feature_cohorts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_exercise_performance: {
         Row: {
           average_duration_seconds: number
@@ -1915,6 +2022,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      evaluate_user_cohort: {
+        Args: { _cohort_rules: Json; _user_id: string }
+        Returns: boolean
+      }
       find_user_by_username_or_email: {
         Args: { identifier: string }
         Returns: {
@@ -1923,6 +2034,10 @@ export type Database = {
           user_id: string
           username: string
         }[]
+      }
+      get_user_feature_flag: {
+        Args: { _feature_name: string; _user_id: string }
+        Returns: Json
       }
       has_role: {
         Args: {
@@ -1938,6 +2053,10 @@ export type Database = {
       is_admin: {
         Args: { _user_id?: string }
         Returns: boolean
+      }
+      refresh_user_cohort_memberships: {
+        Args: { _user_id: string }
+        Returns: undefined
       }
     }
     Enums: {

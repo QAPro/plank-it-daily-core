@@ -10,6 +10,12 @@ export type FeatureFlag = {
   rollout_percentage?: number | null;
   created_at?: string;
   updated_at?: string;
+  // New advanced targeting fields
+  cohort_rules?: Record<string, any> | null;
+  ab_test_config?: Record<string, any> | null;
+  rollout_strategy?: "immediate" | "gradual" | "scheduled" | null;
+  rollout_start_date?: string | null;
+  rollout_end_date?: string | null;
 };
 
 export const featureManagementService = {
@@ -58,6 +64,12 @@ export const featureManagementService = {
         description: flag.description ?? null,
         target_audience: flag.target_audience ?? "all",
         rollout_percentage: flag.rollout_percentage ?? 100,
+        // Advanced fields
+        cohort_rules: flag.cohort_rules ?? {},
+        ab_test_config: flag.ab_test_config ?? null,
+        rollout_strategy: flag.rollout_strategy ?? "immediate",
+        rollout_start_date: flag.rollout_start_date ?? null,
+        rollout_end_date: flag.rollout_end_date ?? null,
         updated_at: new Date().toISOString(),
       },
       { onConflict: "feature_name" }

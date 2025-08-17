@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,9 +10,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Edit, RefreshCw, Users, Globe, Target, Flag } from 'lucide-react';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import AdvancedFlagControls, { AdvancedFlagState } from '@/components/admin/flags/AdvancedFlagControls';
+import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
 
 const FeatureFlagsManager = () => {
   const { flags, loading, toggle, upsert, refetch } = useFeatureFlags();
+  const { toast } = useToast();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [newFlag, setNewFlag] = useState({
     feature_name: '',
@@ -20,6 +25,13 @@ const FeatureFlagsManager = () => {
     rollout_percentage: 100,
     is_enabled: true
   });
+  const [advanced, setAdvanced] = useState<AdvancedFlagState>({
+    cohort_rules_text: "",
+    ab_test_config_text: "",
+    rollout_strategy: "immediate",
+    rollout_start_date: "",
+    rollout_end_date: "",
+  });
 
   const handleToggle = async (flagName: string, currentEnabled: boolean) => {
     await toggle(flagName, !currentEnabled);
@@ -27,8 +39,62 @@ const FeatureFlagsManager = () => {
 
   const handleCreateFlag = async () => {
     if (!newFlag.feature_name.trim()) return;
-    
-    await upsert(newFlag);
+
+    // Validate and parse JSON without throwing (use zod.safeParse)
+    let cohortRules: any = {};
+    if (advanced.cohort_rules_text.trim()) {
+      try {
+        cohortRules = JSON.parse(advanced.cohort_rules_text);
+      } catch {
+        toast({
+          title: "Invalid cohort JSON",
+          description: "Please provide valid JSON for cohort rules.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    let abTestConfig: any = null;
+    if (advanced.ab_test_config_text.trim()) {
+      try {
+        abTestConfig = JSON.parse(advanced.ab_test_config_text);
+      } catch {
+        toast({
+          title: "Invalid A/B config JSON",
+          description: "Please provide valid JSON for A/B test config.",
+          variant: "destructive",
+        });
+        return;
+      }
+      const abSchema = z.object({
+        variants: z.array(z.string()).min(2, "Provide at least 2 variants"),
+      }).passthrough();
+      const valid = abSchema.safeParse(abTestConfig);
+      if (!valid.success) {
+        toast({
+          title: "A/B config invalid",
+          description: valid.error.issues[0]?.message ?? "Variants are required",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    await upsert({
+      feature_name: newFlag.feature_name.trim(),
+      description: newFlag.description || null,
+      target_audience: newFlag.target_audience || 'all',
+      rollout_percentage: Number(newFlag.rollout_percentage) || 0,
+      is_enabled: newFlag.is_enabled,
+      // Advanced fields
+      cohort_rules: cohortRules,
+      ab_test_config: abTestConfig,
+      rollout_strategy: advanced.rollout_strategy,
+      rollout_start_date: advanced.rollout_start_date ? new Date(advanced.rollout_start_date).toISOString() : null,
+      rollout_end_date: advanced.rollout_end_date ? new Date(advanced.rollout_end_date).toISOString() : null,
+    });
+
     setShowCreateDialog(false);
     setNewFlag({
       feature_name: '',
@@ -36,6 +102,13 @@ const FeatureFlagsManager = () => {
       target_audience: 'all',
       rollout_percentage: 100,
       is_enabled: true
+    });
+    setAdvanced({
+      cohort_rules_text: "",
+      ab_test_config_text: "",
+      rollout_strategy: "immediate",
+      rollout_start_date: "",
+      rollout_end_date: "",
     });
   };
 
@@ -152,6 +225,9 @@ const FeatureFlagsManager = () => {
                   />
                   <Label>Enable immediately</Label>
                 </div>
+
+                {/* Advanced controls */}
+                <AdvancedFlagControls value={advanced} onChange={setAdvanced} />
                 
                 <div className="flex justify-end gap-3 pt-4">
                   <Button variant="outline" onClick={() => setShowCreateDialog(false)}>

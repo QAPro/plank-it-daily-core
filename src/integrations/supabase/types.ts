@@ -2022,6 +2022,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      bootstrap_first_admin: {
+        Args: { user_email: string }
+        Returns: boolean
+      }
       evaluate_user_cohort: {
         Args: { _cohort_rules: Json; _user_id: string }
         Returns: boolean

@@ -30,14 +30,7 @@ const CompeteTab = () => {
         <TabsContent value="leagues" className="mt-6">
           {/* Active League Overview */}
           {activeLeague && (
-            <LeagueOverview league={{
-              ...activeLeague,
-              participant: activeLeague.participant ? {
-                ...activeLeague.participant,
-                current_streak: activeLeague.participant.current_streak || 0,
-                season_points: activeLeague.participant.season_points || 0
-              } : undefined
-            }} />
+            <LeagueOverview league={activeLeague} />
           )}
 
           {leaguesLoading ? (

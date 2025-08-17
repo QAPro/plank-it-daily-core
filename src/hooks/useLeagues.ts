@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -30,6 +29,8 @@ type Participant = {
   peak_rating: number;
   matches_played: number;
   matches_won: number;
+  current_streak: number;
+  season_points: number;
 };
 
 export const useLeagues = () => {

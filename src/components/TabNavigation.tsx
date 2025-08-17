@@ -13,6 +13,7 @@ import { Users, User, Lock, Calendar, Trophy as TrophyIcon } from 'lucide-react'
 import { Badge } from '@/components/ui/badge';
 import { useLevelProgressionContext } from './level/LevelProgressionProvider';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import FeatureLockIndicator from './navigation/FeatureLockIndicator';
 
 const TabNavigation = () => {
   const [activeTab, setActiveTab] = useState("home");
@@ -30,15 +31,16 @@ const TabNavigation = () => {
     return (levelUnlocked || featureUnlocked) && flagEnabled;
   };
 
-  // Get reason why feature is locked
+  // Get reason why feature is locked with priority: Admin > Level
   const getFeatureLockReason = (featureName: string, levelRequirement: number) => {
-    const levelUnlocked = (userLevel?.current_level || 0) >= levelRequirement;
     const featureFlag = flags.find(flag => flag.feature_name === featureName);
     const flagEnabled = featureFlag?.is_enabled !== false;
+    const levelUnlocked = (userLevel?.current_level || 0) >= levelRequirement;
     
-    if (!flagEnabled) return 'Admin Disabled';
-    if (!levelUnlocked) return `Level ${levelRequirement}`;
-    return 'Locked';
+    // Admin disabled takes priority
+    if (!flagEnabled) return { reason: 'Admin Disabled', type: 'admin' as const };
+    if (!levelUnlocked) return { reason: `Level ${levelRequirement}`, type: 'level' as const };
+    return { reason: 'Locked', type: 'unknown' as const };
   };
 
   const isFriendsAvailable = isFeatureAvailable('friends_system', 10);
@@ -76,17 +78,14 @@ const TabNavigation = () => {
                 <span className="text-xs">Events</span>
               </TabsTrigger>
             ) : (
-              <TabsTrigger 
-                value="events" 
-                disabled 
-                className="flex flex-col items-center justify-center h-full opacity-50 cursor-not-allowed"
-              >
-                <div className="relative">
-                  <Calendar className="w-4 h-4 mb-1" />
-                  <Lock className="w-2 h-2 absolute -top-1 -right-1 text-gray-400" />
-                </div>
-                <span className="text-xs">{getFeatureLockReason('seasonal_events', 5)}</span>
-              </TabsTrigger>
+              <FeatureLockIndicator
+                featureName="seasonal_events"
+                levelRequirement={5}
+                lockInfo={getFeatureLockReason('seasonal_events', 5)}
+                icon={Calendar}
+                label="Events"
+                tabValue="events"
+              />
             )}
 
             {isCompeteAvailable ? (
@@ -95,17 +94,14 @@ const TabNavigation = () => {
                 <span className="text-xs">Compete</span>
               </TabsTrigger>
             ) : (
-              <TabsTrigger 
-                value="compete" 
-                disabled 
-                className="flex flex-col items-center justify-center h-full opacity-50 cursor-not-allowed"
-              >
-                <div className="relative">
-                  <TrophyIcon className="w-4 h-4 mb-1" />
-                  <Lock className="w-2 h-2 absolute -top-1 -right-1 text-gray-400" />
-                </div>
-                <span className="text-xs">{getFeatureLockReason('competitive_features', 8)}</span>
-              </TabsTrigger>
+              <FeatureLockIndicator
+                featureName="competitive_features"
+                levelRequirement={8}
+                lockInfo={getFeatureLockReason('competitive_features', 8)}
+                icon={TrophyIcon}
+                label="Compete"
+                tabValue="compete"
+              />
             )}
             
             {isFriendsAvailable ? (
@@ -114,17 +110,14 @@ const TabNavigation = () => {
                 <span className="text-xs">Friends</span>
               </TabsTrigger>
             ) : (
-              <TabsTrigger 
-                value="friends" 
-                disabled 
-                className="flex flex-col items-center justify-center h-full opacity-50 cursor-not-allowed"
-              >
-                <div className="relative">
-                  <Users className="w-4 h-4 mb-1" />
-                  <Lock className="w-2 h-2 absolute -top-1 -right-1 text-gray-400" />
-                </div>
-                <span className="text-xs">{getFeatureLockReason('friends_system', 10)}</span>
-              </TabsTrigger>
+              <FeatureLockIndicator
+                featureName="friends_system"
+                levelRequirement={10}
+                lockInfo={getFeatureLockReason('friends_system', 10)}
+                icon={Users}
+                label="Friends"
+                tabValue="friends"
+              />
             )}
             
             <TabsTrigger value="profile" className="flex flex-col items-center justify-center h-full">
@@ -161,12 +154,16 @@ const TabNavigation = () => {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">Events Locked</h3>
                 <p className="text-gray-600 mb-4">
-                  {getFeatureLockReason('seasonal_events', 5) === 'Admin Disabled' 
+                  {getFeatureLockReason('seasonal_events', 5).type === 'admin' 
                     ? 'This feature has been temporarily disabled by administrators.'
                     : 'Reach Level 5 to unlock Seasonal Events and special challenges!'}
                 </p>
-                <Badge variant="secondary" className="bg-gradient-to-r from-orange-500 to-amber-500 text-white">
-                  {getFeatureLockReason('seasonal_events', 5)}
+                <Badge variant="secondary" className={`${
+                  getFeatureLockReason('seasonal_events', 5).type === 'admin' 
+                    ? 'bg-red-100 text-red-800 border-red-200' 
+                    : 'bg-gradient-to-r from-orange-500 to-amber-500 text-white'
+                }`}>
+                  {getFeatureLockReason('seasonal_events', 5).reason}
                 </Badge>
               </div>
             </div>
@@ -184,12 +181,16 @@ const TabNavigation = () => {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">Competition Locked</h3>
                 <p className="text-gray-600 mb-4">
-                  {getFeatureLockReason('competitive_features', 8) === 'Admin Disabled'
+                  {getFeatureLockReason('competitive_features', 8).type === 'admin'
                     ? 'This feature has been temporarily disabled by administrators.'
                     : 'Reach Level 8 to unlock Leagues, Tournaments, and competitive features!'}
                 </p>
-                <Badge variant="secondary" className="bg-gradient-to-r from-orange-500 to-amber-500 text-white">
-                  {getFeatureLockReason('competitive_features', 8)}
+                <Badge variant="secondary" className={`${
+                  getFeatureLockReason('competitive_features', 8).type === 'admin' 
+                    ? 'bg-red-100 text-red-800 border-red-200' 
+                    : 'bg-gradient-to-r from-orange-500 to-amber-500 text-white'
+                }`}>
+                  {getFeatureLockReason('competitive_features', 8).reason}
                 </Badge>
               </div>
             </div>
@@ -207,12 +208,16 @@ const TabNavigation = () => {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">Friends Locked</h3>
                 <p className="text-gray-600 mb-4">
-                  {getFeatureLockReason('friends_system', 10) === 'Admin Disabled'
+                  {getFeatureLockReason('friends_system', 10).type === 'admin'
                     ? 'This feature has been temporarily disabled by administrators.'
                     : 'Reach Level 10 to unlock the Friends feature and connect with others!'}
                 </p>
-                <Badge variant="secondary" className="bg-gradient-to-r from-orange-500 to-amber-500 text-white">
-                  {getFeatureLockReason('friends_system', 10)}
+                <Badge variant="secondary" className={`${
+                  getFeatureLockReason('friends_system', 10).type === 'admin' 
+                    ? 'bg-red-100 text-red-800 border-red-200' 
+                    : 'bg-gradient-to-r from-orange-500 to-amber-500 text-white'
+                }`}>
+                  {getFeatureLockReason('friends_system', 10).reason}
                 </Badge>
               </div>
             </div>

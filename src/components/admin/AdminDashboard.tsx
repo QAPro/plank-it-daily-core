@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Shield, Settings, Users, Flag } from 'lucide-react';
 import FeatureFlagsManager from './FeatureFlagsManager';
 import { useAdmin } from '@/hooks/useAdmin';
+import UserManagement from './UserManagement';
 
 const AdminDashboard = () => {
   const { isAdmin, loading } = useAdmin();
@@ -63,15 +64,7 @@ const AdminDashboard = () => {
         </TabsContent>
 
         <TabsContent value="users" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>User Management</CardTitle>
-              <CardDescription>Coming soon - manage user roles and permissions</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-500">User management features will be implemented in Phase 3.</p>
-            </CardContent>
-          </Card>
+          <UserManagement />
         </TabsContent>
 
         <TabsContent value="settings" className="mt-6">

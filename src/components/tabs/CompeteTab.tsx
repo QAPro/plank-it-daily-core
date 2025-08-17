@@ -30,7 +30,14 @@ const CompeteTab = () => {
         <TabsContent value="leagues" className="mt-6">
           {/* Active League Overview */}
           {activeLeague && (
-            <LeagueOverview league={activeLeague} />
+            <LeagueOverview league={{
+              ...activeLeague,
+              participant: activeLeague.participant ? {
+                ...activeLeague.participant,
+                current_streak: activeLeague.participant.current_streak || 0,
+                season_points: activeLeague.participant.season_points || 0
+              } : undefined
+            }} />
           )}
 
           {leaguesLoading ? (
@@ -96,7 +103,17 @@ const CompeteTab = () => {
               {tournaments.map((tournament) => (
                 <TournamentCard
                   key={tournament.id}
-                  tournament={tournament}
+                  tournament={{
+                    ...tournament,
+                    tournament_type: 'elimination', // Default tournament type
+                    bracket_size: 64, // Default bracket size
+                    registration: tournament.registered ? {
+                      seed_position: tournament.registration?.seed_position || null,
+                      current_round: tournament.registration?.current_round || 1,
+                      is_eliminated: tournament.registration?.is_eliminated || false,
+                      total_score: tournament.registration?.total_score || 0
+                    } : null
+                  }}
                   onRegister={register}
                 />
               ))}

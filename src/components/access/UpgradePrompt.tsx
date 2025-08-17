@@ -28,7 +28,7 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
       case 'social_challenges': return 'Social Challenges';
       case 'custom_workouts': return 'Custom Workouts';
       case 'priority_support': return 'Priority Support';
-      default: return featureName.replace('_', ' ');
+      default: return featureName;
     }
   };
 

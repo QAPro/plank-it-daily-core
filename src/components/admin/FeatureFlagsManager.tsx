@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Edit, RefreshCw, Users, Globe, Target } from 'lucide-react';
+import { Plus, Edit, RefreshCw, Users, Globe, Target, Flag } from 'lucide-react';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 
 const FeatureFlagsManager = () => {
@@ -38,6 +37,10 @@ const FeatureFlagsManager = () => {
       rollout_percentage: 100,
       is_enabled: true
     });
+  };
+
+  const handleRefresh = () => {
+    refetch();
   };
 
   const getAudienceIcon = (audience: string) => {
@@ -76,7 +79,7 @@ const FeatureFlagsManager = () => {
         </div>
         
         <div className="flex items-center gap-3">
-          <Button variant="outline" onClick={refetch} size="sm">
+          <Button variant="outline" onClick={handleRefresh} size="sm">
             <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
           </Button>

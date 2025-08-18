@@ -19,27 +19,33 @@ const ConversionFunnelChart = () => {
   const { data: funnelData, isLoading } = useQuery({
     queryKey: ['conversion-funnel'],
     queryFn: async () => {
-      // Get total users
-      const { count: totalUsers } = await supabase
+      // Get total users count
+      const usersQuery = await supabase
         .from('users')
         .select('*', { count: 'exact', head: true });
+      
+      const totalUsers = usersQuery.count || 0;
 
       // Get users who completed onboarding
-      const { count: onboardedUsers } = await supabase
+      const onboardingQuery = await supabase
         .from('user_onboarding')
         .select('*', { count: 'exact', head: true })
         .eq('completed', true);
+      
+      const onboardedUsers = onboardingQuery.count || 0;
 
       // Get premium users
-      const { count: premiumUsers } = await supabase
+      const premiumQuery = await supabase
         .from('users')
         .select('*', { count: 'exact', head: true })
         .neq('subscription_tier', 'free');
+      
+      const premiumUsers = premiumQuery.count || 0;
 
-      const stages = [
+      const stages: FunnelStage[] = [
         {
           stage: 'Visitors',
-          users: totalUsers || 0,
+          users: totalUsers,
           conversionRate: 100,
           dropoffRate: 0,
           icon: <Users className="w-5 h-5" />,
@@ -47,7 +53,7 @@ const ConversionFunnelChart = () => {
         },
         {
           stage: 'Signed Up',
-          users: totalUsers || 0,
+          users: totalUsers,
           conversionRate: 100,
           dropoffRate: 0,
           icon: <Target className="w-5 h-5" />,
@@ -55,25 +61,25 @@ const ConversionFunnelChart = () => {
         },
         {
           stage: 'Completed Onboarding',
-          users: onboardedUsers || 0,
-          conversionRate: totalUsers ? Math.round((onboardedUsers || 0) / totalUsers * 100) : 0,
-          dropoffRate: totalUsers ? Math.round((1 - (onboardedUsers || 0) / totalUsers) * 100) : 0,
+          users: onboardedUsers,
+          conversionRate: totalUsers ? Math.round((onboardedUsers / totalUsers) * 100) : 0,
+          dropoffRate: totalUsers ? Math.round((1 - (onboardedUsers / totalUsers)) * 100) : 0,
           icon: <Target className="w-5 h-5" />,
           color: 'bg-purple-500'
         },
         {
           stage: 'First Workout',
-          users: Math.floor((onboardedUsers || 0) * 0.7), // Simulate 70% completion
-          conversionRate: onboardedUsers ? Math.round(Math.floor((onboardedUsers || 0) * 0.7) / onboardedUsers * 100) : 0,
+          users: Math.floor(onboardedUsers * 0.7), // Simulate 70% completion
+          conversionRate: onboardedUsers ? Math.round(Math.floor(onboardedUsers * 0.7) / onboardedUsers * 100) : 0,
           dropoffRate: 30,
           icon: <Target className="w-5 h-5" />,
           color: 'bg-orange-500'
         },
         {
           stage: 'Premium Conversion',
-          users: premiumUsers || 0,
-          conversionRate: totalUsers ? Math.round((premiumUsers || 0) / totalUsers * 100) : 0,
-          dropoffRate: totalUsers ? Math.round((1 - (premiumUsers || 0) / totalUsers) * 100) : 0,
+          users: premiumUsers,
+          conversionRate: totalUsers ? Math.round((premiumUsers / totalUsers) * 100) : 0,
+          dropoffRate: totalUsers ? Math.round((1 - (premiumUsers / totalUsers)) * 100) : 0,
           icon: <CreditCard className="w-5 h-5" />,
           color: 'bg-yellow-500'
         }

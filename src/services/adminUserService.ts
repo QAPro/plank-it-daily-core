@@ -131,6 +131,38 @@ async function getFeatureOverrides(userId: string): Promise<UserFeatureOverride[
   return (data as unknown as UserFeatureOverride[]) || [];
 }
 
+async function setFeatureOverride(args: {
+  userId: string;
+  featureName: string;
+  isEnabled: boolean;
+  reason?: string;
+  expiresAt?: string | null;
+}): Promise<boolean> {
+  const { userId, featureName, isEnabled, reason, expiresAt } = args;
+  console.log("[adminUserService] setFeatureOverride", args);
+
+  const clientAny = supabase as any;
+  const { error } = await clientAny
+    .from("user_feature_overrides")
+    .upsert({
+      user_id: userId,
+      feature_name: featureName,
+      is_enabled: isEnabled,
+      reason: reason || null,
+      expires_at: expiresAt || null,
+      granted_by: (await supabase.auth.getUser()).data.user?.id || null,
+    }, {
+      onConflict: 'user_id,feature_name'
+    });
+
+  if (error) {
+    console.error("[adminUserService] setFeatureOverride error", error);
+    throw error;
+  }
+
+  return true;
+}
+
 // ---------------- New admin subscription helpers ----------------
 
 async function getUserActiveSubscription(userId: string): Promise<ActiveSubscription | null> {
@@ -306,6 +338,7 @@ export const adminUserService = {
   grantAdminRole,
   revokeAdminRole,
   getFeatureOverrides,
+  setFeatureOverride,
   // New exports
   getUserActiveSubscription,
   changeUserTier,

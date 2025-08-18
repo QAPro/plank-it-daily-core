@@ -1,21 +1,15 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
 import { TrendingUp } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
-import { getUserRegistrationTrends } from "@/services/adminAnalyticsService";
+import { getUserRegistrationTrends, RegistrationTrend } from "@/services/adminAnalyticsService";
 import { useAdminAnalytics } from "@/contexts/AdminAnalyticsContext";
 
 interface UserEngagementChartsProps {
   daysBack?: number;
-}
-
-interface RegistrationTrend {
-  date: string;
-  new_users: number;
-  cumulative_users: number;
-  active_users: number;
 }
 
 const UserEngagementCharts = ({ daysBack = 30 }: UserEngagementChartsProps) => {
@@ -49,7 +43,7 @@ const UserEngagementCharts = ({ daysBack = 30 }: UserEngagementChartsProps) => {
       // Set drill-down for the clicked date
       setDrillDown('timeframe', clickedData.date, {
         registrations: clickedData.new_users,
-        activeUsers: clickedData.active_users,
+        cumulativeUsers: clickedData.cumulative_users,
         period: 'daily'
       });
     }
@@ -59,7 +53,7 @@ const UserEngagementCharts = ({ daysBack = 30 }: UserEngagementChartsProps) => {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>User Engagement Trends</CardTitle>
+          <CardTitle>User Registration Trends</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="animate-pulse h-80 bg-gray-100 rounded-md"></div>
@@ -72,7 +66,7 @@ const UserEngagementCharts = ({ daysBack = 30 }: UserEngagementChartsProps) => {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>User Engagement Trends</CardTitle>
+          <CardTitle>User Registration Trends</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-red-500">{error}</div>
@@ -86,8 +80,8 @@ const UserEngagementCharts = ({ daysBack = 30 }: UserEngagementChartsProps) => {
       label: "New Users",
       color: "hsl(var(--chart-1))",
     },
-    active_users: {
-      label: "Active Users", 
+    cumulative_users: {
+      label: "Cumulative Users", 
       color: "hsl(var(--chart-2))",
     },
   };
@@ -97,7 +91,7 @@ const UserEngagementCharts = ({ daysBack = 30 }: UserEngagementChartsProps) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <TrendingUp className="h-5 w-5" />
-          User Engagement Trends
+          User Registration Trends
           <Badge variant="secondary" className="text-xs">Click to drill-down</Badge>
         </CardTitle>
       </CardHeader>
@@ -126,11 +120,11 @@ const UserEngagementCharts = ({ daysBack = 30 }: UserEngagementChartsProps) => {
               />
               <Line 
                 type="monotone" 
-                dataKey="active_users" 
-                stroke="var(--color-active_users)" 
+                dataKey="cumulative_users" 
+                stroke="var(--color-cumulative_users)" 
                 strokeWidth={2}
-                dot={{ fill: "var(--color-active_users)", strokeWidth: 2, r: 4 }}
-                activeDot={{ r: 6, stroke: "var(--color-active_users)", strokeWidth: 2 }}
+                dot={{ fill: "var(--color-cumulative_users)", strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 6, stroke: "var(--color-cumulative_users)", strokeWidth: 2 }}
               />
             </LineChart>
           </ResponsiveContainer>

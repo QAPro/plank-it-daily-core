@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { addMonths, addYears } from "date-fns";
 
@@ -125,6 +124,30 @@ export const subscriptionService = {
     };
   },
 
+  // New: create checkout session via Edge Function (stubbed until Stripe is configured)
+  async createCheckoutSession(plan: SubscriptionPlan): Promise<string | undefined> {
+    console.log("[subscriptionService] createCheckoutSession", plan);
+    const { data, error } = await sb.functions.invoke("create-checkout", {
+      body: { plan_id: plan.id },
+    });
+    if (error) {
+      console.error("[subscriptionService] createCheckoutSession error", error);
+      throw new Error(error.message || "Failed to create checkout session");
+    }
+    return data?.url as string | undefined;
+  },
+
+  // New: open Stripe customer portal via Edge Function (stubbed)
+  async openCustomerPortal(): Promise<string | undefined> {
+    console.log("[subscriptionService] openCustomerPortal");
+    const { data, error } = await sb.functions.invoke("customer-portal");
+    if (error) {
+      console.error("[subscriptionService] openCustomerPortal error", error);
+      throw new Error(error.message || "Failed to open customer portal");
+    }
+    return data?.url as string | undefined;
+  },
+
   // DEMO upgrade flow: no Stripe. Creates a subscription row and updates the user's tier.
   async startDemoUpgrade(userId: string, plan: SubscriptionPlan) {
     console.log("[subscriptionService] startDemoUpgrade", { userId, plan });
@@ -134,8 +157,7 @@ export const subscriptionService = {
         ? addYears(now, 1)
         : addMonths(now, 1);
 
-    // 1) Create/Upsert active subscription for this user/plan
-    const { error: subErr } = await sb.from(SUBSCRIPTIONS_TABLE).insert({
+    const { error: subErr } = await sb.from("subscriptions").insert({
       user_id: userId,
       plan_id: plan.id,
       status: "active",
@@ -150,9 +172,8 @@ export const subscriptionService = {
       throw subErr;
     }
 
-    // 2) Update users.subscription_tier to premium (aligns with feature gating)
     const { error: userErr } = await sb
-      .from(USERS_TABLE)
+      .from("users")
       .update({ subscription_tier: "premium", updated_at: now.toISOString() })
       .eq("id", userId);
     if (userErr) {
@@ -160,8 +181,7 @@ export const subscriptionService = {
       throw userErr;
     }
 
-    // 3) Add a billing transaction record (demo)
-    const { error: billErr } = await sb.from(BILLING_TABLE).insert({
+    const { error: billErr } = await sb.from("billing_transactions").insert({
       user_id: userId,
       amount_cents: plan.price_cents,
       currency: "usd",
@@ -183,9 +203,8 @@ export const subscriptionService = {
     console.log("[subscriptionService] cancelActiveSubscription", userId);
     const now = new Date();
 
-    // 1) Mark any active subscription as canceled
     const { error: subErr } = await sb
-      .from(SUBSCRIPTIONS_TABLE)
+      .from("subscriptions")
       .update({
         status: "canceled",
         canceled_at: now.toISOString(),
@@ -198,9 +217,8 @@ export const subscriptionService = {
       throw subErr;
     }
 
-    // 2) Downgrade user tier back to free
     const { error: userErr } = await sb
-      .from(USERS_TABLE)
+      .from("users")
       .update({ subscription_tier: "free", updated_at: now.toISOString() })
       .eq("id", userId);
     if (userErr) {

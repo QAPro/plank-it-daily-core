@@ -1,4 +1,3 @@
-
 import React, { useMemo, useState } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +13,7 @@ import { subscriptionService, SubscriptionPlan, ActiveSubscription } from "@/ser
 import { useToast } from "@/hooks/use-toast";
 import { ShieldPlus, ShieldMinus, Crown, DollarSign, Tag, NotebookPen } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { formatPrice } from "@/utils/price";
 
 type Props = {
   user: AdminUserSummary;
@@ -226,7 +226,7 @@ const UserDetailsCard: React.FC<Props> = ({ user }) => {
   const priceLabel = (plan: SubscriptionPlan) => {
     if (plan.price_cents === 0) return "Free";
     const interval = plan.billing_interval?.toLowerCase() === "year" ? "/yr" : "/mo";
-    return `$${(plan.price_cents / 100).toFixed(2)} ${interval}`;
+    return `${formatPrice(plan.price_cents)} ${interval}`;
   };
 
   const planOptions = useMemo(() => {
@@ -313,7 +313,7 @@ const UserDetailsCard: React.FC<Props> = ({ user }) => {
             <div className="rounded border p-3">
               <div className="text-muted-foreground">Effective Price</div>
               <div className="font-medium">
-                {effectivePrice != null ? `$${(effectivePrice / 100).toFixed(2)}` : "N/A"}
+                {effectivePrice != null ? `${formatPrice(effectivePrice)}` : "N/A"}
                 {subStatus?.is_custom_pricing ? <Badge variant="outline" className="ml-2">Custom</Badge> : null}
               </div>
             </div>

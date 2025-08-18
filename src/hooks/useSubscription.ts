@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { subscriptionService, SubscriptionPlan, ActiveSubscription } from "@/services/subscriptionService";
@@ -38,8 +37,14 @@ export const useSubscription = () => {
       if (demoMode) {
         return subscriptionService.startDemoUpgrade(user!.id, plan);
       }
-      // Stripe not connected yet; when ready, swap here to real checkout session.
-      throw new Error("Stripe integration is not configured yet. Enable demo mode to test upgrade.");
+      // Not demo: attempt to start checkout via stubbed edge function
+      const url = await subscriptionService.createCheckoutSession(plan);
+      if (!url) {
+        throw new Error("Could not create checkout session.");
+      }
+      // Open Stripe checkout (when configured) in a new tab
+      window.open(url, "_blank");
+      return true;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["subscription", "active", user?.id] });
@@ -94,5 +99,9 @@ export const useSubscription = () => {
     // Actions
     upgrade: (plan: SubscriptionPlan) => upgradeMutation.mutate(plan),
     cancel: () => cancelMutation.mutate(),
+    openPortal: async () => {
+      const url = await subscriptionService.openCustomerPortal();
+      if (url) window.open(url, "_blank");
+    },
   };
 };

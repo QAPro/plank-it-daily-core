@@ -18,7 +18,7 @@ interface FunnelStage {
 const ConversionFunnelChart = () => {
   const { data: funnelData, isLoading } = useQuery({
     queryKey: ['conversion-funnel'],
-    queryFn: async (): Promise<FunnelStage[]> => {
+    queryFn: async () => {
       // Get total users
       const { count: totalUsers } = await supabase
         .from('users')
@@ -36,7 +36,7 @@ const ConversionFunnelChart = () => {
         .select('*', { count: 'exact', head: true })
         .neq('subscription_tier', 'free');
 
-      const stages: FunnelStage[] = [
+      const stages = [
         {
           stage: 'Visitors',
           users: totalUsers || 0,

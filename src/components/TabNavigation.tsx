@@ -1,98 +1,70 @@
 
 import React from 'react';
-import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
-import { Home, Dumbbell, BarChart3, Trophy, Users, Swords } from 'lucide-react';
-import GatedHomeTab from './tabs/GatedHomeTab';
-import EnhancedWorkoutTab from './tabs/EnhancedWorkoutTab';
-import StatsTab from './tabs/StatsTab';
-import AchievementsTab from './tabs/AchievementsTab';
-import GatedFriendsTab from './tabs/GatedFriendsTab';
-import GatedCompeteTab from './tabs/GatedCompeteTab';
-import PremiumTabIndicator from './navigation/PremiumTabIndicator';
-import { TabsTrigger } from "@/components/ui/tabs";
-import type { Tables } from '@/integrations/supabase/types';
-
-type Exercise = Tables<'plank_exercises'>;
+import { motion } from 'framer-motion';
+import { 
+  Home, 
+  Dumbbell, 
+  BarChart3, 
+  Trophy, 
+  Users, 
+  User,
+  Calendar,
+  Zap
+} from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface TabNavigationProps {
-  selectedExercise?: Exercise | null;
-  onExerciseSelect?: (exercise: Exercise) => void;
+  activeTab: string;
+  onTabChange: (tab: string) => void;
 }
 
-const TabNavigation: React.FC<TabNavigationProps> = ({ 
-  selectedExercise, 
-  onExerciseSelect 
-}) => {
-  const handleStartWorkout = () => {
-    // Default to basic plank if no exercise selected
-    // This will be handled by the workout tab
-  };
+const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, onTabChange }) => {
+  const { user } = useAuth();
+
+  const tabs = [
+    { id: 'home', label: 'Home', icon: Home },
+    { id: 'workout', label: 'Workout', icon: Dumbbell },
+    { id: 'stats', label: 'Stats', icon: BarChart3 },
+    { id: 'analytics', label: 'Analytics', icon: Zap },
+    { id: 'achievements', label: 'Achievements', icon: Trophy },
+    { id: 'compete', label: 'Compete', icon: Users },
+    { id: 'friends', label: 'Friends', icon: Users },
+    { id: 'events', label: 'Events', icon: Calendar },
+    { id: 'profile', label: 'Profile', icon: User },
+  ];
 
   return (
-    <Tabs defaultValue="home" className="w-full">
-      <TabsList className="grid w-full grid-cols-6 mb-6">
-        <TabsTrigger value="home" className="flex items-center gap-2">
-          <Home className="w-4 h-4" />
-          <span className="hidden sm:inline">Home</span>
-        </TabsTrigger>
-        
-        <TabsTrigger value="workout" className="flex items-center gap-2">
-          <Dumbbell className="w-4 h-4" />
-          <span className="hidden sm:inline">Workout</span>
-        </TabsTrigger>
-        
-        <TabsTrigger value="stats" className="flex items-center gap-2">
-          <BarChart3 className="w-4 h-4" />
-          <span className="hidden sm:inline">Stats</span>
-        </TabsTrigger>
-        
-        <TabsTrigger value="achievements" className="flex items-center gap-2">
-          <Trophy className="w-4 h-4" />
-          <span className="hidden sm:inline">Awards</span>
-        </TabsTrigger>
-        
-        <PremiumTabIndicator
-          feature="social_challenges"
-          icon={Users}
-          label="Friends"
-          tabValue="friends"
-        />
-        
-        <PremiumTabIndicator
-          feature="social_challenges"
-          icon={Swords}
-          label="Compete"
-          tabValue="compete"
-        />
-      </TabsList>
-
-      <TabsContent value="home" className="mt-0">
-        <GatedHomeTab 
-          onStartWorkout={handleStartWorkout}
-          onExerciseSelect={onExerciseSelect}
-        />
-      </TabsContent>
-
-      <TabsContent value="workout" className="mt-0">
-        <EnhancedWorkoutTab />
-      </TabsContent>
-
-      <TabsContent value="stats" className="mt-0">
-        <StatsTab />
-      </TabsContent>
-
-      <TabsContent value="achievements" className="mt-0">
-        <AchievementsTab />
-      </TabsContent>
-
-      <TabsContent value="friends" className="mt-0">
-        <GatedFriendsTab />
-      </TabsContent>
-
-      <TabsContent value="compete" className="mt-0">
-        <GatedCompeteTab />
-      </TabsContent>
-    </Tabs>
+    <div className="bg-white border-t border-gray-200 px-4 py-2">
+      <div className="flex justify-around items-center max-w-screen-xl mx-auto">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          
+          return (
+            <button
+              key={tab.id}
+              onClick={() => onTabChange(tab.id)}
+              className={`flex flex-col items-center space-y-1 px-2 py-1 rounded-lg transition-colors ${
+                isActive 
+                  ? 'text-orange-500 bg-orange-50' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`p-2 rounded-lg ${
+                  isActive ? 'bg-orange-100' : 'hover:bg-gray-100'
+                }`}
+              >
+                <Icon size={20} />
+              </motion.div>
+              <span className="text-xs font-medium">{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 };
 

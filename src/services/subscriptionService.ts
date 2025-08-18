@@ -49,10 +49,13 @@ const SUBSCRIPTIONS_TABLE = "subscriptions";
 const BILLING_TABLE = "billing_transactions";
 const USERS_TABLE = "users";
 
+// Use a locally casted supabase client to avoid TS errors until generated types include new tables/RPCs
+const sb: any = supabase;
+
 export const subscriptionService = {
   async getPlans(): Promise<SubscriptionPlan[]> {
     console.log("[subscriptionService] getPlans");
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from(PLANS_TABLE)
       .select("*")
       .eq("is_active", true)
@@ -61,12 +64,12 @@ export const subscriptionService = {
       console.error("[subscriptionService] getPlans error", error);
       throw error;
     }
-    return (data as SubscriptionPlan[]) || [];
+    return (data as unknown as SubscriptionPlan[]) || [];
   },
 
   async getAdminSettings(keys?: AdminSettingKey[]): Promise<Record<string, any>> {
     console.log("[subscriptionService] getAdminSettings", keys);
-    let query = supabase.from(SETTINGS_TABLE).select("setting_key, setting_value");
+    let query = sb.from(SETTINGS_TABLE).select("setting_key, setting_value");
     if (keys && keys.length) {
       query = query.in("setting_key", keys as string[]);
     }
@@ -84,7 +87,7 @@ export const subscriptionService = {
 
   async setAdminSetting(key: AdminSettingKey, value: any, updatedBy?: string) {
     console.log("[subscriptionService] setAdminSetting", key, value);
-    const { error } = await supabase
+    const { error } = await sb
       .from(SETTINGS_TABLE)
       .upsert(
         {
@@ -103,7 +106,7 @@ export const subscriptionService = {
 
   async getActiveSubscription(userId: string): Promise<ActiveSubscription | null> {
     console.log("[subscriptionService] getActiveSubscription", userId);
-    const { data, error } = await supabase.rpc("get_user_active_subscription", {
+    const { data, error } = await sb.rpc("get_user_active_subscription", {
       _user_id: userId,
     });
     if (error) {
@@ -132,7 +135,7 @@ export const subscriptionService = {
         : addMonths(now, 1);
 
     // 1) Create/Upsert active subscription for this user/plan
-    const { error: subErr } = await supabase.from(SUBSCRIPTIONS_TABLE).insert({
+    const { error: subErr } = await sb.from(SUBSCRIPTIONS_TABLE).insert({
       user_id: userId,
       plan_id: plan.id,
       status: "active",
@@ -148,7 +151,7 @@ export const subscriptionService = {
     }
 
     // 2) Update users.subscription_tier to premium (aligns with feature gating)
-    const { error: userErr } = await supabase
+    const { error: userErr } = await sb
       .from(USERS_TABLE)
       .update({ subscription_tier: "premium", updated_at: now.toISOString() })
       .eq("id", userId);
@@ -158,7 +161,7 @@ export const subscriptionService = {
     }
 
     // 3) Add a billing transaction record (demo)
-    const { error: billErr } = await supabase.from(BILLING_TABLE).insert({
+    const { error: billErr } = await sb.from(BILLING_TABLE).insert({
       user_id: userId,
       amount_cents: plan.price_cents,
       currency: "usd",
@@ -181,7 +184,7 @@ export const subscriptionService = {
     const now = new Date();
 
     // 1) Mark any active subscription as canceled
-    const { error: subErr } = await supabase
+    const { error: subErr } = await sb
       .from(SUBSCRIPTIONS_TABLE)
       .update({
         status: "canceled",
@@ -196,7 +199,7 @@ export const subscriptionService = {
     }
 
     // 2) Downgrade user tier back to free
-    const { error: userErr } = await supabase
+    const { error: userErr } = await sb
       .from(USERS_TABLE)
       .update({ subscription_tier: "free", updated_at: now.toISOString() })
       .eq("id", userId);

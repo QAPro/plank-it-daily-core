@@ -1,9 +1,7 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Users, DollarSign, TrendingUp, CreditCard } from "lucide-react";
-import { subscriptionService } from "@/services/subscriptionService";
 import { supabase } from "@/integrations/supabase/client";
 
 interface SubscriptionMetrics {
@@ -18,9 +16,11 @@ interface SubscriptionMetrics {
 const SubscriptionAnalytics = () => {
   const { data: metrics, isLoading } = useQuery({
     queryKey: ["admin", "subscription-metrics"],
-    queryFn: async (): Promise<SubscriptionMetrics> => {
+    queryFn: async () => {
+      const sb: any = supabase;
+
       // Get active subscriptions
-      const { data: activeSubscriptions, error: subError } = await supabase
+      const { data: activeSubscriptions, error: subError } = await sb
         .from("subscriptions")
         .select(`
           id,
@@ -36,7 +36,7 @@ const SubscriptionAnalytics = () => {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-      const { data: transactions, error: txError } = await supabase
+      const { data: transactions, error: txError } = await sb
         .from("billing_transactions")
         .select("amount_cents, status, created_at")
         .gte("created_at", thirtyDaysAgo.toISOString())
@@ -46,17 +46,18 @@ const SubscriptionAnalytics = () => {
 
       // Calculate metrics
       const activeCount = activeSubscriptions?.length || 0;
-      const totalRevenue = transactions?.reduce((sum, tx) => sum + tx.amount_cents, 0) || 0;
+      const totalRevenue =
+        (transactions?.reduce((sum: number, tx: any) => sum + (tx.amount_cents || 0), 0) as number) || 0;
 
       // Calculate MRR (Monthly Recurring Revenue)
       let mrr = 0;
       activeSubscriptions?.forEach((sub: any) => {
         const plan = sub.subscription_plans;
         if (plan) {
-          if (plan.billing_interval === 'year') {
-            mrr += plan.price_cents / 12; // Convert annual to monthly
+          if (plan.billing_interval === "year") {
+            mrr += (plan.price_cents || 0) / 12; // Convert annual to monthly
           } else {
-            mrr += plan.price_cents; // Already monthly
+            mrr += plan.price_cents || 0; // Already monthly
           }
         }
       });
@@ -64,34 +65,36 @@ const SubscriptionAnalytics = () => {
       // Plan distribution
       const planCounts: Record<string, number> = {};
       activeSubscriptions?.forEach((sub: any) => {
-        const planName = sub.subscription_plans?.name || 'Unknown';
+        const planName = sub.subscription_plans?.name || "Unknown";
         planCounts[planName] = (planCounts[planName] || 0) + 1;
       });
 
       const planDistribution = Object.entries(planCounts).map(([plan_name, count]) => ({
         plan_name,
         count,
-        percentage: activeCount > 0 ? Math.round((count / activeCount) * 100) : 0
+        percentage: activeCount > 0 ? Math.round((count / activeCount) * 100) : 0,
       }));
 
       // Simple churn rate calculation (cancelled in last 30 days vs active)
-      const { data: cancelledSubs } = await supabase
+      const { data: cancelledSubs } = await sb
         .from("subscriptions")
         .select("id")
         .eq("status", "canceled")
         .gte("canceled_at", thirtyDaysAgo.toISOString());
 
-      const churnRate = activeCount > 0 ? 
-        Math.round(((cancelledSubs?.length || 0) / activeCount) * 100) : 0;
+      const churnRate =
+        activeCount > 0 ? Math.round(((cancelledSubs?.length || 0) / activeCount) * 100) : 0;
 
-      return {
+      const result: SubscriptionMetrics = {
         activeSubscribers: activeCount,
         totalRevenue,
         monthlyRecurringRevenue: mrr,
         planDistribution,
         recentTransactions: transactions?.length || 0,
-        churnRate
+        churnRate,
       };
+
+      return result;
     },
     staleTime: 60_000, // Cache for 1 minute
   });
@@ -114,9 +117,9 @@ const SubscriptionAnalytics = () => {
   }
 
   const formatCurrency = (cents: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(cents / 100);
   };
 
@@ -141,7 +144,9 @@ const SubscriptionAnalytics = () => {
             <div className="flex items-center gap-2">
               <DollarSign className="w-5 h-5 text-green-600" />
               <div>
-                <p className="text-2xl font-bold">{formatCurrency(metrics?.monthlyRecurringRevenue || 0)}</p>
+                <p className="text-2xl font-bold">
+                  {formatCurrency(metrics?.monthlyRecurringRevenue || 0)}
+                </p>
                 <p className="text-sm text-muted-foreground">Monthly Recurring Revenue</p>
               </div>
             </div>

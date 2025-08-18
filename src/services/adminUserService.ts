@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import type { SubscriptionPlan, ActiveSubscription } from "@/services/subscriptionService";
 
 export type AdminUserSummary = {
   id: string;
@@ -19,6 +20,31 @@ export type UserFeatureOverride = {
   reason: string | null;
   created_at: string;
   expires_at: string | null;
+};
+
+// New types
+export type AdminUserNote = {
+  id: string;
+  user_id: string;
+  created_by: string;
+  title: string;
+  content: string;
+  note_type: string;
+  is_important: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type LifetimeAccessOverride = {
+  id: string;
+  user_id: string;
+  override_type: "lifetime_access";
+  override_data: any;
+  reason: string | null;
+  granted_by: string | null;
+  expires_at: string | null;
+  is_active: boolean;
+  created_at: string;
 };
 
 async function searchUsersRaw(identifier: string): Promise<AdminUserSummary[]> {
@@ -105,33 +131,173 @@ async function getFeatureOverrides(userId: string): Promise<UserFeatureOverride[
   return (data as unknown as UserFeatureOverride[]) || [];
 }
 
-type SetOverrideArgs = {
-  userId: string;
-  featureName: string;
-  isEnabled: boolean;
-  reason?: string;
-  expiresAt?: string | null; // ISO string or null
-};
+// ---------------- New admin subscription helpers ----------------
 
-async function setFeatureOverride(args: SetOverrideArgs): Promise<boolean> {
-  const { userId, featureName, isEnabled, reason, expiresAt } = args;
-  console.log("[adminUserService] setFeatureOverride", args);
-
+async function getUserActiveSubscription(userId: string): Promise<ActiveSubscription | null> {
+  console.log("[adminUserService] getUserActiveSubscription", userId);
   const clientAny = supabase as any;
-  const { data, error } = await clientAny.rpc("set_user_feature_override", {
-    _target_user_id: userId,
-    _feature_name: featureName,
-    _is_enabled: isEnabled,
-    _reason: reason ?? null,
-    _expires_at: expiresAt ?? null,
+  const { data, error } = await clientAny.rpc("get_user_active_subscription", {
+    _user_id: userId,
   });
+  if (error) {
+    console.error("[adminUserService] getUserActiveSubscription error", error);
+    throw error;
+  }
+  const row = (data as any[] | null)?.[0] ?? null;
+  if (!row) return null;
+  return {
+    subscription_id: row.subscription_id ?? null,
+    plan_name: row.plan_name ?? null,
+    status: row.status ?? null,
+    current_period_end: row.current_period_end ?? null,
+    is_custom_pricing: row.is_custom_pricing ?? null,
+    custom_price_cents: row.effective_price ?? null,
+  };
+}
+
+async function changeUserTier(userId: string, newTier: "free" | "premium", reason?: string): Promise<boolean> {
+  console.log("[adminUserService] changeUserTier", { userId, newTier, reason });
+  const clientAny = supabase as any;
+  const { data, error } = await clientAny.rpc("admin_change_user_tier", {
+    _target_user_id: userId,
+    _new_tier: newTier,
+    _reason: reason ?? null,
+  });
+  if (error) {
+    console.error("[adminUserService] changeUserTier error", error);
+    throw error;
+  }
+  return Boolean(data);
+}
+
+async function setCustomPricing(userId: string, planId: string, customPriceCents: number, reason?: string): Promise<boolean> {
+  console.log("[adminUserService] setCustomPricing", { userId, planId, customPriceCents, reason });
+  const clientAny = supabase as any;
+  const { data, error } = await clientAny.rpc("admin_set_custom_pricing", {
+    _target_user_id: userId,
+    _plan_id: planId,
+    _custom_price_cents: customPriceCents,
+    _reason: reason ?? null,
+  });
+  if (error) {
+    console.error("[adminUserService] setCustomPricing error", error);
+    throw error;
+  }
+  return Boolean(data);
+}
+
+async function getActiveLifetimeOverride(userId: string): Promise<LifetimeAccessOverride | null> {
+  console.log("[adminUserService] getActiveLifetimeOverride", userId);
+  const clientAny = supabase as any;
+  const { data, error } = await clientAny
+    .from("user_subscription_overrides")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("override_type", "lifetime_access")
+    .eq("is_active", true)
+    .or("expires_at.is.null,expires_at.gt.now()")
+    .order("created_at", { ascending: false })
+    .limit(1);
+  if (error) {
+    console.error("[adminUserService] getActiveLifetimeOverride error", error);
+    throw error;
+  }
+  const row = (data as any[] | null)?.[0] ?? null;
+  return (row as LifetimeAccessOverride) || null;
+}
+
+async function grantLifetimeAccess(userId: string, grantedBy: string, reason?: string): Promise<boolean> {
+  console.log("[adminUserService] grantLifetimeAccess", { userId, grantedBy, reason });
+  const clientAny = supabase as any;
+
+  // 1) Insert lifetime override
+  const { error: insertErr } = await clientAny
+    .from("user_subscription_overrides")
+    .insert({
+      user_id: userId,
+      override_type: "lifetime_access",
+      override_data: {},
+      reason: reason ?? null,
+      granted_by: grantedBy ?? null,
+      is_active: true,
+      created_at: new Date().toISOString(),
+    });
+  if (insertErr) {
+    console.error("[adminUserService] grantLifetimeAccess insert error", insertErr);
+    throw insertErr;
+  }
+
+  // 2) Ensure tier is premium
+  await changeUserTier(userId, "premium", reason ?? "Grant lifetime access");
+  return true;
+}
+
+async function revokeLifetimeAccess(userId: string, reason?: string): Promise<boolean> {
+  console.log("[adminUserService] revokeLifetimeAccess", { userId, reason });
+  const clientAny = supabase as any;
+
+  // 1) Deactivate overrides
+  const { error: updateErr } = await clientAny
+    .from("user_subscription_overrides")
+    .update({ is_active: false, reason: reason ?? null })
+    .eq("user_id", userId)
+    .eq("override_type", "lifetime_access")
+    .eq("is_active", true);
+  if (updateErr) {
+    console.error("[adminUserService] revokeLifetimeAccess update error", updateErr);
+    throw updateErr;
+  }
+
+  return true;
+}
+
+// ---------------- Admin notes ----------------
+
+async function getUserNotes(userId: string): Promise<AdminUserNote[]> {
+  console.log("[adminUserService] getUserNotes", userId);
+  const { data, error } = await (supabase as any)
+    .from("user_notes")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(20);
 
   if (error) {
-    console.error("[adminUserService] setFeatureOverride error", error);
+    console.error("[adminUserService] getUserNotes error", error);
     throw error;
   }
 
-  return Boolean(data);
+  return (data as unknown as AdminUserNote[]) || [];
+}
+
+async function addUserNote(args: {
+  userId: string;
+  createdBy: string;
+  title: string;
+  content: string;
+  noteType?: string;
+  isImportant?: boolean;
+}): Promise<boolean> {
+  const { userId, createdBy, title, content, noteType, isImportant } = args;
+  console.log("[adminUserService] addUserNote", args);
+
+  const { error } = await (supabase as any)
+    .from("user_notes")
+    .insert({
+      user_id: userId,
+      created_by: createdBy,
+      title,
+      content,
+      note_type: noteType ?? "general",
+      is_important: Boolean(isImportant ?? false),
+    });
+
+  if (error) {
+    console.error("[adminUserService] addUserNote error", error);
+    throw error;
+  }
+
+  return true;
 }
 
 export const adminUserService = {
@@ -140,5 +306,13 @@ export const adminUserService = {
   grantAdminRole,
   revokeAdminRole,
   getFeatureOverrides,
-  setFeatureOverride,
+  // New exports
+  getUserActiveSubscription,
+  changeUserTier,
+  setCustomPricing,
+  getActiveLifetimeOverride,
+  grantLifetimeAccess,
+  revokeLifetimeAccess,
+  getUserNotes,
+  addUserNote,
 };

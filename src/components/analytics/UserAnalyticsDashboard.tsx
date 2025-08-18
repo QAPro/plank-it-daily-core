@@ -42,22 +42,22 @@ const UserAnalyticsDashboard = () => {
     queryFn: async () => {
       if (!user) return null;
       
-      // Get user stats from database
+      // Get user stats from database using correct table name
       const { data: sessions, error } = await supabase
-        .from('workout_sessions')
+        .from('user_sessions')
         .select('*')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
+        .order('completed_at', { ascending: false })
         .limit(30);
 
       if (error) throw error;
 
       return {
         totalSessions: sessions?.length || 0,
-        totalDuration: sessions?.reduce((sum, session) => sum + (session.duration || 0), 0) || 0,
-        averageDuration: sessions?.length ? Math.round((sessions.reduce((sum, session) => sum + (session.duration || 0), 0) / sessions.length)) : 0,
+        totalDuration: sessions?.reduce((sum, session) => sum + (session.duration_seconds || 0), 0) || 0,
+        averageDuration: sessions?.length ? Math.round((sessions.reduce((sum, session) => sum + (session.duration_seconds || 0), 0) / sessions.length)) : 0,
         streak: 5, // Mock streak data
-        bestSession: Math.max(...(sessions?.map(s => s.duration || 0) || [0])),
+        bestSession: Math.max(...(sessions?.map(s => s.duration_seconds || 0) || [0])),
         improvement: 25, // Mock improvement percentage
       };
     },

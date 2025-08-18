@@ -140,7 +140,7 @@ const completeSession = async (duration: number, notes?: string) => {
   try {
     console.log('Completing session:', { duration, exerciseId: selectedExercise.id });
     
-    // Create session record
+    // Create session record with user agent and explicit timestamp
     const { data: session, error: sessionError } = await supabase
       .from('user_sessions')
       .insert({
@@ -148,6 +148,8 @@ const completeSession = async (duration: number, notes?: string) => {
         exercise_id: selectedExercise.id,
         duration_seconds: duration,
         notes: notes || null,
+        user_agent: navigator.userAgent,
+        completed_at: new Date().toISOString(),
       })
       .select()
       .single();

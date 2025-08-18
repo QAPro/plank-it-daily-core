@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -57,11 +56,13 @@ export const useFirstWorkoutTimer = ({ targetTime, onComplete }: UseFirstWorkout
     if (!user) return;
     
     try {
-      // Save the workout session
+      // Save the workout session with user agent and explicit timestamp
       await supabase.from('user_sessions').insert({
         user_id: user.id,
         duration_seconds: time,
-        notes: 'First onboarding workout'
+        notes: 'First onboarding workout',
+        user_agent: navigator.userAgent,
+        completed_at: new Date().toISOString(),
       });
 
       // Update streak (this will be handled by the streak system)

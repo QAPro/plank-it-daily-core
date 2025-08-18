@@ -36,7 +36,9 @@ const GatedRecommendationsDashboard: React.FC<GatedRecommendationsDashboardProps
       showUpgradePrompt={true}
       compact={false}
       fallback={<BasicRecommendationsCard onExerciseSelect={onExerciseSelect} />}
-    />
+    >
+      <RecommendationsDashboard onExerciseSelect={onExerciseSelect} />
+    </EnhancedFeatureGuard>
   );
 };
 

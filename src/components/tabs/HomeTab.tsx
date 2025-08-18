@@ -8,13 +8,16 @@ import { useAuth } from "@/contexts/AuthContext";
 import StreakDisplay from "@/components/StreakDisplay";
 import RecommendationsDashboard from "@/components/RecommendationsDashboard";
 import LevelProgressBar from "@/components/level/LevelProgressBar";
+import SubscriptionStatusCard from "@/components/subscription/SubscriptionStatusCard";
 import { useLevelProgression } from "@/hooks/useLevelProgression";
+import { useState } from "react";
 
 interface HomeTabProps {
   onExerciseSelect?: (exerciseId: string) => void;
+  onTabChange?: (tab: string) => void;
 }
 
-const HomeTab = ({ onExerciseSelect }: HomeTabProps) => {
+const HomeTab = ({ onExerciseSelect, onTabChange }: HomeTabProps) => {
   const { data: stats } = useSessionStats();
   const { user } = useAuth();
   const { userLevel, loading: levelLoading } = useLevelProgression();
@@ -33,6 +36,20 @@ const HomeTab = ({ onExerciseSelect }: HomeTabProps) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
+  const handleManageSubscription = () => {
+    if (onTabChange) {
+      onTabChange('profile');
+      // We'll need to trigger subscription management view in ProfileTab
+    }
+  };
+
+  const handleUpgrade = () => {
+    if (onTabChange) {
+      onTabChange('profile');
+      // We'll need to trigger subscription plans view in ProfileTab
+    }
   };
 
   // Use real data if available, otherwise show placeholder
@@ -95,6 +112,18 @@ const HomeTab = ({ onExerciseSelect }: HomeTabProps) => {
           <LevelProgressBar userLevel={userLevel} />
         </motion.div>
       )}
+
+      {/* Subscription Status */}
+      <motion.div
+        initial={{ y: 30, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.15, duration: 0.6 }}
+      >
+        <SubscriptionStatusCard 
+          onManageClick={handleManageSubscription}
+          onUpgradeClick={handleUpgrade}
+        />
+      </motion.div>
 
       {/* Streak Display */}
       <StreakDisplay />

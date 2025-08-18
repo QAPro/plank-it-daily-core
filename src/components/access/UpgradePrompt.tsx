@@ -3,7 +3,8 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Lock, Star, Zap, Crown } from 'lucide-react';
+import { Lock, Star, Zap, Crown, ArrowRight } from 'lucide-react';
+import { useSubscription } from '@/hooks/useSubscription';
 import type { FeatureName, SubscriptionTier } from '@/constants/featureGating';
 
 type UpgradePromptProps = {
@@ -21,6 +22,8 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
   onUpgrade,
   compact = false 
 }) => {
+  const { plans, upgrade, loading } = useSubscription();
+
   const getFeatureDisplayName = (featureName: FeatureName) => {
     switch (featureName) {
       case 'advanced_stats': return 'Advanced Statistics';
@@ -56,9 +59,35 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
     }
   };
 
+  const findRecommendedPlan = () => {
+    return plans.find(plan => {
+      const planName = plan.name.toLowerCase();
+      if (requiredTier === 'premium') {
+        return planName.includes('premium') && planName.includes('monthly');
+      }
+      if (requiredTier === 'pro') {
+        return planName.includes('pro') && planName.includes('monthly');
+      }
+      return false;
+    });
+  };
+
+  const handleUpgrade = () => {
+    if (onUpgrade) {
+      onUpgrade();
+      return;
+    }
+
+    const recommendedPlan = findRecommendedPlan();
+    if (recommendedPlan) {
+      upgrade(recommendedPlan);
+    }
+  };
+
   const TierIcon = getTierIcon(requiredTier);
   const featureDisplay = getFeatureDisplayName(feature);
   const tierDisplay = getTierDisplayName(requiredTier);
+  const recommendedPlan = findRecommendedPlan();
 
   if (compact) {
     return (
@@ -69,11 +98,15 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
             {featureDisplay} requires {tierDisplay}
           </span>
         </div>
-        {onUpgrade && (
-          <Button size="sm" onClick={onUpgrade}>
-            Upgrade
-          </Button>
-        )}
+        <Button 
+          size="sm" 
+          onClick={handleUpgrade}
+          disabled={loading}
+          className="flex items-center"
+        >
+          {loading ? 'Loading...' : 'Upgrade'}
+          <ArrowRight className="w-3 h-3 ml-1" />
+        </Button>
       </div>
     );
   }
@@ -101,14 +134,22 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
 
         <div className="text-sm text-gray-600">
           You're currently on the <strong>{getTierDisplayName(currentTier)}</strong> plan.
-          Upgrade to access this feature and many more!
+          {recommendedPlan && (
+            <div className="mt-2 text-center">
+              Upgrade to <strong>{recommendedPlan.name}</strong> for{' '}
+              <strong>${(recommendedPlan.price_cents / 100).toFixed(2)}/month</strong>
+            </div>
+          )}
         </div>
 
-        {onUpgrade && (
-          <Button onClick={onUpgrade} className="w-full">
-            Upgrade to {tierDisplay}
-          </Button>
-        )}
+        <Button 
+          onClick={handleUpgrade} 
+          disabled={loading}
+          className="w-full"
+        >
+          {loading ? 'Processing...' : `Upgrade to ${tierDisplay}`}
+          <ArrowRight className="w-4 h-4 ml-2" />
+        </Button>
       </CardContent>
     </Card>
   );

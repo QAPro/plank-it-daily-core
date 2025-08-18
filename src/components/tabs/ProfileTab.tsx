@@ -1,6 +1,6 @@
 
 import { motion } from "framer-motion";
-import { Settings, HelpCircle, LogOut, Shield } from "lucide-react";
+import { Settings, HelpCircle, LogOut, Shield, CreditCard, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,20 +11,33 @@ import ProfileHeader from "@/components/profile/ProfileHeader";
 import AccountStats from "@/components/profile/AccountStats";
 import PreferencesSettings from "@/components/profile/PreferencesSettings";
 import AdminDashboard from "@/components/admin/AdminDashboard";
+import SubscriptionPlansPage from "@/components/subscription/SubscriptionPlansPage";
+import SubscriptionManagement from "@/components/subscription/SubscriptionManagement";
 import { useAdmin } from "@/hooks/useAdmin";
+import { useSubscription } from "@/hooks/useSubscription";
 
 const ProfileTab = () => {
   const { user, session } = useAuth();
   const { toast } = useToast();
   const { isAdmin } = useAdmin();
+  const { active } = useSubscription();
   const [loading, setLoading] = useState(false);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
+  const [showSubscriptionPlans, setShowSubscriptionPlans] = useState(false);
+  const [showSubscriptionManagement, setShowSubscriptionManagement] = useState(false);
 
   const menuItems = [
     { icon: Settings, label: "App Settings", description: "Notifications, privacy, and more" },
     { icon: HelpCircle, label: "Help & Support", description: "Get help and contact support" },
     { icon: Shield, label: "Privacy Policy", description: "Learn about your data protection" }
   ];
+
+  // Add subscription option
+  menuItems.unshift({
+    icon: CreditCard,
+    label: active ? "Manage Subscription" : "Subscription Plans",
+    description: active ? "View and manage your current plan" : "Upgrade to unlock premium features"
+  });
 
   // Add admin option if user is admin
   if (isAdmin) {
@@ -38,6 +51,10 @@ const ProfileTab = () => {
   const handleMenuClick = (label: string) => {
     if (label === "Admin Dashboard") {
       setShowAdminDashboard(true);
+    } else if (label === "Subscription Plans") {
+      setShowSubscriptionPlans(true);
+    } else if (label === "Manage Subscription") {
+      setShowSubscriptionManagement(true);
     }
   };
 
@@ -62,6 +79,12 @@ const ProfileTab = () => {
     }
   };
 
+  const handleBackToProfile = () => {
+    setShowAdminDashboard(false);
+    setShowSubscriptionPlans(false);
+    setShowSubscriptionManagement(false);
+  };
+
   if (showAdminDashboard) {
     return (
       <motion.div
@@ -72,13 +95,39 @@ const ProfileTab = () => {
         <div className="mb-4">
           <Button 
             variant="outline" 
-            onClick={() => setShowAdminDashboard(false)}
+            onClick={handleBackToProfile}
           >
             ← Back to Profile
           </Button>
         </div>
         <AdminDashboard />
       </motion.div>
+    );
+  }
+
+  if (showSubscriptionPlans) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="mb-4">
+          <Button 
+            variant="outline" 
+            onClick={handleBackToProfile}
+          >
+            ← Back to Profile
+          </Button>
+        </div>
+        <SubscriptionPlansPage />
+      </motion.div>
+    );
+  }
+
+  if (showSubscriptionManagement) {
+    return (
+      <SubscriptionManagement onBack={handleBackToProfile} />
     );
   }
 
@@ -133,16 +182,25 @@ const ProfileTab = () => {
               <CardContent className="p-4">
                 <div className="flex items-center">
                   <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-4 ${
-                    item.label === "Admin Dashboard" ? "bg-red-50" : "bg-orange-50"
+                    item.label === "Admin Dashboard" ? "bg-red-50" : 
+                    item.label.includes("Subscription") ? "bg-blue-50" :
+                    "bg-orange-50"
                   }`}>
                     <item.icon className={`w-5 h-5 ${
-                      item.label === "Admin Dashboard" ? "text-red-500" : "text-orange-500"
+                      item.label === "Admin Dashboard" ? "text-red-500" : 
+                      item.label.includes("Subscription") ? "text-blue-500" :
+                      "text-orange-500"
                     }`} />
                   </div>
                   <div className="flex-1">
                     <h4 className="font-medium text-gray-800">{item.label}</h4>
                     <p className="text-sm text-gray-600">{item.description}</p>
                   </div>
+                  {item.label.includes("Subscription") && active && (
+                    <div className="ml-2">
+                      <Crown className="w-4 h-4 text-blue-500" />
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

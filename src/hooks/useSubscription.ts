@@ -1,7 +1,9 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { subscriptionService, SubscriptionPlan, ActiveSubscription } from "@/services/subscriptionService";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export const useSubscription = () => {
   const { user } = useAuth();
@@ -49,6 +51,7 @@ export const useSubscription = () => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["subscription", "active", user?.id] });
       qc.invalidateQueries({ queryKey: ["subscription-tier", user?.id] }); // refresh feature gating tier
+      qc.invalidateQueries({ queryKey: ["admin", "subscription-metrics"] }); // refresh admin metrics
       toast({ title: "Upgraded", description: "Your subscription is now active." });
     },
     meta: {
@@ -68,6 +71,7 @@ export const useSubscription = () => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["subscription", "active", user?.id] });
       qc.invalidateQueries({ queryKey: ["subscription-tier", user?.id] });
+      qc.invalidateQueries({ queryKey: ["admin", "subscription-metrics"] }); // refresh admin metrics
       toast({ title: "Subscription canceled", description: "You've been downgraded to Free." });
     },
     meta: {
@@ -81,6 +85,22 @@ export const useSubscription = () => {
       },
     },
   });
+
+  // Manual refresh function for users
+  const refreshStatus = async () => {
+    try {
+      await supabase.functions.invoke('check-subscription');
+      qc.invalidateQueries({ queryKey: ["subscription", "active", user?.id] });
+      toast({ title: "Status updated", description: "Subscription status refreshed." });
+    } catch (error) {
+      console.error('Manual subscription refresh failed:', error);
+      toast({ 
+        title: "Refresh failed", 
+        description: "Could not refresh subscription status.",
+        variant: "destructive" 
+      });
+    }
+  };
 
   const enabled = Boolean(settings?.subscription_system_enabled ?? true);
   const demoMode = Boolean(settings?.demo_mode ?? true);
@@ -99,6 +119,7 @@ export const useSubscription = () => {
     // Actions
     upgrade: (plan: SubscriptionPlan) => upgradeMutation.mutate(plan),
     cancel: () => cancelMutation.mutate(),
+    refreshStatus,
     openPortal: async () => {
       const url = await subscriptionService.openCustomerPortal();
       if (url) window.open(url, "_blank");

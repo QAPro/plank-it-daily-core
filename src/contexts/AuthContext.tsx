@@ -24,6 +24,18 @@ export const useAuth = () => {
   return context;
 };
 
+// Helper function to refresh subscription status
+const refreshSubscriptionStatus = async (user: User) => {
+  try {
+    console.log('Refreshing subscription status for user:', user.email);
+    await supabase.functions.invoke('check-subscription');
+    console.log('Subscription status refreshed successfully');
+  } catch (error) {
+    console.log('Subscription refresh failed (non-critical):', error);
+    // Don't throw - this is a background operation that shouldn't break auth flow
+  }
+};
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -34,7 +46,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     
     // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
         
         // Update session and user state
@@ -48,16 +60,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           // Clean up pending verification email on successful login
           localStorage.removeItem('pendingVerificationEmail');
           
-          // Defer any additional data loading to prevent deadlocks
+          // Defer subscription refresh to prevent deadlocks
           setTimeout(() => {
-            console.log('Auth state fully updated for signed in user');
-          }, 0);
+            refreshSubscriptionStatus(session.user);
+          }, 100);
         } else if (event === 'SIGNED_OUT') {
           console.log('User signed out');
           // Ensure clean state on sign out
           cleanupAuthState();
-        } else if (event === 'TOKEN_REFRESHED') {
+        } else if (event === 'TOKEN_REFRESHED' && session?.user) {
           console.log('Token refreshed successfully');
+          // Refresh subscription status on token refresh
+          setTimeout(() => {
+            refreshSubscriptionStatus(session.user);
+          }, 100);
         }
       }
     );
@@ -72,6 +88,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (session) {
           setSession(session);
           setUser(session.user);
+          // Refresh subscription status for existing session
+          setTimeout(() => {
+            refreshSubscriptionStatus(session.user);
+          }, 100);
         }
         setLoading(false);
       } catch (error) {

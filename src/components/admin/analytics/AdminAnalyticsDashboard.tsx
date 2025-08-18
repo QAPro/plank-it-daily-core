@@ -7,15 +7,17 @@ import FeatureUsageAnalytics from "./FeatureUsageAnalytics";
 import WorkoutPerformanceCharts from "./WorkoutPerformanceCharts";
 import AdminAuditVisualization from "./AdminAuditVisualization";
 import SubscriptionAnalytics from "./SubscriptionAnalytics";
-import DateRangeSelector from "./DateRangeSelector";
 import OnboardingFunnel from "./OnboardingFunnel";
 import DevicePlatformAnalytics from "./DevicePlatformAnalytics";
 import RetentionCohortChart from "./RetentionCohortChart";
+import AnalyticsFilterPanel from "./filters/AnalyticsFilterPanel";
+import { useAnalyticsFilters } from "@/hooks/useAnalyticsFilters";
 
 const AdminAnalyticsDashboard = () => {
-  const [daysBack, setDaysBack] = useState<number>(30);
-
-  // Derive monthsBack from daysBack (bounded 1..12 for sensible cohorts)
+  const { filters, apiParams } = useAnalyticsFilters();
+  
+  // Extract date parameters for components
+  const daysBack = apiParams.days_back || 30;
   const monthsBack = Math.max(1, Math.min(12, Math.ceil(daysBack / 30)));
 
   return (
@@ -25,13 +27,15 @@ const AdminAnalyticsDashboard = () => {
           <h2 className="text-2xl font-bold">Analytics & Insights</h2>
           <p className="text-sm text-muted-foreground">System-wide usage, engagement, and subscription insights</p>
         </div>
-        <DateRangeSelector value={daysBack} onChange={setDaysBack} />
       </div>
+
+      {/* Advanced Filter Panel */}
+      <AnalyticsFilterPanel />
 
       {/* KPI Section */}
       <KPICards />
 
-      {/* Subscription Analytics - New Section */}
+      {/* Subscription Analytics */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Subscription Metrics</h3>
         <SubscriptionAnalytics />
@@ -48,7 +52,7 @@ const AdminAnalyticsDashboard = () => {
         <AdminAuditVisualization daysBack={daysBack} />
       </div>
 
-      {/* New analytics sections */}
+      {/* Enhanced analytics sections */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <OnboardingFunnel daysBack={daysBack} />
         <DevicePlatformAnalytics daysBack={daysBack} />
@@ -56,7 +60,7 @@ const AdminAnalyticsDashboard = () => {
 
       <RetentionCohortChart monthsBack={monthsBack} />
 
-      {/* Export placeholder (future enhancement) */}
+      {/* Export placeholder */}
       <Card>
         <CardContent className="p-4 text-sm text-muted-foreground">
           Export reports (CSV/JSON) coming soon. Let me know your preferred formats/fields.

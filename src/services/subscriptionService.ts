@@ -25,6 +25,19 @@ export type ActiveSubscription = {
   custom_price_cents: number | null;
 };
 
+export type BillingTransaction = {
+  id: string;
+  user_id: string;
+  subscription_id?: string | null;
+  amount_cents: number;
+  currency: string;
+  status: "pending" | "succeeded" | "failed" | "refunded" | string;
+  transaction_type: "subscription" | "one_time" | "refund" | string;
+  description?: string | null;
+  processed_at?: string | null;
+  created_at: string;
+};
+
 export type AdminSettingKey =
   | "subscription_system_enabled"
   | "stripe_mode"
@@ -227,5 +240,78 @@ export const subscriptionService = {
     }
 
     return true;
+  },
+
+  // Admin: fetch all plans (including inactive) ordered by sort_order
+  async getAllPlans(): Promise<SubscriptionPlan[]> {
+    console.log("[subscriptionService] getAllPlans");
+    const { data, error } = await (supabase as any)
+      .from("subscription_plans")
+      .select("*")
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true });
+    if (error) {
+      console.error("[subscriptionService] getAllPlans error", error);
+      throw error;
+    }
+    return (data as SubscriptionPlan[]) || [];
+  },
+
+  // Admin: upsert a plan (create or update)
+  async upsertPlan(plan: Partial<SubscriptionPlan> & { id?: string }) {
+    console.log("[subscriptionService] upsertPlan", plan);
+    const payload = {
+      id: plan.id ?? undefined,
+      name: plan.name,
+      description: plan.description ?? null,
+      price_cents: plan.price_cents,
+      billing_interval: plan.billing_interval,
+      stripe_price_id: plan.stripe_price_id ?? null,
+      features: plan.features ?? [],
+      is_active: plan.is_active ?? true,
+      is_popular: plan.is_popular ?? false,
+      sort_order: plan.sort_order ?? null,
+      updated_at: new Date().toISOString(),
+      // created_at will be defaulted by DB on insert
+    };
+    const { data, error } = await (supabase as any)
+      .from("subscription_plans")
+      .upsert(payload, { onConflict: "id" })
+      .select()
+      .maybeSingle();
+    if (error) {
+      console.error("[subscriptionService] upsertPlan error", error);
+      throw error;
+    }
+    return data as SubscriptionPlan | null;
+  },
+
+  // Admin: delete a plan
+  async deletePlan(planId: string) {
+    console.log("[subscriptionService] deletePlan", planId);
+    const { error } = await (supabase as any)
+      .from("subscription_plans")
+      .delete()
+      .eq("id", planId);
+    if (error) {
+      console.error("[subscriptionService] deletePlan error", error);
+      throw error;
+    }
+    return true;
+  },
+
+  // User: billing history
+  async getBillingHistory(userId: string): Promise<BillingTransaction[]> {
+    console.log("[subscriptionService] getBillingHistory", userId);
+    const { data, error } = await (supabase as any)
+      .from("billing_transactions")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+    if (error) {
+      console.error("[subscriptionService] getBillingHistory error", error);
+      throw error;
+    }
+    return (data as BillingTransaction[]) || [];
   },
 };

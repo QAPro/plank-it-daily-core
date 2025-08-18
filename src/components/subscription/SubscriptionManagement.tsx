@@ -1,12 +1,15 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CreditCard, Calendar, Settings, ArrowLeft, ExternalLink } from 'lucide-react';
+import { CreditCard, Calendar, Settings, ArrowLeft, ExternalLink, Receipt } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useSubscription } from '@/hooks/useSubscription';
 import { formatPrice } from '@/utils/price';
+import { useAuth } from '@/contexts/AuthContext';
+import { useQuery } from '@tanstack/react-query';
+import { subscriptionService, BillingTransaction } from '@/services/subscriptionService';
 
 type SubscriptionManagementProps = {
   onBack: () => void;
@@ -14,6 +17,14 @@ type SubscriptionManagementProps = {
 
 const SubscriptionManagement = ({ onBack }: SubscriptionManagementProps) => {
   const { active, cancel, openPortal, demoMode } = useSubscription();
+  const { user } = useAuth();
+
+  const { data: history = [], isLoading: historyLoading } = useQuery({
+    queryKey: ["billing-history", user?.id],
+    enabled: !!user?.id,
+    queryFn: () => subscriptionService.getBillingHistory(user!.id),
+    staleTime: 10_000,
+  });
 
   if (!active) {
     return (
@@ -177,6 +188,46 @@ const SubscriptionManagement = ({ onBack }: SubscriptionManagementProps) => {
               <p className="font-medium mb-1">Demo Mode Actions:</p>
               <p>• Cancel subscription will simulate cancellation</p>
               <p>• Billing management is not available in demo mode</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Billing History */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Receipt className="w-5 h-5" />
+            Billing History
+          </CardTitle>
+          <CardDescription>Your past subscription charges and actions</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {historyLoading ? (
+            <div className="text-sm text-muted-foreground">Loading history...</div>
+          ) : history.length === 0 ? (
+            <div className="text-sm text-muted-foreground">No billing history yet.</div>
+          ) : (
+            <div className="space-y-2">
+              {(history as BillingTransaction[]).map((t) => (
+                <div key={t.id} className="flex items-center justify-between rounded border p-3">
+                  <div>
+                    <div className="font-medium">
+                      {t.transaction_type === "subscription" ? "Subscription" : t.transaction_type === "one_time" ? "One-time Payment" : "Refund"}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {t.processed_at ? new Date(t.processed_at).toLocaleString() : new Date(t.created_at).toLocaleString()}
+                    </div>
+                    {t.description && <div className="text-xs mt-1">{t.description}</div>}
+                  </div>
+                  <div className="text-right">
+                    <div className="font-semibold">{formatPrice(t.amount_cents)}</div>
+                    <Badge variant={t.status === "succeeded" ? "default" : t.status === "pending" ? "secondary" : "destructive"} className="mt-1">
+                      {t.status}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </CardContent>

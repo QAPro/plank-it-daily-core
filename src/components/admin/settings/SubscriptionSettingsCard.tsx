@@ -7,6 +7,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { subscriptionService } from "@/services/subscriptionService";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import PlanManager from "./PlanManager";
 
 const SubscriptionSettingsCard: React.FC = () => {
   const { user } = useAuth();
@@ -64,7 +65,7 @@ const SubscriptionSettingsCard: React.FC = () => {
         <CardTitle>Subscription Settings</CardTitle>
         <CardDescription>Enable/disable the subscription system and toggle demo mode (no Stripe required).</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <div className="font-medium">Enable Subscriptions</div>
@@ -100,6 +101,11 @@ const SubscriptionSettingsCard: React.FC = () => {
           >
             Refresh
           </Button>
+        </div>
+
+        {/* Admin Plan Manager */}
+        <div className="pt-4">
+          <PlanManager />
         </div>
       </CardContent>
     </Card>

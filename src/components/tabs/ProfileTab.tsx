@@ -1,6 +1,6 @@
 
 import { motion } from "framer-motion";
-import { Settings, HelpCircle, LogOut, Shield, CreditCard, Crown } from "lucide-react";
+import { Settings, HelpCircle, LogOut, Shield, CreditCard, Crown, BarChart3, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,8 +11,10 @@ import ProfileHeader from "@/components/profile/ProfileHeader";
 import AccountStats from "@/components/profile/AccountStats";
 import PreferencesSettings from "@/components/profile/PreferencesSettings";
 import AdminDashboard from "@/components/admin/AdminDashboard";
-import SubscriptionPlansPage from "@/components/subscription/SubscriptionPlansPage";
+import EnhancedSubscriptionPlansPage from "@/components/subscription/EnhancedSubscriptionPlansPage";
 import SubscriptionManagement from "@/components/subscription/SubscriptionManagement";
+import UsageDashboard from "@/components/subscription/UsageDashboard";
+import FeatureDiscoveryTour from "@/components/onboarding/FeatureDiscoveryTour";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useSubscription } from "@/hooks/useSubscription";
 
@@ -25,12 +27,30 @@ const ProfileTab = () => {
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
   const [showSubscriptionPlans, setShowSubscriptionPlans] = useState(false);
   const [showSubscriptionManagement, setShowSubscriptionManagement] = useState(false);
+  const [showUsageDashboard, setShowUsageDashboard] = useState(false);
+  const [showFeatureTour, setShowFeatureTour] = useState(false);
 
   const menuItems = [
     { icon: Settings, label: "App Settings", description: "Notifications, privacy, and more" },
     { icon: HelpCircle, label: "Help & Support", description: "Get help and contact support" },
     { icon: Shield, label: "Privacy Policy", description: "Learn about your data protection" }
   ];
+
+  // Add usage dashboard for free users
+  if (!active) {
+    menuItems.unshift({
+      icon: BarChart3,
+      label: "Usage Dashboard",
+      description: "View your current usage and limits"
+    });
+  }
+
+  // Add feature discovery tour
+  menuItems.unshift({
+    icon: Star,
+    label: "Discover Premium Features",
+    description: "Take a tour of our premium features"
+  });
 
   // Add subscription option
   menuItems.unshift({
@@ -55,6 +75,10 @@ const ProfileTab = () => {
       setShowSubscriptionPlans(true);
     } else if (label === "Manage Subscription") {
       setShowSubscriptionManagement(true);
+    } else if (label === "Usage Dashboard") {
+      setShowUsageDashboard(true);
+    } else if (label === "Discover Premium Features") {
+      setShowFeatureTour(true);
     }
   };
 
@@ -83,6 +107,19 @@ const ProfileTab = () => {
     setShowAdminDashboard(false);
     setShowSubscriptionPlans(false);
     setShowSubscriptionManagement(false);
+    setShowUsageDashboard(false);
+  };
+
+  const handleTourComplete = () => {
+    setShowFeatureTour(false);
+    toast({
+      title: "Feature tour completed!",
+      description: "You're now ready to explore premium features.",
+    });
+  };
+
+  const handleTourSkip = () => {
+    setShowFeatureTour(false);
   };
 
   if (showAdminDashboard) {
@@ -120,7 +157,7 @@ const ProfileTab = () => {
             ← Back to Profile
           </Button>
         </div>
-        <SubscriptionPlansPage />
+        <EnhancedSubscriptionPlansPage />
       </motion.div>
     );
   }
@@ -131,6 +168,26 @@ const ProfileTab = () => {
     );
   }
 
+  if (showUsageDashboard) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="mb-4">
+          <Button 
+            variant="outline" 
+            onClick={handleBackToProfile}
+          >
+            ← Back to Profile
+          </Button>
+        </div>
+        <UsageDashboard />
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -138,6 +195,14 @@ const ProfileTab = () => {
       transition={{ duration: 0.5 }}
       className="p-6 space-y-6"
     >
+      {/* Feature Discovery Tour */}
+      {showFeatureTour && (
+        <FeatureDiscoveryTour 
+          onComplete={handleTourComplete}
+          onSkip={handleTourSkip}
+        />
+      )}
+
       {/* Header */}
       <div className="text-center pt-4">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Profile</h2>
@@ -184,11 +249,15 @@ const ProfileTab = () => {
                   <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-4 ${
                     item.label === "Admin Dashboard" ? "bg-red-50" : 
                     item.label.includes("Subscription") ? "bg-blue-50" :
+                    item.label === "Usage Dashboard" ? "bg-purple-50" :
+                    item.label === "Discover Premium Features" ? "bg-yellow-50" :
                     "bg-orange-50"
                   }`}>
                     <item.icon className={`w-5 h-5 ${
                       item.label === "Admin Dashboard" ? "text-red-500" : 
                       item.label.includes("Subscription") ? "text-blue-500" :
+                      item.label === "Usage Dashboard" ? "text-purple-500" :
+                      item.label === "Discover Premium Features" ? "text-yellow-500" :
                       "text-orange-500"
                     }`} />
                   </div>
@@ -199,6 +268,11 @@ const ProfileTab = () => {
                   {item.label.includes("Subscription") && active && (
                     <div className="ml-2">
                       <Crown className="w-4 h-4 text-blue-500" />
+                    </div>
+                  )}
+                  {item.label === "Discover Premium Features" && (
+                    <div className="ml-2">
+                      <Star className="w-4 h-4 text-yellow-500" />
                     </div>
                   )}
                 </div>

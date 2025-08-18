@@ -11,6 +11,7 @@ import OnboardingFunnel from "./OnboardingFunnel";
 import DevicePlatformAnalytics from "./DevicePlatformAnalytics";
 import RetentionCohortChart from "./RetentionCohortChart";
 import AnalyticsFilterPanel from "./filters/AnalyticsFilterPanel";
+import ExportControls from "./ExportControls";
 import { useAnalyticsFilters } from "@/hooks/useAnalyticsFilters";
 
 const AdminAnalyticsDashboard = () => {
@@ -27,6 +28,7 @@ const AdminAnalyticsDashboard = () => {
           <h2 className="text-2xl font-bold">Analytics & Insights</h2>
           <p className="text-sm text-muted-foreground">System-wide usage, engagement, and subscription insights</p>
         </div>
+        <ExportControls apiParams={apiParams} />
       </div>
 
       {/* Advanced Filter Panel */}
@@ -60,10 +62,13 @@ const AdminAnalyticsDashboard = () => {
 
       <RetentionCohortChart monthsBack={monthsBack} />
 
-      {/* Export placeholder */}
+      {/* Export information card */}
       <Card>
         <CardContent className="p-4 text-sm text-muted-foreground">
-          Export reports (CSV/JSON) coming soon. Let me know your preferred formats/fields.
+          <div className="flex items-center justify-between">
+            <span>Export analytics data in CSV or JSON format using the Export button above.</span>
+            <span className="text-xs">Exports include current filter settings</span>
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import KPICards from "./KPICards";
@@ -13,6 +12,9 @@ import RetentionCohortChart from "./RetentionCohortChart";
 import AnalyticsFilterPanel from "./filters/AnalyticsFilterPanel";
 import ExportControls from "./ExportControls";
 import { useAnalyticsFilters } from "@/hooks/useAnalyticsFilters";
+import { AdminAnalyticsProvider } from "@/contexts/AdminAnalyticsContext";
+import DrillDownPanel from "./DrillDownPanel";
+import RealTimeMetricsWidget from "./RealTimeMetricsWidget";
 
 const AdminAnalyticsDashboard = () => {
   const { filters, apiParams } = useAnalyticsFilters();
@@ -22,56 +24,64 @@ const AdminAnalyticsDashboard = () => {
   const monthsBack = Math.max(1, Math.min(12, Math.ceil(daysBack / 30)));
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        <div>
-          <h2 className="text-2xl font-bold">Analytics & Insights</h2>
-          <p className="text-sm text-muted-foreground">System-wide usage, engagement, and subscription insights</p>
-        </div>
-        <ExportControls apiParams={apiParams} />
-      </div>
-
-      {/* Advanced Filter Panel */}
-      <AnalyticsFilterPanel />
-
-      {/* KPI Section */}
-      <KPICards />
-
-      {/* Subscription Analytics */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Subscription Metrics</h3>
-        <SubscriptionAnalytics />
-      </div>
-
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <UserEngagementCharts daysBack={daysBack} />
-        <FeatureUsageAnalytics />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <WorkoutPerformanceCharts daysBack={daysBack} />
-        <AdminAuditVisualization daysBack={daysBack} />
-      </div>
-
-      {/* Enhanced analytics sections */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <OnboardingFunnel daysBack={daysBack} />
-        <DevicePlatformAnalytics daysBack={daysBack} />
-      </div>
-
-      <RetentionCohortChart monthsBack={monthsBack} />
-
-      {/* Export information card */}
-      <Card>
-        <CardContent className="p-4 text-sm text-muted-foreground">
-          <div className="flex items-center justify-between">
-            <span>Export analytics data in CSV or JSON format using the Export button above.</span>
-            <span className="text-xs">Exports include current filter settings</span>
+    <AdminAnalyticsProvider>
+      <div className="space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div>
+            <h2 className="text-2xl font-bold">Analytics & Insights</h2>
+            <p className="text-sm text-muted-foreground">System-wide usage, engagement, and subscription insights</p>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+          <div className="flex items-center gap-3">
+            <RealTimeMetricsWidget />
+            <ExportControls apiParams={apiParams} />
+          </div>
+        </div>
+
+        {/* Advanced Filter Panel */}
+        <AnalyticsFilterPanel />
+
+        {/* Drill-down Panel (appears when drill-down is active) */}
+        <DrillDownPanel />
+
+        {/* KPI Section */}
+        <KPICards />
+
+        {/* Subscription Analytics */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Subscription Metrics</h3>
+          <SubscriptionAnalytics />
+        </div>
+
+        {/* Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <UserEngagementCharts daysBack={daysBack} />
+          <FeatureUsageAnalytics />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <WorkoutPerformanceCharts daysBack={daysBack} />
+          <AdminAuditVisualization daysBack={daysBack} />
+        </div>
+
+        {/* Enhanced analytics sections */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <OnboardingFunnel daysBack={daysBack} />
+          <DevicePlatformAnalytics daysBack={daysBack} />
+        </div>
+
+        <RetentionCohortChart monthsBack={monthsBack} />
+
+        {/* Export information card */}
+        <Card>
+          <CardContent className="p-4 text-sm text-muted-foreground">
+            <div className="flex items-center justify-between">
+              <span>Export analytics data in CSV or JSON format using the Export button above.</span>
+              <span className="text-xs">Exports include current filter settings • Click chart elements for drill-down analysis</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </AdminAnalyticsProvider>
   );
 };
 

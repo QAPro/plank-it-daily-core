@@ -1,26 +1,68 @@
-
-import { useQuery } from "@tanstack/react-query";
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
-import { getUserRegistrationTrends, RegistrationTrend } from "@/services/adminAnalyticsService";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
+import { TrendingUp } from 'lucide-react';
+import { Badge } from "@/components/ui/badge";
+import { getUserRegistrationTrends } from "@/services/adminAnalyticsService";
+import { useAdminAnalytics } from "@/contexts/AdminAnalyticsContext";
 
-const UserEngagementCharts = ({ daysBack }: { daysBack: number }) => {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["admin-analytics", "registration-trends", daysBack],
-    queryFn: () => getUserRegistrationTrends(daysBack),
-    refetchInterval: 120_000,
-    staleTime: 60_000,
-  });
+interface UserEngagementChartsProps {
+  daysBack?: number;
+}
 
-  if (isLoading) {
+interface RegistrationTrend {
+  date: string;
+  new_users: number;
+  cumulative_users: number;
+  active_users: number;
+}
+
+const UserEngagementCharts = ({ daysBack = 30 }: UserEngagementChartsProps) => {
+  const { setDrillDown } = useAdminAnalytics();
+  const [chartData, setChartData] = useState<RegistrationTrend[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadData();
+  }, [daysBack]);
+
+  const loadData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getUserRegistrationTrends(daysBack);
+      setChartData(data);
+    } catch (err: any) {
+      setError(err.message || "Failed to load user engagement data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChartClick = (data: any, index: number) => {
+    if (data && data.activePayload && data.activePayload[0]) {
+      const clickedData = data.activePayload[0].payload;
+      console.log('Chart clicked:', clickedData);
+      
+      // Set drill-down for the clicked date
+      setDrillDown('timeframe', clickedData.date, {
+        registrations: clickedData.new_users,
+        activeUsers: clickedData.active_users,
+        period: 'daily'
+      });
+    }
+  };
+
+  if (loading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Registrations Over Time</CardTitle>
+          <CardTitle>User Engagement Trends</CardTitle>
         </CardHeader>
         <CardContent>
-          <Skeleton className="h-48 w-full" />
+          <div className="animate-pulse h-80 bg-gray-100 rounded-md"></div>
         </CardContent>
       </Card>
     );
@@ -30,34 +72,71 @@ const UserEngagementCharts = ({ daysBack }: { daysBack: number }) => {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Registrations Over Time</CardTitle>
+          <CardTitle>User Engagement Trends</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-sm text-muted-foreground">Failed to load registration trends</div>
+          <div className="text-red-500">{error}</div>
         </CardContent>
       </Card>
     );
   }
 
-  const trends = (data ?? []) as RegistrationTrend[];
+  const chartConfig = {
+    new_users: {
+      label: "New Users",
+      color: "hsl(var(--chart-1))",
+    },
+    active_users: {
+      label: "Active Users", 
+      color: "hsl(var(--chart-2))",
+    },
+  };
 
   return (
-    <Card>
+    <Card className="hover:shadow-md transition-shadow cursor-pointer">
       <CardHeader>
-        <CardTitle>Registrations Over Time</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <TrendingUp className="h-5 w-5" />
+          User Engagement Trends
+          <Badge variant="secondary" className="text-xs">Click to drill-down</Badge>
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-64">
+        <ChartContainer config={chartConfig} className="h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={trends}>
+            <LineChart 
+              data={chartData} 
+              onClick={handleChartClick}
+              className="cursor-pointer"
+            >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip />
-              <Line type="monotone" dataKey="new_users" name="New users" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="cumulative_users" name="Cumulative" stroke="hsl(var(--chart-2))" strokeWidth={2} dot={false} />
+              <XAxis 
+                dataKey="date" 
+                tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+              />
+              <YAxis />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <Line 
+                type="monotone" 
+                dataKey="new_users" 
+                stroke="var(--color-new_users)" 
+                strokeWidth={2}
+                dot={{ fill: "var(--color-new_users)", strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 6, stroke: "var(--color-new_users)", strokeWidth: 2 }}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="active_users" 
+                stroke="var(--color-active_users)" 
+                strokeWidth={2}
+                dot={{ fill: "var(--color-active_users)", strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 6, stroke: "var(--color-active_users)", strokeWidth: 2 }}
+              />
             </LineChart>
           </ResponsiveContainer>
+        </ChartContainer>
+        <div className="mt-4 text-xs text-muted-foreground text-center">
+          💡 Click on chart points to drill down into specific dates
         </div>
       </CardContent>
     </Card>

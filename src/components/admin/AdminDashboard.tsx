@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,6 +7,7 @@ import FeatureFlagsManager from './FeatureFlagsManager';
 import { useAdmin } from '@/hooks/useAdmin';
 import UserManagement from './UserManagement';
 import AdminAnalyticsDashboard from './analytics/AdminAnalyticsDashboard';
+import SubscriptionSettingsCard from './settings/SubscriptionSettingsCard';
 
 const AdminDashboard = () => {
   const { isAdmin, loading } = useAdmin();
@@ -68,15 +70,18 @@ const AdminDashboard = () => {
         </TabsContent>
 
         <TabsContent value="settings" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>App Settings</CardTitle>
-              <CardDescription>Coming soon - manage global app settings</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-500">Global settings management will be added in future phases.</p>
-            </CardContent>
-          </Card>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <SubscriptionSettingsCard />
+            <Card>
+              <CardHeader>
+                <CardTitle>App Settings</CardTitle>
+                <CardDescription>General settings area</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-500">More global settings can be added here.</p>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         <TabsContent value="analytics" className="mt-6">

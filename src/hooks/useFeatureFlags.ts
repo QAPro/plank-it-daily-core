@@ -43,12 +43,30 @@ export const useFeatureFlags = () => {
     },
   });
 
+  const flags = (data as FeatureFlag[]) || [];
+
+  // Helper function to check if a feature is enabled
+  const isFeatureEnabled = (featureName: string) => {
+    const flag = flags.find(f => f.feature_name === featureName);
+    return flag ? flag.is_enabled : false;
+  };
+
+  // Provide convenient boolean properties for common features
+  const socialFeaturesEnabled = isFeatureEnabled('social_features') || isFeatureEnabled('friend_system');
+  const eventsEnabled = isFeatureEnabled('events') || isFeatureEnabled('seasonal_events');
+  const competitionEnabled = isFeatureEnabled('competition') || isFeatureEnabled('competitions') || isFeatureEnabled('social_challenges');
+
   return {
-    flags: (data as FeatureFlag[]) || [],
+    flags,
     loading: isLoading,
     error,
     refetch,
     toggle: (name: string, enabled: boolean) => toggleMutation.mutate({ name, enabled }),
     upsert: (flag: Partial<FeatureFlag> & { feature_name: string }) => upsertMutation.mutate(flag),
+    // Convenient boolean properties
+    socialFeaturesEnabled,
+    eventsEnabled,
+    competitionEnabled,
+    isFeatureEnabled,
   };
 };

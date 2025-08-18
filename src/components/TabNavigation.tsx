@@ -92,7 +92,7 @@ const TabNavigation = () => {
           </TabsContent>
           
           <TabsContent value="workout" className="mt-0 h-full">
-            <WorkoutTab selectedExercise={selectedExercise} />
+            <WorkoutTab />
           </TabsContent>
           
           <TabsContent value="stats" className="mt-0 h-full">

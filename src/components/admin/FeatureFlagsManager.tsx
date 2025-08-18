@@ -11,8 +11,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Plus, Edit, RefreshCw, Users, Globe, Target, Flag } from 'lucide-react';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import AdvancedFlagControls, { AdvancedFlagState } from '@/components/admin/flags/AdvancedFlagControls';
+import FeatureSelector from '@/components/admin/flags/FeatureSelector';
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
+import { getFeatureByName, type FeatureCatalogItem } from '@/constants/featureCatalog';
 
 const FeatureFlagsManager = () => {
   const { flags, loading, toggle, upsert, refetch } = useFeatureFlags();
@@ -35,6 +37,16 @@ const FeatureFlagsManager = () => {
 
   const handleToggle = async (flagName: string, currentEnabled: boolean) => {
     await toggle(flagName, !currentEnabled);
+  };
+
+  const handleFeatureSelect = (feature: FeatureCatalogItem) => {
+    setNewFlag({
+      feature_name: feature.name,
+      description: feature.description,
+      target_audience: feature.defaultAudience,
+      rollout_percentage: feature.defaultRolloutPercentage,
+      is_enabled: true
+    });
   };
 
   const handleCreateFlag = async () => {
@@ -132,6 +144,17 @@ const FeatureFlagsManager = () => {
     }
   };
 
+  const getFeatureDisplayInfo = (flagName: string) => {
+    const catalogFeature = getFeatureByName(flagName);
+    return catalogFeature ? {
+      displayName: catalogFeature.displayName,
+      isKnownFeature: true
+    } : {
+      displayName: flagName,
+      isKnownFeature: false
+    };
+  };
+
   if (loading) {
     return (
       <Card>
@@ -165,24 +188,20 @@ const FeatureFlagsManager = () => {
               </Button>
             </DialogTrigger>
             
-            <DialogContent>
+            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Create New Feature Flag</DialogTitle>
                 <DialogDescription>
-                  Add a new feature flag to control app functionality
+                  Select a feature from the catalog or create a custom one
                 </DialogDescription>
               </DialogHeader>
               
               <div className="space-y-4">
-                <div>
-                  <Label htmlFor="feature-name">Feature Name</Label>
-                  <Input
-                    id="feature-name"
-                    value={newFlag.feature_name}
-                    onChange={(e) => setNewFlag({ ...newFlag, feature_name: e.target.value })}
-                    placeholder="e.g., new_dashboard_layout"
-                  />
-                </div>
+                <FeatureSelector
+                  value={newFlag.feature_name}
+                  onChange={(value) => setNewFlag({ ...newFlag, feature_name: value })}
+                  onFeatureSelect={handleFeatureSelect}
+                />
                 
                 <div>
                   <Label htmlFor="description">Description</Label>
@@ -246,13 +265,24 @@ const FeatureFlagsManager = () => {
       <div className="grid gap-4">
         {flags.map((flag) => {
           const AudienceIcon = getAudienceIcon(flag.target_audience || 'all');
+          const featureInfo = getFeatureDisplayInfo(flag.feature_name);
           
           return (
             <Card key={flag.id} className={`transition-all ${flag.is_enabled ? 'border-green-200' : 'border-gray-200'}`}>
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <CardTitle className="text-lg">{flag.feature_name}</CardTitle>
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-lg">{featureInfo.displayName}</CardTitle>
+                        {!featureInfo.isKnownFeature && (
+                          <Badge variant="outline" className="text-xs">Custom</Badge>
+                        )}
+                      </div>
+                      {featureInfo.displayName !== flag.feature_name && (
+                        <code className="text-xs text-muted-foreground">{flag.feature_name}</code>
+                      )}
+                    </div>
                     <Badge variant={flag.is_enabled ? "default" : "secondary"}>
                       {flag.is_enabled ? 'Enabled' : 'Disabled'}
                     </Badge>

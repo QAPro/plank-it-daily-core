@@ -5,12 +5,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dumbbell, Plus, Clock, Target } from "lucide-react";
 import PlankTimer from "@/components/PlankTimer";
 import ExerciseCard from "@/components/ExerciseCard";
+import ExerciseDetailsModal from "@/components/ExerciseDetailsModal";
 import { useExercises } from "@/hooks/useExercises";
 import GatedCustomWorkoutManager from "@/components/custom-workouts/GatedCustomWorkoutManager";
 import EnhancedFeatureGuard from "@/components/access/EnhancedFeatureGuard";
+import type { Tables } from '@/integrations/supabase/types';
+
+type Exercise = Tables<'plank_exercises'>;
 
 const EnhancedWorkoutTab = () => {
   const [workoutTab, setWorkoutTab] = useState("timer");
+  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [detailsExercise, setDetailsExercise] = useState<Exercise | null>(null);
   const { data: exercises, isLoading } = useExercises();
 
   const containerVariants = {
@@ -29,11 +36,27 @@ const EnhancedWorkoutTab = () => {
       y: 0,
       opacity: 1,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         stiffness: 500,
         damping: 30
       }
     }
+  };
+
+  const handleExerciseStart = (exercise: Exercise) => {
+    setSelectedExercise(exercise);
+    setWorkoutTab("timer");
+  };
+
+  const handleExerciseDetails = (exercise: Exercise) => {
+    setDetailsExercise(exercise);
+    setDetailsModalOpen(true);
+  };
+
+  const handleDetailsModalStart = (exercise: Exercise) => {
+    setDetailsModalOpen(false);
+    setSelectedExercise(exercise);
+    setWorkoutTab("timer");
   };
 
   return (
@@ -86,7 +109,10 @@ const EnhancedWorkoutTab = () => {
             initial="hidden"
             animate="visible"
           >
-            <PlankTimer />
+            <PlankTimer 
+              selectedExercise={selectedExercise}
+              onExerciseChange={setSelectedExercise}
+            />
           </motion.div>
         </TabsContent>
 
@@ -107,9 +133,14 @@ const EnhancedWorkoutTab = () => {
                 />
               ))
             ) : (
-              exercises?.map((exercise) => (
+              exercises?.map((exercise, index) => (
                 <motion.div key={exercise.id} variants={itemVariants}>
-                  <ExerciseCard exercise={exercise} />
+                  <ExerciseCard 
+                    exercise={exercise}
+                    index={index}
+                    onStart={handleExerciseStart}
+                    onViewDetails={handleExerciseDetails}
+                  />
                 </motion.div>
               ))
             )}
@@ -137,6 +168,14 @@ const EnhancedWorkoutTab = () => {
           </EnhancedFeatureGuard>
         </TabsContent>
       </Tabs>
+
+      {/* Exercise Details Modal */}
+      <ExerciseDetailsModal
+        exercise={detailsExercise}
+        isOpen={detailsModalOpen}
+        onClose={() => setDetailsModalOpen(false)}
+        onStart={handleDetailsModalStart}
+      />
     </motion.div>
   );
 };

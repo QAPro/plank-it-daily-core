@@ -1877,6 +1877,7 @@ export type Database = {
           exercise_id: string | null
           id: string
           notes: string | null
+          user_agent: string | null
           user_id: string | null
         }
         Insert: {
@@ -1885,6 +1886,7 @@ export type Database = {
           exercise_id?: string | null
           id?: string
           notes?: string | null
+          user_agent?: string | null
           user_id?: string | null
         }
         Update: {
@@ -1893,6 +1895,7 @@ export type Database = {
           exercise_id?: string | null
           id?: string
           notes?: string | null
+          user_agent?: string | null
           user_id?: string | null
         }
         Relationships: [
@@ -2188,6 +2191,17 @@ export type Database = {
           last_action_at: string
         }[]
       }
+      get_device_platform_analytics: {
+        Args: { days_back?: number }
+        Returns: {
+          avg_session_duration: number
+          bounce_rate: number
+          device_category: string
+          platform_type: string
+          session_count: number
+          user_count: number
+        }[]
+      }
       get_feature_flag_analytics: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -2196,6 +2210,17 @@ export type Database = {
           feature_name: string
           total_evaluations: number
           unique_users: number
+        }[]
+      }
+      get_onboarding_analytics: {
+        Args: { days_back?: number }
+        Returns: {
+          avg_time_to_complete: number
+          completed_users: number
+          completion_rate: number
+          drop_off_rate: number
+          step_name: string
+          total_users: number
         }[]
       }
       get_user_engagement_summary: {
@@ -2219,6 +2244,18 @@ export type Database = {
           cumulative_users: number
           date: string
           new_users: number
+        }[]
+      }
+      get_user_retention_cohorts: {
+        Args: { months_back?: number }
+        Returns: {
+          cohort_month: string
+          cohort_size: number
+          week_1_retention: number
+          week_12_retention: number
+          week_2_retention: number
+          week_4_retention: number
+          week_8_retention: number
         }[]
       }
       get_workout_completion_analytics: {

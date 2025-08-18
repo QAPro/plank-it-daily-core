@@ -44,6 +44,35 @@ export interface AdminActivitySummary {
   last_action_at: string;
 }
 
+// New analytics types
+export interface RetentionCohort {
+  cohort_month: string;
+  cohort_size: number;
+  week_1_retention: number;
+  week_2_retention: number;
+  week_4_retention: number;
+  week_8_retention: number;
+  week_12_retention: number;
+}
+
+export interface OnboardingAnalyticsRow {
+  step_name: string;
+  total_users: number;
+  completed_users: number;
+  completion_rate: number;
+  avg_time_to_complete: number;
+  drop_off_rate: number;
+}
+
+export interface DevicePlatformAnalyticsRow {
+  platform_type: string;
+  device_category: string;
+  user_count: number;
+  session_count: number;
+  avg_session_duration: number;
+  bounce_rate: number;
+}
+
 export const getUserRegistrationTrends = async (daysBack = 30): Promise<RegistrationTrend[]> => {
   const { data, error } = await supabase.rpc("get_user_registration_trends", { days_back: daysBack });
   if (error) throw error;
@@ -79,4 +108,23 @@ export const getAdminActivitySummary = async (daysBack = 7): Promise<AdminActivi
   const { data, error } = await supabase.rpc("get_admin_activity_summary", { days_back: daysBack });
   if (error) throw error;
   return (data ?? []) as AdminActivitySummary[];
+};
+
+// New RPC wrappers
+export const getUserRetentionCohorts = async (monthsBack = 6): Promise<RetentionCohort[]> => {
+  const { data, error } = await supabase.rpc("get_user_retention_cohorts", { months_back: monthsBack });
+  if (error) throw error;
+  return (data ?? []) as RetentionCohort[];
+};
+
+export const getOnboardingAnalytics = async (daysBack = 30): Promise<OnboardingAnalyticsRow[]> => {
+  const { data, error } = await supabase.rpc("get_onboarding_analytics", { days_back: daysBack });
+  if (error) throw error;
+  return (data ?? []) as OnboardingAnalyticsRow[];
+};
+
+export const getDevicePlatformAnalytics = async (daysBack = 30): Promise<DevicePlatformAnalyticsRow[]> => {
+  const { data, error } = await supabase.rpc("get_device_platform_analytics", { days_back: daysBack });
+  if (error) throw error;
+  return (data ?? []) as DevicePlatformAnalyticsRow[];
 };

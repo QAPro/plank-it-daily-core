@@ -8,9 +8,15 @@ import WorkoutPerformanceCharts from "./WorkoutPerformanceCharts";
 import AdminAuditVisualization from "./AdminAuditVisualization";
 import SubscriptionAnalytics from "./SubscriptionAnalytics";
 import DateRangeSelector from "./DateRangeSelector";
+import OnboardingFunnel from "./OnboardingFunnel";
+import DevicePlatformAnalytics from "./DevicePlatformAnalytics";
+import RetentionCohortChart from "./RetentionCohortChart";
 
 const AdminAnalyticsDashboard = () => {
   const [daysBack, setDaysBack] = useState<number>(30);
+
+  // Derive monthsBack from daysBack (bounded 1..12 for sensible cohorts)
+  const monthsBack = Math.max(1, Math.min(12, Math.ceil(daysBack / 30)));
 
   return (
     <div className="space-y-6">
@@ -41,6 +47,14 @@ const AdminAnalyticsDashboard = () => {
         <WorkoutPerformanceCharts daysBack={daysBack} />
         <AdminAuditVisualization daysBack={daysBack} />
       </div>
+
+      {/* New analytics sections */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <OnboardingFunnel daysBack={daysBack} />
+        <DevicePlatformAnalytics daysBack={daysBack} />
+      </div>
+
+      <RetentionCohortChart monthsBack={monthsBack} />
 
       {/* Export placeholder (future enhancement) */}
       <Card>

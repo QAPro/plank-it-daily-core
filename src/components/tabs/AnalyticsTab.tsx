@@ -69,7 +69,7 @@ const AnalyticsTab = () => {
 
         <TabsContent value="overview" className="space-y-6">
           <FeatureGuard 
-            feature="analytics_dashboard"
+            feature="advanced_stats"
             fallback={<PremiumUpgradePrompt />}
           >
             <UserAnalyticsDashboard />
@@ -78,7 +78,7 @@ const AnalyticsTab = () => {
 
         <TabsContent value="performance" className="space-y-6">
           <FeatureGuard 
-            feature="detailed_performance_tracking"
+            feature="advanced_stats"
             fallback={<PremiumUpgradePrompt />}
           >
             <UserAnalyticsDashboard />
@@ -87,7 +87,7 @@ const AnalyticsTab = () => {
 
         <TabsContent value="goals" className="space-y-6">
           <FeatureGuard 
-            feature="goal_tracking"
+            feature="advanced_stats"
             fallback={<PremiumUpgradePrompt />}
           >
             <GoalTrackingDashboard />
@@ -96,7 +96,7 @@ const AnalyticsTab = () => {
 
         <TabsContent value="insights" className="space-y-6">
           <FeatureGuard 
-            feature="ai_recommendations"
+            feature="smart_recommendations"
             fallback={<PremiumUpgradePrompt />}
           >
             <SmartRecommendationsPanel />

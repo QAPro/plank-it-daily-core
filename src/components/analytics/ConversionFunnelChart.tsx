@@ -18,35 +18,23 @@ interface FunnelStage {
 const ConversionFunnelChart = () => {
   const { data: funnelData, isLoading } = useQuery({
     queryKey: ['conversion-funnel'],
-    queryFn: async () => {
+    queryFn: async (): Promise<FunnelStage[]> => {
       // Get total users
-      const { count: totalUsers, error: totalError } = await supabase
+      const { count: totalUsers } = await supabase
         .from('users')
         .select('*', { count: 'exact', head: true });
 
-      if (totalError) throw totalError;
-
       // Get users who completed onboarding
-      const { count: onboardedUsers, error: onboardingError } = await supabase
+      const { count: onboardedUsers } = await supabase
         .from('user_onboarding')
         .select('*', { count: 'exact', head: true })
         .eq('completed', true);
 
-      if (onboardingError) throw onboardingError;
-
-      // Get users with at least one session
-      const { data: activeUsers, error: activeError } = await supabase
-        .rpc('get_active_users_metrics');
-
-      if (activeError) throw activeError;
-
       // Get premium users
-      const { count: premiumUsers, error: premiumError } = await supabase
+      const { count: premiumUsers } = await supabase
         .from('users')
         .select('*', { count: 'exact', head: true })
         .neq('subscription_tier', 'free');
-
-      if (premiumError) throw premiumError;
 
       const stages: FunnelStage[] = [
         {

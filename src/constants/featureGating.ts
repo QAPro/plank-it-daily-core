@@ -13,7 +13,11 @@ export type FeatureName =
   | 'smart_recommendations'
   | 'social_challenges'
   | 'custom_workouts'
-  | 'priority_support';
+  | 'priority_support'
+  | 'analytics_dashboard'
+  | 'detailed_performance_tracking'
+  | 'goal_tracking'
+  | 'ai_recommendations';
 
 export const FEATURE_REQUIREMENTS: Record<FeatureName, SubscriptionTier> = {
   advanced_stats: 'premium',
@@ -21,4 +25,8 @@ export const FEATURE_REQUIREMENTS: Record<FeatureName, SubscriptionTier> = {
   social_challenges: 'premium',
   custom_workouts: 'pro',
   priority_support: 'pro',
+  analytics_dashboard: 'premium',
+  detailed_performance_tracking: 'premium',
+  goal_tracking: 'premium',
+  ai_recommendations: 'premium',
 };

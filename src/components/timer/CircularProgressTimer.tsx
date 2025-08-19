@@ -41,7 +41,10 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress }: Circular
   const radius = 120;
   const circumference = 2 * Math.PI * radius;
   const strokeDasharray = circumference;
-  const strokeDashoffset = circumference - (progress / 100) * circumference;
+  // Invert progress calculation for counter-clockwise countdown
+  // progress represents elapsed time (0-100%), we want remaining time for visual
+  const remainingProgress = 100 - progress;
+  const strokeDashoffset = circumference * (remainingProgress / 100);
 
   return (
     <Card className={`bg-gradient-to-br ${colors.bg} text-white border-0 shadow-lg`}>
@@ -69,7 +72,7 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress }: Circular
               strokeDasharray={strokeDasharray}
               strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
-              initial={{ strokeDashoffset: circumference }}
+              initial={{ strokeDashoffset: 0 }}
               animate={{ strokeDashoffset }}
               transition={{ duration: 0.5, ease: "easeInOut" }}
             />

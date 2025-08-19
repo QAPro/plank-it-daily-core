@@ -110,6 +110,15 @@ const EnhancedPlanManager: React.FC = () => {
     setSelectedPlans(new Set());
   };
 
+  // Wrapper functions to match expected Promise<void> signature
+  const handleSavePlan = async (data: PlanFormData): Promise<void> => {
+    await saveMutation.mutateAsync(data);
+  };
+
+  const handleDeletePlan = async (planId: string): Promise<void> => {
+    await deleteMutation.mutateAsync(planId);
+  };
+
   // Bulk operations
   const handleBulkActivate = async () => {
     const selectedPlanObjects = plans.filter(p => selectedPlans.has(p.id));
@@ -322,8 +331,8 @@ const EnhancedPlanManager: React.FC = () => {
           {showForm && (
             <PlanForm
               editingPlan={editingPlan}
-              onSave={saveMutation.mutateAsync}
-              onDelete={deleteMutation.mutateAsync}
+              onSave={handleSavePlan}
+              onDelete={handleDeletePlan}
               onCancel={handleCancelForm}
               isLoading={saveMutation.isPending || deleteMutation.isPending}
               existingPlans={plans}

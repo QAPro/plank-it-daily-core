@@ -41,7 +41,7 @@ export const planFormSchema = z.object({
 
 export type PlanFormData = z.infer<typeof planFormSchema>;
 
-// Feature templates for quick plan setup
+// Feature templates for quick plan setup - make arrays mutable
 export const FEATURE_TEMPLATES = {
   starter: [
     "Basic workout tracking",
@@ -66,6 +66,6 @@ export const FEATURE_TEMPLATES = {
     "White-label options",
     "Dedicated account manager"
   ]
-} as const;
+};
 
 export type FeatureTemplate = keyof typeof FEATURE_TEMPLATES;

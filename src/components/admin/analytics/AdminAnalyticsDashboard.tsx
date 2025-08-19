@@ -6,7 +6,7 @@ import UserEngagementCharts from "./UserEngagementCharts";
 import FeatureUsageAnalytics from "./FeatureUsageAnalytics";
 import WorkoutPerformanceCharts from "./WorkoutPerformanceCharts";
 import AdminAuditVisualization from "./AdminAuditVisualization";
-import SubscriptionAnalytics from "./SubscriptionAnalytics";
+import EnhancedSubscriptionAnalyticsDashboard from "./EnhancedSubscriptionAnalyticsDashboard";
 import OnboardingFunnel from "./OnboardingFunnel";
 import DevicePlatformAnalytics from "./DevicePlatformAnalytics";
 import RetentionCohortChart from "./RetentionCohortChart";
@@ -85,10 +85,10 @@ const AdminAnalyticsDashboard = () => {
           <EnhancedKPICards />
         </div>
 
-        {/* Subscription Analytics */}
+        {/* Enhanced Subscription Analytics */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Subscription Metrics</h3>
-          <SubscriptionAnalytics />
+          <h3 className="text-lg font-semibold">Subscription Analytics & Revenue</h3>
+          <EnhancedSubscriptionAnalyticsDashboard />
         </div>
 
         {/* Charts Grid */}

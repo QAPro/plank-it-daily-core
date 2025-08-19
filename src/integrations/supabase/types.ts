@@ -41,6 +41,39 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_audit_log: {
+        Row: {
+          action_details: Json | null
+          action_type: string
+          admin_user_id: string | null
+          affected_count: number | null
+          created_at: string | null
+          id: string
+          reason: string | null
+          target_user_id: string | null
+        }
+        Insert: {
+          action_details?: Json | null
+          action_type: string
+          admin_user_id?: string | null
+          affected_count?: number | null
+          created_at?: string | null
+          id?: string
+          reason?: string | null
+          target_user_id?: string | null
+        }
+        Update: {
+          action_details?: Json | null
+          action_type?: string
+          admin_user_id?: string | null
+          affected_count?: number | null
+          created_at?: string | null
+          id?: string
+          reason?: string | null
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
       admin_settings: {
         Row: {
           description: string | null
@@ -165,6 +198,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      bulk_operations: {
+        Row: {
+          affected_user_ids: string[] | null
+          completed_at: string | null
+          created_at: string | null
+          error_details: Json | null
+          id: string
+          initiated_by: string | null
+          operation_data: Json | null
+          operation_type: string
+          progress_count: number | null
+          status: string | null
+          target_criteria: Json | null
+          total_count: number | null
+        }
+        Insert: {
+          affected_user_ids?: string[] | null
+          completed_at?: string | null
+          created_at?: string | null
+          error_details?: Json | null
+          id?: string
+          initiated_by?: string | null
+          operation_data?: Json | null
+          operation_type: string
+          progress_count?: number | null
+          status?: string | null
+          target_criteria?: Json | null
+          total_count?: number | null
+        }
+        Update: {
+          affected_user_ids?: string[] | null
+          completed_at?: string | null
+          created_at?: string | null
+          error_details?: Json | null
+          id?: string
+          initiated_by?: string | null
+          operation_data?: Json | null
+          operation_type?: string
+          progress_count?: number | null
+          status?: string | null
+          target_criteria?: Json | null
+          total_count?: number | null
+        }
+        Relationships: []
       }
       challenge_participants: {
         Row: {
@@ -2164,7 +2242,17 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      subscription_analytics: {
+        Row: {
+          date: string | null
+          plan_name: string | null
+          status: string | null
+          subscription_count: number | null
+          total_revenue_cents: number | null
+          unique_users: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       bootstrap_first_admin: {
@@ -2230,6 +2318,14 @@ export type Database = {
           drop_off_rate: number
           step_name: string
           total_users: number
+        }[]
+      }
+      get_subscription_health_score: {
+        Args: { target_user_id: string }
+        Returns: {
+          health_score: number
+          recommendations: Json
+          risk_factors: Json
         }[]
       }
       get_user_active_subscription: {
@@ -2302,6 +2398,10 @@ export type Database = {
       is_admin: {
         Args: { _user_id?: string }
         Returns: boolean
+      }
+      refresh_subscription_analytics: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       refresh_user_cohort_memberships: {
         Args: { _user_id: string }

@@ -332,6 +332,120 @@ async function addUserNote(args: {
   return true;
 }
 
+// ---------------- New: admin dashboard helpers ----------------
+
+export type SubscriptionSummary = {
+  freeUsers: number;
+  premiumUsers: number;
+  activeSubscriptions: number;
+  canceledLast7d: number;
+};
+
+async function getSubscriptionSummary(): Promise<SubscriptionSummary> {
+  console.log("[adminUserService] getSubscriptionSummary");
+  const sb: any = supabase;
+
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString();
+
+  const [{ count: freeUsers }, { count: premiumUsers }, { count: activeSubscriptions }, { count: canceledLast7d }] =
+    await Promise.all([
+      sb.from("users").select("*", { count: "exact", head: true }).eq("subscription_tier", "free"),
+      sb.from("users").select("*", { count: "exact", head: true }).eq("subscription_tier", "premium"),
+      sb.from("subscriptions").select("*", { count: "exact", head: true }).eq("status", "active"),
+      sb.from("subscriptions").select("*", { count: "exact", head: true }).eq("status", "canceled").gte("updated_at", sevenDaysAgo),
+    ]);
+
+  return {
+    freeUsers: freeUsers ?? 0,
+    premiumUsers: premiumUsers ?? 0,
+    activeSubscriptions: activeSubscriptions ?? 0,
+    canceledLast7d: canceledLast7d ?? 0,
+  };
+}
+
+async function findUsersBySegment(args: { tier?: "free" | "premium"; createdAfter?: string }): Promise<AdminUserSummary[]> {
+  console.log("[adminUserService] findUsersBySegment", args);
+  let query = (supabase as any)
+    .from("users")
+    .select("id, email, username, full_name")
+    .order("created_at", { ascending: false })
+    .limit(500);
+
+  if (args.tier) {
+    query = query.eq("subscription_tier", args.tier);
+  }
+  if (args.createdAfter) {
+    query = query.gte("created_at", args.createdAfter);
+  }
+
+  const { data, error } = await query;
+  if (error) {
+    console.error("[adminUserService] findUsersBySegment error", error);
+    throw error;
+  }
+
+  return ((data as any[]) || []).map((u) => ({
+    id: u.id,
+    email: u.email ?? null,
+    username: u.username ?? null,
+    full_name: u.full_name ?? null,
+  }));
+}
+
+async function bulkChangeTier(userIds: string[], newTier: "free" | "premium", reason?: string): Promise<number> {
+  console.log("[adminUserService] bulkChangeTier", { count: userIds.length, newTier, reason });
+  let success = 0;
+  for (const id of userIds) {
+    try {
+      await changeUserTier(id, newTier, reason);
+      success++;
+    } catch (e) {
+      console.warn("[adminUserService] bulkChangeTier failed for", id, e);
+    }
+  }
+  return success;
+}
+
+async function bulkGrantLifetime(userIds: string[], grantedBy: string, reason?: string): Promise<number> {
+  console.log("[adminUserService] bulkGrantLifetime", { count: userIds.length, grantedBy, reason });
+  let success = 0;
+  for (const id of userIds) {
+    try {
+      await grantLifetimeAccess(id, grantedBy, reason);
+      success++;
+    } catch (e) {
+      console.warn("[adminUserService] bulkGrantLifetime failed for", id, e);
+    }
+  }
+  return success;
+}
+
+async function bulkRevokeLifetime(userIds: string[], reason?: string): Promise<number> {
+  console.log("[adminUserService] bulkRevokeLifetime", { count: userIds.length, reason });
+  let success = 0;
+  for (const id of userIds) {
+    try {
+      await revokeLifetimeAccess(id, reason);
+      success++;
+    } catch (e) {
+      console.warn("[adminUserService] bulkRevokeLifetime failed for", id, e);
+    }
+  }
+  return success;
+}
+
+async function getUserSubscriptionHealth(userId: string): Promise<{ health_score: number; risk_factors: any; recommendations: any } | null> {
+  console.log("[adminUserService] getUserSubscriptionHealth", userId);
+  const sb: any = supabase;
+  const { data, error } = await sb.rpc("get_subscription_health_score", { target_user_id: userId });
+  if (error) {
+    console.error("[adminUserService] getUserSubscriptionHealth error", error);
+    throw error;
+  }
+  const row = (data as any[] | null)?.[0] ?? null;
+  return row || null;
+}
+
 export const adminUserService = {
   searchUsers: searchUsersRaw,
   getUserRoles,
@@ -348,4 +462,11 @@ export const adminUserService = {
   revokeLifetimeAccess,
   getUserNotes,
   addUserNote,
+  // New dashboard helpers
+  getSubscriptionSummary,
+  findUsersBySegment,
+  bulkChangeTier,
+  bulkGrantLifetime,
+  bulkRevokeLifetime,
+  getUserSubscriptionHealth,
 };

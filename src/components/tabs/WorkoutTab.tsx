@@ -27,7 +27,6 @@ interface SimpleFilters {
 const WorkoutTab = () => {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [showTimer, setShowTimer] = useState(false);
-  const [selectedDuration, setSelectedDuration] = useState(60); // Default 60 seconds
   const [selectedDetailsExercise, setSelectedDetailsExercise] = useState<Exercise | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [filters, setFilters] = useState<SimpleFilters>({
@@ -70,9 +69,8 @@ const WorkoutTab = () => {
       .filter(Boolean);
   }, [recommendations, exercises]);
 
-  const handleExerciseSelect = (exercise: Exercise, duration?: number) => {
+  const handleExerciseSelect = (exercise: Exercise) => {
     setSelectedExercise(exercise);
-    setSelectedDuration(duration || 60);
     setShowTimer(true);
   };
 
@@ -99,13 +97,6 @@ const WorkoutTab = () => {
 
   const handleRefreshRecommendations = () => {
     generateRecommendations();
-  };
-
-  const handleTimerComplete = (duration: number) => {
-    console.log('Timer completed with duration:', duration);
-    // Handle completion logic here
-    setShowTimer(false);
-    setSelectedExercise(null);
   };
 
   // Convert simple filters to the format expected by ExerciseFilters

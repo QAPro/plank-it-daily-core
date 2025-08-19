@@ -20,6 +20,7 @@ interface CountdownTimerProps {
 }
 
 const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange }: CountdownTimerProps) => {
+  const [showSetup, setShowSetup] = useState(true);
   const [showCelebration, setShowCelebration] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   
@@ -74,6 +75,7 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange }: Countdow
 
   const handleSetDuration = (newDuration: number) => {
     setTimerDuration(newDuration);
+    setShowSetup(false);
     toast.success(`Timer set for ${Math.floor(newDuration / 60)}:${(newDuration % 60).toString().padStart(2, '0')}`);
   };
 
@@ -109,7 +111,7 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange }: Countdow
     handleResetTimer();
   };
 
-  if (state === 'setup') {
+  if (showSetup) {
     return (
       <TimerSetup
         exercise={selectedExercise}
@@ -261,8 +263,8 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange }: Countdow
               </AnimatePresence>
             </div>
 
-            {/* Reset Button (always available when not in setup) */}
-            {state !== 'setup' && state !== 'completed' && (
+            {/* Reset Button (always available when timer is set up) */}
+            {state !== 'completed' && (
               <div className="text-center">
                 <Button
                   onClick={handleResetTimer}

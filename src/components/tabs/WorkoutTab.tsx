@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import EnhancedExerciseCard from "@/components/EnhancedExerciseCard";
 import ExerciseFilters from "@/components/ExerciseFilters";
 import PlankTimer from "@/components/PlankTimer";
+import ExerciseDetailsModal from "@/components/ExerciseDetailsModal";
 import { useExercises } from "@/hooks/useExercises";
 import { useExerciseRecommendations } from "@/hooks/useExerciseRecommendations";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -27,6 +28,8 @@ const WorkoutTab = () => {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [showTimer, setShowTimer] = useState(false);
   const [selectedDuration, setSelectedDuration] = useState(60); // Default 60 seconds
+  const [selectedDetailsExercise, setSelectedDetailsExercise] = useState<Exercise | null>(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [filters, setFilters] = useState<SimpleFilters>({
     difficulty: 'all',
     category: 'all',
@@ -71,6 +74,22 @@ const WorkoutTab = () => {
     setSelectedExercise(exercise);
     setSelectedDuration(duration || 60);
     setShowTimer(true);
+  };
+
+  const handleViewDetails = (exercise: Exercise) => {
+    setSelectedDetailsExercise(exercise);
+    setShowDetailsModal(true);
+  };
+
+  const handleCloseDetails = () => {
+    setShowDetailsModal(false);
+    setSelectedDetailsExercise(null);
+  };
+
+  const handleStartFromDetails = (exercise: Exercise) => {
+    setShowDetailsModal(false);
+    setSelectedDetailsExercise(null);
+    handleExerciseSelect(exercise);
   };
 
   const handleBackToList = () => {
@@ -325,7 +344,7 @@ const WorkoutTab = () => {
                     exercise={exercise}
                     index={index}
                     onStart={() => handleExerciseSelect(exercise)}
-                    onViewDetails={(exercise) => console.log('View details for:', exercise.name)}
+                    onViewDetails={handleViewDetails}
                     recommendationType={recommendations?.find(rec => rec.exercise_id === exercise.id)?.recommendation_type}
                     confidenceScore={recommendations?.find(rec => rec.exercise_id === exercise.id)?.confidence_score}
                   />
@@ -335,6 +354,14 @@ const WorkoutTab = () => {
           </motion.div>
         </motion.div>
       </AnimatePresence>
+
+      {/* Exercise Details Modal */}
+      <ExerciseDetailsModal
+        exercise={selectedDetailsExercise}
+        isOpen={showDetailsModal}
+        onClose={handleCloseDetails}
+        onStart={handleStartFromDetails}
+      />
     </div>
   );
 };

@@ -59,17 +59,21 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
     }
   };
 
+  // Updated: choose the monthly plan for the required tier using billing_interval
   const findRecommendedPlan = () => {
-    return plans.find(plan => {
-      const planName = plan.name.toLowerCase();
-      if (requiredTier === 'premium') {
-        return planName.includes('premium') && planName.includes('monthly');
-      }
-      if (requiredTier === 'pro') {
-        return planName.includes('pro') && planName.includes('monthly');
-      }
+    const tierMatch = (name: string) => {
+      const lower = name.toLowerCase();
+      if (requiredTier === 'premium') return lower.includes('premium');
+      if (requiredTier === 'pro') return lower.includes('pro');
       return false;
-    });
+    };
+
+    // Prefer monthly plan for the correct tier
+    const monthly = plans.find(p => tierMatch(p.name) && (p.billing_interval as string) === 'month');
+    if (monthly) return monthly;
+
+    // Fallback to any plan of the required tier
+    return plans.find(p => tierMatch(p.name));
   };
 
   const handleUpgrade = () => {
@@ -137,7 +141,7 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
           {recommendedPlan && (
             <div className="mt-2 text-center">
               Upgrade to <strong>{recommendedPlan.name}</strong> for{' '}
-              <strong>${(recommendedPlan.price_cents / 100).toFixed(2)}/month</strong>
+              <strong>${(recommendedPlan.price_cents / 100).toFixed(2)}/{(recommendedPlan.billing_interval as string)}</strong>
             </div>
           )}
         </div>

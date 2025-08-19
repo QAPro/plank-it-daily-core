@@ -1045,8 +1045,10 @@ export type Database = {
           features: Json | null
           id: string
           is_active: boolean | null
+          is_popular: boolean
           name: string
           price_cents: number
+          sort_order: number
           stripe_price_id: string | null
           updated_at: string
         }
@@ -1057,8 +1059,10 @@ export type Database = {
           features?: Json | null
           id?: string
           is_active?: boolean | null
+          is_popular?: boolean
           name: string
           price_cents?: number
+          sort_order?: number
           stripe_price_id?: string | null
           updated_at?: string
         }
@@ -1069,8 +1073,10 @@ export type Database = {
           features?: Json | null
           id?: string
           is_active?: boolean | null
+          is_popular?: boolean
           name?: string
           price_cents?: number
+          sort_order?: number
           stripe_price_id?: string | null
           updated_at?: string
         }
@@ -1078,6 +1084,7 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          cancel_at_period_end: boolean
           canceled_at: string | null
           created_at: string
           current_period_end: string | null
@@ -1090,6 +1097,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          cancel_at_period_end?: boolean
           canceled_at?: string | null
           created_at?: string
           current_period_end?: string | null
@@ -1102,6 +1110,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          cancel_at_period_end?: boolean
           canceled_at?: string | null
           created_at?: string
           current_period_end?: string | null
@@ -2221,6 +2230,17 @@ export type Database = {
           drop_off_rate: number
           step_name: string
           total_users: number
+        }[]
+      }
+      get_user_active_subscription: {
+        Args: { _user_id: string }
+        Returns: {
+          current_period_end: string
+          effective_price: number
+          is_custom_pricing: boolean
+          plan_name: string
+          status: string
+          subscription_id: string
         }[]
       }
       get_user_engagement_summary: {

@@ -6,7 +6,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
 import { supabase } from '@/integrations/supabase/client';
 import { ChartSkeleton } from '@/components/ui/chart-skeleton';
-import AccessibleChartWrapper from './AccessibleChartWrapper';
+import { AccessibleChartWrapper } from './AccessibleChartWrapper';
 
 interface FunnelData {
   stage: string;
@@ -119,7 +119,7 @@ const ConversionFunnelChart = () => {
                 />
                 <Bar 
                   dataKey="users" 
-                  fill={(entry: any) => entry.color}
+                  fill="#8884d8"
                   radius={[0, 4, 4, 0]}
                 />
               </BarChart>

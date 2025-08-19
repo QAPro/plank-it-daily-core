@@ -19,7 +19,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart as RechartsPieChart, Cell } from 'recharts';
 import { ChartSkeleton, KPICardSkeleton } from '@/components/ui/chart-skeleton';
-import AccessibleChartWrapper from './AccessibleChartWrapper';
+import { AccessibleChartWrapper } from './AccessibleChartWrapper';
 import ConversionFunnelChart from './ConversionFunnelChart';
 
 interface SubscriptionMetrics {

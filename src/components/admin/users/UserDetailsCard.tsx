@@ -14,6 +14,10 @@ import { useToast } from "@/hooks/use-toast";
 import { ShieldPlus, ShieldMinus, Crown, DollarSign, Tag, NotebookPen } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatPrice } from "@/utils/price";
+import SubscriptionTimeline from "./user-details/SubscriptionTimeline";
+import BillingHistoryList from "./user-details/BillingHistoryList";
+import UserEngagementCard from "./user-details/UserEngagementCard";
+import HealthScoreCard from "./user-details/HealthScoreCard";
 
 type Props = {
   user: AdminUserSummary;
@@ -467,6 +471,18 @@ const UserDetailsCard: React.FC<Props> = ({ user }) => {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* New: Health Score */}
+        <HealthScoreCard userId={user.id} />
+
+        {/* New: Engagement snapshot */}
+        <UserEngagementCard userId={user.id} />
+
+        {/* New: Timeline and Billing side by side */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <SubscriptionTimeline userId={user.id} />
+          <BillingHistoryList userId={user.id} />
         </div>
       </CardContent>
     </Card>

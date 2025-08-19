@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import type { SubscriptionPlan, ActiveSubscription } from "@/services/subscriptionService";
 
@@ -45,6 +44,39 @@ export type LifetimeAccessOverride = {
   expires_at: string | null;
   is_active: boolean;
   created_at: string;
+};
+
+export type SubscriptionTimelineEvent = {
+  event_date: string;
+  event_type: string;
+  event_description: string | null;
+  plan_name: string | null;
+  amount_cents: number | null;
+  status: string | null;
+};
+
+export type BillingHistoryItem = {
+  transaction_id: string;
+  amount_cents: number;
+  currency: string;
+  status: string;
+  description: string | null;
+  created_at: string;
+  stripe_payment_intent_id: string | null;
+};
+
+export type UserEngagementMetrics = {
+  user_id: string;
+  email: string | null;
+  subscription_tier: string | null;
+  registration_date: string;
+  total_sessions: number;
+  last_session_date: string | null;
+  avg_session_duration: number;
+  total_duration: number;
+  engagement_status: "active" | "dormant" | "inactive" | string;
+  current_streak: number;
+  longest_streak: number;
 };
 
 async function searchUsersRaw(identifier: string): Promise<AdminUserSummary[]> {
@@ -363,8 +395,27 @@ async function getSubscriptionSummary(): Promise<SubscriptionSummary> {
   };
 }
 
-async function findUsersBySegment(args: { tier?: "free" | "premium"; createdAfter?: string }): Promise<AdminUserSummary[]> {
+// Extend findUsersBySegment to support engagementStatus without breaking current callers
+async function findUsersBySegment(args: { tier?: "free" | "premium"; createdAfter?: string; engagementStatus?: "active" | "dormant" | "inactive" }): Promise<AdminUserSummary[]> {
   console.log("[adminUserService] findUsersBySegment", args);
+
+  // If engagement status provided, derive user ids from the materialized view first
+  let filterUserIds: string[] | undefined = undefined;
+  if (args.engagementStatus) {
+    const { data: em, error: emErr } = await (supabase as any)
+      .from("user_engagement_metrics")
+      .select("user_id")
+      .eq("engagement_status", args.engagementStatus);
+    if (emErr) {
+      console.error("[adminUserService] findUsersBySegment engagement filter error", emErr);
+      throw emErr;
+    }
+    filterUserIds = (em || []).map((r: any) => r.user_id);
+    if (filterUserIds.length === 0) {
+      return [];
+    }
+  }
+
   let query = (supabase as any)
     .from("users")
     .select("id, email, username, full_name")
@@ -376,6 +427,9 @@ async function findUsersBySegment(args: { tier?: "free" | "premium"; createdAfte
   }
   if (args.createdAfter) {
     query = query.gte("created_at", args.createdAfter);
+  }
+  if (filterUserIds) {
+    query = query.in("id", filterUserIds);
   }
 
   const { data, error } = await query;
@@ -446,6 +500,124 @@ async function getUserSubscriptionHealth(userId: string): Promise<{ health_score
   return row || null;
 }
 
+// New: admin helpers
+async function getUserBillingHistory(userId: string, limit: number = 20): Promise<BillingHistoryItem[]> {
+  console.log("[adminUserService] getUserBillingHistory", { userId, limit });
+  const sb: any = supabase;
+  const { data, error } = await sb.rpc("get_user_billing_history", {
+    target_user_id: userId,
+    limit_count: limit,
+  });
+  if (error) {
+    console.error("[adminUserService] getUserBillingHistory error", error);
+    throw error;
+  }
+  return ((data as any[]) || []).map((r: any) => ({
+    transaction_id: r.transaction_id,
+    amount_cents: r.amount_cents,
+    currency: r.currency,
+    status: r.status,
+    description: r.description,
+    created_at: r.created_at,
+    stripe_payment_intent_id: r.stripe_payment_intent_id ?? null,
+  }));
+}
+
+async function getUserSubscriptionTimeline(userId: string): Promise<SubscriptionTimelineEvent[]> {
+  console.log("[adminUserService] getUserSubscriptionTimeline", userId);
+  const sb: any = supabase;
+  const { data, error } = await sb.rpc("get_user_subscription_timeline", {
+    target_user_id: userId,
+  });
+  if (error) {
+    console.error("[adminUserService] getUserSubscriptionTimeline error", error);
+    throw error;
+  }
+  return (data as SubscriptionTimelineEvent[]) || [];
+}
+
+async function getUserEngagementMetrics(userId: string): Promise<UserEngagementMetrics | null> {
+  console.log("[adminUserService] getUserEngagementMetrics", userId);
+  const { data, error } = await (supabase as any)
+    .from("user_engagement_metrics")
+    .select("*")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (error) {
+    console.error("[adminUserService] getUserEngagementMetrics error", error);
+    throw error;
+  }
+  return (data as UserEngagementMetrics) || null;
+}
+
+// User Segments CRUD
+type UserSegment = {
+  id: string;
+  name: string;
+  description: string | null;
+  criteria: Record<string, any>;
+  created_by: string | null;
+  is_system_segment: boolean | null;
+  user_count: number | null;
+  last_refreshed_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+async function listUserSegments(): Promise<UserSegment[]> {
+  console.log("[adminUserService] listUserSegments");
+  const { data, error } = await (supabase as any)
+    .from("user_segments")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(100);
+  if (error) {
+    console.error("[adminUserService] listUserSegments error", error);
+    throw error;
+  }
+  return (data as UserSegment[]) || [];
+}
+
+async function createUserSegment(args: { name: string; description?: string; criteria: Record<string, any> }): Promise<UserSegment> {
+  console.log("[adminUserService] createUserSegment", args);
+  const { data: auth } = await supabase.auth.getUser();
+  const createdBy = auth.user?.id ?? null;
+
+  const { data, error } = await (supabase as any)
+    .from("user_segments")
+    .insert({
+      name: args.name,
+      description: args.description ?? null,
+      criteria: args.criteria,
+      created_by: createdBy,
+      is_system_segment: false,
+      user_count: null,
+      last_refreshed_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    console.error("[adminUserService] createUserSegment error", error);
+    throw error;
+  }
+  return data as UserSegment;
+}
+
+async function deleteUserSegment(segmentId: string): Promise<boolean> {
+  console.log("[adminUserService] deleteUserSegment", segmentId);
+  const { error } = await (supabase as any)
+    .from("user_segments")
+    .delete()
+    .eq("id", segmentId);
+  if (error) {
+    console.error("[adminUserService] deleteUserSegment error", error);
+    throw error;
+  }
+  return true;
+}
+
 export const adminUserService = {
   searchUsers: searchUsersRaw,
   getUserRoles,
@@ -469,4 +641,13 @@ export const adminUserService = {
   bulkGrantLifetime,
   bulkRevokeLifetime,
   getUserSubscriptionHealth,
+  // New helpers
+  getUserBillingHistory,
+  getUserSubscriptionTimeline,
+  getUserEngagementMetrics,
+  listUserSegments,
+  createUserSegment,
+  deleteUserSegment,
+  // Overwrite with enhanced filter support
+  findUsersBySegment,
 };

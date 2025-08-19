@@ -654,6 +654,13 @@ export type Database = {
             foreignKeyName: "feature_unlocks_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "user_engagement_metrics"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "feature_unlocks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -1957,6 +1964,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_segments: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          criteria: Json
+          description: string | null
+          id: string
+          is_system_segment: boolean | null
+          last_refreshed_at: string | null
+          name: string
+          updated_at: string
+          user_count: number | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          criteria?: Json
+          description?: string | null
+          id?: string
+          is_system_segment?: boolean | null
+          last_refreshed_at?: string | null
+          name: string
+          updated_at?: string
+          user_count?: number | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          criteria?: Json
+          description?: string | null
+          id?: string
+          is_system_segment?: boolean | null
+          last_refreshed_at?: string | null
+          name?: string
+          updated_at?: string
+          user_count?: number | null
+        }
+        Relationships: []
+      }
       user_sessions: {
         Row: {
           completed_at: string | null
@@ -1997,6 +2043,13 @@ export type Database = {
             foreignKeyName: "user_sessions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "user_engagement_metrics"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "user_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -2028,6 +2081,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "user_streaks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_engagement_metrics"
+            referencedColumns: ["user_id"]
+          },
           {
             foreignKeyName: "user_streaks_user_id_fkey"
             columns: ["user_id"]
@@ -2235,6 +2295,13 @@ export type Database = {
             foreignKeyName: "xp_transactions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "user_engagement_metrics"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "xp_transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -2250,6 +2317,22 @@ export type Database = {
           subscription_count: number | null
           total_revenue_cents: number | null
           unique_users: number | null
+        }
+        Relationships: []
+      }
+      user_engagement_metrics: {
+        Row: {
+          avg_session_duration: number | null
+          current_streak: number | null
+          email: string | null
+          engagement_status: string | null
+          last_session_date: string | null
+          longest_streak: number | null
+          registration_date: string | null
+          subscription_tier: string | null
+          total_duration: number | null
+          total_sessions: number | null
+          user_id: string | null
         }
         Relationships: []
       }
@@ -2339,6 +2422,18 @@ export type Database = {
           subscription_id: string
         }[]
       }
+      get_user_billing_history: {
+        Args: { limit_count?: number; target_user_id: string }
+        Returns: {
+          amount_cents: number
+          created_at: string
+          currency: string
+          description: string
+          status: string
+          stripe_payment_intent_id: string
+          transaction_id: string
+        }[]
+      }
       get_user_engagement_summary: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -2374,6 +2469,17 @@ export type Database = {
           week_8_retention: number
         }[]
       }
+      get_user_subscription_timeline: {
+        Args: { target_user_id: string }
+        Returns: {
+          amount_cents: number
+          event_date: string
+          event_description: string
+          event_type: string
+          plan_name: string
+          status: string
+        }[]
+      }
       get_workout_completion_analytics: {
         Args: { days_back?: number }
         Returns: {
@@ -2405,6 +2511,10 @@ export type Database = {
       }
       refresh_user_cohort_memberships: {
         Args: { _user_id: string }
+        Returns: undefined
+      }
+      refresh_user_engagement_metrics: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
     }

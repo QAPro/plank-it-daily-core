@@ -249,7 +249,7 @@ const EnhancedSubscriptionPlansPage = () => {
             Compare Plans Side-by-Side
           </Label>
         </div>
-      </div>
+      </motion.div>
 
       {/* Current Subscription Status */}
       {active && (
@@ -500,7 +500,7 @@ const EnhancedSubscriptionPlansPage = () => {
             </motion.div>
           ))}
         </div>
-      </Tabs>
+      </motion.div>
 
       {/* FAQ Section */}
       <motion.div

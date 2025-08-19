@@ -42,7 +42,7 @@ const HealthScoreCard: React.FC<{ userId: string }> = ({ userId }) => {
                 </div>
                 <ul className="list-disc pl-5 text-sm text-muted-foreground">
                   {Array.isArray(h.risk_factors) && h.risk_factors.length > 0 ? (
-                    h.risk_factors.map((r: string, i: number) => <li key={i} className="capitalize">{r.replaceAll("_", " ")}</li>)
+                    h.risk_factors.map((r: string, i: number) => <li key={i} className="capitalize">{r.replace(/_/g, " ")}</li>)
                   ) : (
                     <li>None</li>
                   )}
@@ -55,7 +55,7 @@ const HealthScoreCard: React.FC<{ userId: string }> = ({ userId }) => {
                 </div>
                 <ul className="list-disc pl-5 text-sm text-muted-foreground">
                   {Array.isArray(h.recommendations) && h.recommendations.length > 0 ? (
-                    h.recommendations.map((r: string, i: number) => <li key={i} className="capitalize">{r.replaceAll("_", " ")}</li>)
+                    h.recommendations.map((r: string, i: number) => <li key={i} className="capitalize">{r.replace(/_/g, " ")}</li>)
                   ) : (
                     <li>No recommendations</li>
                   )}

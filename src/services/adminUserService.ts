@@ -390,6 +390,7 @@ async function getSubscriptionSummary(): Promise<SubscriptionSummary> {
   return {
     freeUsers: freeUsers ?? 0,
     premiumUsers: premiumUsers ?? 0,
+    premiumUsers: premiumUsers ?? 0,
     activeSubscriptions: activeSubscriptions ?? 0,
     canceledLast7d: canceledLast7d ?? 0,
   };
@@ -648,6 +649,4 @@ export const adminUserService = {
   listUserSegments,
   createUserSegment,
   deleteUserSegment,
-  // Overwrite with enhanced filter support
-  findUsersBySegment,
 };

@@ -1,23 +1,44 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { CreditCard, Calendar, Settings, ArrowLeft, ExternalLink, Receipt } from 'lucide-react';
+import { 
+  CreditCard, 
+  Calendar, 
+  Settings, 
+  ArrowLeft, 
+  ExternalLink, 
+  Receipt, 
+  Download,
+  TrendingUp,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  Pause,
+  RefreshCw,
+  BarChart3
+} from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSubscription } from '@/hooks/useSubscription';
 import { formatPrice } from '@/utils/price';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { subscriptionService, BillingTransaction } from '@/services/subscriptionService';
+import BillingManagement from './BillingManagement';
+import UserSubscriptionAnalytics from './UserSubscriptionAnalytics';
+import UsageDashboard from './UsageDashboard';
 
 type SubscriptionManagementProps = {
   onBack: () => void;
 };
 
 const SubscriptionManagement = ({ onBack }: SubscriptionManagementProps) => {
-  const { active, cancel, openPortal, demoMode } = useSubscription();
+  const { active, cancel, openPortal, demoMode, plans } = useSubscription();
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState('overview');
 
   const { data: history = [], isLoading: historyLoading } = useQuery({
     queryKey: ["billing-history", user?.id],
@@ -77,6 +98,34 @@ const SubscriptionManagement = ({ onBack }: SubscriptionManagementProps) => {
     }
   };
 
+  const currentPlan = plans.find(p => p.name === active.plan_name);
+  const nextBillingDate = active.current_period_end ? 
+    new Date(active.current_period_end) : null;
+  const daysUntilBilling = nextBillingDate ? 
+    Math.ceil((nextBillingDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : null;
+
+  // Subscription health indicators
+  const healthIndicators = [
+    {
+      label: 'Payment Status',
+      status: active.status === 'active' ? 'healthy' : 'warning',
+      value: active.status === 'active' ? 'Up to date' : 'Needs attention',
+      icon: active.status === 'active' ? CheckCircle : AlertTriangle
+    },
+    {
+      label: 'Next Billing',
+      status: daysUntilBilling && daysUntilBilling > 7 ? 'healthy' : 'warning',
+      value: daysUntilBilling ? `${daysUntilBilling} days` : 'Unknown',
+      icon: Calendar
+    },
+    {
+      label: 'Usage Level',
+      status: 'healthy',
+      value: 'Moderate',
+      icon: BarChart3
+    }
+  ];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -89,7 +138,10 @@ const SubscriptionManagement = ({ onBack }: SubscriptionManagementProps) => {
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back
         </Button>
-        <h2 className="text-2xl font-bold text-gray-800">Subscription Management</h2>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800">Subscription Management</h2>
+          <p className="text-gray-600">Manage your subscription, billing, and usage</p>
+        </div>
       </div>
 
       {demoMode && (
@@ -108,83 +160,83 @@ const SubscriptionManagement = ({ onBack }: SubscriptionManagementProps) => {
         </Card>
       )}
 
-      {/* Current Subscription */}
-      <Card>
+      {/* Subscription Overview Card */}
+      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="flex items-center">
-                Current Plan: {active.plan_name}
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-blue-600" />
+                {active.plan_name}
                 <Badge className={`ml-2 text-white ${getStatusColor(active.status || 'active')}`}>
                   {getStatusText(active.status || 'active')}
                 </Badge>
               </CardTitle>
-              <CardDescription>
-                Your subscription details and billing information
+              <CardDescription className="mt-1">
+                Your premium subscription details and quick actions
               </CardDescription>
             </div>
-            <CreditCard className="w-8 h-8 text-gray-400" />
+            {currentPlan && (
+              <div className="text-right">
+                <p className="text-2xl font-bold text-blue-600">
+                  {formatPrice(currentPlan.price_cents)}
+                </p>
+                <p className="text-sm text-gray-600">per {currentPlan.billing_interval}</p>
+              </div>
+            )}
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Subscription Details */}
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="flex items-center">
-              <Calendar className="w-5 h-5 text-gray-400 mr-3" />
-              <div>
-                <p className="font-medium">Next Billing Date</p>
-                <p className="text-sm text-gray-600">
-                  {active.current_period_end ? 
-                    new Date(active.current_period_end).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    }) : 
-                    'N/A'
-                  }
-                </p>
-              </div>
-            </div>
-
-            {active.custom_price_cents && (
-              <div className="flex items-center">
-                <CreditCard className="w-5 h-5 text-gray-400 mr-3" />
-                <div>
-                  <p className="font-medium">Monthly Cost</p>
-                  <p className="text-sm text-gray-600">
-                    {formatPrice(active.custom_price_cents)}
-                  </p>
+          {/* Health Indicators */}
+          <div className="grid md:grid-cols-3 gap-4">
+            {healthIndicators.map((indicator, index) => {
+              const Icon = indicator.icon;
+              return (
+                <div 
+                  key={indicator.label}
+                  className="flex items-center gap-3 p-3 bg-white/60 rounded-lg"
+                >
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                    indicator.status === 'healthy' ? 'bg-green-100' : 'bg-yellow-100'
+                  }`}>
+                    <Icon className={`w-4 h-4 ${
+                      indicator.status === 'healthy' ? 'text-green-600' : 'text-yellow-600'
+                    }`} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">{indicator.label}</p>
+                    <p className="text-xs text-gray-600">{indicator.value}</p>
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })}
           </div>
 
-          {/* Actions */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
+          {/* Quick Actions */}
+          <div className="flex flex-wrap gap-3 pt-2 border-t border-blue-200">
             {!demoMode && (
-              <Button 
-                variant="outline" 
-                onClick={openPortal}
-                className="flex items-center"
-              >
+              <Button variant="outline" onClick={openPortal} className="bg-white/60">
                 <ExternalLink className="w-4 h-4 mr-2" />
-                Manage Billing
+                Billing Portal
               </Button>
             )}
-            
+            <Button variant="outline" className="bg-white/60">
+              <Pause className="w-4 h-4 mr-2" />
+              Pause Subscription
+            </Button>
+            <Button variant="outline" className="bg-white/60">
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Change Plan
+            </Button>
             {active.status === 'active' && (
-              <Button 
-                variant="destructive" 
-                onClick={cancel}
-                className="flex items-center"
-              >
+              <Button variant="destructive" onClick={cancel}>
                 Cancel Subscription
               </Button>
             )}
           </div>
 
           {demoMode && (
-            <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
+            <div className="text-sm text-gray-600 bg-white/60 p-3 rounded border-t border-blue-200">
               <p className="font-medium mb-1">Demo Mode Actions:</p>
               <p>• Cancel subscription will simulate cancellation</p>
               <p>• Billing management is not available in demo mode</p>
@@ -193,99 +245,177 @@ const SubscriptionManagement = ({ onBack }: SubscriptionManagementProps) => {
         </CardContent>
       </Card>
 
-      {/* Billing History */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Receipt className="w-5 h-5" />
-            Billing History
-          </CardTitle>
-          <CardDescription>Your past subscription charges and actions</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {historyLoading ? (
-            <div className="text-sm text-muted-foreground">Loading history...</div>
-          ) : history.length === 0 ? (
-            <div className="text-sm text-muted-foreground">No billing history yet.</div>
-          ) : (
-            <div className="space-y-2">
-              {(history as BillingTransaction[]).map((t) => (
-                <div key={t.id} className="flex items-center justify-between rounded border p-3">
-                  <div>
-                    <div className="font-medium">
-                      {t.transaction_type === "subscription" ? "Subscription" : t.transaction_type === "one_time" ? "One-time Payment" : "Refund"}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {t.processed_at ? new Date(t.processed_at).toLocaleString() : new Date(t.created_at).toLocaleString()}
-                    </div>
-                    {t.description && <div className="text-xs mt-1">{t.description}</div>}
-                  </div>
-                  <div className="text-right">
-                    <div className="font-semibold">{formatPrice(t.amount_cents)}</div>
-                    <Badge variant={t.status === "succeeded" ? "default" : t.status === "pending" ? "secondary" : "destructive"} className="mt-1">
-                      {t.status}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Tabbed Content */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="usage">Usage</TabsTrigger>
+          <TabsTrigger value="billing">Billing</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+        </TabsList>
 
-      {/* Subscription Benefits */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Your Benefits</CardTitle>
-          <CardDescription>
-            Features included with your {active.plan_name} subscription
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-2 gap-3">
-            {active.plan_name?.toLowerCase().includes('premium') && (
-              <>
-                <div className="flex items-center text-sm">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                  Advanced Statistics
+        <TabsContent value="overview" className="space-y-6 mt-6">
+          {/* Subscription Timeline */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="w-5 h-5" />
+                Subscription Timeline
+              </CardTitle>
+              <CardDescription>Key dates and milestones for your subscription</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium">Subscription Started</p>
+                      <p className="text-sm text-gray-600">Welcome to premium!</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    {new Date().toLocaleDateString()}
+                  </p>
                 </div>
-                <div className="flex items-center text-sm">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                  Smart Recommendations
+
+                {nextBillingDate && (
+                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <Clock className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium">Next Billing Date</p>
+                        <p className="text-sm text-gray-600">
+                          {formatPrice(currentPlan?.price_cents || 0)} will be charged
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-500">
+                      {nextBillingDate.toLocaleDateString()}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Recent Billing */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Receipt className="w-5 h-5" />
+                Recent Billing Activity
+              </CardTitle>
+              <CardDescription>Your latest transactions and payments</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {historyLoading ? (
+                <div className="space-y-3">
+                  {[1, 2].map((i) => (
+                    <div key={i} className="animate-pulse h-16 bg-gray-100 rounded" />
+                  ))}
                 </div>
-                <div className="flex items-center text-sm">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                  Social Challenges
+              ) : history.slice(0, 3).length === 0 ? (
+                <p className="text-sm text-gray-500">No recent transactions</p>
+              ) : (
+                <div className="space-y-3">
+                  {(history as BillingTransaction[]).slice(0, 3).map((t) => (
+                    <div key={t.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                          <Receipt className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{t.description || 'Subscription Payment'}</p>
+                          <p className="text-sm text-gray-600">
+                            {new Date(t.processed_at || t.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold">{formatPrice(t.amount_cents)}</p>
+                        <Badge variant={t.status === "succeeded" ? "default" : t.status === "pending" ? "secondary" : "destructive"}>
+                          {t.status}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex items-center text-sm">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                  Priority Support
-                </div>
-              </>
-            )}
-            {active.plan_name?.toLowerCase().includes('pro') && (
-              <>
-                <div className="flex items-center text-sm">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
-                  All Premium Features
-                </div>
-                <div className="flex items-center text-sm">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
-                  Custom Workouts
-                </div>
-                <div className="flex items-center text-sm">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
-                  Advanced Analytics
-                </div>
-                <div className="flex items-center text-sm">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
-                  Unlimited Everything
-                </div>
-              </>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Subscription Benefits */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Your Benefits</CardTitle>
+              <CardDescription>
+                Features included with your {active.plan_name} subscription
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-3">
+                {active.plan_name?.toLowerCase().includes('premium') && (
+                  <>
+                    <div className="flex items-center text-sm">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                      Advanced Statistics
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                      Smart Recommendations
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                      Social Challenges
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                      Priority Support
+                    </div>
+                  </>
+                )}
+                {active.plan_name?.toLowerCase().includes('pro') && (
+                  <>
+                    <div className="flex items-center text-sm">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+                      All Premium Features
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+                      Custom Workouts
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+                      Advanced Analytics
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+                      Unlimited Everything
+                    </div>
+                  </>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="usage" className="mt-6">
+          <UsageDashboard />
+        </TabsContent>
+
+        <TabsContent value="billing" className="mt-6">
+          <BillingManagement />
+        </TabsContent>
+
+        <TabsContent value="analytics" className="mt-6">
+          <UserSubscriptionAnalytics />
+        </TabsContent>
+      </Tabs>
     </motion.div>
   );
 };

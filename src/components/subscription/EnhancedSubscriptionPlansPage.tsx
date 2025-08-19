@@ -1,32 +1,79 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, Star, Crown, Zap, Users, TrendingUp, Heart } from 'lucide-react';
+import { 
+  Check, 
+  Star, 
+  Crown, 
+  Zap, 
+  Users, 
+  TrendingUp, 
+  Heart, 
+  Calculator,
+  Gift,
+  Clock,
+  ArrowDown,
+  ArrowRight,
+  Sparkles
+} from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
 import { useSubscription } from '@/hooks/useSubscription';
 import { formatPrice } from '@/utils/price';
 import type { SubscriptionPlan } from '@/services/subscriptionService';
 
 const EnhancedSubscriptionPlansPage = () => {
   const { plans, active, upgrade, loading, demoMode } = useSubscription();
+  const [billingCycle, setBillingCycle] = useState<'month' | 'year'>('month');
+  const [showComparison, setShowComparison] = useState(false);
+  const [selectedPlans, setSelectedPlans] = useState<string[]>([]);
+  const [usageSlider, setUsageSlider] = useState([20]); // Sessions per month
 
   const testimonials = [
     {
       name: "Sarah M.",
       text: "The smart recommendations helped me break my plateau!",
-      tier: "Premium"
+      tier: "Premium",
+      avatar: "🏃‍♀️",
+      rating: 5
     },
     {
       name: "Mike T.",
       text: "Custom workouts and pro analytics are game-changers.",
-      tier: "Pro"
+      tier: "Pro",
+      avatar: "🏋️‍♂️",
+      rating: 5
     },
     {
       name: "Lisa K.",
       text: "Social challenges keep me motivated every day!",
-      tier: "Premium"
+      tier: "Premium",
+      avatar: "💪",
+      rating: 5
+    }
+  ];
+
+  const faqItems = [
+    {
+      question: "Can I cancel anytime?",
+      answer: "Yes! You can cancel your subscription at any time. Your access will continue until the end of your billing period."
+    },
+    {
+      question: "What's the difference between Premium and Pro?",
+      answer: "Premium includes advanced analytics and social features. Pro adds unlimited custom workouts and priority support."
+    },
+    {
+      question: "Do you offer refunds?",
+      answer: "We offer a 30-day money-back guarantee if you're not satisfied with your subscription."
+    },
+    {
+      question: "Can I upgrade or downgrade my plan?",
+      answer: "Absolutely! You can change your plan at any time through your account settings."
     }
   ];
 
@@ -56,30 +103,30 @@ const EnhancedSubscriptionPlansPage = () => {
     const name = planName.toLowerCase();
     if (name.includes('pro')) {
       return [
-        { text: 'All Premium features', icon: Check },
-        { text: 'Custom workout builder', icon: Zap },
-        { text: 'Priority support', icon: Heart },
-        { text: 'Advanced analytics dashboard', icon: TrendingUp },
-        { text: 'Unlimited everything', icon: Crown },
-        { text: 'Export workout data', icon: Check },
-        { text: 'Personal coaching insights', icon: Star }
+        { text: 'All Premium features', icon: Check, highlight: false },
+        { text: 'Custom workout builder', icon: Zap, highlight: true },
+        { text: 'Priority support', icon: Heart, highlight: true },
+        { text: 'Advanced analytics dashboard', icon: TrendingUp, highlight: true },
+        { text: 'Unlimited everything', icon: Crown, highlight: false },
+        { text: 'Export workout data', icon: Check, highlight: false },
+        { text: 'Personal coaching insights', icon: Star, highlight: true }
       ];
     }
     if (name.includes('premium')) {
       return [
-        { text: 'Advanced statistics & insights', icon: TrendingUp },
-        { text: 'Smart workout recommendations', icon: Star },
-        { text: 'Social challenges & leaderboards', icon: Users },
-        { text: 'Export your progress data', icon: Check },
-        { text: 'No advertisements', icon: Check },
-        { text: 'Premium workout variations', icon: Zap }
+        { text: 'Advanced statistics & insights', icon: TrendingUp, highlight: true },
+        { text: 'Smart workout recommendations', icon: Star, highlight: true },
+        { text: 'Social challenges & leaderboards', icon: Users, highlight: true },
+        { text: 'Export your progress data', icon: Check, highlight: false },
+        { text: 'No advertisements', icon: Check, highlight: false },
+        { text: 'Premium workout variations', icon: Zap, highlight: false }
       ];
     }
     return [
-      { text: 'Basic workout tracking', icon: Check },
-      { text: 'Simple statistics', icon: TrendingUp },
-      { text: 'Community access', icon: Users },
-      { text: 'Limited features', icon: Check }
+      { text: 'Basic workout tracking', icon: Check, highlight: false },
+      { text: 'Simple statistics', icon: TrendingUp, highlight: false },
+      { text: 'Community access', icon: Users, highlight: false },
+      { text: 'Limited features', icon: Check, highlight: false }
     ];
   };
 
@@ -88,6 +135,27 @@ const EnhancedSubscriptionPlansPage = () => {
     const monthlyEquivalent = plan.price_cents === 3999 ? 499 : 999; // Assuming monthly prices
     const yearlySavings = (monthlyEquivalent * 12) - plan.price_cents;
     return Math.round((yearlySavings / (monthlyEquivalent * 12)) * 100);
+  };
+
+  // Calculate value based on usage
+  const calculateValuePerSession = (plan: SubscriptionPlan) => {
+    if (plan.price_cents === 0) return 0;
+    const monthlyPrice = plan.billing_interval === 'year' ? plan.price_cents / 12 : plan.price_cents;
+    return (monthlyPrice / 100) / usageSlider[0];
+  };
+
+  const filteredPlans = plans.filter(plan => 
+    billingCycle === 'month' ? 
+      plan.billing_interval === 'month' : 
+      plan.billing_interval === 'year'
+  );
+
+  const togglePlanComparison = (planId: string) => {
+    setSelectedPlans(prev => 
+      prev.includes(planId) 
+        ? prev.filter(id => id !== planId)
+        : prev.length < 3 ? [...prev, planId] : prev
+    );
   };
 
   if (loading) {
@@ -129,35 +197,59 @@ const EnhancedSubscriptionPlansPage = () => {
         )}
       </div>
 
-      {/* Social Proof */}
+      {/* Interactive Controls */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="text-center space-y-4"
+        className="bg-white p-6 rounded-lg border shadow-sm space-y-6"
       >
-        <div className="flex justify-center items-center space-x-2 text-sm text-gray-600">
-          <Users className="w-4 h-4" />
-          <span>Trusted by 10,000+ active users</span>
+        {/* Billing Toggle */}
+        <div className="flex items-center justify-center gap-4">
+          <Label htmlFor="billing-toggle" className={billingCycle === 'month' ? 'font-semibold' : 'text-gray-500'}>
+            Monthly
+          </Label>
+          <Switch
+            id="billing-toggle"
+            checked={billingCycle === 'year'}
+            onCheckedChange={(checked) => setBillingCycle(checked ? 'year' : 'month')}
+          />
+          <Label htmlFor="billing-toggle" className={billingCycle === 'year' ? 'font-semibold' : 'text-gray-500'}>
+            Yearly
+            <Badge className="ml-2 bg-green-500 text-white text-xs">Save 20%</Badge>
+          </Label>
         </div>
-        <div className="grid md:grid-cols-3 gap-4 max-w-4xl mx-auto">
-          {testimonials.map((testimonial, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 + index * 0.1 }}
-              className="bg-white p-4 rounded-lg shadow-sm border"
-            >
-              <p className="text-sm text-gray-700 italic">"{testimonial.text}"</p>
-              <div className="mt-2 flex items-center justify-between">
-                <span className="text-xs font-semibold text-gray-800">{testimonial.name}</span>
-                <Badge variant="outline" className="text-xs">{testimonial.tier}</Badge>
-              </div>
-            </motion.div>
-          ))}
+
+        {/* Usage Calculator */}
+        <div className="max-w-md mx-auto">
+          <Label className="block text-sm font-medium mb-2">
+            Expected monthly sessions: {usageSlider[0]}
+          </Label>
+          <Slider
+            value={usageSlider}
+            onValueChange={setUsageSlider}
+            max={50}
+            min={1}
+            step={1}
+            className="mb-2"
+          />
+          <p className="text-xs text-gray-500 text-center">
+            Adjust to see value per session
+          </p>
         </div>
-      </motion.div>
+
+        {/* Comparison Toggle */}
+        <div className="flex items-center justify-center gap-2">
+          <Switch
+            id="comparison-toggle"
+            checked={showComparison}
+            onCheckedChange={setShowComparison}
+          />
+          <Label htmlFor="comparison-toggle" className="text-sm">
+            Compare Plans Side-by-Side
+          </Label>
+        </div>
+      </div>
 
       {/* Current Subscription Status */}
       {active && (
@@ -170,7 +262,10 @@ const EnhancedSubscriptionPlansPage = () => {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-semibold text-green-800">Current Plan: {active.plan_name}</h3>
+                  <h3 className="font-semibold text-green-800 flex items-center gap-2">
+                    <Crown className="w-4 h-4" />
+                    Current Plan: {active.plan_name}
+                  </h3>
                   <p className="text-sm text-green-600">
                     {active.current_period_end ? 
                       `Renews on ${new Date(active.current_period_end).toLocaleDateString()}` :
@@ -185,96 +280,257 @@ const EnhancedSubscriptionPlansPage = () => {
         </motion.div>
       )}
 
-      {/* Plans Grid */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {plans.map((plan, index) => {
-          const PlanIcon = getPlanIcon(plan.name);
-          const isPopular = plan.is_popular;
-          const isCurrent = isCurrentPlan(plan);
-          const features = getEnhancedFeaturesList(plan.name);
-          const yearlySavings = calculateYearlySavings(plan);
+      {showComparison && selectedPlans.length > 0 ? (
+        /* Comparison Table */
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-lg border shadow-sm overflow-hidden"
+        >
+          <div className="p-4 bg-gray-50 border-b">
+            <h3 className="font-semibold text-gray-800">Plan Comparison</h3>
+            <p className="text-sm text-gray-600">Compare features side by side</p>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left p-4 font-medium">Features</th>
+                  {selectedPlans.map(planId => {
+                    const plan = plans.find(p => p.id === planId);
+                    return (
+                      <th key={planId} className="text-center p-4 font-medium">
+                        {plan?.name}
+                      </th>
+                    );
+                  })}
+                </tr>
+              </thead>
+              <tbody>
+                {/* Feature rows would go here */}
+                <tr className="border-b">
+                  <td className="p-4">Price per session</td>
+                  {selectedPlans.map(planId => {
+                    const plan = plans.find(p => p.id === planId);
+                    const valuePerSession = plan ? calculateValuePerSession(plan) : 0;
+                    return (
+                      <td key={planId} className="text-center p-4">
+                        ${valuePerSession.toFixed(2)}
+                      </td>
+                    );
+                  })}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
+      ) : (
+        /* Plans Grid */
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredPlans.map((plan, index) => {
+            const PlanIcon = getPlanIcon(plan.name);
+            const isPopular = plan.is_popular;
+            const isCurrent = isCurrentPlan(plan);
+            const features = getEnhancedFeaturesList(plan.name);
+            const yearlySavings = calculateYearlySavings(plan);
+            const valuePerSession = calculateValuePerSession(plan);
+            const isSelected = selectedPlans.includes(plan.id);
 
-          return (
-            <motion.div
-              key={plan.id}
-              initial={{ y: 30, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.2 + index * 0.1, duration: 0.5 }}
-              className="relative"
-            >
-              {isPopular && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
-                  <Badge className="bg-orange-500 text-white px-4 py-1">Most Popular</Badge>
-                </div>
-              )}
-              
-              <Card className={`h-full ${getPlanColor(plan.name)} ${isPopular ? 'ring-2 ring-orange-200 scale-105' : ''} ${isCurrent ? 'ring-2 ring-green-300' : ''} transition-all duration-300 hover:shadow-lg`}>
-                <CardHeader className="text-center pb-4">
-                  <div className="mx-auto w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center mb-2">
-                    <PlanIcon className="w-6 h-6 text-gray-600" />
+            return (
+              <motion.div
+                key={plan.id}
+                initial={{ y: 30, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 + index * 0.1, duration: 0.5 }}
+                className="relative"
+              >
+                {isPopular && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                    <Badge className="bg-orange-500 text-white px-4 py-1 animate-pulse">
+                      🔥 Most Popular
+                    </Badge>
                   </div>
-                  <CardTitle className="text-xl">{plan.name}</CardTitle>
-                  <CardDescription>{plan.description}</CardDescription>
-                  
-                  <div className="mt-4">
-                    <div className="text-3xl font-bold text-gray-800">
-                      {formatPrice(plan.price_cents)}
+                )}
+                
+                <Card className={`h-full ${getPlanColor(plan.name)} ${
+                  isPopular ? 'ring-2 ring-orange-200 scale-105' : ''
+                } ${isCurrent ? 'ring-2 ring-green-300' : ''} ${
+                  isSelected ? 'ring-2 ring-blue-300' : ''
+                } transition-all duration-300 hover:shadow-lg`}>
+                  <CardHeader className="text-center pb-4">
+                    <div className="mx-auto w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center mb-2">
+                      <PlanIcon className="w-6 h-6 text-gray-600" />
                     </div>
-                    <div className="text-sm text-gray-600">
-                      per {plan.billing_interval}
-                    </div>
-                    {yearlySavings && (
-                      <div className="text-xs text-green-600 mt-1 font-semibold">
-                        Save {yearlySavings}% vs monthly
+                    <CardTitle className="text-xl">{plan.name}</CardTitle>
+                    <CardDescription>{plan.description}</CardDescription>
+                    
+                    <div className="mt-4">
+                      <div className="text-3xl font-bold text-gray-800">
+                        {formatPrice(plan.price_cents)}
                       </div>
-                    )}
-                  </div>
-                </CardHeader>
+                      <div className="text-sm text-gray-600">
+                        per {plan.billing_interval}
+                      </div>
+                      {yearlySavings && (
+                        <div className="text-xs text-green-600 mt-1 font-semibold animate-pulse">
+                          💰 Save {yearlySavings}% vs monthly
+                        </div>
+                      )}
+                      {plan.price_cents > 0 && (
+                        <div className="text-xs text-blue-600 mt-1">
+                          ${valuePerSession.toFixed(2)} per session
+                        </div>
+                      )}
+                    </div>
 
-                <CardContent className="pt-0 flex flex-col h-full">
-                  {/* Features List */}
-                  <ul className="space-y-3 mb-6 flex-grow">
-                    {features.map((feature, idx) => (
-                      <li key={idx} className="flex items-center text-sm">
-                        <feature.icon className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" />
-                        <span>{feature.text}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* Action Button */}
-                  <div className="mt-auto">
-                    {isCurrent ? (
-                      <Button disabled className="w-full bg-green-600">
-                        <Check className="w-4 h-4 mr-2" />
-                        Current Plan
-                      </Button>
-                    ) : plan.price_cents === 0 ? (
-                      <Button variant="outline" disabled className="w-full">
-                        Free Plan
-                      </Button>
-                    ) : (
-                      <Button 
-                        onClick={() => upgrade(plan)}
-                        className={`w-full text-white transition-all duration-200 ${getPlanButtonColor(plan.name)} hover:scale-105`}
+                    {/* Trial Offer */}
+                    {plan.price_cents > 0 && !isCurrent && (
+                      <motion.div
+                        animate={{ scale: [1, 1.05, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="mt-2"
                       >
-                        {active ? 'Switch Plan' : 'Get Started'}
-                        {!active && <Star className="w-4 h-4 ml-2" />}
-                      </Button>
+                        <Badge className="bg-blue-100 text-blue-800 text-xs">
+                          <Gift className="w-3 h-3 mr-1" />
+                          7-day free trial
+                        </Badge>
+                      </motion.div>
                     )}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          );
-        })}
-      </div>
+                  </CardHeader>
 
-      {/* Additional Info */}
+                  <CardContent className="pt-0 flex flex-col h-full">
+                    {/* Features List */}
+                    <ul className="space-y-3 mb-6 flex-grow">
+                      {features.map((feature, idx) => (
+                        <motion.li 
+                          key={idx} 
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.1 * idx + 0.5 }}
+                          className="flex items-center text-sm"
+                        >
+                          <feature.icon className={`w-4 h-4 mr-3 flex-shrink-0 ${
+                            feature.highlight ? 'text-orange-500' : 'text-green-500'
+                          }`} />
+                          <span className={feature.highlight ? 'font-medium' : ''}>
+                            {feature.text}
+                            {feature.highlight && (
+                              <Sparkles className="w-3 h-3 inline ml-1 text-orange-500" />
+                            )}
+                          </span>
+                        </motion.li>
+                      ))}
+                    </ul>
+
+                    {/* Action Buttons */}
+                    <div className="mt-auto space-y-2">
+                      {showComparison && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => togglePlanComparison(plan.id)}
+                          className={`w-full ${isSelected ? 'bg-blue-50 border-blue-300' : ''}`}
+                        >
+                          {isSelected ? 'Remove from comparison' : 'Compare'}
+                        </Button>
+                      )}
+                      
+                      {isCurrent ? (
+                        <Button disabled className="w-full bg-green-600">
+                          <Check className="w-4 h-4 mr-2" />
+                          Current Plan
+                        </Button>
+                      ) : plan.price_cents === 0 ? (
+                        <Button variant="outline" disabled className="w-full">
+                          Free Plan
+                        </Button>
+                      ) : (
+                        <Button 
+                          onClick={() => upgrade(plan)}
+                          className={`w-full text-white transition-all duration-200 ${getPlanButtonColor(plan.name)} hover:scale-105`}
+                        >
+                          {active ? 'Switch Plan' : 'Start Free Trial'}
+                          {!active && <ArrowRight className="w-4 h-4 ml-2" />}
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Social Proof & Testimonials */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+        className="text-center space-y-6"
+      >
+        <div className="flex justify-center items-center space-x-2 text-sm text-gray-600">
+          <Users className="w-4 h-4" />
+          <span>Trusted by 10,000+ active users</span>
+        </div>
+        
+        {/* Testimonials Carousel */}
+        <div className="grid md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+          {testimonials.map((testimonial, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 + index * 0.1 }}
+              className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-center mb-3">
+                <span className="text-2xl mr-3">{testimonial.avatar}</span>
+                <div className="text-left">
+                  <p className="font-semibold text-gray-800">{testimonial.name}</p>
+                  <div className="flex items-center gap-1">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <p className="text-sm text-gray-700 italic mb-2">"{testimonial.text}"</p>
+              <Badge variant="outline" className="text-xs">{testimonial.tier}</Badge>
+            </motion.div>
+          ))}
+        </div>
+      </Tabs>
+
+      {/* FAQ Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8 }}
+        className="max-w-3xl mx-auto"
+      >
+        <h3 className="text-2xl font-bold text-center text-gray-800 mb-6">
+          Frequently Asked Questions
+        </h3>
+        <div className="space-y-4">
+          {faqItems.map((item, index) => (
+            <Card key={index} className="hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">{item.question}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-600">{item.answer}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Why Choose Premium */}
       <motion.div
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.6, duration: 0.5 }}
+        transition={{ delay: 0.9, duration: 0.5 }}
         className="text-center space-y-4"
       >
         <div className="bg-white p-6 rounded-lg shadow-sm border max-w-4xl mx-auto">

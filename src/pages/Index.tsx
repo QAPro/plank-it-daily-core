@@ -9,7 +9,7 @@ import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
 import { StreakProvider } from "@/components/StreakProvider";
 import { LevelProgressionProvider } from "@/components/level/LevelProgressionProvider";
 import { motion, AnimatePresence } from "framer-motion";
-import DevTools from '@/components/DevTools';
+// import DevTools from '@/components/DevTools';
 
 const Index = () => {
   const [showWelcome, setShowWelcome] = useState(true);
@@ -100,7 +100,7 @@ const Index = () => {
             )}
           </AnimatePresence>
         </div>
-        <DevTools />
+        {/* <DevTools /> */}
       </StreakProvider>
     </LevelProgressionProvider>
   );

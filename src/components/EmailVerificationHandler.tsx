@@ -16,6 +16,7 @@ const EmailVerificationHandler = () => {
   const [verificationStatus, setVerificationStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState('');
   const [isResending, setIsResending] = useState(false);
+  const [verificationType, setVerificationType] = useState<string>('signup');
 
   useEffect(() => {
     const handleEmailVerification = async () => {
@@ -25,7 +26,7 @@ const EmailVerificationHandler = () => {
 
       // Extract verification parameters from different possible formats
       let verificationToken = '';
-      let verificationType = 'signup';
+      let detectedType = 'signup';
 
       // Try different parameter names that Supabase might use
       const possibleTokenParams = [
@@ -54,8 +55,8 @@ const EmailVerificationHandler = () => {
       for (const param of possibleTypeParams) {
         const value = searchParams.get(param);
         if (value) {
-          verificationType = value;
-          console.log(`Found type in search param '${param}':`, verificationType);
+          detectedType = value;
+          console.log(`Found type in search param '${param}':`, detectedType);
           break;
         }
       }
@@ -81,13 +82,15 @@ const EmailVerificationHandler = () => {
           for (const param of possibleTypeParams) {
             const value = hashParams.get(param);
             if (value) {
-              verificationType = value;
-              console.log(`Found type in hash param '${param}':`, verificationType);
+              detectedType = value;
+              console.log(`Found type in hash param '${param}':`, detectedType);
               break;
             }
           }
         }
       }
+
+      setVerificationType(detectedType);
 
       if (!verificationToken) {
         console.error('No verification token found in URL');
@@ -98,14 +101,16 @@ const EmailVerificationHandler = () => {
 
       try {
         console.log('Attempting email verification with token:', verificationToken.substring(0, 10) + '...');
-        console.log('Verification type:', verificationType);
+        console.log('Verification type:', detectedType);
 
-        // Clean up any existing auth state before verification
-        cleanupAuthState();
+        // Clean up any existing auth state before verification if it's signup
+        if (detectedType === 'signup') {
+          cleanupAuthState();
+        }
 
         const { data, error } = await supabase.auth.verifyOtp({
           token_hash: verificationToken,
-          type: verificationType as any
+          type: detectedType as any
         });
 
         console.log('Verification result:', { 
@@ -134,13 +139,39 @@ const EmailVerificationHandler = () => {
           console.log('Email verification successful for user:', data.user.email);
           setVerificationStatus('success');
           
-          // Clean up the pending verification email
-          localStorage.removeItem('pendingVerificationEmail');
-          
-          toast({
-            title: "Email verified successfully!",
-            description: "You can now access your account.",
-          });
+          if (detectedType === 'email_change') {
+            // Handle email change verification
+            console.log('Processing email change verification');
+            
+            // Update the users table with the new email
+            const { error: updateError } = await supabase
+              .from('users')
+              .update({ 
+                email: data.user.email,
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', data.user.id);
+
+            if (updateError) {
+              console.error('Error updating user email in database:', updateError);
+            }
+            
+            // Clear pending email change
+            localStorage.removeItem('pendingEmailChange');
+            
+            toast({
+              title: "Email changed successfully!",
+              description: "Your email address has been updated.",
+            });
+          } else {
+            // Handle signup verification
+            localStorage.removeItem('pendingVerificationEmail');
+            
+            toast({
+              title: "Email verified successfully!",
+              description: "You can now access your account.",
+            });
+          }
 
           // Redirect to dashboard after a brief delay
           setTimeout(() => {
@@ -163,58 +194,124 @@ const EmailVerificationHandler = () => {
   }, [searchParams, navigate, toast]);
 
   const handleResendVerification = async () => {
-    const email = localStorage.getItem('pendingVerificationEmail');
-    
-    if (!email) {
-      toast({
-        title: "Error",
-        description: "Cannot resend verification. Please try signing up again.",
-        variant: "destructive",
-      });
-      navigate('/auth');
-      return;
-    }
+    if (verificationType === 'email_change') {
+      const pendingEmail = localStorage.getItem('pendingEmailChange');
+      
+      if (!pendingEmail) {
+        toast({
+          title: "Error",
+          description: "No pending email change found. Please start a new email change request.",
+          variant: "destructive",
+        });
+        navigate('/');
+        return;
+      }
 
-    setIsResending(true);
-    console.log('Resending verification email to:', email);
+      setIsResending(true);
+      console.log('Resending email change verification to:', pendingEmail);
 
-    try {
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/verify`
+      try {
+        const { error } = await supabase.auth.resend({
+          type: 'email_change',
+          email: pendingEmail,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/verify`
+          }
+        });
+
+        if (error) {
+          console.error('Resend email change error:', error);
+          toast({
+            title: "Error",
+            description: `Failed to resend verification: ${error.message}`,
+            variant: "destructive",
+          });
+        } else {
+          console.log('Email change verification resent successfully');
+          toast({
+            title: "Verification email sent!",
+            description: "Please check your email for a new verification link.",
+          });
         }
-      });
-
-      if (error) {
-        console.error('Resend verification error:', error);
+      } catch (error: any) {
+        console.error('Unexpected resend error:', error);
         toast({
           title: "Error",
           description: `Failed to resend verification: ${error.message}`,
           variant: "destructive",
         });
-      } else {
-        console.log('Verification email resent successfully');
-        toast({
-          title: "Verification email sent!",
-          description: "Please check your email for a new verification link.",
-        });
+      } finally {
+        setIsResending(false);
       }
-    } catch (error: any) {
-      console.error('Unexpected resend error:', error);
-      toast({
-        title: "Error",
-        description: `Failed to resend verification: ${error.message}`,
-        variant: "destructive",
-      });
-    } finally {
-      setIsResending(false);
+    } else {
+      // Handle signup verification resend
+      const email = localStorage.getItem('pendingVerificationEmail');
+      
+      if (!email) {
+        toast({
+          title: "Error",
+          description: "Cannot resend verification. Please try signing up again.",
+          variant: "destructive",
+        });
+        navigate('/auth');
+        return;
+      }
+
+      setIsResending(true);
+      console.log('Resending signup verification email to:', email);
+
+      try {
+        const { error } = await supabase.auth.resend({
+          type: 'signup',
+          email,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/verify`
+          }
+        });
+
+        if (error) {
+          console.error('Resend verification error:', error);
+          toast({
+            title: "Error",
+            description: `Failed to resend verification: ${error.message}`,
+            variant: "destructive",
+          });
+        } else {
+          console.log('Verification email resent successfully');
+          toast({
+            title: "Verification email sent!",
+            description: "Please check your email for a new verification link.",
+          });
+        }
+      } catch (error: any) {
+        console.error('Unexpected resend error:', error);
+        toast({
+          title: "Error",
+          description: `Failed to resend verification: ${error.message}`,
+          variant: "destructive",
+        });
+      } finally {
+        setIsResending(false);
+      }
     }
   };
 
   const handleGoToLogin = () => {
     navigate('/auth');
+  };
+
+  const getTitle = () => {
+    if (verificationType === 'email_change') {
+      return 'Email Change Verification';
+    }
+    return 'Email Verification';
+  };
+
+  const getSuccessMessage = () => {
+    if (verificationType === 'email_change') {
+      return 'Your email address has been changed successfully. You will be redirected to your dashboard shortly.';
+    }
+    return 'Your email has been verified successfully. You will be redirected to your dashboard shortly.';
   };
 
   return (
@@ -227,14 +324,19 @@ const EmailVerificationHandler = () => {
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold text-orange-600">
-              Email Verification
+              {getTitle()}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {verificationStatus === 'loading' && (
               <div className="text-center space-y-4">
                 <Loader2 className="h-12 w-12 mx-auto text-orange-500 animate-spin" />
-                <p className="text-gray-600">Verifying your email address...</p>
+                <p className="text-gray-600">
+                  {verificationType === 'email_change' 
+                    ? 'Verifying your new email address...' 
+                    : 'Verifying your email address...'
+                  }
+                </p>
               </div>
             )}
 
@@ -244,7 +346,7 @@ const EmailVerificationHandler = () => {
                 <div>
                   <h3 className="text-lg font-semibold text-green-700">Verification Successful!</h3>
                   <p className="text-gray-600 mt-2">
-                    Your email has been verified successfully. You will be redirected to your dashboard shortly.
+                    {getSuccessMessage()}
                   </p>
                 </div>
               </div>

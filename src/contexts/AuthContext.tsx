@@ -74,6 +74,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setTimeout(() => {
             refreshSubscriptionStatus(session.user);
           }, 100);
+        } else if (event === 'USER_UPDATED' && session?.user) {
+          console.log('User updated:', session.user.email);
+          
+          // Check if this is an email change completion
+          const pendingEmailChange = localStorage.getItem('pendingEmailChange');
+          if (pendingEmailChange && session.user.email === pendingEmailChange) {
+            console.log('Email change completed, clearing pending change');
+            localStorage.removeItem('pendingEmailChange');
+            
+            // Update the users table with the new email
+            setTimeout(() => {
+              supabase
+                .from('users')
+                .update({ 
+                  email: session.user.email,
+                  updated_at: new Date().toISOString()
+                })
+                .eq('id', session.user.id)
+                .then(({ error }) => {
+                  if (error) {
+                    console.error('Error updating user email in database:', error);
+                  } else {
+                    console.log('User email updated in database');
+                  }
+                });
+            }, 100);
+          }
         }
       }
     );

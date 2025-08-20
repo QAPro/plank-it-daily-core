@@ -11,6 +11,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import AvatarSelector from "./AvatarSelector";
 import UsernameInput from "./UsernameInput";
+import EmailChangeDialog from "./EmailChangeDialog";
+import PendingEmailChangeBanner from "./PendingEmailChangeBanner";
 import { validateUsernameFormat } from "@/utils/usernameValidation";
 
 const ProfileHeader = () => {
@@ -19,6 +21,8 @@ const ProfileHeader = () => {
   const [userProfile, setUserProfile] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [emailChangeDialogOpen, setEmailChangeDialogOpen] = useState(false);
+  const [pendingEmailChange, setPendingEmailChange] = useState<string | null>(null);
   const [editData, setEditData] = useState({
     full_name: '',
     username: '',
@@ -30,6 +34,12 @@ const ProfileHeader = () => {
       fetchUserProfile();
     }
   }, [user]);
+
+  useEffect(() => {
+    // Check for pending email change
+    const pendingEmail = localStorage.getItem('pendingEmailChange');
+    setPendingEmailChange(pendingEmail);
+  }, []);
 
   const fetchUserProfile = async () => {
     if (!user) return;
@@ -159,12 +169,24 @@ const ProfileHeader = () => {
     return name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
+  const handleClearPendingEmailChange = () => {
+    setPendingEmailChange(null);
+  };
+
   return (
     <motion.div
       initial={{ scale: 0.9, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ delay: 0.1, duration: 0.5 }}
+      className="space-y-4"
     >
+      {pendingEmailChange && (
+        <PendingEmailChangeBanner
+          pendingEmail={pendingEmailChange}
+          onClear={handleClearPendingEmailChange}
+        />
+      )}
+      
       <Card className="bg-gradient-to-br from-orange-500 to-amber-500 text-white border-0">
         <CardContent className="p-6">
           <div className="flex items-center space-x-4">
@@ -211,6 +233,14 @@ const ProfileHeader = () => {
                   <div className="flex items-center space-x-1">
                     <Mail className="w-3 h-3" />
                     <span>{user?.email}</span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setEmailChangeDialogOpen(true)}
+                      className="h-6 px-2 ml-1 text-orange-100 hover:bg-white/20 hover:text-white"
+                    >
+                      Change
+                    </Button>
                   </div>
                   <div className="flex items-center space-x-1">
                     <Calendar className="w-3 h-3" />
@@ -259,6 +289,12 @@ const ProfileHeader = () => {
           </div>
         </CardContent>
       </Card>
+
+      <EmailChangeDialog
+        open={emailChangeDialogOpen}
+        onOpenChange={setEmailChangeDialogOpen}
+        currentEmail={user?.email || ''}
+      />
     </motion.div>
   );
 };

@@ -357,7 +357,8 @@ async function getUserNotes(userId: string): Promise<AdminUserNote[]> {
     throw error;
   }
 
-  return (data as AdminUserNote[]) || [];
+  // Cast via unknown to avoid Supabase type inference error unions
+  return (data as unknown as AdminUserNote[]) || [];
 }
 
 async function createUserNote(
@@ -387,7 +388,7 @@ async function createUserNote(
     throw error;
   }
 
-  return data as AdminUserNote;
+  return data as unknown as AdminUserNote;
 }
 
 async function addUserNote(args: {
@@ -420,7 +421,7 @@ async function updateUserNote(noteId: string, updates: Partial<AdminUserNote>): 
     throw error;
   }
 
-  return data as AdminUserNote;
+  return data as unknown as AdminUserNote;
 }
 
 async function deleteUserNote(noteId: string): Promise<boolean> {
@@ -683,8 +684,9 @@ async function createUserSegment(arg1: string | { name: string; filter: any }, a
     throw error;
   }
 
-  // Normalize on return
-  return { ...data, filter: (data as any)?.filter ?? (data as any)?.criteria ?? {} };
+  // Ensure we only spread an object
+  const base = (data ?? {}) as any;
+  return { ...base, filter: base.filter ?? base.criteria ?? {} };
 }
 
 async function deleteUserSegment(segmentId: string): Promise<boolean> {

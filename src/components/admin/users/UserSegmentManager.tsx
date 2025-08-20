@@ -1,252 +1,140 @@
-
-import React, { useMemo, useState } from "react";
-import { adminUserService, AdminUserSummary } from "@/services/adminUserService";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { adminUserService } from "@/services/adminUserService";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-
-type TierFilter = "any" | "free" | "premium";
-type EngagementStatus = "any" | "active" | "dormant" | "inactive";
+import { Trash2, Plus } from "lucide-react";
 
 const UserSegmentManager: React.FC = () => {
+  const [newSegmentName, setNewSegmentName] = useState("");
+  const [newSegmentTier, setNewSegmentTier] = useState<"free" | "premium">("free");
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [tier, setTier] = useState<TierFilter>("any");
-  const [createdAfter, setCreatedAfter] = useState<string>("");
-  const [engagement, setEngagement] = useState<EngagementStatus>("any");
-
-  const criteria = useMemo(() => {
-    return {
-      tier: tier === "any" ? undefined : tier,
-      createdAfter: createdAfter ? new Date(createdAfter).toISOString() : undefined,
-      engagementStatus: engagement === "any" ? undefined : engagement,
-    };
-  }, [tier, createdAfter, engagement]);
-
-  const { data: users = [], isLoading, refetch } = useQuery({
-    queryKey: ["admin", "segment-evaluate", criteria],
-    queryFn: () =>
-      adminUserService.findUsersBySegment({
-        tier: criteria.tier,
-        createdAfter: criteria.createdAfter,
-        engagementStatus: criteria.engagementStatus as any,
-      }),
-    staleTime: 10_000,
-  });
-
-  const { data: savedSegments = [], refetch: refetchSegments } = useQuery({
-    queryKey: ["admin", "saved-segments"],
+  const { data: segments = [], isLoading } = useQuery({
+    queryKey: ["admin", "user-segments"],
     queryFn: () => adminUserService.listUserSegments(),
-    staleTime: 10_000,
   });
 
-  const createMutation = useMutation({
-    mutationFn: () =>
-      adminUserService.createUserSegment({
-        name,
-        description,
-        criteria,
-      }),
+  const createSegmentMutation = useMutation({
+    mutationFn: (args: { name: string; filter: any }) => 
+      adminUserService.createUserSegment(args.name, args.filter),
     onSuccess: () => {
-      toast({ title: "Segment saved", description: "Your segment has been saved." });
-      setName("");
-      setDescription("");
-      refetchSegments();
+      queryClient.invalidateQueries({ queryKey: ["admin", "user-segments"] });
+      toast({ title: "Segment created", description: "User segment has been created successfully." });
+      setNewSegmentName("");
+      setNewSegmentTier("free");
     },
-    meta: {
-      onError: (err: unknown) => {
-        console.error("[UserSegmentManager] create segment error", err);
-        toast({ title: "Save failed", description: "Could not save segment.", variant: "destructive" });
-      },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to create segment",
+        description: error.message || "Could not create user segment.",
+        variant: "destructive",
+      });
     },
   });
 
-  const deleteMutation = useMutation({
+  const deleteSegmentMutation = useMutation({
     mutationFn: (segmentId: string) => adminUserService.deleteUserSegment(segmentId),
     onSuccess: () => {
-      toast({ title: "Segment deleted", description: "The segment has been removed." });
-      refetchSegments();
+      queryClient.invalidateQueries({ queryKey: ["admin", "user-segments"] });
+      toast({ title: "Segment deleted", description: "User segment has been deleted successfully." });
     },
-    meta: {
-      onError: (err: unknown) => {
-        console.error("[UserSegmentManager] delete segment error", err);
-        toast({ title: "Delete failed", description: "Could not delete segment.", variant: "destructive" });
-      },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to delete segment",
+        description: error.message || "Could not delete user segment.",
+        variant: "destructive",
+      });
     },
   });
 
-  const handleExport = () => {
-    const rows = users as AdminUserSummary[];
-    const header = ["id", "email", "username", "full_name"];
-    const csv = [
-      header.join(","),
-      ...rows.map(r => [r.id, r.email ?? "", r.username ?? "", r.full_name ?? ""].map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")),
-    ].join("\n");
+  const handleCreateSegment = () => {
+    if (!newSegmentName.trim()) {
+      toast({
+        title: "Invalid input",
+        description: "Please enter a segment name.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `segment-export-${new Date().toISOString()}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const filter = { subscription_tier: newSegmentTier };
+    createSegmentMutation.mutate({ name: newSegmentName, filter });
   };
-
-  const preview = (users as AdminUserSummary[]).slice(0, 10);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>User Segment Manager</CardTitle>
-        <CardDescription>Create, evaluate, save and export user segments</CardDescription>
+        <CardTitle>User Segments</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Builder */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+      <CardContent className="space-y-4">
+        {/* Create new segment */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded">
           <div>
-            <Label className="text-sm">Tier</Label>
-            <Select value={tier} onValueChange={(v: TierFilter) => setTier(v)}>
-              <SelectTrigger className="mt-1">
-                <SelectValue placeholder="Select tier" />
+            <Label htmlFor="segment-name">Segment Name</Label>
+            <Input
+              id="segment-name"
+              value={newSegmentName}
+              onChange={(e) => setNewSegmentName(e.target.value)}
+              placeholder="e.g., Premium Users"
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="segment-tier">Subscription Tier</Label>
+            <Select value={newSegmentTier} onValueChange={(value: "free" | "premium") => setNewSegmentTier(value)}>
+              <SelectTrigger>
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="any">Any</SelectItem>
                 <SelectItem value="free">Free</SelectItem>
                 <SelectItem value="premium">Premium</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          <div>
-            <Label className="text-sm">Engagement</Label>
-            <Select value={engagement} onValueChange={(v: EngagementStatus) => setEngagement(v)}>
-              <SelectTrigger className="mt-1">
-                <SelectValue placeholder="Select engagement" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">Any</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="dormant">Dormant</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label className="text-sm">Created After</Label>
-            <Input type="date" value={createdAfter} onChange={(e) => setCreatedAfter(e.target.value)} className="mt-1" />
-          </div>
-          <div className="flex items-end gap-2">
-            <Button variant="outline" onClick={() => refetch()} disabled={isLoading}>
-              Evaluate
-            </Button>
-            <Button variant="secondary" onClick={handleExport} disabled={isLoading || (users as AdminUserSummary[]).length === 0}>
-              Export CSV
+          
+          <div className="flex items-end">
+            <Button 
+              onClick={handleCreateSegment}
+              disabled={createSegmentMutation.isPending}
+              className="w-full"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Create Segment
             </Button>
           </div>
         </div>
 
-        {/* Summary */}
-        <div className="text-sm text-muted-foreground">
-          {isLoading ? "Evaluating..." : `Matched users: ${(users as AdminUserSummary[]).length}${(users as AdminUserSummary[]).length > 0 ? " (showing 10 below)" : ""}`}
-        </div>
-
-        {/* Preview */}
-        {(users as AdminUserSummary[]).length > 0 && (
-          <div className="rounded border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>User</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Username</TableHead>
-                  <TableHead className="text-right">ID</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {preview.map((u) => (
-                  <TableRow key={u.id}>
-                    <TableCell className="font-medium">{u.full_name || "—"}</TableCell>
-                    <TableCell>{u.email || "—"}</TableCell>
-                    <TableCell>{u.username || "—"}</TableCell>
-                    <TableCell className="text-right text-xs text-muted-foreground">{u.id}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
-
-        {/* Save Segment */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div>
-            <Label className="text-sm">Segment Name</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., Active Premiums" className="mt-1" />
-          </div>
-          <div className="md:col-span-2">
-            <Label className="text-sm">Description</Label>
-            <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What is this segment for?" className="mt-1" />
-          </div>
-          <div className="md:col-span-3">
-            <Button onClick={() => createMutation.mutate()} disabled={!name.trim() || createMutation.isPending}>
-              Save Segment
-            </Button>
-          </div>
-        </div>
-
-        {/* Saved Segments */}
-        <div>
-          <div className="text-sm font-medium mb-2">Saved Segments</div>
-          {(savedSegments as any[]).length === 0 ? (
-            <div className="text-sm text-muted-foreground">No saved segments yet.</div>
+        {/* Existing segments */}
+        <div className="space-y-2">
+          {isLoading ? (
+            <div className="text-muted-foreground">Loading segments...</div>
+          ) : segments.length === 0 ? (
+            <div className="text-muted-foreground">No segments created yet.</div>
           ) : (
-            <div className="rounded border overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {(savedSegments as any[]).map((s: any) => (
-                    <TableRow key={s.id}>
-                      <TableCell className="font-medium">{s.name}</TableCell>
-                      <TableCell className="max-w-[400px] truncate">{s.description || "—"}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setTier((s.criteria?.tier as TierFilter) ?? "any");
-                              setEngagement((s.criteria?.engagementStatus as EngagementStatus) ?? "any");
-                              setCreatedAfter(s.criteria?.createdAfter ? new Date(s.criteria.createdAfter).toISOString().slice(0,10) : "");
-                              refetch();
-                            }}
-                          >
-                            Evaluate
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => deleteMutation.mutate(s.id)}
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+            segments.map((segment: any) => (
+              <div key={segment.id} className="flex items-center justify-between p-3 border rounded">
+                <div>
+                  <div className="font-medium">{segment.name}</div>
+                  <div className="text-sm text-muted-foreground">
+                    Filter: {JSON.stringify(segment.filter)}
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => deleteSegmentMutation.mutate(segment.id)}
+                  disabled={deleteSegmentMutation.isPending}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            ))
           )}
         </div>
       </CardContent>

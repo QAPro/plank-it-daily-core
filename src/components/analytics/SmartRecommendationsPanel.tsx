@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +6,7 @@ import { Brain, Clock, Trophy, TrendingUp, Activity, Target } from 'lucide-react
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { SmartRecommendationsService } from '@/services/smartRecommendationsService';
+import AIFeatureGuard from '@/components/access/AIFeatureGuard';
 
 const SmartRecommendationsPanel = () => {
   const { user } = useAuth();
@@ -220,4 +220,13 @@ const SmartRecommendationsPanel = () => {
   );
 };
 
-export default SmartRecommendationsPanel;
+// Wrap the component with AIFeatureGuard
+const GuardedSmartRecommendationsPanel: React.FC = () => {
+  return (
+    <AIFeatureGuard>
+      <SmartRecommendationsPanel />
+    </AIFeatureGuard>
+  );
+};
+
+export default GuardedSmartRecommendationsPanel;

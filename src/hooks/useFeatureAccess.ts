@@ -8,6 +8,8 @@ import {
   FeatureName,
   SubscriptionTier,
   isTierAtLeast,
+  isAIEnabled,
+  AI_FEATURES,
 } from '@/constants/featureGating';
 
 type UseFeatureAccessResult = {
@@ -53,6 +55,11 @@ export const useFeatureAccess = (): UseFeatureAccessResult => {
   }, [data]);
 
   const hasAccess = (feature: FeatureName) => {
+    // Check if AI is disabled and this is an AI feature
+    if (!isAIEnabled() && AI_FEATURES.includes(feature)) {
+      return false;
+    }
+    
     const required = FEATURE_REQUIREMENTS[feature];
     return isTierAtLeast(tier, required);
   };

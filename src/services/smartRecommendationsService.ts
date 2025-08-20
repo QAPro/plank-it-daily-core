@@ -1,5 +1,5 @@
-
 import { supabase } from '@/integrations/supabase/client';
+import { isAIEnabled } from '@/constants/featureGating';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Exercise = Tables<'plank_exercises'>;
@@ -34,6 +34,12 @@ export class SmartRecommendationsService {
   }
 
   async generateSmartRecommendations(): Promise<SmartRecommendation[]> {
+    // Return empty array if AI features are disabled
+    if (!isAIEnabled()) {
+      console.log("[SmartRecommendationsService] AI features disabled, returning empty array");
+      return [];
+    }
+
     const context = await this.gatherUserContext();
     const recommendations: SmartRecommendation[] = [];
 

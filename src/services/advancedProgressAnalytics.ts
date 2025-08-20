@@ -1,5 +1,5 @@
-
 import { supabase } from "@/integrations/supabase/client";
+import { isAIEnabled } from "@/constants/featureGating";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Session = Tables<'user_sessions'>;
@@ -32,7 +32,13 @@ interface WeeklyLoad {
 }
 
 export class AdvancedProgressAnalytics {
-  async generateMLInsights(userId: string): Promise<MLInsights> {
+  async generateMLInsights(userId: string): Promise<MLInsights | null> {
+    // Return null if AI features are disabled
+    if (!isAIEnabled()) {
+      console.log("[AdvancedProgressAnalytics] AI features disabled, returning null");
+      return null;
+    }
+
     console.log("[AdvancedProgressAnalytics] Generating insights for", userId);
     const history = await this.getUserHistory(userId);
     const weekly = this.groupByWeek(history);

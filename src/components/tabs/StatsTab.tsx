@@ -4,6 +4,7 @@ import StatsDashboard from "@/components/StatsDashboard";
 import SessionHistory from "@/components/SessionHistory";
 import AdvancedAnalyticsDashboard from "@/components/analytics/AdvancedAnalyticsDashboard";
 import FeatureGuard from "@/components/access/FeatureGuard";
+import AIFeatureGuard from "@/components/access/AIFeatureGuard";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Crown, TrendingUp } from "lucide-react";
@@ -60,28 +61,30 @@ const StatsTab = () => {
       {/* Basic Statistics Dashboard */}
       <StatsDashboard />
 
-      {/* Advanced Analytics - Premium Feature */}
-      <FeatureGuard 
-        feature="advanced_stats"
-        fallback={
+      {/* Advanced Analytics - Premium Feature (Only show if AI is enabled) */}
+      <AIFeatureGuard>
+        <FeatureGuard 
+          feature="advanced_stats"
+          fallback={
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+            >
+              <PremiumUpgradePrompt />
+            </motion.div>
+          }
+        >
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
+            className="border-t pt-6"
           >
-            <PremiumUpgradePrompt />
+            <AdvancedAnalyticsDashboard />
           </motion.div>
-        }
-      >
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-          className="border-t pt-6"
-        >
-          <AdvancedAnalyticsDashboard />
-        </motion.div>
-      </FeatureGuard>
+        </FeatureGuard>
+      </AIFeatureGuard>
 
       {/* Session History */}
       <SessionHistory />

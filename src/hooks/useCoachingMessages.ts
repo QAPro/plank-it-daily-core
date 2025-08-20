@@ -1,6 +1,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { isAIEnabled } from '@/constants/featureGating';
 
 type MessageType = 'encouragement' | 'form_reminder' | 'breathing' | 'milestone';
 
@@ -20,6 +21,14 @@ export const useCoachingMessages = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       setLoading(true);
+      
+      // If AI is disabled, return empty messages
+      if (!isAIEnabled()) {
+        setMessages([]);
+        setLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from('coaching_messages')
         .select('*')
@@ -50,6 +59,8 @@ export const useCoachingMessages = () => {
   }, [messages]);
 
   const randomOfType = (type: MessageType) => {
+    if (!isAIEnabled()) return null;
+    
     const list = byType[type] || [];
     if (list.length === 0) return null;
     return list[Math.floor(Math.random() * list.length)]?.content ?? null;

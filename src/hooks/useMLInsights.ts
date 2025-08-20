@@ -1,6 +1,8 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { isAIEnabled } from "@/constants/featureGating";
 import type { Tables } from "@/integrations/supabase/types";
 import { AdvancedProgressAnalytics, MLInsights } from "@/services/advancedProgressAnalytics";
 
@@ -11,10 +13,10 @@ export const useMLInsights = () => {
 
   return useQuery({
     queryKey: ["ml-insights", user?.id],
-    enabled: !!user,
+    enabled: !!user && isAIEnabled(),
     staleTime: 5 * 60 * 1000,
     queryFn: async (): Promise<MLInsights | null> => {
-      if (!user) return null;
+      if (!user || !isAIEnabled()) return null;
 
       // Try to fetch a fresh cached prediction
       const nowIso = new Date().toISOString();

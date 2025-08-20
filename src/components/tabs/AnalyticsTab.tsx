@@ -9,6 +9,8 @@ import UserAnalyticsDashboard from '@/components/analytics/UserAnalyticsDashboar
 import GoalTrackingDashboard from '@/components/analytics/GoalTrackingDashboard';
 import SmartRecommendationsPanel from '@/components/analytics/SmartRecommendationsPanel';
 import FeatureGuard from '@/components/access/FeatureGuard';
+import AIFeatureGuard from '@/components/access/AIFeatureGuard';
+import { isAIEnabled } from '@/constants/featureGating';
 
 const PremiumUpgradePrompt = () => (
   <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
@@ -46,6 +48,8 @@ const PremiumUpgradePrompt = () => (
 );
 
 const AnalyticsTab = () => {
+  const aiEnabled = isAIEnabled();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -60,48 +64,83 @@ const AnalyticsTab = () => {
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className={`grid w-full ${aiEnabled ? 'grid-cols-4' : 'grid-cols-3'}`}>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
           <TabsTrigger value="goals">Goals</TabsTrigger>
-          <TabsTrigger value="insights">AI Insights</TabsTrigger>
+          {aiEnabled && <TabsTrigger value="insights">AI Insights</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          <FeatureGuard 
-            feature="advanced_stats"
-            fallback={<PremiumUpgradePrompt />}
-          >
-            <UserAnalyticsDashboard />
-          </FeatureGuard>
+          <AIFeatureGuard fallback={null}>
+            <FeatureGuard 
+              feature="advanced_stats"
+              fallback={<PremiumUpgradePrompt />}
+            >
+              <UserAnalyticsDashboard />
+            </FeatureGuard>
+          </AIFeatureGuard>
+          {!aiEnabled && (
+            <Card>
+              <CardContent className="p-6 text-center">
+                <BarChart3 className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Basic Analytics</h3>
+                <p className="text-gray-600">View your basic workout statistics and progress in the Stats tab.</p>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="performance" className="space-y-6">
-          <FeatureGuard 
-            feature="advanced_stats"
-            fallback={<PremiumUpgradePrompt />}
-          >
-            <UserAnalyticsDashboard />
-          </FeatureGuard>
+          <AIFeatureGuard fallback={null}>
+            <FeatureGuard 
+              feature="advanced_stats"
+              fallback={<PremiumUpgradePrompt />}
+            >
+              <UserAnalyticsDashboard />
+            </FeatureGuard>
+          </AIFeatureGuard>
+          {!aiEnabled && (
+            <Card>
+              <CardContent className="p-6 text-center">
+                <TrendingUp className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Basic Performance Tracking</h3>
+                <p className="text-gray-600">View your workout history and basic performance metrics in the Stats tab.</p>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="goals" className="space-y-6">
-          <FeatureGuard 
-            feature="advanced_stats"
-            fallback={<PremiumUpgradePrompt />}
-          >
-            <GoalTrackingDashboard />
-          </FeatureGuard>
+          <AIFeatureGuard fallback={null}>
+            <FeatureGuard 
+              feature="advanced_stats"
+              fallback={<PremiumUpgradePrompt />}
+            >
+              <GoalTrackingDashboard />
+            </FeatureGuard>
+          </AIFeatureGuard>
+          {!aiEnabled && (
+            <Card>
+              <CardContent className="p-6 text-center">
+                <Target className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Goal Setting</h3>
+                <p className="text-gray-600">Set personal workout goals and track your progress manually.</p>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
-        <TabsContent value="insights" className="space-y-6">
-          <FeatureGuard 
-            feature="smart_recommendations"
-            fallback={<PremiumUpgradePrompt />}
-          >
-            <SmartRecommendationsPanel />
-          </FeatureGuard>
-        </TabsContent>
+        {aiEnabled && (
+          <TabsContent value="insights" className="space-y-6">
+            <FeatureGuard 
+              feature="smart_recommendations"
+              fallback={<PremiumUpgradePrompt />}
+            >
+              <SmartRecommendationsPanel />
+            </FeatureGuard>
+          </TabsContent>
+        )}
       </Tabs>
     </motion.div>
   );

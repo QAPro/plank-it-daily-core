@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TrendingUp, Activity, AlertTriangle, Target, Trophy } from "lucide-react";
+import AIFeatureGuard from "@/components/access/AIFeatureGuard";
 
 const RiskPill = ({ label, value, tone }: { label: string; value: number; tone: "green" | "yellow" | "red" }) => {
   const cls =
@@ -167,4 +168,13 @@ const MLInsightsPanel: React.FC = () => {
   );
 };
 
-export default MLInsightsPanel;
+// Wrap the component with AIFeatureGuard
+const GuardedMLInsightsPanel: React.FC = () => {
+  return (
+    <AIFeatureGuard>
+      <MLInsightsPanel />
+    </AIFeatureGuard>
+  );
+};
+
+export default GuardedMLInsightsPanel;

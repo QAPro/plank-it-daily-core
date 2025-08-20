@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { SmartRecommendationsService } from '@/services/smartRecommendationsService';
+import { isAIEnabled } from '@/constants/featureGating';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Exercise = Tables<'plank_exercises'>;
@@ -21,7 +22,7 @@ export const useExerciseRecommendations = () => {
   const { data: recommendations, isLoading } = useQuery({
     queryKey: ['exercise-recommendations', user?.id],
     queryFn: async (): Promise<ExerciseRecommendation[]> => {
-      if (!user) return [];
+      if (!user || !isAIEnabled()) return [];
 
       // First get the recommendations
       const { data: recommendationsData, error: recommendationsError } = await supabase
@@ -60,12 +61,13 @@ export const useExerciseRecommendations = () => {
         plank_exercises: exercisesMap.get(rec.exercise_id) || null
       }));
     },
-    enabled: !!user,
+    enabled: !!user && isAIEnabled(),
   });
 
   const generateRecommendationsMutation = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error('User not authenticated');
+      if (!isAIEnabled()) throw new Error('AI features are disabled');
 
       // Clear existing recommendations
       await supabase
@@ -197,8 +199,8 @@ export const useExerciseRecommendations = () => {
   };
 
   return {
-    recommendations,
-    isLoading,
+    recommendations: isAIEnabled() ? recommendations : [],
+    isLoading: isAIEnabled() ? isLoading : false,
     generateRecommendations: generateRecommendationsMutation.mutate,
     isGenerating: generateRecommendationsMutation.isPending,
   };

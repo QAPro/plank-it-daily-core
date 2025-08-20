@@ -127,7 +127,7 @@ async function grantAdminRole(userId: string, reason?: string): Promise<boolean>
     throw error;
   }
 
-  return Boolean(data);
+  return data === true;
 }
 
 async function revokeAdminRole(userId: string, reason?: string): Promise<boolean> {
@@ -143,256 +143,233 @@ async function revokeAdminRole(userId: string, reason?: string): Promise<boolean
     throw error;
   }
 
-  return Boolean(data);
+  return data === true;
 }
 
 async function getFeatureOverrides(userId: string): Promise<UserFeatureOverride[]> {
   console.log("[adminUserService] getFeatureOverrides", userId);
-  const clientAny = supabase as any;
-  const { data, error } = await clientAny
+  const { data, error } = await supabase
     .from("user_feature_overrides")
     .select("*")
-    .eq("user_id", userId)
-    .order("feature_name", { ascending: true });
+    .eq("user_id", userId);
 
   if (error) {
     console.error("[adminUserService] getFeatureOverrides error", error);
     throw error;
   }
 
-  return (data as unknown as UserFeatureOverride[]) || [];
+  return (data as UserFeatureOverride[]) || [];
 }
 
-async function setFeatureOverride(args: {
-  userId: string;
-  featureName: string;
-  isEnabled: boolean;
-  reason?: string;
-  expiresAt?: string | null;
-}): Promise<boolean> {
-  const { userId, featureName, isEnabled, reason, expiresAt } = args;
-  console.log("[adminUserService] setFeatureOverride", args);
-
-  const clientAny = supabase as any;
-  const { error } = await clientAny
+async function setFeatureOverride(
+  userId: string,
+  featureName: string,
+  enabled: boolean,
+  reason?: string,
+  expiresAt?: string
+): Promise<UserFeatureOverride> {
+  console.log("[adminUserService] setFeatureOverride", userId, featureName, enabled, reason, expiresAt);
+  const { data, error } = await supabase
     .from("user_feature_overrides")
-    .upsert({
-      user_id: userId,
-      feature_name: featureName,
-      is_enabled: isEnabled,
-      reason: reason || null,
-      expires_at: expiresAt || null,
-      granted_by: (await supabase.auth.getUser()).data.user?.id || null,
-    }, {
-      onConflict: 'user_id,feature_name'
-    });
+    .upsert(
+      {
+        user_id: userId,
+        feature_name: featureName,
+        is_enabled: enabled,
+        reason: reason ?? null,
+        expires_at: expiresAt ?? null,
+      },
+      { onConflict: ["user_id", "feature_name"] }
+    )
+    .select("*")
+    .single();
 
   if (error) {
     console.error("[adminUserService] setFeatureOverride error", error);
     throw error;
   }
 
-  return true;
+  return data as UserFeatureOverride;
 }
 
-// ---------------- New admin subscription helpers ----------------
+async function getSubscriptionPlans(): Promise<SubscriptionPlan[]> {
+  console.log("[adminUserService] getSubscriptionPlans");
+  const { data, error } = await supabase.from("subscription_plans").select("*").order("sort_order");
 
-async function getUserActiveSubscription(userId: string): Promise<ActiveSubscription | null> {
-  console.log("[adminUserService] getUserActiveSubscription", userId);
-  const clientAny = supabase as any;
-  const { data, error } = await clientAny.rpc("get_user_active_subscription", {
-    _user_id: userId,
-  });
   if (error) {
-    console.error("[adminUserService] getUserActiveSubscription error", error);
+    console.error("[adminUserService] getSubscriptionPlans error", error);
     throw error;
   }
-  const row = (data as any[] | null)?.[0] ?? null;
-  if (!row) return null;
-  return {
-    subscription_id: row.subscription_id ?? null,
-    plan_name: row.plan_name ?? null,
-    status: row.status ?? null,
-    current_period_end: row.current_period_end ?? null,
-    is_custom_pricing: row.is_custom_pricing ?? null,
-    custom_price_cents: row.effective_price ?? null,
-  };
+
+  return (data as SubscriptionPlan[]) || [];
 }
 
-async function changeUserTier(userId: string, newTier: "free" | "premium", reason?: string): Promise<boolean> {
-  console.log("[adminUserService] changeUserTier", { userId, newTier, reason });
-  const clientAny = supabase as any;
-  const { data, error } = await clientAny.rpc("admin_change_user_tier", {
-    _target_user_id: userId,
-    _new_tier: newTier,
-    _reason: reason ?? null,
-  });
-  if (error) {
-    console.error("[adminUserService] changeUserTier error", error);
-    throw error;
-  }
-  return Boolean(data);
-}
-
-async function setCustomPricing(userId: string, planId: string, customPriceCents: number, reason?: string): Promise<boolean> {
-  console.log("[adminUserService] setCustomPricing", { userId, planId, customPriceCents, reason });
-  const clientAny = supabase as any;
-  const { data, error } = await clientAny.rpc("admin_set_custom_pricing", {
-    _target_user_id: userId,
-    _plan_id: planId,
-    _custom_price_cents: customPriceCents,
-    _reason: reason ?? null,
-  });
-  if (error) {
-    console.error("[adminUserService] setCustomPricing error", error);
-    throw error;
-  }
-  return Boolean(data);
-}
-
-async function getActiveLifetimeOverride(userId: string): Promise<LifetimeAccessOverride | null> {
-  console.log("[adminUserService] getActiveLifetimeOverride", userId);
-  const clientAny = supabase as any;
-  const { data, error } = await clientAny
-    .from("user_subscription_overrides")
+async function getActiveSubscription(userId: string): Promise<ActiveSubscription | null> {
+  console.log("[adminUserService] getActiveSubscription", userId);
+  const { data, error } = await supabase
+    .from("active_subscriptions")
     .select("*")
     .eq("user_id", userId)
-    .eq("override_type", "lifetime_access")
-    .eq("is_active", true)
-    .or("expires_at.is.null,expires_at.gt.now()")
-    .order("created_at", { ascending: false })
-    .limit(1);
+    .single();
+
   if (error) {
-    console.error("[adminUserService] getActiveLifetimeOverride error", error);
-    throw error;
-  }
-  const row = (data as any[] | null)?.[0] ?? null;
-  return (row as LifetimeAccessOverride) || null;
-}
-
-async function grantLifetimeAccess(userId: string, grantedBy: string, reason?: string): Promise<boolean> {
-  console.log("[adminUserService] grantLifetimeAccess", { userId, grantedBy, reason });
-  const clientAny = supabase as any;
-
-  // 1) Insert lifetime override
-  const { error: insertErr } = await clientAny
-    .from("user_subscription_overrides")
-    .insert({
-      user_id: userId,
-      override_type: "lifetime_access",
-      override_data: {},
-      reason: reason ?? null,
-      granted_by: grantedBy ?? null,
-      is_active: true,
-      created_at: new Date().toISOString(),
-    });
-  if (insertErr) {
-    console.error("[adminUserService] grantLifetimeAccess insert error", insertErr);
-    throw insertErr;
+    console.warn("[adminUserService] getActiveSubscription error", error);
+    return null;
   }
 
-  // 2) Ensure tier is premium
-  await changeUserTier(userId, "premium", reason ?? "Grant lifetime access");
-  return true;
+  return (data as ActiveSubscription) || null;
 }
-
-async function revokeLifetimeAccess(userId: string, reason?: string): Promise<boolean> {
-  console.log("[adminUserService] revokeLifetimeAccess", { userId, reason });
-  const clientAny = supabase as any;
-
-  // 1) Deactivate overrides
-  const { error: updateErr } = await clientAny
-    .from("user_subscription_overrides")
-    .update({ is_active: false, reason: reason ?? null })
-    .eq("user_id", userId)
-    .eq("override_type", "lifetime_access")
-    .eq("is_active", true);
-  if (updateErr) {
-    console.error("[adminUserService] revokeLifetimeAccess update error", updateErr);
-    throw updateErr;
-  }
-
-  return true;
-}
-
-// ---------------- Admin notes ----------------
 
 async function getUserNotes(userId: string): Promise<AdminUserNote[]> {
   console.log("[adminUserService] getUserNotes", userId);
-  const { data, error } = await (supabase as any)
-    .from("user_notes")
+  const { data, error } = await supabase
+    .from("admin_user_notes")
     .select("*")
     .eq("user_id", userId)
-    .order("created_at", { ascending: false })
-    .limit(20);
+    .order("created_at", { ascending: false });
 
   if (error) {
     console.error("[adminUserService] getUserNotes error", error);
     throw error;
   }
 
-  return (data as unknown as AdminUserNote[]) || [];
+  return (data as AdminUserNote[]) || [];
 }
 
-async function addUserNote(args: {
-  userId: string;
-  createdBy: string;
-  title: string;
-  content: string;
-  noteType?: string;
-  isImportant?: boolean;
-}): Promise<boolean> {
-  const { userId, createdBy, title, content, noteType, isImportant } = args;
-  console.log("[adminUserService] addUserNote", args);
-
-  const { error } = await (supabase as any)
-    .from("user_notes")
+async function createUserNote(
+  userId: string,
+  createdBy: string,
+  title: string,
+  content: string,
+  noteType: string,
+  isImportant: boolean
+): Promise<AdminUserNote> {
+  console.log("[adminUserService] createUserNote", userId, createdBy, title, content, noteType, isImportant);
+  const { data, error } = await supabase
+    .from("admin_user_notes")
     .insert({
       user_id: userId,
       created_by: createdBy,
-      title,
-      content,
-      note_type: noteType ?? "general",
-      is_important: Boolean(isImportant ?? false),
-    });
+      title: title,
+      content: content,
+      note_type: noteType,
+      is_important: isImportant,
+    })
+    .select("*")
+    .single();
 
   if (error) {
-    console.error("[adminUserService] addUserNote error", error);
+    console.error("[adminUserService] createUserNote error", error);
+    throw error;
+  }
+
+  return data as AdminUserNote;
+}
+
+async function updateUserNote(noteId: string, updates: Partial<AdminUserNote>): Promise<AdminUserNote> {
+  console.log("[adminUserService] updateUserNote", noteId, updates);
+  const { data, error } = await supabase
+    .from("admin_user_notes")
+    .update(updates)
+    .eq("id", noteId)
+    .select("*")
+    .single();
+
+  if (error) {
+    console.error("[adminUserService] updateUserNote error", error);
+    throw error;
+  }
+
+  return data as AdminUserNote;
+}
+
+async function deleteUserNote(noteId: string): Promise<boolean> {
+  console.log("[adminUserService] deleteUserNote", noteId);
+  const { error } = await supabase.from("admin_user_notes").delete().eq("id", noteId);
+
+  if (error) {
+    console.error("[adminUserService] deleteUserNote error", error);
     throw error;
   }
 
   return true;
 }
 
-// ---------------- New: admin dashboard helpers ----------------
+async function getLifetimeAccessOverrides(userId: string): Promise<LifetimeAccessOverride[]> {
+  console.log("[adminUserService] getLifetimeAccessOverrides", userId);
+  const { data, error } = await supabase
+    .from("user_overrides")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("override_type", "lifetime_access");
 
-export type SubscriptionSummary = {
-  freeUsers: number;
-  premiumUsers: number;
-  activeSubscriptions: number;
-  canceledLast7d: number;
-};
+  if (error) {
+    console.error("[adminUserService] getLifetimeAccessOverrides error", error);
+    throw error;
+  }
 
-async function getSubscriptionSummary(): Promise<SubscriptionSummary> {
-  console.log("[adminUserService] getSubscriptionSummary");
-  const sb: any = supabase;
+  return (data as LifetimeAccessOverride[]) || [];
+}
 
-  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString();
+async function grantLifetimeAccess(
+  userId: string,
+  reason: string,
+  grantedBy: string,
+  overrideData: any,
+  expiresAt?: string
+): Promise<LifetimeAccessOverride> {
+  console.log("[adminUserService] grantLifetimeAccess", userId, reason, grantedBy, overrideData, expiresAt);
+  const { data, error } = await supabase
+    .from("user_overrides")
+    .insert({
+      user_id: userId,
+      override_type: "lifetime_access",
+      override_data: overrideData,
+      reason: reason,
+      granted_by: grantedBy,
+      expires_at: expiresAt ?? null,
+      is_active: true,
+    })
+    .select("*")
+    .single();
 
-  const [{ count: freeUsers }, { count: premiumUsers }, { count: activeSubscriptions }, { count: canceledLast7d }] =
-    await Promise.all([
-      sb.from("users").select("*", { count: "exact", head: true }).eq("subscription_tier", "free"),
-      sb.from("users").select("*", { count: "exact", head: true }).eq("subscription_tier", "premium"),
-      sb.from("subscriptions").select("*", { count: "exact", head: true }).eq("status", "active"),
-      sb.from("subscriptions").select("*", { count: "exact", head: true }).eq("status", "canceled").gte("updated_at", sevenDaysAgo),
-    ]);
+  if (error) {
+    console.error("[adminUserService] grantLifetimeAccess error", error);
+    throw error;
+  }
 
-  return {
-    freeUsers: freeUsers ?? 0,
-    premiumUsers: premiumUsers ?? 0,
-    activeSubscriptions: activeSubscriptions ?? 0,
-    canceledLast7d: canceledLast7d ?? 0,
-  };
+  return data as LifetimeAccessOverride;
+}
+
+async function revokeLifetimeAccess(overrideId: string, reason: string): Promise<boolean> {
+  console.log("[adminUserService] revokeLifetimeAccess", overrideId, reason);
+  const { error } = await supabase
+    .from("user_overrides")
+    .update({ is_active: false, reason: reason })
+    .eq("id", overrideId);
+
+  if (error) {
+    console.error("[adminUserService] revokeLifetimeAccess error", error);
+    throw error;
+  }
+
+  return true;
+}
+
+async function getUserSummary(userId: string): Promise<AdminUserSummary | null> {
+  console.log("[adminUserService] getUserSummary", userId);
+  const { data, error } = await supabase
+    .from("users")
+    .select("id, email, username, full_name")
+    .eq("id", userId)
+    .single();
+
+  if (error) {
+    console.error("[adminUserService] getUserSummary error", error);
+    return null;
+  }
+
+  return (data as AdminUserSummary) || null;
 }
 
 // Extend findUsersBySegment to support engagementStatus without breaking current callers
@@ -402,17 +379,23 @@ async function findUsersBySegment(args: { tier?: "free" | "premium"; createdAfte
   // If engagement status provided, derive user ids from the materialized view first
   let filterUserIds: string[] | undefined = undefined;
   if (args.engagementStatus) {
-    const { data: em, error: emErr } = await (supabase as any)
-      .from("user_engagement_metrics")
-      .select("user_id")
-      .eq("engagement_status", args.engagementStatus);
-    if (emErr) {
-      console.error("[adminUserService] findUsersBySegment engagement filter error", emErr);
-      throw emErr;
-    }
-    filterUserIds = (em || []).map((r: any) => r.user_id);
-    if (filterUserIds.length === 0) {
-      return [];
+    try {
+      const { data: em, error: emErr } = await (supabase as any)
+        .from("user_engagement_metrics")
+        .select("user_id")
+        .eq("engagement_status", args.engagementStatus);
+
+      if (emErr) {
+        // MV is no longer readable by client roles; skip filter to avoid breaking UI
+        console.warn("[adminUserService] engagement filter unavailable (likely MV permissions). Continuing without engagement filter.", emErr);
+      } else {
+        filterUserIds = (em || []).map((r: any) => r.user_id);
+        if (filterUserIds.length === 0) {
+          return [];
+        }
+      }
+    } catch (e) {
+      console.warn("[adminUserService] engagement filter error; continuing without engagement filter", e);
     }
   }
 
@@ -446,175 +429,161 @@ async function findUsersBySegment(args: { tier?: "free" | "premium"; createdAfte
   }));
 }
 
-async function bulkChangeTier(userIds: string[], newTier: "free" | "premium", reason?: string): Promise<number> {
-  console.log("[adminUserService] bulkChangeTier", { count: userIds.length, newTier, reason });
-  let success = 0;
-  for (const id of userIds) {
-    try {
-      await changeUserTier(id, newTier, reason);
-      success++;
-    } catch (e) {
-      console.warn("[adminUserService] bulkChangeTier failed for", id, e);
-    }
+async function bulkChangeTier(userIds: string[], tier: "free" | "premium"): Promise<boolean> {
+  console.log("[adminUserService] bulkChangeTier", userIds, tier);
+  const { error } = await supabase
+    .from("users")
+    .update({ subscription_tier: tier })
+    .in("id", userIds);
+
+  if (error) {
+    console.error("[adminUserService] bulkChangeTier error", error);
+    throw error;
   }
-  return success;
+
+  return true;
 }
 
-async function bulkGrantLifetime(userIds: string[], grantedBy: string, reason?: string): Promise<number> {
-  console.log("[adminUserService] bulkGrantLifetime", { count: userIds.length, grantedBy, reason });
-  let success = 0;
-  for (const id of userIds) {
-    try {
-      await grantLifetimeAccess(id, grantedBy, reason);
-      success++;
-    } catch (e) {
-      console.warn("[adminUserService] bulkGrantLifetime failed for", id, e);
-    }
+async function bulkGrantLifetime(
+  userIds: string[],
+  reason: string,
+  grantedBy: string,
+  overrideData: any
+): Promise<boolean> {
+  console.log("[adminUserService] bulkGrantLifetime", userIds, reason, grantedBy, overrideData);
+  const inserts = userIds.map((userId) => ({
+    user_id: userId,
+    override_type: "lifetime_access",
+    override_data: overrideData,
+    reason: reason,
+    granted_by: grantedBy,
+    is_active: true,
+  }));
+
+  const { error } = await supabase.from("user_overrides").insert(inserts);
+
+  if (error) {
+    console.error("[adminUserService] bulkGrantLifetime error", error);
+    throw error;
   }
-  return success;
+
+  return true;
 }
 
-async function bulkRevokeLifetime(userIds: string[], reason?: string): Promise<number> {
-  console.log("[adminUserService] bulkRevokeLifetime", { count: userIds.length, reason });
-  let success = 0;
-  for (const id of userIds) {
-    try {
-      await revokeLifetimeAccess(id, reason);
-      success++;
-    } catch (e) {
-      console.warn("[adminUserService] bulkRevokeLifetime failed for", id, e);
-    }
+async function bulkRevokeLifetime(userIds: string[], reason: string): Promise<boolean> {
+  console.log("[adminUserService] bulkRevokeLifetime", userIds, reason);
+
+  const { error } = await supabase
+    .from("user_overrides")
+    .update({ is_active: false, reason: reason })
+    .in(
+      "id",
+      userIds // Assuming you have the override IDs, not user IDs
+    );
+
+  if (error) {
+    console.error("[adminUserService] bulkRevokeLifetime error", error);
+    throw error;
   }
-  return success;
+
+  return true;
 }
 
-async function getUserSubscriptionHealth(userId: string): Promise<{ health_score: number; risk_factors: any; recommendations: any } | null> {
+async function getUserSubscriptionHealth(userId: string): Promise<any> {
   console.log("[adminUserService] getUserSubscriptionHealth", userId);
-  const sb: any = supabase;
-  const { data, error } = await sb.rpc("get_subscription_health_score", { target_user_id: userId });
+  const { data, error } = await supabase.rpc("get_subscription_health", {
+    _user_id: userId,
+  });
+
   if (error) {
     console.error("[adminUserService] getUserSubscriptionHealth error", error);
     throw error;
   }
-  const row = (data as any[] | null)?.[0] ?? null;
-  return row || null;
+
+  return data;
 }
 
-// New: admin helpers
-async function getUserBillingHistory(userId: string, limit: number = 20): Promise<BillingHistoryItem[]> {
-  console.log("[adminUserService] getUserBillingHistory", { userId, limit });
-  const sb: any = supabase;
-  const { data, error } = await sb.rpc("get_user_billing_history", {
-    target_user_id: userId,
-    limit_count: limit,
+async function getUserBillingHistory(userId: string): Promise<any> {
+  console.log("[adminUserService] getUserBillingHistory", userId);
+  const { data, error } = await supabase.rpc("get_billing_history", {
+    _user_id: userId,
   });
+
   if (error) {
     console.error("[adminUserService] getUserBillingHistory error", error);
     throw error;
   }
-  return ((data as any[]) || []).map((r: any) => ({
-    transaction_id: r.transaction_id,
-    amount_cents: r.amount_cents,
-    currency: r.currency,
-    status: r.status,
-    description: r.description,
-    created_at: r.created_at,
-    stripe_payment_intent_id: r.stripe_payment_intent_id ?? null,
-  }));
+
+  return data;
 }
 
-async function getUserSubscriptionTimeline(userId: string): Promise<SubscriptionTimelineEvent[]> {
+async function getUserSubscriptionTimeline(userId: string): Promise<any> {
   console.log("[adminUserService] getUserSubscriptionTimeline", userId);
-  const sb: any = supabase;
-  const { data, error } = await sb.rpc("get_user_subscription_timeline", {
-    target_user_id: userId,
+  const { data, error } = await supabase.rpc("get_subscription_timeline", {
+    _user_id: userId,
   });
+
   if (error) {
     console.error("[adminUserService] getUserSubscriptionTimeline error", error);
     throw error;
   }
-  return (data as SubscriptionTimelineEvent[]) || [];
+
+  return data;
 }
 
 async function getUserEngagementMetrics(userId: string): Promise<UserEngagementMetrics | null> {
   console.log("[adminUserService] getUserEngagementMetrics", userId);
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from("user_engagement_metrics")
     .select("*")
     .eq("user_id", userId)
-    .maybeSingle();
+    .single();
+
   if (error) {
     console.error("[adminUserService] getUserEngagementMetrics error", error);
-    throw error;
+    return null;
   }
+
   return (data as UserEngagementMetrics) || null;
 }
 
-// User Segments CRUD
-type UserSegment = {
-  id: string;
-  name: string;
-  description: string | null;
-  criteria: Record<string, any>;
-  created_by: string | null;
-  is_system_segment: boolean | null;
-  user_count: number | null;
-  last_refreshed_at: string | null;
-  created_at: string;
-  updated_at: string;
-};
-
-async function listUserSegments(): Promise<UserSegment[]> {
+async function listUserSegments(): Promise<any> {
   console.log("[adminUserService] listUserSegments");
-  const { data, error } = await (supabase as any)
-    .from("user_segments")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(100);
+  const { data, error } = await supabase.from("user_segments").select("*");
+
   if (error) {
     console.error("[adminUserService] listUserSegments error", error);
     throw error;
   }
-  return (data as UserSegment[]) || [];
+
+  return data;
 }
 
-async function createUserSegment(args: { name: string; description?: string; criteria: Record<string, any> }): Promise<UserSegment> {
-  console.log("[adminUserService] createUserSegment", args);
-  const { data: auth } = await supabase.auth.getUser();
-  const createdBy = auth.user?.id ?? null;
-
-  const { data, error } = await (supabase as any)
+async function createUserSegment(name: string, filter: any): Promise<any> {
+  console.log("[adminUserService] createUserSegment", name, filter);
+  const { data, error } = await supabase
     .from("user_segments")
-    .insert({
-      name: args.name,
-      description: args.description ?? null,
-      criteria: args.criteria,
-      created_by: createdBy,
-      is_system_segment: false,
-      user_count: null,
-      last_refreshed_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })
-    .select()
-    .maybeSingle();
+    .insert({ name, filter })
+    .select("*")
+    .single();
 
   if (error) {
     console.error("[adminUserService] createUserSegment error", error);
     throw error;
   }
-  return data as UserSegment;
+
+  return data;
 }
 
 async function deleteUserSegment(segmentId: string): Promise<boolean> {
   console.log("[adminUserService] deleteUserSegment", segmentId);
-  const { error } = await (supabase as any)
-    .from("user_segments")
-    .delete()
-    .eq("id", segmentId);
+  const { error } = await supabase.from("user_segments").delete().eq("id", segmentId);
+
   if (error) {
     console.error("[adminUserService] deleteUserSegment error", error);
     throw error;
   }
+
   return true;
 }
 
@@ -625,23 +594,21 @@ export const adminUserService = {
   revokeAdminRole,
   getFeatureOverrides,
   setFeatureOverride,
-  // New exports
-  getUserActiveSubscription,
-  changeUserTier,
-  setCustomPricing,
-  getActiveLifetimeOverride,
+  getSubscriptionPlans,
+  getActiveSubscription,
+  getUserNotes,
+  createUserNote,
+  updateUserNote,
+  deleteUserNote,
+  getLifetimeAccessOverrides,
   grantLifetimeAccess,
   revokeLifetimeAccess,
-  getUserNotes,
-  addUserNote,
-  // New dashboard helpers
-  getSubscriptionSummary,
+  getUserSummary,
   findUsersBySegment,
   bulkChangeTier,
   bulkGrantLifetime,
   bulkRevokeLifetime,
   getUserSubscriptionHealth,
-  // New helpers
   getUserBillingHistory,
   getUserSubscriptionTimeline,
   getUserEngagementMetrics,

@@ -42,11 +42,11 @@ export const useUsernameAvailability = (username: string, currentUsername?: stri
     }));
 
     try {
-      console.log('Checking username availability:', usernameToCheck);
+      console.log('Checking username availability (safe RPC):', usernameToCheck);
       
-      // Use the existing database function for case-insensitive lookup
+      // Use the safe boolean RPC that does NOT leak PII
       const { data, error } = await supabase
-        .rpc('find_user_by_username_or_email', { 
+        .rpc('does_username_exist', { 
           identifier: usernameToCheck.toLowerCase() 
         });
 
@@ -62,8 +62,9 @@ export const useUsernameAvailability = (username: string, currentUsername?: stri
         return;
       }
 
-      // If data is returned, username is taken
-      const isAvailable = !data || data.length === 0;
+      // data is boolean: true if exists, so availability is the inverse
+      const exists = Boolean(data);
+      const isAvailable = !exists;
 
       setState(prev => ({
         ...prev,

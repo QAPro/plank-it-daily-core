@@ -12,6 +12,7 @@ import {
   Zap
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { isSocialEnabled } from '@/constants/featureGating';
 
 interface TabNavigationProps {
   activeTab: string;
@@ -20,18 +21,22 @@ interface TabNavigationProps {
 
 const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, onTabChange }) => {
   const { user } = useAuth();
+  const socialEnabled = isSocialEnabled();
 
-  const tabs = [
+  const allTabs = [
     { id: 'home', label: 'Home', icon: Home },
     { id: 'workout', label: 'Workout', icon: Dumbbell },
     { id: 'stats', label: 'Stats', icon: BarChart3 },
     { id: 'analytics', label: 'Analytics', icon: Zap },
     { id: 'achievements', label: 'Achievements', icon: Trophy },
-    { id: 'compete', label: 'Compete', icon: Users },
-    { id: 'friends', label: 'Friends', icon: Users },
-    { id: 'events', label: 'Events', icon: Calendar },
+    { id: 'compete', label: 'Compete', icon: Users, requiresSocial: true },
+    { id: 'friends', label: 'Friends', icon: Users, requiresSocial: true },
+    { id: 'events', label: 'Events', icon: Calendar, requiresSocial: true },
     { id: 'profile', label: 'Profile', icon: User },
   ];
+
+  // Filter out social tabs when social features are disabled
+  const tabs = allTabs.filter(tab => !tab.requiresSocial || socialEnabled);
 
   return (
     <div className="bg-white border-t border-gray-200 px-4 py-2">

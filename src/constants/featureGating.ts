@@ -12,6 +12,11 @@ export const isAIEnabled = () => {
   return import.meta.env.VITE_ENABLE_AI_FEATURES === 'true';
 };
 
+// Check if social features are enabled via environment variable
+export const isSocialEnabled = () => {
+  return import.meta.env.VITE_ENABLE_SOCIAL_FEATURES === 'true';
+};
+
 // Define feature names and which tier is required for each
 export type FeatureName =
   | 'advanced_stats'
@@ -42,4 +47,9 @@ export const AI_FEATURES: FeatureName[] = [
   'smart_recommendations',
   'analytics_dashboard',
   'ai_recommendations',
+];
+
+// Social-related features that should be disabled when social is off
+export const SOCIAL_FEATURES: FeatureName[] = [
+  'social_challenges',
 ];

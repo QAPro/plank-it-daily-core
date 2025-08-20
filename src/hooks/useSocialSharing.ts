@@ -1,9 +1,9 @@
-
 import { useState, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { enhancedSocialSharingService } from '@/services/enhancedSocialSharingService';
 import type { EnhancedShareData, ShareTemplate, ShareAnalytics } from '@/types/socialSharing';
 import { useToast } from '@/hooks/use-toast';
+import { isSocialEnabled } from '@/constants/featureGating';
 
 export const useSocialSharing = () => {
   const { user } = useAuth();
@@ -11,8 +11,14 @@ export const useSocialSharing = () => {
   const [loading, setLoading] = useState(false);
   const [templates, setTemplates] = useState<ShareTemplate[]>([]);
   const [analytics, setAnalytics] = useState<ShareAnalytics[]>([]);
+  const socialEnabled = isSocialEnabled();
 
   const loadTemplates = useCallback(async (type?: string) => {
+    if (!socialEnabled) {
+      setTemplates([]);
+      return;
+    }
+
     try {
       setLoading(true);
       const loadedTemplates = await enhancedSocialSharingService.getShareTemplates(type);
@@ -27,12 +33,14 @@ export const useSocialSharing = () => {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [toast, socialEnabled]);
 
   const generateShareImage = useCallback(async (
     shareData: EnhancedShareData, 
     templateId: string
   ): Promise<string | null> => {
+    if (!socialEnabled) return null;
+
     try {
       setLoading(true);
       const imageDataUrl = await enhancedSocialSharingService.generateShareImage(
@@ -51,13 +59,15 @@ export const useSocialSharing = () => {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [toast, socialEnabled]);
 
   const shareToMultiplePlatforms = useCallback(async (
     shareData: EnhancedShareData,
     platforms: string[],
     imageDataUrl?: string
   ) => {
+    if (!socialEnabled) return;
+
     const shareText = generateShareText(shareData);
     const sharePromises = platforms.map(platform => {
       switch (platform) {
@@ -89,7 +99,7 @@ export const useSocialSharing = () => {
         variant: "destructive",
       });
     }
-  }, [toast]);
+  }, [toast, socialEnabled]);
 
   const createChallenge = useCallback(async (challengeData: {
     title: string;
@@ -100,12 +110,20 @@ export const useSocialSharing = () => {
     end_date: string;
     template_id?: string;
   }) => {
-    if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "Please log in to create challenges.",
-        variant: "destructive",
-      });
+    if (!user || !socialEnabled) {
+      if (!socialEnabled) {
+        toast({
+          title: "Feature not available",
+          description: "Social features are currently disabled.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Authentication required",
+          description: "Please log in to create challenges.",
+          variant: "destructive",
+        });
+      }
       return null;
     }
 
@@ -132,15 +150,23 @@ export const useSocialSharing = () => {
     } finally {
       setLoading(false);
     }
-  }, [user, toast]);
+  }, [user, toast, socialEnabled]);
 
   const joinChallenge = useCallback(async (challengeId: string) => {
-    if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "Please log in to join challenges.",
-        variant: "destructive",
-      });
+    if (!user || !socialEnabled) {
+      if (!socialEnabled) {
+        toast({
+          title: "Feature not available",
+          description: "Social features are currently disabled.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Authentication required",
+          description: "Please log in to join challenges.",
+          variant: "destructive",
+        });
+      }
       return false;
     }
 
@@ -167,10 +193,10 @@ export const useSocialSharing = () => {
     } finally {
       setLoading(false);
     }
-  }, [user, toast]);
+  }, [user, toast, socialEnabled]);
 
   const loadAnalytics = useCallback(async () => {
-    if (!user) return;
+    if (!user || !socialEnabled) return;
 
     try {
       const analyticsData = await enhancedSocialSharingService.getShareAnalytics(user.id);
@@ -178,7 +204,7 @@ export const useSocialSharing = () => {
     } catch (error) {
       console.error('Error loading analytics:', error);
     }
-  }, [user]);
+  }, [user, socialEnabled]);
 
   const generateShareText = (shareData: EnhancedShareData): string => {
     if (shareData.achievement) {

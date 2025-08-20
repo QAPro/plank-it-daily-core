@@ -2,12 +2,14 @@
 import { useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { socialActivityManager } from '@/services/socialActivityService';
+import { isSocialEnabled } from '@/constants/featureGating';
 
 export const useFriendActivityTracking = () => {
   const { user } = useAuth();
+  const socialEnabled = isSocialEnabled();
 
   const trackWorkoutActivity = useCallback(async (sessionData: any) => {
-    if (!user) return;
+    if (!user || !socialEnabled) return;
     
     try {
       console.log('Tracking workout activity:', sessionData);
@@ -15,10 +17,10 @@ export const useFriendActivityTracking = () => {
     } catch (error) {
       console.error('Error tracking workout activity:', error);
     }
-  }, [user]);
+  }, [user, socialEnabled]);
 
   const trackAchievementActivity = useCallback(async (achievementData: any) => {
-    if (!user) return;
+    if (!user || !socialEnabled) return;
 
     try {
       console.log('Tracking achievement activity:', achievementData);
@@ -26,10 +28,10 @@ export const useFriendActivityTracking = () => {
     } catch (error) {
       console.error('Error tracking achievement activity:', error);
     }
-  }, [user]);
+  }, [user, socialEnabled]);
 
   const trackLevelUpActivity = useCallback(async (levelData: any) => {
-    if (!user) return;
+    if (!user || !socialEnabled) return;
 
     try {
       console.log('Tracking level up activity:', levelData);
@@ -37,10 +39,10 @@ export const useFriendActivityTracking = () => {
     } catch (error) {
       console.error('Error tracking level up activity:', error);
     }
-  }, [user]);
+  }, [user, socialEnabled]);
 
   const trackStreakMilestoneActivity = useCallback(async (streakData: any) => {
-    if (!user) return;
+    if (!user || !socialEnabled) return;
 
     // Only track milestone streaks (every 7 days)
     if (streakData.streak_length % 7 === 0 && streakData.streak_length >= 7) {
@@ -51,10 +53,10 @@ export const useFriendActivityTracking = () => {
         console.error('Error tracking streak milestone activity:', error);
       }
     }
-  }, [user]);
+  }, [user, socialEnabled]);
 
   const trackPersonalBestActivity = useCallback(async (exerciseId: string, newBest: number, previousBest: number) => {
-    if (!user) return;
+    if (!user || !socialEnabled) return;
 
     try {
       console.log('Tracking personal best activity:', { exerciseId, newBest, previousBest });
@@ -62,7 +64,7 @@ export const useFriendActivityTracking = () => {
     } catch (error) {
       console.error('Error tracking personal best activity:', error);
     }
-  }, [user]);
+  }, [user, socialEnabled]);
 
   return {
     trackWorkoutActivity,

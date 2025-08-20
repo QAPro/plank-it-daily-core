@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { User, Edit, Mail, Calendar, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import ProfileImageSelector from "./ProfileImageSelector";
+import AvatarSelector from "./AvatarSelector";
 import UsernameInput from "./UsernameInput";
 import { validateUsernameFormat } from "@/utils/usernameValidation";
 
@@ -189,10 +190,14 @@ const ProfileHeader = () => {
                     currentUsername={userProfile?.username}
                     className="bg-white/20 text-white placeholder:text-orange-100"
                   />
-                  <ProfileImageSelector
-                    selectedUrl={editData.avatar_url}
-                    onSelect={(url) => setEditData(prev => ({ ...prev, avatar_url: url }))}
-                  />
+                  <div className="space-y-2">
+                    <div className="text-sm text-orange-100/90">Choose an avatar</div>
+                    <AvatarSelector
+                      selectedUrl={editData.avatar_url}
+                      onSelect={(url) => setEditData(prev => ({ ...prev, avatar_url: url }))}
+                      className="mt-1"
+                    />
+                  </div>
                 </div>
               ) : (
                 <>

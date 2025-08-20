@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Mail, Loader2 } from 'lucide-react';
+import { Mail, Loader2, AlertCircle } from 'lucide-react';
 
 interface EmailChangeDialogProps {
   open: boolean;
@@ -17,24 +17,45 @@ interface EmailChangeDialogProps {
 const EmailChangeDialog = ({ open, onOpenChange, currentEmail }: EmailChangeDialogProps) => {
   const [newEmail, setNewEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [validationError, setValidationError] = useState('');
   const { toast } = useToast();
+
+  const validateEmail = (email: string) => {
+    if (!email.trim()) {
+      return 'Email address is required';
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return 'Please enter a valid email address';
+    }
+    
+    if (email.toLowerCase() === currentEmail.toLowerCase()) {
+      return 'Please enter a different email address';
+    }
+    
+    return '';
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const email = e.target.value;
+    setNewEmail(email);
+    
+    // Clear validation error when user starts typing
+    if (validationError) {
+      setValidationError('');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!newEmail.trim()) {
+    const error = validateEmail(newEmail);
+    if (error) {
+      setValidationError(error);
       toast({
-        title: "Email required",
-        description: "Please enter your new email address.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (newEmail.toLowerCase() === currentEmail.toLowerCase()) {
-      toast({
-        title: "Same email",
-        description: "Please enter a different email address.",
+        title: "Invalid email",
+        description: error,
         variant: "destructive",
       });
       return;
@@ -53,25 +74,20 @@ const EmailChangeDialog = ({ open, onOpenChange, currentEmail }: EmailChangeDial
       if (error) {
         console.error('Email change error:', error);
         
+        let errorMessage = error.message;
         if (error.message.includes('email address is already in use')) {
-          toast({
-            title: "Email already in use",
-            description: "This email is already associated with another account.",
-            variant: "destructive",
-          });
+          errorMessage = "This email is already associated with another account.";
         } else if (error.message.includes('rate limit')) {
-          toast({
-            title: "Too many requests",
-            description: "Please wait a few minutes before trying again.",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Failed to send verification",
-            description: error.message || "Please try again.",
-            variant: "destructive",
-          });
+          errorMessage = "Please wait a few minutes before trying again.";
         }
+        
+        setValidationError(errorMessage);
+        
+        toast({
+          title: "Email change failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
         return;
       }
 
@@ -80,16 +96,20 @@ const EmailChangeDialog = ({ open, onOpenChange, currentEmail }: EmailChangeDial
       
       toast({
         title: "Verification email sent",
-        description: "Please check your new email address and click the verification link to complete the change.",
+        description: `Please check ${newEmail} and click the verification link to complete the change.`,
       });
 
       onOpenChange(false);
       setNewEmail('');
+      setValidationError('');
     } catch (error: any) {
       console.error('Unexpected email change error:', error);
+      const errorMessage = "An unexpected error occurred. Please try again.";
+      setValidationError(errorMessage);
+      
       toast({
         title: "Error",
-        description: "An unexpected error occurred. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -97,8 +117,16 @@ const EmailChangeDialog = ({ open, onOpenChange, currentEmail }: EmailChangeDial
     }
   };
 
+  const handleDialogClose = (open: boolean) => {
+    if (!open) {
+      setNewEmail('');
+      setValidationError('');
+    }
+    onOpenChange(open);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleDialogClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -115,8 +143,11 @@ const EmailChangeDialog = ({ open, onOpenChange, currentEmail }: EmailChangeDial
               type="email"
               value={currentEmail}
               disabled
-              className="bg-gray-50"
+              className="bg-gray-50 text-gray-600"
             />
+            <p className="text-xs text-gray-500">
+              This is your current registered email address
+            </p>
           </div>
           
           <div className="space-y-2">
@@ -124,16 +155,27 @@ const EmailChangeDialog = ({ open, onOpenChange, currentEmail }: EmailChangeDial
             <Input
               id="newEmail"
               type="email"
-              placeholder="Enter your new email address"
+              placeholder="Enter your new email address (e.g., john@example.com)"
               value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
+              onChange={handleEmailChange}
+              className={validationError ? 'border-red-500 focus:border-red-500' : ''}
               required
             />
+            {validationError && (
+              <div className="flex items-center gap-1 text-sm text-red-600">
+                <AlertCircle className="h-3 w-3" />
+                <span>{validationError}</span>
+              </div>
+            )}
+            <p className="text-xs text-gray-500">
+              Make sure you have access to this email address
+            </p>
           </div>
           
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
             <p className="text-sm text-amber-800">
-              A verification link will be sent to your new email address. You'll need to click it to complete the change.
+              <strong>Important:</strong> A verification link will be sent to your new email address. 
+              You'll need to click it to complete the change. Your current email will remain active until then.
             </p>
           </div>
           
@@ -141,7 +183,7 @@ const EmailChangeDialog = ({ open, onOpenChange, currentEmail }: EmailChangeDial
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={() => handleDialogClose(false)}
               disabled={isSubmitting}
               className="flex-1"
             >
@@ -149,7 +191,7 @@ const EmailChangeDialog = ({ open, onOpenChange, currentEmail }: EmailChangeDial
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !!validationError}
               className="flex-1 bg-orange-500 hover:bg-orange-600"
             >
               {isSubmitting ? (

@@ -49,6 +49,16 @@ export const createMockUser = (overrides = {}) => ({
   ...overrides,
 });
 
+export const createMockUserProfile = (overrides = {}) => ({
+  id: 'test-user-id',
+  full_name: 'Test User',
+  username: 'testuser',
+  avatar_url: 'https://example.com/avatar.jpg',
+  created_at: '2024-01-01T00:00:00Z',
+  updated_at: '2024-01-01T00:00:00Z',
+  ...overrides,
+});
+
 export const createMockExercise = (overrides = {}) => ({
   id: 'test-exercise-id',
   name: 'Standard Plank',
@@ -96,4 +106,121 @@ export const createMockAchievement = (overrides = {}) => ({
   earned_at: '2024-01-01T12:00:00Z',
   metadata: {},
   ...overrides,
+});
+
+// Mock validation scenarios
+export const createMockValidationScenarios = () => ({
+  validUsername: {
+    username: 'validuser123',
+    validation: { isValid: true },
+    availability: { isAvailable: true, isChecking: false, error: null }
+  },
+  
+  invalidUsername: {
+    username: 'ab',
+    validation: { 
+      isValid: false, 
+      error: 'Username must be at least 3 characters long' 
+    },
+    availability: { isAvailable: null, isChecking: false, error: null }
+  },
+  
+  takenUsername: {
+    username: 'takenuser',
+    validation: { isValid: true },
+    availability: { 
+      isAvailable: false, 
+      isChecking: false, 
+      error: null,
+      suggestions: ['takenuser123', 'takenuser_2024', 'my_takenuser']
+    }
+  },
+  
+  checkingUsername: {
+    username: 'checkinguser',
+    validation: { isValid: true },
+    availability: { 
+      isAvailable: null, 
+      isChecking: true, 
+      error: null 
+    }
+  },
+  
+  errorUsername: {
+    username: 'erroruser',
+    validation: { isValid: true },
+    availability: { 
+      isAvailable: null, 
+      isChecking: false, 
+      error: 'Network error occurred' 
+    }
+  }
+});
+
+// Mock email validation scenarios
+export const createMockEmailScenarios = () => ({
+  validEmail: 'newuser@example.com',
+  invalidEmails: [
+    { email: '', error: 'Email address is required' },
+    { email: 'invalid-email', error: 'Please enter a valid email address' },
+    { email: 'current@example.com', error: 'Please enter a different email address' }
+  ],
+  supabaseErrors: [
+    { 
+      message: 'email address is already in use',
+      expected: 'This email is already associated with another account.'
+    },
+    {
+      message: 'rate limit exceeded',
+      expected: 'Please wait a few minutes before trying again.'
+    }
+  ]
+});
+
+// Helper to mock localStorage
+export const mockLocalStorage = () => {
+  const store: Record<string, string> = {};
+  
+  return {
+    getItem: vi.fn((key: string) => store[key] || null),
+    setItem: vi.fn((key: string, value: string) => {
+      store[key] = value;
+    }),
+    removeItem: vi.fn((key: string) => {
+      delete store[key];
+    }),
+    clear: vi.fn(() => {
+      Object.keys(store).forEach(key => delete store[key]);
+    }),
+    store
+  };
+};
+
+// Helper to mock Supabase responses
+export const mockSupabaseResponse = (data?: any, error?: any) => ({
+  data,
+  error,
+  status: error ? 400 : 200,
+  statusText: error ? 'Bad Request' : 'OK'
+});
+
+// Helper to create mock auth states
+export const createMockAuthStates = () => ({
+  authenticated: {
+    user: createMockUser(),
+    session: { access_token: 'test-token', user: createMockUser() },
+    loading: false
+  },
+  
+  unauthenticated: {
+    user: null,
+    session: null,
+    loading: false
+  },
+  
+  loading: {
+    user: null,
+    session: null,
+    loading: true
+  }
 });

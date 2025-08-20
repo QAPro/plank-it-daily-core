@@ -68,6 +68,10 @@ const ProfileHeader = () => {
 
   const handleEdit = () => {
     setIsEditing(true);
+    toast({
+      title: "Edit mode activated",
+      description: "You can now edit your profile information.",
+    });
   };
 
   const handleCancel = () => {
@@ -76,6 +80,10 @@ const ProfileHeader = () => {
       full_name: userProfile?.full_name || '',
       username: userProfile?.username || '',
       avatar_url: userProfile?.avatar_url || '',
+    });
+    toast({
+      title: "Changes cancelled",
+      description: "Your profile changes have been discarded.",
     });
   };
 
@@ -129,13 +137,13 @@ const ProfileHeader = () => {
 
       setIsEditing(false);
       toast({
-        title: "Profile updated",
-        description: "Your profile has been updated successfully.",
+        title: "Profile updated successfully",
+        description: "Your profile information has been saved.",
       });
     } catch (error: any) {
       console.error('Error updating profile:', error);
       toast({
-        title: "Error updating profile",
+        title: "Failed to update profile",
         description: error.message || "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
@@ -200,12 +208,17 @@ const ProfileHeader = () => {
             <div className="flex-1">
               {isEditing ? (
                 <div className="space-y-3">
-                  <Input
-                    value={editData.full_name}
-                    onChange={(e) => setEditData(prev => ({ ...prev, full_name: e.target.value }))}
-                    placeholder="Full name (as shown on your profile)"
-                    className="bg-white/20 text-white placeholder:text-orange-100 border-white/30 focus:border-white"
-                  />
+                  <div className="space-y-1">
+                    <Input
+                      value={editData.full_name}
+                      onChange={(e) => setEditData(prev => ({ ...prev, full_name: e.target.value }))}
+                      placeholder="Enter your full name (e.g., John Smith)"
+                      className="bg-white/20 text-white placeholder:text-orange-100 border-white/30 focus:border-white"
+                    />
+                    <p className="text-xs text-orange-100/80">
+                      This is how your name appears on your profile and to other users
+                    </p>
+                  </div>
                   <UsernameInput
                     value={editData.username}
                     onChange={(value) => setEditData(prev => ({ ...prev, username: value }))}
@@ -261,7 +274,7 @@ const ProfileHeader = () => {
                     className="bg-white/20 text-white hover:bg-white/30 border-0"
                   >
                     <Check className="w-4 h-4 mr-1" />
-                    Save
+                    {loading ? 'Saving...' : 'Save'}
                   </Button>
                   <Button 
                     variant="secondary"

@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import AvatarSelector from "./AvatarSelector";
+import UsernameInput from "./UsernameInput";
+import { validateUsernameFormat } from "@/utils/usernameValidation";
 
 const ProfileHeader = () => {
   const { user, session } = useAuth();
@@ -70,6 +72,19 @@ const ProfileHeader = () => {
   const handleSave = async () => {
     if (!user) return;
     
+    // Validate username format before saving
+    if (editData.username.trim()) {
+      const usernameValidation = validateUsernameFormat(editData.username.trim());
+      if (!usernameValidation.isValid) {
+        toast({
+          title: "Invalid username",
+          description: usernameValidation.error,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+    
     setLoading(true);
     try {
       const { error } = await supabase
@@ -82,7 +97,18 @@ const ProfileHeader = () => {
         })
         .eq('id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        // Handle unique constraint violation
+        if (error.code === '23505' && error.message.includes('username')) {
+          toast({
+            title: "Username not available",
+            description: "This username is already taken. Please choose a different one.",
+            variant: "destructive",
+          });
+          return;
+        }
+        throw error;
+      }
 
       setUserProfile(prev => ({
         ...prev,
@@ -97,9 +123,10 @@ const ProfileHeader = () => {
         description: "Your profile has been updated successfully.",
       });
     } catch (error: any) {
+      console.error('Error updating profile:', error);
       toast({
         title: "Error updating profile",
-        description: error.message,
+        description: error.message || "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -157,14 +184,11 @@ const ProfileHeader = () => {
                     placeholder="Full name (as shown on your profile)"
                     className="bg-white/20 text-white placeholder:text-orange-100 border-white/30 focus:border-white"
                   />
-                  <Input
+                  <UsernameInput
                     value={editData.username}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/^@/, '').trim();
-                      setEditData(prev => ({ ...prev, username: value }));
-                    }}
-                    placeholder="Username (without @) — letters, numbers, underscores"
-                    className="bg-white/20 text-white placeholder:text-orange-100 border-white/30 focus:border-white"
+                    onChange={(value) => setEditData(prev => ({ ...prev, username: value }))}
+                    currentUsername={userProfile?.username}
+                    className="bg-white/20 text-white placeholder:text-orange-100"
                   />
                   <div className="space-y-2">
                     <div className="text-sm text-orange-100/90">Choose an avatar</div>

@@ -1,10 +1,19 @@
-
 export const sanitizeInput = (input: string): string => {
   return input
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
     .replace(/javascript:/gi, '')
     .replace(/on\w+\s*=/gi, '')
     .trim();
+};
+
+export const sanitizeUsername = (username: string): string => {
+  return username
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9_]/g, '') // Remove invalid characters
+    .replace(/_{2,}/g, '_') // Replace multiple underscores with single
+    .replace(/^_+|_+$/g, '') // Remove leading/trailing underscores
+    .slice(0, 30); // Ensure max length
 };
 
 export const validateEmail = (email: string): boolean => {

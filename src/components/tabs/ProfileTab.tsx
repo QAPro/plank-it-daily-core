@@ -19,7 +19,7 @@ interface ProfileTabProps {
 }
 
 const ProfileTab = ({ initialView = 'overview' }: ProfileTabProps) => {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -32,7 +32,7 @@ const ProfileTab = ({ initialView = 'overview' }: ProfileTabProps) => {
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      await supabase.auth.signOut();
       toast({
         title: "Signed out successfully",
         description: "See you next time!"
@@ -45,6 +45,11 @@ const ProfileTab = ({ initialView = 'overview' }: ProfileTabProps) => {
         variant: "destructive"
       });
     }
+  };
+
+  const handleBackToManagement = () => {
+    // Switch back to regular subscription management view
+    setActiveTab('subscription');
   };
 
   if (!user) {
@@ -88,7 +93,7 @@ const ProfileTab = ({ initialView = 'overview' }: ProfileTabProps) => {
                 <h2 className="text-2xl font-bold text-gray-800">Subscription Plans</h2>
                 <Button 
                   variant="outline" 
-                  onClick={() => setActiveTab('subscription')}
+                  onClick={handleBackToManagement}
                   className="text-sm"
                 >
                   Back to Management
@@ -97,7 +102,7 @@ const ProfileTab = ({ initialView = 'overview' }: ProfileTabProps) => {
               <SubscriptionPlansPage />
             </div>
           ) : (
-            <SubscriptionManagement />
+            <SubscriptionManagement onBack={handleBackToManagement} />
           )}
         </TabsContent>
 

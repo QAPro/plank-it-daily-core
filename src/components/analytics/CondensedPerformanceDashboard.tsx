@@ -123,8 +123,10 @@ const CondensedPerformanceDashboard: React.FC = () => {
                 <span className="text-foreground font-semibold">{sessionStats?.thisWeekSessions || 0}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Current Streak</span>
-                <span className="text-foreground font-semibold">{sessionStats?.current_streak || 0} days</span>
+                <span className="text-muted-foreground">Weekly Goal Progress</span>
+                <span className="text-foreground font-semibold">
+                  {sessionStats?.thisWeekSessions || 0}/{sessionStats?.weeklyGoal || 7}
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">Top Exercise</span>

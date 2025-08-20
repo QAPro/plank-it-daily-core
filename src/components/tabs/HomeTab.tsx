@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { Play, Calendar, Trophy, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,14 +10,14 @@ import GatedRecommendationsDashboard from "@/components/recommendations/GatedRec
 import LevelProgressBar from "@/components/level/LevelProgressBar";
 import SubscriptionStatusCard from "@/components/subscription/SubscriptionStatusCard";
 import { useLevelProgression } from "@/hooks/useLevelProgression";
-import { useState } from "react";
 
 interface HomeTabProps {
   onExerciseSelect?: (exerciseId: string) => void;
   onTabChange?: (tab: string) => void;
+  onUpgradeClick?: () => void;
 }
 
-const HomeTab = ({ onExerciseSelect, onTabChange }: HomeTabProps) => {
+const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick }: HomeTabProps) => {
   const { data: stats } = useSessionStats();
   const { user } = useAuth();
   const { userLevel, loading: levelLoading } = useLevelProgression();
@@ -40,14 +41,14 @@ const HomeTab = ({ onExerciseSelect, onTabChange }: HomeTabProps) => {
   const handleManageSubscription = () => {
     if (onTabChange) {
       onTabChange('profile');
-      // We'll need to trigger subscription management view in ProfileTab
     }
   };
 
   const handleUpgrade = () => {
-    if (onTabChange) {
+    if (onUpgradeClick) {
+      onUpgradeClick();
+    } else if (onTabChange) {
       onTabChange('profile');
-      // We'll need to trigger subscription plans view in ProfileTab
     }
   };
 

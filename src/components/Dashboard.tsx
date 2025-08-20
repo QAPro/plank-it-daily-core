@@ -15,12 +15,26 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('home');
+  const [profileView, setProfileView] = useState<'overview' | 'subscription-plans'>('overview');
   const { user } = useAuth();
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    // Reset profile view when switching tabs
+    if (tab !== 'profile') {
+      setProfileView('overview');
+    }
+  };
+
+  const handleUpgradeNavigation = () => {
+    setProfileView('subscription-plans');
+    setActiveTab('profile');
+  };
 
   const renderTabContent = () => {
     switch (activeTab) {
       case 'home':
-        return <HomeTab />;
+        return <HomeTab onTabChange={handleTabChange} onUpgradeClick={handleUpgradeNavigation} />;
       case 'workout':
         return <WorkoutTab />;
       case 'stats':
@@ -36,9 +50,9 @@ const Dashboard = () => {
       case 'events':
         return <EventsTab />;
       case 'profile':
-        return <ProfileTab />;
+        return <ProfileTab initialView={profileView} />;
       default:
-        return <HomeTab />;
+        return <HomeTab onTabChange={handleTabChange} onUpgradeClick={handleUpgradeNavigation} />;
     }
   };
 
@@ -59,7 +73,7 @@ const Dashboard = () => {
         {/* Bottom Navigation */}
         <TabNavigation 
           activeTab={activeTab} 
-          onTabChange={setActiveTab} 
+          onTabChange={handleTabChange} 
         />
       </div>
     </div>

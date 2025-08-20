@@ -1,12 +1,20 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BarChart3, Share2, Trophy } from 'lucide-react';
 import { formatDuration, intervalToDuration } from 'date-fns';
-import { Achievement } from '@/types';
-import { PersonalBest } from '@/types/personalBest';
+import type { Tables } from '@/integrations/supabase/types';
 import SocialFeatureGuard from '@/components/access/SocialFeatureGuard';
+
+// Type definitions based on Supabase schema
+type Achievement = Tables<'user_achievements'>;
+type PersonalBest = {
+  id: string;
+  exercise_name: string;
+  new_best: string;
+};
 
 interface SessionCompletionCelebrationProps {
   session: {
@@ -67,7 +75,7 @@ const SessionCompletionCelebration: React.FC<SessionCompletionCelebrationProps> 
               <ul className="list-disc list-inside space-y-1">
                 {achievements.map((achievement) => (
                   <li key={achievement.id} className="text-gray-700">
-                    {achievement.name}
+                    {achievement.achievement_name}
                   </li>
                 ))}
               </ul>

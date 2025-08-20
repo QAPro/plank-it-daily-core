@@ -251,74 +251,113 @@ async function getUserActiveSubscription(userId: string): Promise<ActiveSubscrip
   return getActiveSubscription(userId);
 }
 
-// Replace lifetime access functions to avoid referencing non-typed Supabase tables.
-// These act as safe fallbacks so the app builds and runs without the user_overrides table.
+// Replace lifetime access functions to use real RPCs and table data
+async function getLifetimeAccessOverrides(userId: string): Promise<LifetimeAccessOverride[]> {
+  console.log("[adminUserService] getLifetimeAccessOverrides", userId);
+  const clientAny = supabase as any;
+  const { data, error } = await clientAny.rpc("get_user_lifetime_overrides", {
+    _user_id: userId,
+  });
 
-async function getLifetimeAccessOverrides(_userId: string): Promise<LifetimeAccessOverride[]> {
-  console.warn("[adminUserService] getLifetimeAccessOverrides fallback - user_overrides table not available, returning empty list");
-  return [];
+  if (error) {
+    console.error("[adminUserService] getLifetimeAccessOverrides error", error);
+    throw error;
+  }
+
+  return (data as LifetimeAccessOverride[]) || [];
 }
 
 async function grantLifetimeAccess(
   userId: string,
-  grantedBy: string,
+  _grantedBy: string, // no longer used; server derives from auth.uid()
   reason: string,
   overrideData: any = {},
   expiresAt?: string
 ): Promise<LifetimeAccessOverride> {
-  console.warn("[adminUserService] grantLifetimeAccess fallback - user_overrides table not available, returning mock override");
-  return {
-    id: crypto.randomUUID(),
-    user_id: userId,
-    override_type: "lifetime_access",
-    override_data: overrideData,
-    reason: reason ?? null,
-    granted_by: grantedBy ?? null,
-    expires_at: expiresAt ?? null,
-    is_active: true,
-    created_at: new Date().toISOString(),
-  };
+  console.log("[adminUserService] grantLifetimeAccess", userId, reason, overrideData, expiresAt);
+  const clientAny = supabase as any;
+  const { data, error } = await clientAny.rpc("admin_grant_lifetime_access", {
+    _user_id: userId,
+    _reason: reason ?? null,
+    _override_data: overrideData ?? {},
+    _expires_at: expiresAt ?? null,
+  });
+
+  if (error) {
+    console.error("[adminUserService] grantLifetimeAccess error", error);
+    throw error;
+  }
+
+  return data as LifetimeAccessOverride;
 }
 
-async function revokeLifetimeAccess(_overrideId: string, _reason: string): Promise<boolean> {
-  console.warn("[adminUserService] revokeLifetimeAccess fallback - user_overrides table not available, returning success");
-  return true;
+async function revokeLifetimeAccess(userId: string, reason?: string): Promise<boolean> {
+  console.log("[adminUserService] revokeLifetimeAccess", userId, reason);
+  // Find active override for this user, then revoke it
+  const active = await getActiveLifetimeOverride(userId);
+  if (!active) {
+    console.warn("[adminUserService] revokeLifetimeAccess no active override found for user", userId);
+    return false;
+  }
+
+  const clientAny = supabase as any;
+  const { data, error } = await clientAny.rpc("admin_revoke_lifetime_access", {
+    _override_id: active.id,
+    _reason: reason ?? null,
+  });
+
+  if (error) {
+    console.error("[adminUserService] revokeLifetimeAccess error", error);
+    throw error;
+  }
+
+  return data === true;
 }
 
 async function getActiveLifetimeOverride(userId: string): Promise<LifetimeAccessOverride | null> {
   const overrides = await getLifetimeAccessOverrides(userId);
-  return overrides.find(o => o.is_active) || null;
+  return overrides.find((o) => o.is_active) || null;
 }
 
+// Use admin RPC to change tier (RLS-safe)
 async function changeUserTier(userId: string, newTier: "free" | "premium", reason?: string): Promise<boolean> {
   console.log("[adminUserService] changeUserTier", userId, newTier, reason);
-  const { error } = await supabase
-    .from("users")
-    .update({ subscription_tier: newTier })
-    .eq("id", userId);
+  const clientAny = supabase as any;
+  const { data, error } = await clientAny.rpc("admin_change_user_tier", {
+    _target_user_id: userId,
+    _new_tier: newTier,
+    _reason: reason ?? null,
+  });
 
   if (error) {
     console.error("[adminUserService] changeUserTier error", error);
     throw error;
   }
 
-  return true;
+  return data === true;
 }
 
+// Keep placeholder custom pricing (no backing table yet)
 async function setCustomPricing(userId: string, planId: string, priceCents: number, reason?: string): Promise<boolean> {
   console.log("[adminUserService] setCustomPricing", userId, planId, priceCents, reason);
-  
-  // This would typically update a custom pricing table or subscription record
-  // For now, we'll return success
   return true;
 }
 
+// Admin notes: real CRUD against admin_user_notes
 async function getUserNotes(userId: string): Promise<AdminUserNote[]> {
   console.log("[adminUserService] getUserNotes", userId);
-  
-  // Since admin_user_notes table doesn't exist, return empty array
-  console.warn("[adminUserService] admin_user_notes table not available, returning empty array");
-  return [];
+  const { data, error } = await supabase
+    .from("admin_user_notes" as any)
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("[adminUserService] getUserNotes error", error);
+    throw error;
+  }
+
+  return (data as AdminUserNote[]) || [];
 }
 
 async function createUserNote(
@@ -329,23 +368,26 @@ async function createUserNote(
   noteType: string,
   isImportant: boolean
 ): Promise<AdminUserNote> {
-  console.log("[adminUserService] createUserNote", userId, createdBy, title, content, noteType, isImportant);
-  
-  // Since admin_user_notes table doesn't exist, return a mock note
-  console.warn("[adminUserService] admin_user_notes table not available, returning mock note");
-  const mockNote: AdminUserNote = {
-    id: crypto.randomUUID(),
-    user_id: userId,
-    created_by: createdBy,
-    title,
-    content,
-    note_type: noteType,
-    is_important: isImportant,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  };
-  
-  return mockNote;
+  console.log("[adminUserService] createUserNote", userId, createdBy, title, noteType, isImportant);
+  const { data, error } = await supabase
+    .from("admin_user_notes" as any)
+    .insert({
+      user_id: userId,
+      created_by: createdBy,
+      title,
+      content,
+      note_type: noteType,
+      is_important: isImportant,
+    })
+    .select("*")
+    .maybeSingle();
+
+  if (error) {
+    console.error("[adminUserService] createUserNote error", error);
+    throw error;
+  }
+
+  return data as AdminUserNote;
 }
 
 async function addUserNote(args: {
@@ -361,43 +403,57 @@ async function addUserNote(args: {
 
 async function updateUserNote(noteId: string, updates: Partial<AdminUserNote>): Promise<AdminUserNote> {
   console.log("[adminUserService] updateUserNote", noteId, updates);
-  
-  // Since admin_user_notes table doesn't exist, return a mock updated note
-  console.warn("[adminUserService] admin_user_notes table not available, returning mock updated note");
-  const mockNote: AdminUserNote = {
-    id: noteId,
-    user_id: updates.user_id || "",
-    created_by: updates.created_by || "",
-    title: updates.title || "",
-    content: updates.content || "",
-    note_type: updates.note_type || "",
-    is_important: updates.is_important || false,
-    created_at: updates.created_at || new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  };
-  
-  return mockNote;
+  const { data, error } = await supabase
+    .from("admin_user_notes" as any)
+    .update({
+      title: updates.title,
+      content: updates.content,
+      note_type: updates.note_type,
+      is_important: updates.is_important,
+    })
+    .eq("id", noteId)
+    .select("*")
+    .maybeSingle();
+
+  if (error) {
+    console.error("[adminUserService] updateUserNote error", error);
+    throw error;
+  }
+
+  return data as AdminUserNote;
 }
 
 async function deleteUserNote(noteId: string): Promise<boolean> {
   console.log("[adminUserService] deleteUserNote", noteId);
-  
-  // Since admin_user_notes table doesn't exist, return success
-  console.warn("[adminUserService] admin_user_notes table not available, returning success");
+  const { error } = await supabase.from("admin_user_notes" as any).delete().eq("id", noteId);
+
+  if (error) {
+    console.error("[adminUserService] deleteUserNote error", error);
+    throw error;
+  }
+
   return true;
 }
 
-// Bulk lifetime operations fallback (no DB table available)
+// Bulk lifetime operations now no-ops are unnecessary, but keep function signatures if needed elsewhere
 async function bulkGrantLifetime(userIds: string[], grantedBy: string, reason?: string): Promise<number> {
-  console.warn("[adminUserService] bulkGrantLifetime fallback - user_overrides table not available; no-op");
-  // Simulate success count so the UI flow remains functional
-  return userIds.length;
+  console.log("[adminUserService] bulkGrantLifetime (looping RPC)", userIds.length, grantedBy, reason);
+  let count = 0;
+  for (const uid of userIds) {
+    await grantLifetimeAccess(uid, grantedBy, reason || "", {});
+    count++;
+  }
+  return count;
 }
 
 async function bulkRevokeLifetime(userIds: string[], reason?: string): Promise<number> {
-  console.warn("[adminUserService] bulkRevokeLifetime fallback - user_overrides table not available; no-op");
-  // Simulate success count so the UI flow remains functional
-  return userIds.length;
+  console.log("[adminUserService] bulkRevokeLifetime (looping RPC)", userIds.length, reason);
+  let count = 0;
+  for (const uid of userIds) {
+    const ok = await revokeLifetimeAccess(uid, reason || "");
+    if (ok) count++;
+  }
+  return count;
 }
 
 async function getUserSummary(userId: string): Promise<AdminUserSummary | null> {
@@ -449,6 +505,7 @@ async function getSubscriptionSummary(): Promise<{
   }
 }
 
+// Segmentation: align with existing table shape; normalize to .filter for UI
 async function findUsersBySegment(args: { 
   tier?: "free" | "premium"; 
   createdAfter?: string; 
@@ -509,53 +566,22 @@ async function findUsersBySegment(args: {
   }));
 }
 
+// Use admin RPC for bulk tier changes (RLS-safe)
 async function bulkChangeTier(userIds: string[], tier: "free" | "premium", reason?: string): Promise<number> {
-  console.log("[adminUserService] bulkChangeTier", userIds, tier, reason);
-  const { error } = await supabase
-    .from("users")
-    .update({ subscription_tier: tier })
-    .in("id", userIds);
+  console.log("[adminUserService] bulkChangeTier", userIds.length, tier, reason);
+  const clientAny = supabase as any;
+  const { data, error } = await clientAny.rpc("admin_bulk_change_tier", {
+    _user_ids: userIds,
+    _new_tier: tier,
+    _reason: reason ?? null,
+  });
 
   if (error) {
     console.error("[adminUserService] bulkChangeTier error", error);
     throw error;
   }
 
-  return userIds.length;
-}
-
-// Make createUserSegment accept either (name, filter) or a single object argument for compatibility with existing calls
-async function createUserSegment(arg1: string | { name: string; filter: any }, arg2?: any): Promise<any> {
-  console.log("[adminUserService] createUserSegment", arg1, arg2);
-  
-  const name = typeof arg1 === "string" ? arg1 : arg1.name;
-  const filter = typeof arg1 === "string" ? arg2 : arg1.filter;
-
-  // If the table exists in the project types, this will work; otherwise, caller should handle errors gracefully.
-  const { data, error } = await supabase
-    .from("user_segments" as any) // cast to any to avoid type errors if table is not present in generated types
-    .insert({ name, filter })
-    .select("*")
-    .maybeSingle();
-
-  if (error) {
-    console.error("[adminUserService] createUserSegment error", error);
-    throw error;
-  }
-
-  return data;
-}
-
-async function deleteUserSegment(segmentId: string): Promise<boolean> {
-  console.log("[adminUserService] deleteUserSegment", segmentId);
-  const { error } = await supabase.from("user_segments").delete().eq("id", segmentId);
-
-  if (error) {
-    console.error("[adminUserService] deleteUserSegment error", error);
-    throw error;
-  }
-
-  return true;
+  return (data as number) ?? 0;
 }
 
 async function getUserSubscriptionHealth(userId: string): Promise<any> {
@@ -622,17 +648,55 @@ async function getUserEngagementMetrics(userId: string): Promise<UserEngagementM
   return (data as UserEngagementMetrics) || null;
 }
 
-// Re-add: List saved user segments; use any-cast in case table is not in generated types
+// Re-add: List saved user segments; normalize filter field for UI
 async function listUserSegments(): Promise<any[]> {
   console.log("[adminUserService] listUserSegments");
-  const { data, error } = await supabase.from("user_segments" as any).select("*");
+  const { data, error } = await supabase.from("user_segments" as any).select("*").order("created_at", { ascending: false });
 
   if (error) {
     console.error("[adminUserService] listUserSegments error", error);
     return [];
   }
 
-  return data || [];
+  // Normalize: ensure each item has .filter for the UI, even if DB uses 'criteria'
+  return (data || []).map((seg: any) => ({
+    ...seg,
+    filter: seg.filter ?? seg.criteria ?? {},
+  }));
+}
+
+// Make createUserSegment accept either (name, filter) or object; map to DB column 'criteria'
+async function createUserSegment(arg1: string | { name: string; filter: any }, arg2?: any): Promise<any> {
+  console.log("[adminUserService] createUserSegment", arg1, arg2);
+  
+  const name = typeof arg1 === "string" ? arg1 : arg1.name;
+  const filter = typeof arg1 === "string" ? arg2 : arg1.filter;
+
+  const { data, error } = await supabase
+    .from("user_segments" as any)
+    .insert({ name, criteria: filter })
+    .select("*")
+    .maybeSingle();
+
+  if (error) {
+    console.error("[adminUserService] createUserSegment error", error);
+    throw error;
+  }
+
+  // Normalize on return
+  return { ...data, filter: (data as any)?.filter ?? (data as any)?.criteria ?? {} };
+}
+
+async function deleteUserSegment(segmentId: string): Promise<boolean> {
+  console.log("[adminUserService] deleteUserSegment", segmentId);
+  const { error } = await supabase.from("user_segments" as any).delete().eq("id", segmentId);
+
+  if (error) {
+    console.error("[adminUserService] deleteUserSegment error", error);
+    throw error;
+  }
+
+  return true;
 }
 
 export const adminUserService = {

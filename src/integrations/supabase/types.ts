@@ -104,6 +104,42 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_user_notes: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string
+          id: string
+          is_important: boolean
+          note_type: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by: string
+          id?: string
+          is_important?: boolean
+          note_type?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_important?: boolean
+          note_type?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       analytics_insights: {
         Row: {
           action_required: boolean | null
@@ -1754,6 +1790,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_feature_overrides: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          feature_name: string
+          granted_by: string | null
+          id: string
+          is_enabled: boolean
+          reason: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          feature_name: string
+          granted_by?: string | null
+          id?: string
+          is_enabled?: boolean
+          reason?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          feature_name?: string
+          granted_by?: string | null
+          id?: string
+          is_enabled?: boolean
+          reason?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_goals: {
         Row: {
           achievement_probability: number | null
@@ -1888,6 +1960,45 @@ export type Database = {
           id?: string
           preferred_duration?: number | null
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_overrides: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          granted_by: string | null
+          id: string
+          is_active: boolean
+          override_data: Json
+          override_type: string
+          reason: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          granted_by?: string | null
+          id?: string
+          is_active?: boolean
+          override_data?: Json
+          override_type: string
+          reason?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          granted_by?: string | null
+          id?: string
+          is_active?: boolean
+          override_data?: Json
+          override_type?: string
+          reason?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -2374,6 +2485,38 @@ export type Database = {
       }
     }
     Functions: {
+      admin_bulk_change_tier: {
+        Args: { _new_tier: string; _reason?: string; _user_ids: string[] }
+        Returns: number
+      }
+      admin_change_user_tier: {
+        Args: { _new_tier: string; _reason?: string; _target_user_id: string }
+        Returns: boolean
+      }
+      admin_grant_lifetime_access: {
+        Args: {
+          _expires_at?: string
+          _override_data?: Json
+          _reason?: string
+          _user_id: string
+        }
+        Returns: {
+          created_at: string
+          expires_at: string | null
+          granted_by: string | null
+          id: string
+          is_active: boolean
+          override_data: Json
+          override_type: string
+          reason: string | null
+          updated_at: string
+          user_id: string
+        }
+      }
+      admin_revoke_lifetime_access: {
+        Args: { _override_id: string; _reason?: string }
+        Returns: boolean
+      }
       bootstrap_first_admin: {
         Args: { user_email: string }
         Returns: boolean
@@ -2485,6 +2628,34 @@ export type Database = {
         Args: { _feature_name: string; _user_id: string }
         Returns: Json
       }
+      get_user_feature_overrides: {
+        Args: { _user_id: string }
+        Returns: {
+          created_at: string
+          expires_at: string
+          feature_name: string
+          granted_by: string
+          id: string
+          is_enabled: boolean
+          reason: string
+          user_id: string
+        }[]
+      }
+      get_user_lifetime_overrides: {
+        Args: { _user_id: string }
+        Returns: {
+          created_at: string
+          expires_at: string | null
+          granted_by: string | null
+          id: string
+          is_active: boolean
+          override_data: Json
+          override_type: string
+          reason: string | null
+          updated_at: string
+          user_id: string
+        }[]
+      }
       get_user_registration_trends: {
         Args: { days_back?: number }
         Returns: {
@@ -2526,6 +2697,10 @@ export type Database = {
           total_attempts: number
         }[]
       }
+      grant_admin_role: {
+        Args: { _reason?: string; _target_user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2552,6 +2727,30 @@ export type Database = {
       refresh_user_engagement_metrics: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      revoke_admin_role: {
+        Args: { _reason?: string; _target_user_id: string }
+        Returns: boolean
+      }
+      set_user_feature_override: {
+        Args: {
+          _expires_at?: string
+          _feature_name: string
+          _is_enabled: boolean
+          _reason?: string
+          _user_id: string
+        }
+        Returns: {
+          created_at: string
+          expires_at: string | null
+          feature_name: string
+          granted_by: string | null
+          id: string
+          is_enabled: boolean
+          reason: string | null
+          updated_at: string
+          user_id: string
+        }
       }
     }
     Enums: {

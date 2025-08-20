@@ -8,9 +8,6 @@ import { Crown, BarChart3, Target, Brain, TrendingUp } from 'lucide-react';
 import UserAnalyticsDashboard from '@/components/analytics/UserAnalyticsDashboard';
 import BasicPerformanceDashboard from '@/components/analytics/BasicPerformanceDashboard';
 import GoalTrackingDashboard from '@/components/analytics/GoalTrackingDashboard';
-import SmartRecommendationsPanel from '@/components/analytics/SmartRecommendationsPanel';
-import StatsDashboard from '@/components/StatsDashboard';
-import SessionHistory from '@/components/SessionHistory';
 import FeatureGuard from '@/components/access/FeatureGuard';
 import AIFeatureGuard from '@/components/access/AIFeatureGuard';
 import { isAIEnabled } from '@/constants/featureGating';
@@ -67,34 +64,25 @@ const AnalyticsTab = () => {
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className={`grid w-full ${aiEnabled ? 'grid-cols-4' : 'grid-cols-3'}`}>
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
           <TabsTrigger value="goals">Goals</TabsTrigger>
-          {aiEnabled && <TabsTrigger value="insights">AI Insights</TabsTrigger>}
         </TabsList>
 
-        {/* Overview Tab - High-level summary */}
+        {/* Overview Tab - Performance analysis with charts and trends */}
         <TabsContent value="overview" className="space-y-6">
           {aiEnabled ? (
             <AIFeatureGuard fallback={null}>
               <FeatureGuard 
                 feature="advanced_stats"
-                fallback={
-                  <div className="space-y-6">
-                    <StatsDashboard />
-                    <SessionHistory />
-                  </div>
-                }
+                fallback={<BasicPerformanceDashboard />}
               >
                 <UserAnalyticsDashboard />
               </FeatureGuard>
             </AIFeatureGuard>
           ) : (
-            <div className="space-y-6">
-              <StatsDashboard />
-              <SessionHistory />
-            </div>
+            <BasicPerformanceDashboard />
           )}
         </TabsContent>
 
@@ -135,18 +123,6 @@ const AnalyticsTab = () => {
             </Card>
           )}
         </TabsContent>
-
-        {/* AI Insights Tab - Only shown when AI is enabled */}
-        {aiEnabled && (
-          <TabsContent value="insights" className="space-y-6">
-            <FeatureGuard 
-              feature="smart_recommendations"
-              fallback={<PremiumUpgradePrompt />}
-            >
-              <SmartRecommendationsPanel />
-            </FeatureGuard>
-          </TabsContent>
-        )}
       </Tabs>
     </motion.div>
   );

@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import EmailChangeDialog from '../EmailChangeDialog';
 import { supabase } from '@/integrations/supabase/client';
+import type { AuthError } from '@supabase/supabase-js';
 
 // Mock Supabase
 vi.mock('@/integrations/supabase/client', () => ({
@@ -147,13 +148,9 @@ describe('EmailChangeDialog', () => {
   it('handles email already in use error', async () => {
     mockUpdateUser.mockResolvedValue({
       data: { user: null },
-      error: { 
-        message: 'email address is already in use',
-        code: 'email_address_in_use',
-        status: 400,
-        __isAuthError: true,
-        name: 'AuthError'
-      }
+      error: {
+        message: 'email address is already in use'
+      } as AuthError
     });
     
     render(<EmailChangeDialog {...defaultProps} />);
@@ -178,13 +175,9 @@ describe('EmailChangeDialog', () => {
   it('handles rate limit error', async () => {
     mockUpdateUser.mockResolvedValue({
       data: { user: null },
-      error: { 
-        message: 'rate limit exceeded',
-        code: 'rate_limit_exceeded',
-        status: 429,
-        __isAuthError: true,
-        name: 'AuthError'
-      }
+      error: {
+        message: 'rate limit exceeded'
+      } as AuthError
     });
     
     render(<EmailChangeDialog {...defaultProps} />);

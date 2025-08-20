@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { isSocialEnabled } from "@/constants/featureGating";
 
 type Tournament = {
   id: string;
@@ -31,10 +32,16 @@ export const useTournaments = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const qc = useQueryClient();
+  const socialEnabled = isSocialEnabled();
 
   const tournamentsQuery = useQuery({
     queryKey: ["tournaments"],
     queryFn: async () => {
+      if (!socialEnabled) {
+        console.log("[useTournaments] social features disabled, returning empty tournaments");
+        return [] as Tournament[];
+      }
+      
       console.log("[useTournaments] fetching tournaments");
       const { data, error } = await supabase
         .from("tournaments")
@@ -52,7 +59,10 @@ export const useTournaments = () => {
   const myRegsQuery = useQuery({
     queryKey: ["tournament-participants", user?.id],
     queryFn: async () => {
-      if (!user?.id) return [] as TournamentParticipant[];
+      if (!user?.id || !socialEnabled) {
+        return [] as TournamentParticipant[];
+      }
+      
       console.log("[useTournaments] fetching tournament_participants for", user.id);
       const { data, error } = await supabase
         .from("tournament_participants")
@@ -64,12 +74,16 @@ export const useTournaments = () => {
       }
       return (data as TournamentParticipant[]) || [];
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && socialEnabled,
     staleTime: 60_000,
   });
 
   const registerMutation = useMutation({
     mutationFn: async (tournamentId: string) => {
+      if (!socialEnabled) {
+        throw new Error("Social features are disabled");
+      }
+      
       if (!user?.id) throw new Error("Must be logged in to register for tournaments");
       console.log("[useTournaments] registering for", tournamentId);
 

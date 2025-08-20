@@ -1,7 +1,9 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { isSocialEnabled } from "@/constants/featureGating";
 
 type League = {
   id: string;
@@ -37,10 +39,16 @@ export const useLeagues = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const qc = useQueryClient();
+  const socialEnabled = isSocialEnabled();
 
   const leaguesQuery = useQuery({
     queryKey: ["leagues"],
     queryFn: async () => {
+      if (!socialEnabled) {
+        console.log("[useLeagues] social features disabled, returning empty leagues");
+        return [] as League[];
+      }
+      
       console.log("[useLeagues] fetching active leagues");
       const { data, error } = await supabase
         .from("fitness_leagues")
@@ -58,6 +66,11 @@ export const useLeagues = () => {
   const divisionsQuery = useQuery({
     queryKey: ["league-divisions"],
     queryFn: async () => {
+      if (!socialEnabled) {
+        console.log("[useLeagues] social features disabled, returning empty divisions");
+        return [] as Division[];
+      }
+      
       console.log("[useLeagues] fetching league divisions");
       const { data, error } = await supabase.from("league_divisions").select("*");
       if (error) {
@@ -72,7 +85,10 @@ export const useLeagues = () => {
   const myParticipationQuery = useQuery({
     queryKey: ["league-participants", user?.id],
     queryFn: async () => {
-      if (!user?.id) return [] as Participant[];
+      if (!user?.id || !socialEnabled) {
+        return [] as Participant[];
+      }
+      
       console.log("[useLeagues] fetching participants for", user.id);
       const { data, error } = await supabase
         .from("league_participants")
@@ -84,12 +100,16 @@ export const useLeagues = () => {
       }
       return (data as Participant[]) || [];
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && socialEnabled,
     staleTime: 60_000,
   });
 
   const joinLeagueMutation = useMutation({
     mutationFn: async (leagueId: string) => {
+      if (!socialEnabled) {
+        throw new Error("Social features are disabled");
+      }
+      
       if (!user?.id) throw new Error("Must be logged in to join leagues");
       console.log("[useLeagues] joining league", leagueId);
 

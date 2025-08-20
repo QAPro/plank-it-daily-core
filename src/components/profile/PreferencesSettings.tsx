@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 const PreferencesSettings = () => {
   const { preferences, loading, updatePreferences } = useUserPreferences();
@@ -55,22 +54,23 @@ const PreferencesSettings = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ToggleGroup
-            type="single"
-            value={preferences.difficulty_preference}
-            onValueChange={handleDifficultyChange}
-            className="justify-start"
-          >
-            <ToggleGroupItem value="beginner" className="text-xs">
-              Beginner
-            </ToggleGroupItem>
-            <ToggleGroupItem value="intermediate" className="text-xs">
-              Intermediate
-            </ToggleGroupItem>
-            <ToggleGroupItem value="advanced" className="text-xs">
-              Advanced
-            </ToggleGroupItem>
-          </ToggleGroup>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { value: 'beginner', label: 'Beginner' },
+              { value: 'intermediate', label: 'Intermediate' },
+              { value: 'advanced', label: 'Advanced' }
+            ].map((difficulty) => (
+              <Button
+                key={difficulty.value}
+                variant={preferences.difficulty_preference === difficulty.value ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleDifficultyChange(difficulty.value)}
+                className="text-xs"
+              >
+                {difficulty.label}
+              </Button>
+            ))}
+          </div>
         </CardContent>
       </Card>
 

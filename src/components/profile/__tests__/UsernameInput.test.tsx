@@ -29,9 +29,9 @@ describe('UsernameInput', () => {
 
   const mockAvailabilityResult = {
     isChecking: false,
-    isAvailable: null,
-    error: null,
-    lastCheckedUsername: null,
+    isAvailable: null as boolean | null,
+    error: null as string | null,
+    lastCheckedUsername: null as string | null,
     retry: vi.fn()
   };
 

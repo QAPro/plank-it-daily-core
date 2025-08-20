@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import type { SubscriptionPlan, ActiveSubscription } from "@/services/subscriptionService";
 
@@ -152,7 +153,8 @@ async function getFeatureOverrides(userId: string): Promise<UserFeatureOverride[
   // Since user_feature_overrides table may not be accessible, we'll create a mock implementation
   // In a real app, you'd want to create this table or use an RPC function
   try {
-    const { data, error } = await supabase.rpc("get_user_feature_overrides", {
+    const clientAny = supabase as any;
+    const { data, error } = await clientAny.rpc("get_user_feature_overrides", {
       _user_id: userId,
     });
 
@@ -179,7 +181,8 @@ async function setFeatureOverride(args: {
   
   // Since user_feature_overrides table may not be accessible, we'll create a mock implementation
   try {
-    const { data, error } = await supabase.rpc("set_user_feature_override", {
+    const clientAny = supabase as any;
+    const { data, error } = await clientAny.rpc("set_user_feature_override", {
       _user_id: args.userId,
       _feature_name: args.featureName,
       _is_enabled: args.isEnabled,
@@ -213,18 +216,26 @@ async function getSubscriptionPlans(): Promise<SubscriptionPlan[]> {
 
 async function getActiveSubscription(userId: string): Promise<ActiveSubscription | null> {
   console.log("[adminUserService] getActiveSubscription", userId);
-  const { data, error } = await supabase
-    .from("active_subscriptions")
-    .select("*")
-    .eq("user_id", userId)
-    .single();
+  
+  // Try to query subscriptions table instead of active_subscriptions view
+  try {
+    const { data, error } = await supabase
+      .from("subscriptions")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("status", "active")
+      .single();
 
-  if (error) {
-    console.warn("[adminUserService] getActiveSubscription error", error);
+    if (error) {
+      console.warn("[adminUserService] getActiveSubscription error", error);
+      return null;
+    }
+
+    return (data as ActiveSubscription) || null;
+  } catch (e) {
+    console.warn("[adminUserService] getActiveSubscription catch", e);
     return null;
   }
-
-  return (data as ActiveSubscription) || null;
 }
 
 async function getUserActiveSubscription(userId: string): Promise<ActiveSubscription | null> {
@@ -363,12 +374,12 @@ async function getLifetimeAccessOverrides(userId: string): Promise<LifetimeAcces
 
 async function grantLifetimeAccess(
   userId: string,
-  reason: string,
   grantedBy: string,
-  overrideData: any,
+  reason: string,
+  overrideData: any = {},
   expiresAt?: string
 ): Promise<LifetimeAccessOverride> {
-  console.log("[adminUserService] grantLifetimeAccess", userId, reason, grantedBy, overrideData, expiresAt);
+  console.log("[adminUserService] grantLifetimeAccess", userId, grantedBy, reason, overrideData, expiresAt);
   const { data, error } = await supabase
     .from("user_overrides")
     .insert({

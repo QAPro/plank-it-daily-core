@@ -1,14 +1,25 @@
 
 import { useState, useEffect } from 'react';
+import { useDebounce } from './useDebounce';
 import { supabase } from '@/integrations/supabase/client';
 
-export function useUsernameAvailability() {
+export function useUsernameAvailability(username: string, currentUsername?: string) {
   const [isChecking, setIsChecking] = useState(false);
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [lastCheckedUsername, setLastCheckedUsername] = useState<string | null>(null);
 
-  const checkAvailability = async (username: string) => {
-    if (!username || username.length < 3) {
+  const debouncedUsername = useDebounce(username, 500);
+
+  const checkAvailability = async (usernameToCheck: string) => {
+    if (!usernameToCheck || usernameToCheck.length < 3) {
+      setIsAvailable(null);
+      setError(null);
+      return;
+    }
+
+    // If it's the same as current username, don't check
+    if (currentUsername && usernameToCheck.toLowerCase() === currentUsername.toLowerCase()) {
       setIsAvailable(null);
       setError(null);
       return;
@@ -19,8 +30,8 @@ export function useUsernameAvailability() {
 
     try {
       // Try to use the new safe RPC function first
-      let { data, error: rpcError } = await supabase.rpc('does_username_exist', {
-        target_username: username
+      let { data, error: rpcError } = await (supabase as any).rpc('does_username_exist', {
+        target_username: usernameToCheck
       });
 
       if (rpcError) {
@@ -30,7 +41,7 @@ export function useUsernameAvailability() {
         const { data: userData, error: queryError } = await supabase
           .from('users')
           .select('username')
-          .eq('username', username)
+          .eq('username', usernameToCheck)
           .single();
 
         if (queryError && queryError.code !== 'PGRST116') {
@@ -41,6 +52,7 @@ export function useUsernameAvailability() {
       }
 
       setIsAvailable(!data);
+      setLastCheckedUsername(usernameToCheck);
     } catch (err) {
       console.error('Error checking username availability:', err);
       setError('Failed to check username availability');
@@ -50,17 +62,27 @@ export function useUsernameAvailability() {
     }
   };
 
-  const reset = () => {
-    setIsAvailable(null);
-    setError(null);
-    setIsChecking(false);
+  const retry = () => {
+    if (lastCheckedUsername) {
+      checkAvailability(lastCheckedUsername);
+    }
   };
+
+  useEffect(() => {
+    if (debouncedUsername) {
+      checkAvailability(debouncedUsername);
+    } else {
+      setIsAvailable(null);
+      setError(null);
+      setLastCheckedUsername(null);
+    }
+  }, [debouncedUsername, currentUsername]);
 
   return {
     isChecking,
     isAvailable,
     error,
-    checkAvailability,
-    reset,
+    lastCheckedUsername,
+    retry,
   };
 }

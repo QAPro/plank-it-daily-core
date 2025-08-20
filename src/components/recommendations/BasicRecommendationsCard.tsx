@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Heart, Clock, Target, Crown, Sparkles } from 'lucide-react';
 import { useExercises } from '@/hooks/useExercises';
 import { useSubscription } from '@/hooks/useSubscription';
+import AIFeatureGuard from '@/components/access/AIFeatureGuard';
 
 interface BasicRecommendationsCardProps {
   onExerciseSelect?: (exerciseId: string) => void;
@@ -86,22 +87,24 @@ const BasicRecommendationsCard: React.FC<BasicRecommendationsCardProps> = ({
             ))}
           </div>
 
-          {/* Upgrade Teaser */}
-          <div className="mt-6 p-4 bg-gradient-to-r from-purple-50 to-orange-50 rounded-lg border border-purple-200">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <Sparkles className="w-8 h-8 text-purple-500" />
-                <div>
-                  <h4 className="font-semibold text-gray-800">Want Smarter Recommendations?</h4>
-                  <p className="text-sm text-gray-600">Get AI-powered, personalized workout suggestions</p>
+          {/* Upgrade Teaser - Only show when AI is enabled */}
+          <AIFeatureGuard>
+            <div className="mt-6 p-4 bg-gradient-to-r from-purple-50 to-orange-50 rounded-lg border border-purple-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <Sparkles className="w-8 h-8 text-purple-500" />
+                  <div>
+                    <h4 className="font-semibold text-gray-800">Want Smarter Recommendations?</h4>
+                    <p className="text-sm text-gray-600">Get AI-powered, personalized workout suggestions</p>
+                  </div>
                 </div>
+                <Button onClick={handleUpgrade} size="sm">
+                  <Crown className="w-4 h-4 mr-2" />
+                  Upgrade
+                </Button>
               </div>
-              <Button onClick={handleUpgrade} size="sm">
-                <Crown className="w-4 h-4 mr-2" />
-                Upgrade
-              </Button>
             </div>
-          </div>
+          </AIFeatureGuard>
         </CardContent>
       </Card>
     </div>

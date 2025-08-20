@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { Play, Calendar, Trophy, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useSessionStats } from "@/hooks/useSessionHistory";
 import { useAuth } from "@/contexts/AuthContext";
 import StreakDisplay from "@/components/StreakDisplay";
-import RecommendationsDashboard from "@/components/RecommendationsDashboard";
+import GatedRecommendationsDashboard from "@/components/recommendations/GatedRecommendationsDashboard";
 import LevelProgressBar from "@/components/level/LevelProgressBar";
 import SubscriptionStatusCard from "@/components/subscription/SubscriptionStatusCard";
 import { useLevelProgression } from "@/hooks/useLevelProgression";
@@ -148,13 +147,13 @@ const HomeTab = ({ onExerciseSelect, onTabChange }: HomeTabProps) => {
         ))}
       </div>
 
-      {/* Smart Recommendations Dashboard */}
+      {/* Smart Recommendations Dashboard - Now Gated */}
       <motion.div
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.4, duration: 0.6 }}
       >
-        <RecommendationsDashboard onExerciseSelect={onExerciseSelect} />
+        <GatedRecommendationsDashboard onExerciseSelect={onExerciseSelect} />
       </motion.div>
 
       {/* Progress Summary */}

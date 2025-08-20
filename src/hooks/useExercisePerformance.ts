@@ -5,7 +5,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { Tables } from '@/integrations/supabase/types';
 
-type ExercisePerformance = Tables<'user_exercise_performance'>;
+type ExercisePerformance = Tables<'user_exercise_performance'> & {
+  plank_exercises: Tables<'plank_exercises'> | null;
+};
 
 export const useExercisePerformance = () => {
   const { user } = useAuth();
@@ -21,7 +23,7 @@ export const useExercisePerformance = () => {
         .from('user_exercise_performance')
         .select(`
           *,
-          plank_exercises (
+          plank_exercises!inner(
             id,
             name,
             difficulty_level
@@ -35,7 +37,7 @@ export const useExercisePerformance = () => {
         throw error;
       }
 
-      return data;
+      return data as ExercisePerformance[];
     },
     enabled: !!user,
   });

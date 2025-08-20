@@ -605,6 +605,36 @@ async function getUserSubscriptionTimeline(userId: string): Promise<any> {
   return data;
 }
 
+// Re-add: Fetch a single user's engagement metrics from the materialized view
+async function getUserEngagementMetrics(userId: string): Promise<UserEngagementMetrics | null> {
+  console.log("[adminUserService] getUserEngagementMetrics", userId);
+  const { data, error } = await supabase
+    .from("user_engagement_metrics")
+    .select("*")
+    .eq("user_id", userId)
+    .single();
+
+  if (error) {
+    console.error("[adminUserService] getUserEngagementMetrics error", error);
+    return null;
+  }
+
+  return (data as UserEngagementMetrics) || null;
+}
+
+// Re-add: List saved user segments; use any-cast in case table is not in generated types
+async function listUserSegments(): Promise<any[]> {
+  console.log("[adminUserService] listUserSegments");
+  const { data, error } = await supabase.from("user_segments" as any).select("*");
+
+  if (error) {
+    console.error("[adminUserService] listUserSegments error", error);
+    return [];
+  }
+
+  return data || [];
+}
+
 export const adminUserService = {
   searchUsers: searchUsersRaw,
   getUserRoles,

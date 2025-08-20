@@ -11,6 +11,7 @@ import GatedCompeteTab from './tabs/GatedCompeteTab';
 import FriendsTab from './tabs/FriendsTab';
 import EventsTab from './tabs/EventsTab';
 import ProfileTab from './tabs/ProfileTab';
+import AdminDashboard from './admin/AdminDashboard';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Dashboard = () => {
@@ -49,6 +50,8 @@ const Dashboard = () => {
         return <FriendsTab />;
       case 'events':
         return <EventsTab />;
+      case 'admin':
+        return <AdminDashboard />;
       case 'profile':
         return <ProfileTab initialView={profileView} />;
       default:

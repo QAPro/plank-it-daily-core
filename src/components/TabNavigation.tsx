@@ -9,9 +9,11 @@ import {
   Users, 
   User,
   Calendar,
-  Zap
+  Zap,
+  Settings
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAdmin } from '@/hooks/useAdmin';
 import { isSocialEnabled } from '@/constants/featureGating';
 
 interface TabNavigationProps {
@@ -21,6 +23,7 @@ interface TabNavigationProps {
 
 const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, onTabChange }) => {
   const { user } = useAuth();
+  const { isAdmin } = useAdmin();
   const socialEnabled = isSocialEnabled();
 
   const allTabs = [
@@ -32,11 +35,17 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, onTabChange })
     { id: 'compete', label: 'Compete', icon: Users, requiresSocial: true },
     { id: 'friends', label: 'Friends', icon: Users, requiresSocial: true },
     { id: 'events', label: 'Events', icon: Calendar, requiresSocial: true },
+    { id: 'admin', label: 'Admin', icon: Settings, requiresAdmin: true },
     { id: 'profile', label: 'Profile', icon: User },
   ];
 
   // Filter out social tabs when social features are disabled
-  const tabs = allTabs.filter(tab => !tab.requiresSocial || socialEnabled);
+  // Filter out admin tab when user is not admin
+  const tabs = allTabs.filter(tab => {
+    if (tab.requiresSocial && !socialEnabled) return false;
+    if (tab.requiresAdmin && !isAdmin) return false;
+    return true;
+  });
 
   return (
     <div className="bg-white border-t border-gray-200 px-4 py-2">

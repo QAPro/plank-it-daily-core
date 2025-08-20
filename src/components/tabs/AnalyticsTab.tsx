@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Crown, BarChart3, Target, Brain, TrendingUp } from 'lucide-react';
 import UserAnalyticsDashboard from '@/components/analytics/UserAnalyticsDashboard';
 import BasicPerformanceDashboard from '@/components/analytics/BasicPerformanceDashboard';
+import CondensedPerformanceDashboard from '@/components/analytics/CondensedPerformanceDashboard';
 import GoalTrackingDashboard from '@/components/analytics/GoalTrackingDashboard';
 import FeatureGuard from '@/components/access/FeatureGuard';
 import AIFeatureGuard from '@/components/access/AIFeatureGuard';
@@ -70,23 +71,23 @@ const AnalyticsTab = () => {
           <TabsTrigger value="goals">Goals</TabsTrigger>
         </TabsList>
 
-        {/* Overview Tab - Performance analysis with charts and trends */}
+        {/* Overview Tab - High-level summary with condensed dashboard */}
         <TabsContent value="overview" className="space-y-6">
           {aiEnabled ? (
             <AIFeatureGuard fallback={null}>
               <FeatureGuard 
                 feature="advanced_stats"
-                fallback={<BasicPerformanceDashboard />}
+                fallback={<CondensedPerformanceDashboard />}
               >
                 <UserAnalyticsDashboard />
               </FeatureGuard>
             </AIFeatureGuard>
           ) : (
-            <BasicPerformanceDashboard />
+            <CondensedPerformanceDashboard />
           )}
         </TabsContent>
 
-        {/* Performance Tab - Detailed analytics and trends */}
+        {/* Performance Tab - Detailed analytics and trends with full dashboard */}
         <TabsContent value="performance" className="space-y-6">
           {aiEnabled ? (
             <AIFeatureGuard fallback={null}>

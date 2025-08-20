@@ -8,6 +8,8 @@ import { Crown, BarChart3, Target, Brain, TrendingUp } from 'lucide-react';
 import UserAnalyticsDashboard from '@/components/analytics/UserAnalyticsDashboard';
 import GoalTrackingDashboard from '@/components/analytics/GoalTrackingDashboard';
 import SmartRecommendationsPanel from '@/components/analytics/SmartRecommendationsPanel';
+import StatsDashboard from '@/components/StatsDashboard';
+import SessionHistory from '@/components/SessionHistory';
 import FeatureGuard from '@/components/access/FeatureGuard';
 import AIFeatureGuard from '@/components/access/AIFeatureGuard';
 import { isAIEnabled } from '@/constants/featureGating';
@@ -72,60 +74,63 @@ const AnalyticsTab = () => {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          <AIFeatureGuard fallback={null}>
-            <FeatureGuard 
-              feature="advanced_stats"
-              fallback={<PremiumUpgradePrompt />}
-            >
-              <UserAnalyticsDashboard />
-            </FeatureGuard>
-          </AIFeatureGuard>
-          {!aiEnabled && (
-            <Card>
-              <CardContent className="p-6 text-center">
-                <BarChart3 className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">Basic Analytics</h3>
-                <p className="text-gray-600">View your basic workout statistics and progress in the Stats tab.</p>
-              </CardContent>
-            </Card>
+          {aiEnabled ? (
+            <AIFeatureGuard fallback={null}>
+              <FeatureGuard 
+                feature="advanced_stats"
+                fallback={<PremiumUpgradePrompt />}
+              >
+                <UserAnalyticsDashboard />
+              </FeatureGuard>
+            </AIFeatureGuard>
+          ) : (
+            <div className="space-y-6">
+              <StatsDashboard />
+              <SessionHistory />
+            </div>
           )}
         </TabsContent>
 
         <TabsContent value="performance" className="space-y-6">
-          <AIFeatureGuard fallback={null}>
-            <FeatureGuard 
-              feature="advanced_stats"
-              fallback={<PremiumUpgradePrompt />}
-            >
-              <UserAnalyticsDashboard />
-            </FeatureGuard>
-          </AIFeatureGuard>
-          {!aiEnabled && (
-            <Card>
-              <CardContent className="p-6 text-center">
-                <TrendingUp className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">Basic Performance Tracking</h3>
-                <p className="text-gray-600">View your workout history and basic performance metrics in the Stats tab.</p>
-              </CardContent>
-            </Card>
+          {aiEnabled ? (
+            <AIFeatureGuard fallback={null}>
+              <FeatureGuard 
+                feature="advanced_stats"
+                fallback={<PremiumUpgradePrompt />}
+              >
+                <UserAnalyticsDashboard />
+              </FeatureGuard>
+            </AIFeatureGuard>
+          ) : (
+            <div className="space-y-6">
+              <StatsDashboard />
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <TrendingUp className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Basic Performance Tracking</h3>
+                  <p className="text-gray-600">Your basic workout statistics are shown above. Upgrade to Premium for advanced performance insights and AI-powered recommendations.</p>
+                </CardContent>
+              </Card>
+            </div>
           )}
         </TabsContent>
 
         <TabsContent value="goals" className="space-y-6">
-          <AIFeatureGuard fallback={null}>
-            <FeatureGuard 
-              feature="advanced_stats"
-              fallback={<PremiumUpgradePrompt />}
-            >
-              <GoalTrackingDashboard />
-            </FeatureGuard>
-          </AIFeatureGuard>
-          {!aiEnabled && (
+          {aiEnabled ? (
+            <AIFeatureGuard fallback={null}>
+              <FeatureGuard 
+                feature="advanced_stats"
+                fallback={<PremiumUpgradePrompt />}
+              >
+                <GoalTrackingDashboard />
+              </FeatureGuard>
+            </AIFeatureGuard>
+          ) : (
             <Card>
               <CardContent className="p-6 text-center">
                 <Target className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Goal Setting</h3>
-                <p className="text-gray-600">Set personal workout goals and track your progress manually.</p>
+                <p className="text-gray-600">Set personal workout goals and track your progress. Upgrade to Premium for advanced goal tracking with AI-powered insights and automated progress monitoring.</p>
               </CardContent>
             </Card>
           )}

@@ -116,7 +116,10 @@ describe('EmailChangeDialog', () => {
   });
 
   it('submits email change successfully', async () => {
-    mockUpdateUser.mockResolvedValue({ error: null });
+    mockUpdateUser.mockResolvedValue({ 
+      data: { user: null }, 
+      error: null 
+    });
     
     render(<EmailChangeDialog {...defaultProps} />);
     
@@ -143,7 +146,14 @@ describe('EmailChangeDialog', () => {
 
   it('handles email already in use error', async () => {
     mockUpdateUser.mockResolvedValue({
-      error: { message: 'email address is already in use' }
+      data: { user: null },
+      error: { 
+        message: 'email address is already in use',
+        code: 'email_address_in_use',
+        status: 400,
+        __isAuthError: true,
+        name: 'AuthError'
+      }
     });
     
     render(<EmailChangeDialog {...defaultProps} />);
@@ -167,7 +177,14 @@ describe('EmailChangeDialog', () => {
 
   it('handles rate limit error', async () => {
     mockUpdateUser.mockResolvedValue({
-      error: { message: 'rate limit exceeded' }
+      data: { user: null },
+      error: { 
+        message: 'rate limit exceeded',
+        code: 'rate_limit_exceeded',
+        status: 429,
+        __isAuthError: true,
+        name: 'AuthError'
+      }
     });
     
     render(<EmailChangeDialog {...defaultProps} />);

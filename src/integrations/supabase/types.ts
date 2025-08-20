@@ -152,6 +152,36 @@ export type Database = {
         }
         Relationships: []
       }
+      avatar_options: {
+        Row: {
+          category: string
+          created_at: string
+          display_order: number
+          id: string
+          image_url: string
+          is_active: boolean
+          name: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url: string
+          is_active?: boolean
+          name: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          name?: string
+        }
+        Relationships: []
+      }
       billing_transactions: {
         Row: {
           amount_cents: number
@@ -2139,8 +2169,10 @@ export type Database = {
           created_at: string | null
           current_level: number | null
           email: string
+          email_change_sent_at: string | null
           full_name: string | null
           id: string
+          pending_new_email: string | null
           subscription_tier: string
           total_xp: number | null
           updated_at: string | null
@@ -2151,8 +2183,10 @@ export type Database = {
           created_at?: string | null
           current_level?: number | null
           email: string
+          email_change_sent_at?: string | null
           full_name?: string | null
           id: string
+          pending_new_email?: string | null
           subscription_tier?: string
           total_xp?: number | null
           updated_at?: string | null
@@ -2163,8 +2197,10 @@ export type Database = {
           created_at?: string | null
           current_level?: number | null
           email?: string
+          email_change_sent_at?: string | null
           full_name?: string | null
           id?: string
+          pending_new_email?: string | null
           subscription_tier?: string
           total_xp?: number | null
           updated_at?: string | null

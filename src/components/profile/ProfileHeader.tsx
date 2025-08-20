@@ -9,6 +9,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
+import AvatarSelector from "./AvatarSelector";
 
 const ProfileHeader = () => {
   const { user, session } = useAuth();
@@ -18,7 +19,8 @@ const ProfileHeader = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
     full_name: '',
-    username: ''
+    username: '',
+    avatar_url: '' as string | null,
   });
 
   useEffect(() => {
@@ -43,7 +45,8 @@ const ProfileHeader = () => {
         setUserProfile(data);
         setEditData({
           full_name: data.full_name || '',
-          username: data.username || ''
+          username: data.username || '',
+          avatar_url: data.avatar_url || '',
         });
       }
     } catch (error) {
@@ -57,10 +60,10 @@ const ProfileHeader = () => {
 
   const handleCancel = () => {
     setIsEditing(false);
-    // Reset edit data to current profile data
     setEditData({
       full_name: userProfile?.full_name || '',
-      username: userProfile?.username || ''
+      username: userProfile?.username || '',
+      avatar_url: userProfile?.avatar_url || '',
     });
   };
 
@@ -74,17 +77,18 @@ const ProfileHeader = () => {
         .update({
           full_name: editData.full_name.trim() || null,
           username: editData.username.trim() || null,
+          avatar_url: editData.avatar_url || null,
           updated_at: new Date().toISOString()
         })
         .eq('id', user.id);
 
       if (error) throw error;
 
-      // Update local state
       setUserProfile(prev => ({
         ...prev,
         full_name: editData.full_name.trim() || null,
-        username: editData.username.trim() || null
+        username: editData.username.trim() || null,
+        avatar_url: editData.avatar_url || null,
       }));
 
       setIsEditing(false);
@@ -125,7 +129,7 @@ const ProfileHeader = () => {
 
   const getInitials = () => {
     const name = getDisplayName();
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    return name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
   return (
@@ -146,19 +150,30 @@ const ProfileHeader = () => {
             
             <div className="flex-1">
               {isEditing ? (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <Input
                     value={editData.full_name}
                     onChange={(e) => setEditData(prev => ({ ...prev, full_name: e.target.value }))}
-                    placeholder="Full name"
+                    placeholder="Full name (as shown on your profile)"
                     className="bg-white/20 text-white placeholder:text-orange-100 border-white/30 focus:border-white"
                   />
                   <Input
                     value={editData.username}
-                    onChange={(e) => setEditData(prev => ({ ...prev, username: e.target.value }))}
-                    placeholder="Username (without @)"
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/^@/, '').trim();
+                      setEditData(prev => ({ ...prev, username: value }));
+                    }}
+                    placeholder="Username (without @) — letters, numbers, underscores"
                     className="bg-white/20 text-white placeholder:text-orange-100 border-white/30 focus:border-white"
                   />
+                  <div className="space-y-2">
+                    <div className="text-sm text-orange-100/90">Choose an avatar</div>
+                    <AvatarSelector
+                      selectedUrl={editData.avatar_url}
+                      onSelect={(url) => setEditData(prev => ({ ...prev, avatar_url: url }))}
+                      className="mt-1"
+                    />
+                  </div>
                 </div>
               ) : (
                 <>

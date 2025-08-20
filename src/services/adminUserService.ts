@@ -560,8 +560,9 @@ async function deleteUserSegment(segmentId: string): Promise<boolean> {
 
 async function getUserSubscriptionHealth(userId: string): Promise<any> {
   console.log("[adminUserService] getUserSubscriptionHealth", userId);
-  const { data, error } = await supabase.rpc("get_subscription_health", {
-    _user_id: userId,
+  // Use the existing SQL function name and expected parameter key
+  const { data, error } = await supabase.rpc("get_subscription_health_score", {
+    target_user_id: userId,
   });
 
   if (error) {
@@ -569,13 +570,16 @@ async function getUserSubscriptionHealth(userId: string): Promise<any> {
     throw error;
   }
 
-  return data;
+  // Function returns a TABLE; normalize to a single row or null
+  const row = Array.isArray(data) ? data[0] : data;
+  return row || null;
 }
 
 async function getUserBillingHistory(userId: string): Promise<any> {
   console.log("[adminUserService] getUserBillingHistory", userId);
-  const { data, error } = await supabase.rpc("get_billing_history", {
-    _user_id: userId,
+  // Match the SQL function and parameter name (limit_count is optional)
+  const { data, error } = await supabase.rpc("get_user_billing_history", {
+    target_user_id: userId,
   });
 
   if (error) {
@@ -588,40 +592,13 @@ async function getUserBillingHistory(userId: string): Promise<any> {
 
 async function getUserSubscriptionTimeline(userId: string): Promise<any> {
   console.log("[adminUserService] getUserSubscriptionTimeline", userId);
-  const { data, error } = await supabase.rpc("get_subscription_timeline", {
-    _user_id: userId,
+  // Match the SQL function and parameter name
+  const { data, error } = await supabase.rpc("get_user_subscription_timeline", {
+    target_user_id: userId,
   });
 
   if (error) {
     console.error("[adminUserService] getUserSubscriptionTimeline error", error);
-    throw error;
-  }
-
-  return data;
-}
-
-async function getUserEngagementMetrics(userId: string): Promise<UserEngagementMetrics | null> {
-  console.log("[adminUserService] getUserEngagementMetrics", userId);
-  const { data, error } = await supabase
-    .from("user_engagement_metrics")
-    .select("*")
-    .eq("user_id", userId)
-    .single();
-
-  if (error) {
-    console.error("[adminUserService] getUserEngagementMetrics error", error);
-    return null;
-  }
-
-  return (data as UserEngagementMetrics) || null;
-}
-
-async function listUserSegments(): Promise<any> {
-  console.log("[adminUserService] listUserSegments");
-  const { data, error } = await supabase.from("user_segments").select("*");
-
-  if (error) {
-    console.error("[adminUserService] listUserSegments error", error);
     throw error;
   }
 

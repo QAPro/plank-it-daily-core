@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Crown, BarChart3, Target, Brain, TrendingUp } from 'lucide-react';
 import UserAnalyticsDashboard from '@/components/analytics/UserAnalyticsDashboard';
+import BasicPerformanceDashboard from '@/components/analytics/BasicPerformanceDashboard';
 import GoalTrackingDashboard from '@/components/analytics/GoalTrackingDashboard';
 import SmartRecommendationsPanel from '@/components/analytics/SmartRecommendationsPanel';
 import StatsDashboard from '@/components/StatsDashboard';
@@ -73,12 +74,18 @@ const AnalyticsTab = () => {
           {aiEnabled && <TabsTrigger value="insights">AI Insights</TabsTrigger>}
         </TabsList>
 
+        {/* Overview Tab - High-level summary */}
         <TabsContent value="overview" className="space-y-6">
           {aiEnabled ? (
             <AIFeatureGuard fallback={null}>
               <FeatureGuard 
                 feature="advanced_stats"
-                fallback={<PremiumUpgradePrompt />}
+                fallback={
+                  <div className="space-y-6">
+                    <StatsDashboard />
+                    <SessionHistory />
+                  </div>
+                }
               >
                 <UserAnalyticsDashboard />
               </FeatureGuard>
@@ -91,30 +98,23 @@ const AnalyticsTab = () => {
           )}
         </TabsContent>
 
+        {/* Performance Tab - Detailed analytics and trends */}
         <TabsContent value="performance" className="space-y-6">
           {aiEnabled ? (
             <AIFeatureGuard fallback={null}>
               <FeatureGuard 
                 feature="advanced_stats"
-                fallback={<PremiumUpgradePrompt />}
+                fallback={<BasicPerformanceDashboard />}
               >
                 <UserAnalyticsDashboard />
               </FeatureGuard>
             </AIFeatureGuard>
           ) : (
-            <div className="space-y-6">
-              <StatsDashboard />
-              <Card>
-                <CardContent className="p-6 text-center">
-                  <TrendingUp className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Basic Performance Tracking</h3>
-                  <p className="text-gray-600">Your basic workout statistics are shown above. Upgrade to Premium for advanced performance insights and AI-powered recommendations.</p>
-                </CardContent>
-              </Card>
-            </div>
+            <BasicPerformanceDashboard />
           )}
         </TabsContent>
 
+        {/* Goals Tab - Goal setting and tracking */}
         <TabsContent value="goals" className="space-y-6">
           {aiEnabled ? (
             <AIFeatureGuard fallback={null}>
@@ -136,6 +136,7 @@ const AnalyticsTab = () => {
           )}
         </TabsContent>
 
+        {/* AI Insights Tab - Only shown when AI is enabled */}
         {aiEnabled && (
           <TabsContent value="insights" className="space-y-6">
             <FeatureGuard 

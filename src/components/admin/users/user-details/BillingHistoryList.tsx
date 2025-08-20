@@ -10,7 +10,7 @@ import { Receipt } from "lucide-react";
 const BillingHistoryList: React.FC<{ userId: string }> = ({ userId }) => {
   const { data = [], isLoading } = useQuery({
     queryKey: ["admin-user-billing-history", userId],
-    queryFn: () => adminUserService.getUserBillingHistory(userId, 10),
+    queryFn: () => adminUserService.getUserBillingHistory(userId),
     staleTime: 30_000,
   });
 

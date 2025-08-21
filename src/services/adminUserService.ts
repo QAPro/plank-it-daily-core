@@ -518,16 +518,16 @@ async function findUsersBySegment(args: {
   let filterUserIds: string[] | undefined = undefined;
   if (args.engagementStatus) {
     try {
-      // Try to access the materialized view, but gracefully handle if it's not accessible
-      const { data: em, error: emErr } = await supabase
-        .from("user_engagement_metrics")
-        .select("user_id")
-        .eq("engagement_status", args.engagementStatus);
+      // Use secure RPC instead of direct MV access
+      const clientAny = supabase as any;
+      const { data: em, error: emErr } = await clientAny.rpc("admin_get_user_ids_by_engagement_status", {
+        _status: args.engagementStatus,
+      });
 
       if (emErr) {
-        console.warn("[adminUserService] engagement filter unavailable (likely MV permissions). Continuing without engagement filter.", emErr);
+        console.warn("[adminUserService] engagement filter unavailable (RPC error). Continuing without engagement filter.", emErr);
       } else {
-        filterUserIds = (em || []).map((r: any) => r.user_id);
+        filterUserIds = ((em as any[]) || []).map((r: any) => r.user_id);
         if (filterUserIds.length === 0) {
           return [];
         }
@@ -635,18 +635,19 @@ async function getUserSubscriptionTimeline(userId: string): Promise<any> {
 // Re-add: Fetch a single user's engagement metrics from the materialized view
 async function getUserEngagementMetrics(userId: string): Promise<UserEngagementMetrics | null> {
   console.log("[adminUserService] getUserEngagementMetrics", userId);
-  const { data, error } = await supabase
-    .from("user_engagement_metrics")
-    .select("*")
-    .eq("user_id", userId)
-    .single();
+  // Use secure RPC instead of direct MV access
+  const { data, error } = await supabase.rpc("get_user_engagement_metrics_row", {
+    target_user_id: userId,
+  });
 
   if (error) {
     console.error("[adminUserService] getUserEngagementMetrics error", error);
     return null;
   }
 
-  return (data as UserEngagementMetrics) || null;
+  // RPC returns SETOF -> array; normalize to single row
+  const row = Array.isArray(data) ? data[0] : data;
+  return (row as unknown as UserEngagementMetrics) || null;
 }
 
 // Re-add: List saved user segments; normalize filter field for UI

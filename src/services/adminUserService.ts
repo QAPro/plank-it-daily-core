@@ -635,8 +635,9 @@ async function getUserSubscriptionTimeline(userId: string): Promise<any> {
 // Re-add: Fetch a single user's engagement metrics from the materialized view
 async function getUserEngagementMetrics(userId: string): Promise<UserEngagementMetrics | null> {
   console.log("[adminUserService] getUserEngagementMetrics", userId);
-  // Use secure RPC instead of direct MV access
-  const { data, error } = await supabase.rpc("get_user_engagement_metrics_row", {
+  // Use secure RPC instead of direct MV access; use untyped client to avoid TS error until types are regenerated
+  const clientAny = supabase as any;
+  const { data, error } = await clientAny.rpc("get_user_engagement_metrics_row", {
     target_user_id: userId,
   });
 

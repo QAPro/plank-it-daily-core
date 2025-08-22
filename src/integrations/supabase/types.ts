@@ -2493,6 +2493,16 @@ export type Database = {
         Args: { _new_tier: string; _reason?: string; _target_user_id: string }
         Returns: boolean
       }
+      admin_get_subscription_analytics: {
+        Args: Record<PropertyKey, never>
+        Returns: unknown[]
+      }
+      admin_get_user_ids_by_engagement_status: {
+        Args: { _status: string }
+        Returns: {
+          user_id: string
+        }[]
+      }
       admin_grant_lifetime_access: {
         Args: {
           _expires_at?: string
@@ -2612,6 +2622,10 @@ export type Database = {
           stripe_payment_intent_id: string
           transaction_id: string
         }[]
+      }
+      get_user_engagement_metrics_row: {
+        Args: { target_user_id: string }
+        Returns: unknown[]
       }
       get_user_engagement_summary: {
         Args: Record<PropertyKey, never>

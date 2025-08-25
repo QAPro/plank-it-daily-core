@@ -74,13 +74,13 @@ const TimerSetup = ({ exercise, onStart, onBack }: TimerSetupProps) => {
       {/* Preset Times */}
       <div>
         <h3 className="font-semibold mb-3">Quick Select</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
           {presetTimes.map((preset) => (
             <Button
               key={preset.value}
               variant={selectedTime === preset.value ? "default" : "outline"}
               onClick={() => setSelectedTime(preset.value)}
-              className="h-10 text-sm"
+              className="h-10 text-sm max-w-none"
             >
               <Clock className="w-3.5 h-3.5 mr-1.5" />
               {preset.label}

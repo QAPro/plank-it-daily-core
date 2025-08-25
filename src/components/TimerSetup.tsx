@@ -15,11 +15,11 @@ interface TimerSetupProps {
 }
 
 const presetTimes = [
-  { label: "30 seconds", value: 30 },
-  { label: "1 minute", value: 60 },
-  { label: "2 minutes", value: 120 },
-  { label: "3 minutes", value: 180 },
-  { label: "5 minutes", value: 300 },
+  { label: "30 sec", value: 30 },
+  { label: "1 min", value: 60 },
+  { label: "2 min", value: 120 },
+  { label: "3 min", value: 180 },
+  { label: "5 min", value: 300 },
 ];
 
 const TimerSetup = ({ exercise, onStart, onBack }: TimerSetupProps) => {
@@ -80,9 +80,9 @@ const TimerSetup = ({ exercise, onStart, onBack }: TimerSetupProps) => {
               key={preset.value}
               variant={selectedTime === preset.value ? "default" : "outline"}
               onClick={() => setSelectedTime(preset.value)}
-              className="h-12"
+              className="h-10 text-sm"
             >
-              <Clock className="w-4 h-4 mr-2" />
+              <Clock className="w-3.5 h-3.5 mr-1.5" />
               {preset.label}
             </Button>
           ))}
@@ -102,7 +102,7 @@ const TimerSetup = ({ exercise, onStart, onBack }: TimerSetupProps) => {
             min="1"
             max="60"
           />
-          <span className="text-gray-600">minutes</span>
+          <span className="text-gray-600 text-sm">min</span>
         </div>
       </div>
 

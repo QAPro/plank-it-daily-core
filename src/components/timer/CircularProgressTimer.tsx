@@ -89,9 +89,6 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress }: Circular
             >
               {formatTime(timeLeft)}
             </motion.div>
-            <div className="text-sm opacity-80">
-              of {formatTime(duration)}
-            </div>
           </div>
         </div>
 

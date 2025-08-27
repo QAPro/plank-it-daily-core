@@ -24,15 +24,6 @@ const presetTimes = [
 
 const TimerSetup = ({ exercise, onStart, onBack }: TimerSetupProps) => {
   const [selectedTime, setSelectedTime] = useState(60);
-  const [customTime, setCustomTime] = useState("");
-
-  const handleCustomTimeChange = (value: string) => {
-    setCustomTime(value);
-    const seconds = parseInt(value) * 60;
-    if (!isNaN(seconds) && seconds > 0) {
-      setSelectedTime(seconds);
-    }
-  };
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -86,23 +77,6 @@ const TimerSetup = ({ exercise, onStart, onBack }: TimerSetupProps) => {
               {preset.label}
             </Button>
           ))}
-        </div>
-      </div>
-
-      {/* Custom Time */}
-      <div>
-        <h3 className="font-semibold mb-3">Custom Duration</h3>
-        <div className="flex items-center space-x-3">
-          <input
-            type="number"
-            placeholder="Enter minutes"
-            value={customTime}
-            onChange={(e) => handleCustomTimeChange(e.target.value)}
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-            min="1"
-            max="60"
-          />
-          <span className="text-gray-600 text-sm">min</span>
         </div>
       </div>
 

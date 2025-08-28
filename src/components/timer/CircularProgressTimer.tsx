@@ -19,11 +19,23 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress }: Circular
   };
 
   const getStateColor = () => {
+    // State-based colors take priority
     if (state === 'completed') return { ring: 'stroke-green-500', bg: 'from-green-500 to-emerald-500' };
-    if (timeLeft <= 10) return { ring: 'stroke-red-500', bg: 'from-red-500 to-pink-500' };
-    if (timeLeft <= 30) return { ring: 'stroke-yellow-500', bg: 'from-yellow-500 to-amber-500' };
-    if (state === 'paused') return { ring: 'stroke-gray-400', bg: 'from-gray-400 to-gray-500' };
-    return { ring: 'stroke-blue-500', bg: 'from-blue-500 to-cyan-500' };
+    if (state === 'paused') return { ring: 'stroke-muted-foreground', bg: 'from-muted to-muted-foreground' };
+    
+    // For setup and ready states, always use primary blue regardless of duration
+    if (state === 'setup' || state === 'ready') {
+      return { ring: 'stroke-primary', bg: 'from-primary to-blue-600' };
+    }
+    
+    // For running state, check time-based warnings
+    if (state === 'running') {
+      if (timeLeft <= 10) return { ring: 'stroke-destructive', bg: 'from-destructive to-red-600' };
+      if (timeLeft <= 30) return { ring: 'stroke-yellow-500', bg: 'from-yellow-500 to-amber-500' };
+    }
+    
+    // Default primary color
+    return { ring: 'stroke-primary', bg: 'from-primary to-blue-600' };
   };
 
   const getStateMessage = () => {

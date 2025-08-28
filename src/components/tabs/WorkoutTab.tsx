@@ -149,6 +149,7 @@ const WorkoutTab = () => {
         <PlankTimer 
           selectedExercise={selectedExercise}
           onExerciseChange={setSelectedExercise}
+          onBack={handleBackToList}
         />
       </div>
     );

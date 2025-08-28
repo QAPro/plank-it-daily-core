@@ -7,9 +7,10 @@ import CountdownTimer from '@/components/timer/CountdownTimer';
 interface PlankTimerProps {
   selectedExercise: any;
   onExerciseChange: (exercise: any) => void;
+  onBack?: () => void;
 }
 
-const PlankTimer = ({ selectedExercise, onExerciseChange }: PlankTimerProps) => {
+const PlankTimer = ({ selectedExercise, onExerciseChange, onBack }: PlankTimerProps) => {
   const {
     exercises,
     isLoadingExercises,
@@ -24,9 +25,12 @@ const PlankTimer = ({ selectedExercise, onExerciseChange }: PlankTimerProps) => 
   }, [selectedExercise]);
 
   const handleBack = () => {
-    // This should navigate back to the workout list
-    // The parent component should handle this
-    window.history.back();
+    if (onBack) {
+      onBack();
+    } else {
+      // Fallback for backward compatibility
+      window.history.back();
+    }
   };
 
   if (isLoadingExercises) {

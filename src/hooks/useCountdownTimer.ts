@@ -22,6 +22,7 @@ export const useCountdownTimer = ({
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    console.log('useCountdownTimer: useEffect triggered, state:', state, 'timeLeft:', timeLeft);
     if (state === 'running' && timeLeft > 0) {
       intervalRef.current = setInterval(() => {
         setTimeLeft((prev) => {
@@ -33,8 +34,10 @@ export const useCountdownTimer = ({
           }
           
           if (newTime <= 0) {
+            console.log('useCountdownTimer: Timer reached zero, setting state to completed');
             setState('completed');
             onPlayCompletionSound();
+            console.log('useCountdownTimer: About to call onComplete(true)');
             onComplete(true); // true means timer completed naturally
             return 0;
           }
@@ -57,24 +60,29 @@ export const useCountdownTimer = ({
   }, [state, timeLeft, onComplete, onPlayCompletionSound, onPlayCountdownSound]);
 
   const setTimerDuration = useCallback((newDuration: number) => {
+    console.log('useCountdownTimer: setTimerDuration called with:', newDuration);
     setDuration(newDuration);
     setTimeLeft(newDuration);
     setState('ready');
   }, []);
 
   const handleStart = useCallback(() => {
+    console.log('useCountdownTimer: handleStart called');
     setState('running');
   }, []);
 
   const handlePause = useCallback(() => {
+    console.log('useCountdownTimer: handlePause called');
     setState('paused');
   }, []);
 
   const handleResume = useCallback(() => {
+    console.log('useCountdownTimer: handleResume called');
     setState('running');
   }, []);
 
   const handleStop = useCallback(() => {
+    console.log('useCountdownTimer: handleStop called');
     const timeElapsed = duration - timeLeft;
     setState('setup');
     setTimeLeft(duration);
@@ -82,6 +90,7 @@ export const useCountdownTimer = ({
   }, [duration, timeLeft, onComplete]);
 
   const handleReset = useCallback(() => {
+    console.log('useCountdownTimer: handleReset called');
     setState('ready');
     setTimeLeft(duration);
   }, [duration]);

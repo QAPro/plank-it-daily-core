@@ -86,32 +86,38 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange }: Countdow
   }, [completedSession]);
 
   const handleSetDuration = (newDuration: number) => {
+    console.log('CountdownTimer: handleSetDuration called with:', newDuration);
     setTimerDuration(newDuration);
     setShowSetup(false);
     toast.success(`Timer set for ${Math.floor(newDuration / 60)}:${(newDuration % 60).toString().padStart(2, '0')}`);
   };
 
   const handleStartTimer = () => {
+    console.log('CountdownTimer: handleStartTimer called');
     handleStart();
     toast.success('Timer started! You can do this!');
   };
 
   const handlePauseTimer = () => {
+    console.log('CountdownTimer: handlePauseTimer called');
     handlePause();
     toast.info('Timer paused');
   };
 
   const handleResumeTimer = () => {
+    console.log('CountdownTimer: handleResumeTimer called');
     handleResume();
     toast.success('Timer resumed');
   };
 
   const handleStopTimer = () => {
+    console.log('CountdownTimer: handleStopTimer called');
     handleStop();
     toast.info('Timer stopped');
   };
 
   const handleResetTimer = () => {
+    console.log('CountdownTimer: handleResetTimer called');
     handleReset();
     setShowConfetti(false);
     setShowCelebration(false);
@@ -119,6 +125,7 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange }: Countdow
   };
 
   const handleCloseCelebration = () => {
+    console.log('CountdownTimer: handleCloseCelebration called');
     setShowCelebration(false);
     setShowConfetti(false);
     clearCompletedSession();

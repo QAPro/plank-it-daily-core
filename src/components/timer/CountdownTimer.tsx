@@ -38,7 +38,8 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange }: Countdow
     completedSession,
     sessionNotes,
     setSessionNotes,
-    isCompleting
+    isCompleting,
+    selectExercise
   } = useEnhancedSessionTracking();
 
   const {
@@ -66,6 +67,13 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange }: Countdow
     onPlayCompletionSound: playCompletionSound,
     onPlayCountdownSound: countdownSoundsEnabled ? playCountdownSound : undefined,
   });
+
+  // Sync selectedExercise prop with hook's internal state
+  useEffect(() => {
+    if (selectedExercise) {
+      selectExercise(selectedExercise);
+    }
+  }, [selectedExercise, selectExercise]);
 
   useEffect(() => {
     if (completedSession) {

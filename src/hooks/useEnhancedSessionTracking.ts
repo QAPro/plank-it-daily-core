@@ -67,6 +67,7 @@ export const useEnhancedSessionTracking = () => {
   };
 
   const clearCompletedSession = () => {
+    console.log('useEnhancedSessionTracking: Clearing completedSession');
     setCompletedSession(null);
   };
 

@@ -57,9 +57,12 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange }: Countdow
   } = useCountdownTimer({
     initialDuration: 60,
     onComplete: async (wasCompleted: boolean) => {
+      console.log('CountdownTimer: Timer completed, wasCompleted:', wasCompleted);
       if (wasCompleted) {
         setShowConfetti(true);
+        console.log('CountdownTimer: About to call completeSession');
         await completeSession(duration, sessionNotes);
+        console.log('CountdownTimer: completeSession finished');
       }
     },
     onPlayCompletionSound: playCompletionSound,
@@ -75,7 +78,9 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange }: Countdow
 
   // Show celebration when session completes
   useEffect(() => {
+    console.log('CountdownTimer: completedSession changed:', completedSession);
     if (completedSession) {
+      console.log('CountdownTimer: Setting showCelebration to true');
       setShowCelebration(true);
     }
   }, [completedSession]);

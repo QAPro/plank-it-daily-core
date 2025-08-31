@@ -66,6 +66,10 @@ export const useEnhancedSessionTracking = () => {
     setSelectedExercise(exercise);
   };
 
+  const clearCompletedSession = () => {
+    setCompletedSession(null);
+  };
+
   const updateStreak = useCallback(async () => {
     if (!user) return { streak: 0, isNewStreak: false };
 
@@ -327,6 +331,7 @@ const completeSession = async (duration: number, notes?: string) => {
     selectExercise,
     completeSession,
     completedSession,
+    clearCompletedSession,
     sessionNotes,
     setSessionNotes,
     isCompleting

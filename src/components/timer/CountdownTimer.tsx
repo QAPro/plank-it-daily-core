@@ -36,6 +36,7 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange }: Countdow
   const {
     completeSession,
     completedSession,
+    clearCompletedSession,
     sessionNotes,
     setSessionNotes,
     isCompleting,
@@ -58,9 +59,6 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange }: Countdow
     onComplete: async (wasCompleted: boolean) => {
       if (wasCompleted) {
         setShowConfetti(true);
-        setTimeout(() => {
-          setShowCelebration(true);
-        }, 1000);
         await completeSession(duration, sessionNotes);
       }
     },
@@ -75,6 +73,7 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange }: Countdow
     }
   }, [selectedExercise, selectExercise]);
 
+  // Show celebration when session completes
   useEffect(() => {
     if (completedSession) {
       setShowCelebration(true);
@@ -111,11 +110,13 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange }: Countdow
     handleReset();
     setShowConfetti(false);
     setShowCelebration(false);
+    clearCompletedSession();
   };
 
   const handleCloseCelebration = () => {
     setShowCelebration(false);
     setShowConfetti(false);
+    clearCompletedSession();
     handleResetTimer();
   };
 

@@ -138,6 +138,12 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange }: Countdow
         exercise={selectedExercise}
         onStart={handleSetDuration}
         onBack={onBack}
+        onComplete={async (duration) => {
+          console.log('CountdownTimer: Timer completed in TimerSetup with duration:', duration);
+          setShowSetup(false);
+          setShowConfetti(true);
+          await completeSession(duration, sessionNotes || '');
+        }}
       />
     );
   }

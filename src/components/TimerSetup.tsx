@@ -16,6 +16,7 @@ interface TimerSetupProps {
   exercise: Exercise;
   onStart: (duration: number) => void;
   onBack: () => void;
+  onComplete?: (duration: number) => void; // Add completion callback
 }
 
 const presetTimes = [
@@ -26,7 +27,7 @@ const presetTimes = [
   { label: "5 min", value: 300 },
 ];
 
-const TimerSetup = ({ exercise, onStart, onBack }: TimerSetupProps) => {
+const TimerSetup = ({ exercise, onStart, onBack, onComplete }: TimerSetupProps) => {
   const [selectedTime, setSelectedTime] = useState(60);
 
   const {
@@ -53,7 +54,8 @@ const TimerSetup = ({ exercise, onStart, onBack }: TimerSetupProps) => {
     onComplete: (wasCompleted: boolean) => {
       if (wasCompleted) {
         toast.success("Timer completed! Great workout!");
-        onStart(duration);
+        // Notify parent CountdownTimer about completion
+        onComplete?.(duration);
       }
     },
     onPlayCompletionSound: playCompletionSound,

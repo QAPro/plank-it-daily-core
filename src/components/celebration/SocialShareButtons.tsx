@@ -73,7 +73,7 @@ const SocialShareButtons = ({ shareData }: SocialShareButtonsProps) => {
             onClick={handleNativeShare}
             variant="outline"
             size="sm"
-            className="border-white/30 text-white hover:bg-white/20 flex-1 min-w-0"
+            className="border-white/30 bg-white/10 text-white hover:bg-white/20 hover:text-white flex-1 min-w-0"
           >
             <Share2 className="w-4 h-4 mr-1" />
             Share
@@ -85,7 +85,7 @@ const SocialShareButtons = ({ shareData }: SocialShareButtonsProps) => {
           onClick={handleTwitterShare}
           variant="outline"
           size="sm"
-          className="border-white/30 text-white hover:bg-white/20 flex-1 min-w-0"
+          className="border-white/30 bg-white/10 text-white hover:bg-white/20 hover:text-white flex-1 min-w-0"
         >
           <Twitter className="w-4 h-4 mr-1" />
           Twitter
@@ -96,7 +96,7 @@ const SocialShareButtons = ({ shareData }: SocialShareButtonsProps) => {
           onClick={handleFacebookShare}
           variant="outline"
           size="sm"
-          className="border-white/30 text-white hover:bg-white/20 flex-1 min-w-0"
+          className="border-white/30 bg-white/10 text-white hover:bg-white/20 hover:text-white flex-1 min-w-0"
         >
           <Facebook className="w-4 h-4 mr-1" />
           Facebook
@@ -107,7 +107,7 @@ const SocialShareButtons = ({ shareData }: SocialShareButtonsProps) => {
           onClick={handleCopy}
           variant="outline"
           size="sm"
-          className="border-white/30 text-white hover:bg-white/20 flex-1 min-w-0"
+          className="border-white/30 bg-white/10 text-white hover:bg-white/20 hover:text-white flex-1 min-w-0"
         >
           {copied ? (
             <Check className="w-4 h-4 mr-1" />

@@ -51,7 +51,7 @@ const CelebrationActions = ({ onClose, onDoAgain, exerciseName }: CelebrationAct
           <Button
             onClick={onDoAgain}
             variant="outline"
-            className="border-white/30 text-white hover:bg-white/20 py-2 rounded-lg flex items-center justify-center"
+            className="border-white/30 bg-white/10 text-white hover:bg-white/20 hover:text-white py-2 rounded-lg flex items-center justify-center"
           >
             <RotateCcw className="w-4 h-4 mr-1" />
             Do Again
@@ -62,7 +62,7 @@ const CelebrationActions = ({ onClose, onDoAgain, exerciseName }: CelebrationAct
         <Button
           onClick={handleViewProgress}
           variant="outline"
-          className="border-white/30 text-white hover:bg-white/20 py-2 rounded-lg flex items-center justify-center"
+          className="border-white/30 bg-white/10 text-white hover:bg-white/20 hover:text-white py-2 rounded-lg flex items-center justify-center"
         >
           <TrendingUp className="w-4 h-4 mr-1" />
           Progress
@@ -74,7 +74,7 @@ const CelebrationActions = ({ onClose, onDoAgain, exerciseName }: CelebrationAct
         <Button
           onClick={handlePlanNextWorkout}
           variant="outline"
-          className="border-white/30 text-white hover:bg-white/20 py-2 rounded-lg flex items-center justify-center"
+          className="border-white/30 bg-white/10 text-white hover:bg-white/20 hover:text-white py-2 rounded-lg flex items-center justify-center"
         >
           <Calendar className="w-4 h-4 mr-1" />
           Next Workout
@@ -84,7 +84,7 @@ const CelebrationActions = ({ onClose, onDoAgain, exerciseName }: CelebrationAct
         <Button
           onClick={handleGoHome}
           variant="outline"
-          className="border-white/30 text-white hover:bg-white/20 py-2 rounded-lg flex items-center justify-center"
+          className="border-white/30 bg-white/10 text-white hover:bg-white/20 hover:text-white py-2 rounded-lg flex items-center justify-center"
         >
           <Home className="w-4 h-4 mr-1" />
           Home

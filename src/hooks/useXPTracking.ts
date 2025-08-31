@@ -30,14 +30,7 @@ export const useXPTracking = () => {
   });
 
   const trackXP = useCallback(async (source: string, data: any) => {
-    console.log('trackXP called - User object:', user);
-    console.log('trackXP called - User ID:', user?.id);
-    if (!user) {
-      console.error('trackXP FAILED: No user object available');
-      return;
-    }
-    console.log('trackXP proceeding with user:', user.id);
-
+    if (!user) return;
 
     try {
       const result = await awardXP(user.id, source, data);

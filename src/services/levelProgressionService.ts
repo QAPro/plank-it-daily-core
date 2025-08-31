@@ -158,48 +158,97 @@ export class LevelProgressionEngine {
 }
 
 export const awardXP = async (userId: string, source: string, data: any): Promise<{ xpAmount: number, leveledUp: boolean, newLevel?: UserLevel }> => {
+  console.log('💫 AWARD XP SERVICE CALLED', { userId, source, data });
+  
   try {
     const xpAmount = LevelProgressionEngine.calculateXPReward(source, data);
     const description = LevelProgressionEngine.generateXPDescription(source, data);
     
+    console.log('💫 XP calculation complete', { xpAmount, description });
+    
     // Record XP transaction
-    await supabase.from('xp_transactions').insert({
+    console.log('💾 Recording XP transaction...');
+    const { data: transactionData, error: transactionError } = await supabase.from('xp_transactions').insert({
       user_id: userId,
       source,
       amount: xpAmount,
       description
-    });
+    }).select().single();
+    
+    if (transactionError) {
+      console.error('❌ XP transaction failed:', transactionError);
+      throw new Error(`XP transaction failed: ${transactionError.message}`);
+    }
+    
+    console.log('✅ XP transaction recorded:', transactionData);
     
     // Get current user data
-    const { data: userData } = await supabase
+    console.log('👤 Fetching current user data...');
+    const { data: userData, error: userError } = await supabase
       .from('users')
       .select('total_xp, current_level')
       .eq('id', userId)
       .single();
+    
+    if (userError) {
+      console.error('❌ Failed to fetch user data:', userError);
+      throw new Error(`Failed to fetch user data: ${userError.message}`);
+    }
+    
+    console.log('👤 Current user data:', userData);
     
     const oldTotalXP = userData?.total_xp || 0;
     const newTotalXP = oldTotalXP + xpAmount;
     const oldLevel = LevelProgressionEngine.calculateLevel(oldTotalXP);
     const newLevel = LevelProgressionEngine.calculateLevel(newTotalXP);
     
+    console.log('📊 Level calculation', {
+      oldTotalXP,
+      newTotalXP,
+      oldLevel: oldLevel.current_level,
+      newLevel: newLevel.current_level
+    });
+    
     // Update user's total XP and level
-    await supabase
+    console.log('📈 Updating user XP and level...');
+    const { data: updateData, error: updateError } = await supabase
       .from('users')
       .update({ 
         total_xp: newTotalXP,
         current_level: newLevel.current_level
       })
-      .eq('id', userId);
+      .eq('id', userId)
+      .select()
+      .single();
+    
+    if (updateError) {
+      console.error('❌ Failed to update user XP:', updateError);
+      throw new Error(`Failed to update user XP: ${updateError.message}`);
+    }
+    
+    console.log('✅ User XP updated:', updateData);
     
     // Check for level up
     const leveledUp = newLevel.current_level > oldLevel.current_level;
+    console.log('🎯 Level up check:', { leveledUp, oldLevel: oldLevel.current_level, newLevel: newLevel.current_level });
+    
     if (leveledUp) {
+      console.log('🎉 LEVEL UP! Handling level up...');
       await handleLevelUp(userId, oldLevel.current_level, newLevel.current_level);
     }
     
-    return { xpAmount, leveledUp, newLevel: leveledUp ? newLevel : undefined };
+    const result = { xpAmount, leveledUp, newLevel: leveledUp ? newLevel : undefined };
+    console.log('💫 AWARD XP SERVICE SUCCESS:', result);
+    return result;
   } catch (error) {
-    console.error('Error awarding XP:', error);
+    console.error('❌ AWARD XP SERVICE ERROR:', error);
+    console.error('❌ Error details:', {
+      errorMessage: error.message,
+      errorStack: error.stack,
+      userId,
+      source,
+      data
+    });
     return { xpAmount: 0, leveledUp: false };
   }
 };

@@ -144,12 +144,24 @@ export const useEnhancedSessionTrackingWithXP = () => {
   }, [user, showMilestone]);
 
 const completeSession = async (duration: number, notes?: string) => {
-  if (!user || !selectedExercise) return;
+  console.log('🎯 COMPLETE SESSION CALLED', { 
+    userId: user?.id, 
+    exerciseId: selectedExercise?.id, 
+    duration, 
+    notes,
+    hasUser: !!user,
+    hasSelectedExercise: !!selectedExercise
+  });
+  
+  if (!user || !selectedExercise) {
+    console.error('❌ COMPLETE SESSION FAILED: Missing user or exercise', { user: !!user, selectedExercise: !!selectedExercise });
+    return;
+  }
 
   setIsCompleting(true);
   
   try {
-    console.log('Completing session:', { duration, exerciseId: selectedExercise.id });
+    console.log('💾 Creating session record...');
     
     // Create session record
     const { data: session, error: sessionError } = await supabase
@@ -164,27 +176,54 @@ const completeSession = async (duration: number, notes?: string) => {
       .single();
 
     if (sessionError) {
-      console.error('Error creating session:', sessionError);
+      console.error('❌ Error creating session:', sessionError);
       toast.error('Failed to save session');
       return;
     }
 
-    console.log('Session created successfully:', session);
+    console.log('✅ Session created successfully:', session);
 
     // Update user streak and get streak info for XP calculation
+    console.log('📈 Updating streak...');
     const streakResult = await updateStreak();
+    console.log('📈 Streak result:', streakResult);
 
     // Award workout XP
-    await trackXP('workout', {
+    console.log('🎖️ AWARDING WORKOUT XP', {
+      source: 'workout',
+      data: {
+        duration_seconds: duration,
+        difficulty_level: selectedExercise.difficulty_level || 1,
+        exercise_name: selectedExercise.name
+      }
+    });
+    
+    const workoutXPResult = await trackXP('workout', {
       duration_seconds: duration,
       difficulty_level: selectedExercise.difficulty_level || 1,
       exercise_name: selectedExercise.name
     });
+    
+    console.log('🎖️ WORKOUT XP RESULT:', workoutXPResult);
 
     // Award streak bonus XP if applicable
     if (streakResult.isNewStreak && streakResult.streak > 1) {
-      await trackXP('streak', {
+      console.log('🔥 AWARDING STREAK XP', {
+        source: 'streak',
+        data: {
+          streak_length: streakResult.streak
+        }
+      });
+      
+      const streakXPResult = await trackXP('streak', {
         streak_length: streakResult.streak
+      });
+      
+      console.log('🔥 STREAK XP RESULT:', streakXPResult);
+    } else {
+      console.log('⏭️ SKIPPING STREAK XP', { 
+        isNewStreak: streakResult.isNewStreak, 
+        streak: streakResult.streak 
       });
     }
 
@@ -209,6 +248,7 @@ const completeSession = async (duration: number, notes?: string) => {
     }
 
     // Check for new achievements using expanded engine
+    console.log('🏆 Checking for achievements...');
     const achievementEngine = new ExpandedAchievementEngine(user.id);
     const newAchievements = await achievementEngine.checkAllAchievements({
       duration_seconds: duration,
@@ -216,14 +256,29 @@ const completeSession = async (duration: number, notes?: string) => {
       user_id: user.id
     });
 
-    console.log('New achievements earned:', newAchievements);
+    console.log('🏆 New achievements earned:', newAchievements);
 
     // Award achievement XP
-    for (const achievement of newAchievements) {
-      await trackXP('achievement', {
-        achievement_name: achievement.achievement_name,
-        rarity: achievement.rarity || 'common'
-      });
+    if (newAchievements.length > 0) {
+      console.log('🎯 AWARDING ACHIEVEMENT XP for', newAchievements.length, 'achievements');
+      for (const achievement of newAchievements) {
+        console.log('🎯 AWARDING ACHIEVEMENT XP', {
+          source: 'achievement',
+          data: {
+            achievement_name: achievement.achievement_name,
+            rarity: achievement.rarity || 'common'
+          }
+        });
+        
+        const achievementXPResult = await trackXP('achievement', {
+          achievement_name: achievement.achievement_name,
+          rarity: achievement.rarity || 'common'
+        });
+        
+        console.log('🎯 ACHIEVEMENT XP RESULT:', achievementXPResult);
+      }
+    } else {
+      console.log('⏭️ NO ACHIEVEMENTS EARNED - Skipping achievement XP');
     }
 
     setCompletedSession({
@@ -235,9 +290,24 @@ const completeSession = async (duration: number, notes?: string) => {
       notes
     });
 
+    console.log('✅ SESSION COMPLETION SUCCESS - Final session data:', {
+      sessionId: session.id,
+      duration,
+      exerciseId: selectedExercise.id,
+      achievementsCount: newAchievements.length,
+      streakInfo: streakResult
+    });
+    
     toast.success('Session completed successfully!');
   } catch (error) {
-    console.error('Unexpected error completing session:', error);
+    console.error('❌ UNEXPECTED ERROR COMPLETING SESSION:', error);
+    console.error('❌ Error details:', {
+      errorMessage: error.message,
+      errorStack: error.stack,
+      userId: user?.id,
+      exerciseId: selectedExercise?.id,
+      duration
+    });
     toast.error('Failed to complete session');
   } finally {
     setIsCompleting(false);

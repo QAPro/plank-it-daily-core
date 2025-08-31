@@ -6,6 +6,7 @@ import { useExercises } from './useExercises';
 import { toast } from 'sonner';
 import { useStreak } from '@/components/StreakProvider';
 import { ExpandedAchievementEngine } from '@/services/expandedAchievementService';
+import { useXPTracking } from './useXPTracking';
 
 interface CompletedSession {
   id: string;
@@ -14,6 +15,7 @@ interface CompletedSession {
   timestamp: string;
   achievements: any[];
   notes?: string;
+  xpEarned?: number;
 }
 
 export const useEnhancedSessionTracking = () => {
@@ -26,6 +28,7 @@ export const useEnhancedSessionTracking = () => {
   const [sessionNotes, setSessionNotes] = useState('');
   const [isCompleting, setIsCompleting] = useState(false);
   const { showMilestone } = useStreak();
+  const { trackXP } = useXPTracking();
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
@@ -64,7 +67,7 @@ export const useEnhancedSessionTracking = () => {
   };
 
   const updateStreak = useCallback(async () => {
-    if (!user) return;
+    if (!user) return { streak: 0, isNewStreak: false };
 
     try {
       // Fetch the user's current streak
@@ -76,7 +79,7 @@ export const useEnhancedSessionTracking = () => {
 
       if (streakError) {
         console.error("Error fetching user streak:", streakError);
-        return;
+        return { streak: 0, isNewStreak: false };
       }
 
       const today = new Date();
@@ -84,6 +87,8 @@ export const useEnhancedSessionTracking = () => {
       const lastWorkoutDate = userStreak?.last_workout_date ? new Date(userStreak.last_workout_date) : null;
 
       let newStreak = 1;
+      let isNewStreak = false;
+      
       if (lastWorkoutDate) {
         const lastWorkoutMidnight = new Date(lastWorkoutDate.getFullYear(), lastWorkoutDate.getMonth(), lastWorkoutDate.getDate());
         const timeDiff = todayMidnight.getTime() - lastWorkoutMidnight.getTime();
@@ -92,16 +97,20 @@ export const useEnhancedSessionTracking = () => {
         if (dayDiff === 1) {
           // Continue the streak
           newStreak = (userStreak?.current_streak || 0) + 1;
+          isNewStreak = true;
         } else if (dayDiff > 1) {
           // Streak broken
           newStreak = 1;
+          isNewStreak = true;
         } else {
-          // Workout already recorded today, do nothing
-          return;
+          // Workout already recorded today
+          return { streak: userStreak?.current_streak || 1, isNewStreak: false };
         }
+      } else {
+        isNewStreak = true;
       }
 
-      // Update or insert the streak
+      // Update streak
       const updates = {
         user_id: user.id,
         current_streak: newStreak,
@@ -115,7 +124,7 @@ export const useEnhancedSessionTracking = () => {
 
       if (updateError) {
         console.error("Error updating user streak:", updateError);
-        return;
+        return { streak: newStreak, isNewStreak };
       }
 
       // Check for milestone
@@ -127,20 +136,34 @@ export const useEnhancedSessionTracking = () => {
         });
       }
 
+      return { streak: newStreak, isNewStreak };
     } catch (error) {
       console.error("Unexpected error updating streak:", error);
+      return { streak: 0, isNewStreak: false };
     }
   }, [user, showMilestone]);
 
 const completeSession = async (duration: number, notes?: string) => {
-  if (!user || !selectedExercise) return;
+  console.log('🎯 COMPLETE SESSION CALLED', { 
+    userId: user?.id, 
+    exerciseId: selectedExercise?.id, 
+    duration, 
+    notes,
+    hasUser: !!user,
+    hasSelectedExercise: !!selectedExercise
+  });
+  
+  if (!user || !selectedExercise) {
+    console.error('❌ COMPLETE SESSION FAILED: Missing user or exercise', { user: !!user, selectedExercise: !!selectedExercise });
+    return;
+  }
 
   setIsCompleting(true);
   
   try {
-    console.log('Completing session:', { duration, exerciseId: selectedExercise.id });
+    console.log('💾 Creating session record...');
     
-    // Create session record with user agent and explicit timestamp
+    // Create session record
     const { data: session, error: sessionError } = await supabase
       .from('user_sessions')
       .insert({
@@ -148,19 +171,61 @@ const completeSession = async (duration: number, notes?: string) => {
         exercise_id: selectedExercise.id,
         duration_seconds: duration,
         notes: notes || null,
-        user_agent: navigator.userAgent,
-        completed_at: new Date().toISOString(),
       })
       .select()
       .single();
 
     if (sessionError) {
-      console.error('Error creating session:', sessionError);
+      console.error('❌ Error creating session:', sessionError);
       toast.error('Failed to save session');
       return;
     }
 
-    console.log('Session created successfully:', session);
+    console.log('✅ Session created successfully:', session);
+
+    // Update user streak and get streak info for XP calculation
+    console.log('📈 Updating streak...');
+    const streakResult = await updateStreak();
+    console.log('📈 Streak result:', streakResult);
+
+    // Award workout XP
+    console.log('🎖️ AWARDING WORKOUT XP', {
+      source: 'workout',
+      data: {
+        duration_seconds: duration,
+        difficulty_level: selectedExercise.difficulty_level || 1,
+        exercise_name: selectedExercise.name
+      }
+    });
+    
+    const workoutXPResult = await trackXP('workout', {
+      duration_seconds: duration,
+      difficulty_level: selectedExercise.difficulty_level || 1,
+      exercise_name: selectedExercise.name
+    });
+    
+    console.log('🎖️ WORKOUT XP RESULT:', workoutXPResult);
+
+    // Award streak bonus XP if applicable
+    if (streakResult.isNewStreak && streakResult.streak > 1) {
+      console.log('🔥 AWARDING STREAK XP', {
+        source: 'streak',
+        data: {
+          streak_length: streakResult.streak
+        }
+      });
+      
+      const streakXPResult = await trackXP('streak', {
+        streak_length: streakResult.streak
+      });
+      
+      console.log('🔥 STREAK XP RESULT:', streakXPResult);
+    } else {
+      console.log('⏭️ SKIPPING STREAK XP', { 
+        isNewStreak: streakResult.isNewStreak, 
+        streak: streakResult.streak 
+      });
+    }
 
     // Record detailed timer session for analytics
     const { error: detailedError } = await supabase
@@ -182,10 +247,8 @@ const completeSession = async (duration: number, notes?: string) => {
       console.error('Error inserting detailed timer session:', detailedError);
     }
 
-    // Update user streak
-    await updateStreak();
-
     // Check for new achievements using expanded engine
+    console.log('🏆 Checking for achievements...');
     const achievementEngine = new ExpandedAchievementEngine(user.id);
     const newAchievements = await achievementEngine.checkAllAchievements({
       duration_seconds: duration,
@@ -193,18 +256,29 @@ const completeSession = async (duration: number, notes?: string) => {
       user_id: user.id
     });
 
-    console.log('New achievements earned:', newAchievements);
+    console.log('🏆 New achievements earned:', newAchievements);
 
-    // Show achievement celebrations
+    // Award achievement XP
     if (newAchievements.length > 0) {
+      console.log('🎯 AWARDING ACHIEVEMENT XP for', newAchievements.length, 'achievements');
       for (const achievement of newAchievements) {
-        // Find the achievement definition
-        const achievementDef = ExpandedAchievementEngine.getAchievementByName(achievement.achievement_name);
-        if (achievementDef) {
-          // Show celebration modal (this would integrate with your existing celebration system)
-          console.log('Achievement unlocked:', achievementDef);
-        }
+        console.log('🎯 AWARDING ACHIEVEMENT XP', {
+          source: 'achievement',
+          data: {
+            achievement_name: achievement.achievement_name,
+            rarity: achievement.rarity || 'common'
+          }
+        });
+        
+        const achievementXPResult = await trackXP('achievement', {
+          achievement_name: achievement.achievement_name,
+          rarity: achievement.rarity || 'common'
+        });
+        
+        console.log('🎯 ACHIEVEMENT XP RESULT:', achievementXPResult);
       }
+    } else {
+      console.log('⏭️ NO ACHIEVEMENTS EARNED - Skipping achievement XP');
     }
 
     setCompletedSession({
@@ -216,9 +290,24 @@ const completeSession = async (duration: number, notes?: string) => {
       notes
     });
 
+    console.log('✅ SESSION COMPLETION SUCCESS - Final session data:', {
+      sessionId: session.id,
+      duration,
+      exerciseId: selectedExercise.id,
+      achievementsCount: newAchievements.length,
+      streakInfo: streakResult
+    });
+    
     toast.success('Session completed successfully!');
   } catch (error) {
-    console.error('Unexpected error completing session:', error);
+    console.error('❌ UNEXPECTED ERROR COMPLETING SESSION:', error);
+    console.error('❌ Error details:', {
+      errorMessage: error.message,
+      errorStack: error.stack,
+      userId: user?.id,
+      exerciseId: selectedExercise?.id,
+      duration
+    });
     toast.error('Failed to complete session');
   } finally {
     setIsCompleting(false);

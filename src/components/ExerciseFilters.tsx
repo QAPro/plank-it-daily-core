@@ -225,15 +225,14 @@ const ExerciseFilters = ({
                       <SelectItem value="performance">Performance</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Select value={filters.sortOrder} onValueChange={(value) => updateFilter('sortOrder', value)}>
-                    <SelectTrigger className="w-20">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="asc">↑</SelectItem>
-                      <SelectItem value="desc">↓</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => updateFilter('sortOrder', filters.sortOrder === 'asc' ? 'desc' : 'asc')}
+                    className="px-3"
+                  >
+                    {filters.sortOrder === 'asc' ? '↑' : '↓'}
+                  </Button>
                 </div>
               </div>
             </div>

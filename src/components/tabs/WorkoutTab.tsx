@@ -7,11 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import EnhancedExerciseCard from "@/components/EnhancedExerciseCard";
 import { CompactExerciseCard } from "@/components/CompactExerciseCard";
 import { ExerciseCounter } from "@/components/ExerciseCounter";
-import ExerciseFilters from "@/components/ExerciseFilters";
+import ExerciseFilters, { FilterState } from "@/components/ExerciseFilters";
 import PlankTimer from "@/components/PlankTimer";
 import ExerciseDetailsModal from "@/components/ExerciseDetailsModal";
 import { useExercises } from "@/hooks/useExercises";
 import { useExerciseRecommendations } from "@/hooks/useExerciseRecommendations";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { useScrollDetection } from "@/hooks/useScrollDetection";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Tables } from "@/integrations/supabase/types";
@@ -20,48 +21,96 @@ import CustomWorkoutManager from "@/components/custom-workouts/CustomWorkoutMana
 
 type Exercise = Tables<'plank_exercises'>;
 
-// Define a simple filter state that matches what we actually use
-interface SimpleFilters {
-  difficulty: string;
-  category: string;
-  searchTerm: string;
-}
-
 const WorkoutTab = () => {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [showTimer, setShowTimer] = useState(false);
   const [selectedDetailsExercise, setSelectedDetailsExercise] = useState<Exercise | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [isCompactView, setIsCompactView] = useState(false);
-  const [filters, setFilters] = useState<SimpleFilters>({
-    difficulty: 'all',
-    category: 'all',
-    searchTerm: '',
+  const [filters, setFilters] = useState<FilterState>({
+    search: '',
+    difficulty: [],
+    categories: [],
+    tags: [],
+    showFavoritesOnly: false,
+    showRecommendedOnly: false,
+    hasPerformanceData: null,
+    sortBy: 'name',
+    sortOrder: 'asc',
   });
 
   const { hasScrollableContent, containerRef } = useScrollDetection();
 
   const { data: exercises, isLoading: exercisesLoading } = useExercises();
   const { recommendations, isLoading: recommendationsLoading, generateRecommendations, isGenerating } = useExerciseRecommendations();
-
-  const filteredExercises = useMemo(() => {
-    if (!exercises) return [];
-    
-    return exercises.filter((exercise) => {
-      const matchesDifficulty = filters.difficulty === 'all' || exercise.difficulty_level.toString() === filters.difficulty;
-      const matchesCategory = filters.category === 'all' || exercise.category === filters.category;
-      const matchesSearch = filters.searchTerm === '' || 
-        exercise.name.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
-        exercise.description?.toLowerCase().includes(filters.searchTerm.toLowerCase());
-      
-      return matchesDifficulty && matchesCategory && matchesSearch;
-    });
-  }, [exercises, filters]);
+  const { preferences, updatePreferences } = useUserPreferences();
 
   const recommendedExerciseIds = useMemo(() => {
     if (!recommendations) return new Set<string>();
     return new Set(recommendations.map(rec => rec.exercise_id));
   }, [recommendations]);
+
+  const filteredExercises = useMemo(() => {
+    if (!exercises) return [];
+    
+    let filtered = exercises.filter((exercise) => {
+      // Search filter
+      const matchesSearch = filters.search === '' || 
+        exercise.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+        exercise.description?.toLowerCase().includes(filters.search.toLowerCase());
+      
+      // Difficulty filter
+      const matchesDifficulty = filters.difficulty.length === 0 || 
+        filters.difficulty.includes(exercise.difficulty_level);
+      
+      // Category filter
+      const matchesCategory = filters.categories.length === 0 || 
+        filters.categories.includes(exercise.category || '');
+      
+      // Favorites filter
+      const matchesFavorites = !filters.showFavoritesOnly || 
+        (preferences?.favorite_exercises || []).includes(exercise.id);
+      
+      // Recommendations filter
+      const matchesRecommended = !filters.showRecommendedOnly || 
+        recommendedExerciseIds.has(exercise.id);
+      
+      return matchesSearch && matchesDifficulty && matchesCategory && matchesFavorites && matchesRecommended;
+    });
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let comparison = 0;
+      
+      switch (filters.sortBy) {
+        case 'name':
+          comparison = a.name.localeCompare(b.name);
+          break;
+        case 'difficulty':
+          comparison = a.difficulty_level - b.difficulty_level;
+          break;
+        case 'recommendation':
+          const aRec = recommendations?.find(r => r.exercise_id === a.id);
+          const bRec = recommendations?.find(r => r.exercise_id === b.id);
+          const aScore = aRec?.confidence_score || 0;
+          const bScore = bRec?.confidence_score || 0;
+          comparison = bScore - aScore; // Higher scores first
+          break;
+        case 'performance':
+          // Sort by whether user has performance data, then by best time
+          const aHasPerf = (preferences?.favorite_exercises || []).includes(a.id);
+          const bHasPerf = (preferences?.favorite_exercises || []).includes(b.id);
+          if (aHasPerf && !bHasPerf) comparison = -1;
+          else if (!aHasPerf && bHasPerf) comparison = 1;
+          else comparison = 0;
+          break;
+      }
+      
+      return filters.sortOrder === 'desc' ? -comparison : comparison;
+    });
+
+    return filtered;
+  }, [exercises, filters, preferences, recommendations, recommendedExerciseIds]);
 
   const topRecommendedExercises = useMemo(() => {
     if (!recommendations || !exercises) return [];
@@ -109,31 +158,28 @@ const WorkoutTab = () => {
     setIsCompactView(prev => !prev);
   };
 
-  // Convert simple filters to the format expected by ExerciseFilters
-  const convertToFilterState = (simpleFilters: SimpleFilters) => ({
-    search: simpleFilters.searchTerm,
-    difficulty: simpleFilters.difficulty === 'all' ? [] : [parseInt(simpleFilters.difficulty)],
-    categories: simpleFilters.category === 'all' ? [] : [simpleFilters.category],
-    tags: [],
-    showFavoritesOnly: false,
-    showRecommendedOnly: false,
-    hasPerformanceData: null,
-    sortBy: 'name' as const,
-    sortOrder: 'asc' as const
-  });
+  const handleFiltersChange = (newFilters: FilterState) => {
+    setFilters(newFilters);
+  };
 
-  const handleFiltersChange = (newFilters: any) => {
-    setFilters({
-      difficulty: newFilters.difficulty?.length > 0 ? newFilters.difficulty[0].toString() : 'all',
-      category: newFilters.categories?.length > 0 ? newFilters.categories[0] : 'all',
-      searchTerm: newFilters.search || '',
-    });
+  const handleToggleFavorite = async (exerciseId: string) => {
+    if (!preferences) return;
+    
+    const currentFavorites = preferences.favorite_exercises || [];
+    const isFavorite = currentFavorites.includes(exerciseId);
+    
+    const updatedFavorites = isFavorite
+      ? currentFavorites.filter(id => id !== exerciseId)
+      : [...currentFavorites, exerciseId];
+    
+    await updatePreferences({ favorite_exercises: updatedFavorites });
   };
 
   const availableCategories = useMemo(() => {
     if (!exercises) return [];
     const categories = new Set(exercises.map(ex => ex.category).filter(Boolean));
-    return Array.from(categories);
+    // Hide categories if there's only one unique category (all exercises are the same category)
+    return categories.size > 1 ? Array.from(categories) : [];
   }, [exercises]);
 
   const availableTags = useMemo(() => {
@@ -324,7 +370,7 @@ const WorkoutTab = () => {
           >
             <ExerciseFilters 
               exercises={exercises || []}
-              filters={convertToFilterState(filters)} 
+              filters={filters} 
               onFiltersChange={handleFiltersChange}
               availableCategories={availableCategories}
               availableTags={availableTags}
@@ -348,7 +394,17 @@ const WorkoutTab = () => {
               <div className="col-span-full text-center py-8">
                 <p className="text-muted-foreground mb-4">No exercises found matching your criteria.</p>
                 <Button 
-                  onClick={() => setFilters({ difficulty: 'all', category: 'all', searchTerm: '' })}
+                  onClick={() => setFilters({
+                    search: '',
+                    difficulty: [],
+                    categories: [],
+                    tags: [],
+                    showFavoritesOnly: false,
+                    showRecommendedOnly: false,
+                    hasPerformanceData: null,
+                    sortBy: 'name',
+                    sortOrder: 'asc',
+                  })}
                   variant="outline"
                 >
                   Clear Filters
@@ -365,6 +421,8 @@ const WorkoutTab = () => {
                     onViewDetails={handleViewDetails}
                     recommendationType={recommendations?.find(rec => rec.exercise_id === exercise.id)?.recommendation_type}
                     confidenceScore={recommendations?.find(rec => rec.exercise_id === exercise.id)?.confidence_score}
+                    isFavorite={(preferences?.favorite_exercises || []).includes(exercise.id)}
+                    onToggleFavorite={() => handleToggleFavorite(exercise.id)}
                   />
                 ) : (
                   <motion.div
@@ -380,6 +438,8 @@ const WorkoutTab = () => {
                       onViewDetails={handleViewDetails}
                       recommendationType={recommendations?.find(rec => rec.exercise_id === exercise.id)?.recommendation_type}
                       confidenceScore={recommendations?.find(rec => rec.exercise_id === exercise.id)?.confidence_score}
+                      isFavorite={(preferences?.favorite_exercises || []).includes(exercise.id)}
+                      onToggleFavorite={() => handleToggleFavorite(exercise.id)}
                     />
                   </motion.div>
                 )

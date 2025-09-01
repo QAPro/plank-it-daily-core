@@ -35,7 +35,7 @@ const WorkoutTab = () => {
     showFavoritesOnly: false,
     showRecommendedOnly: false,
     hasPerformanceData: null,
-    sortBy: 'name',
+    sortBy: 'difficulty',
     sortOrder: 'asc',
   });
 
@@ -402,7 +402,7 @@ const WorkoutTab = () => {
                     showFavoritesOnly: false,
                     showRecommendedOnly: false,
                     hasPerformanceData: null,
-                    sortBy: 'name',
+                    sortBy: 'difficulty',
                     sortOrder: 'asc',
                   })}
                   variant="outline"

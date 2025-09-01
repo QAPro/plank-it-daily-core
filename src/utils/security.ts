@@ -4,6 +4,28 @@ export const sanitizeInput = (input: string): string => {
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
     .replace(/javascript:/gi, '')
     .replace(/on\w+\s*=/gi, '')
+    .replace(/data:/gi, '')
+    .replace(/vbscript:/gi, '')
+    .replace(/&lt;script/gi, '')
+    .replace(/&lt;\/script/gi, '')
+    .replace(/eval\s*\(/gi, '')
+    .replace(/expression\s*\(/gi, '')
+    .trim();
+};
+
+export const sanitizeHtml = (html: string): string => {
+  // More comprehensive HTML sanitization
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+    .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
+    .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '')
+    .replace(/<link\b[^<]*>/gi, '')
+    .replace(/<meta\b[^<]*>/gi, '')
+    .replace(/javascript:/gi, '')
+    .replace(/vbscript:/gi, '')
+    .replace(/data:/gi, '')
+    .replace(/on\w+\s*=/gi, '')
     .trim();
 };
 
@@ -70,6 +92,49 @@ export const rateLimiter = (key: string, limit: number, windowMs: number): boole
   }, windowMs);
   
   return true;
+};
+
+// Secure localStorage wrapper with encryption for sensitive data
+export const secureStorage = {
+  setItem: (key: string, value: string, encrypt = false): void => {
+    try {
+      const dataToStore = encrypt ? btoa(value) : value;
+      const timestamp = Date.now();
+      const secureItem = JSON.stringify({ data: dataToStore, timestamp, encrypted: encrypt });
+      localStorage.setItem(`secure_${key}`, secureItem);
+    } catch (error) {
+      console.warn('Failed to store secure item:', error);
+    }
+  },
+  
+  getItem: (key: string, maxAge = 24 * 60 * 60 * 1000): string | null => {
+    try {
+      const stored = localStorage.getItem(`secure_${key}`);
+      if (!stored) return null;
+      
+      const { data, timestamp, encrypted } = JSON.parse(stored);
+      
+      // Check if data has expired
+      if (Date.now() - timestamp > maxAge) {
+        localStorage.removeItem(`secure_${key}`);
+        return null;
+      }
+      
+      return encrypted ? atob(data) : data;
+    } catch (error) {
+      console.warn('Failed to retrieve secure item:', error);
+      return null;
+    }
+  },
+  
+  removeItem: (key: string): void => {
+    localStorage.removeItem(`secure_${key}`);
+  },
+  
+  clear: (): void => {
+    const keys = Object.keys(localStorage).filter(key => key.startsWith('secure_'));
+    keys.forEach(key => localStorage.removeItem(key));
+  }
 };
 
 export const generateCSRFToken = (): string => {

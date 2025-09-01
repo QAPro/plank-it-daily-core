@@ -111,10 +111,12 @@ const EnhancedExerciseCard = ({
             </div>
             
             <div className="flex items-center space-x-4 text-sm">
-              <div className="flex items-center">
-                <Clock className="w-4 h-4 mr-1" />
-                {performance ? formatDuration(performance.average_duration_seconds) + ' avg' : 'Customizable'}
-              </div>
+              {performance && (
+                <div className="flex items-center">
+                  <Clock className="w-4 h-4 mr-1" />
+                  {formatDuration(performance.average_duration_seconds)} avg
+                </div>
+              )}
               <div className="flex items-center">
                 <Target className="w-4 h-4 mr-1" />
                 Level {exercise.difficulty_level}
@@ -144,28 +146,7 @@ const EnhancedExerciseCard = ({
 
             <p className="text-gray-600 mb-4 line-clamp-2">{exercise.description}</p>
             
-            {/* Tags */}
-            {exercise.tags && exercise.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1 mb-3">
-                {exercise.tags.slice(0, 3).map((tag, tagIndex) => (
-                  <Badge key={tagIndex} variant="outline" className="text-xs">
-                    {tag}
-                  </Badge>
-                ))}
-                {exercise.tags.length > 3 && (
-                  <Badge variant="outline" className="text-xs">
-                    +{exercise.tags.length - 3} more
-                  </Badge>
-                )}
-              </div>
-            )}
 
-            {/* Primary Muscles */}
-            {exercise.primary_muscles && exercise.primary_muscles.length > 0 && (
-              <div className="text-xs text-gray-500 mb-3">
-                Targets: {exercise.primary_muscles.join(', ')}
-              </div>
-            )}
 
             <div className="flex gap-2">
               <Button

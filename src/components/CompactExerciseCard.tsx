@@ -105,14 +105,6 @@ export const CompactExerciseCard = ({
             )}
           </div>
 
-          {/* Category and tags */}
-          <div className="flex items-center gap-2 mb-3">
-            {exercise.category && (
-              <Badge variant="outline" className="text-xs">
-                {exercise.category}
-              </Badge>
-            )}
-          </div>
 
           {/* Action buttons */}
           <div className="flex items-center gap-2">

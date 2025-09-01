@@ -96,11 +96,6 @@ const EnhancedExerciseCard = ({
                     </Button>
                   )}
                 </div>
-                {exercise.category && (
-                  <Badge variant="secondary" className="bg-white/20 text-white text-xs mb-2">
-                    {exercise.category.replace('_', ' ').toUpperCase()}
-                  </Badge>
-                )}
               </div>
               <div className="flex flex-col items-end gap-1">
                 <div className="flex space-x-1">

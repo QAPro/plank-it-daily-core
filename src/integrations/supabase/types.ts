@@ -2531,6 +2531,10 @@ export type Database = {
         Args: { user_email: string }
         Returns: boolean
       }
+      does_username_exist: {
+        Args: { target_username: string }
+        Returns: boolean
+      }
       evaluate_user_cohort: {
         Args: { _cohort_rules: Json; _user_id: string }
         Returns: boolean

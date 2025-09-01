@@ -1,6 +1,6 @@
 
 import { motion } from "framer-motion";
-import EnhancedAchievementsGallery from "@/components/EnhancedAchievementsGallery";
+import OptimizedAchievementsGallery from "@/components/achievements/OptimizedAchievementsGallery";
 
 const AchievementsTab = () => {
   return (
@@ -16,8 +16,8 @@ const AchievementsTab = () => {
         <p className="text-gray-600">Track your progress and unlock rewards on your fitness journey</p>
       </div>
 
-      {/* Enhanced Achievements Gallery */}
-      <EnhancedAchievementsGallery />
+      {/* Optimized Achievements Gallery */}
+      <OptimizedAchievementsGallery />
     </motion.div>
   );
 };

@@ -2766,6 +2766,14 @@ export type Database = {
           user_id: string
         }
       }
+      should_refresh_achievement_progress: {
+        Args: {
+          p_achievement_id: string
+          p_last_session_at?: string
+          p_user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"

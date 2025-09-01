@@ -5,11 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import EnhancedExerciseCard from "@/components/EnhancedExerciseCard";
+import { CompactExerciseCard } from "@/components/CompactExerciseCard";
+import { ExerciseCounter } from "@/components/ExerciseCounter";
 import ExerciseFilters from "@/components/ExerciseFilters";
 import PlankTimer from "@/components/PlankTimer";
 import ExerciseDetailsModal from "@/components/ExerciseDetailsModal";
 import { useExercises } from "@/hooks/useExercises";
 import { useExerciseRecommendations } from "@/hooks/useExerciseRecommendations";
+import { useScrollDetection } from "@/hooks/useScrollDetection";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Tables } from "@/integrations/supabase/types";
 import FeatureGuard from "@/components/access/FeatureGuard";
@@ -29,11 +32,14 @@ const WorkoutTab = () => {
   const [showTimer, setShowTimer] = useState(false);
   const [selectedDetailsExercise, setSelectedDetailsExercise] = useState<Exercise | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [isCompactView, setIsCompactView] = useState(false);
   const [filters, setFilters] = useState<SimpleFilters>({
     difficulty: 'all',
     category: 'all',
     searchTerm: '',
   });
+
+  const { hasScrollableContent, containerRef } = useScrollDetection();
 
   const { data: exercises, isLoading: exercisesLoading } = useExercises();
   const { recommendations, isLoading: recommendationsLoading, generateRecommendations, isGenerating } = useExerciseRecommendations();
@@ -97,6 +103,10 @@ const WorkoutTab = () => {
 
   const handleRefreshRecommendations = () => {
     generateRecommendations();
+  };
+
+  const handleToggleView = () => {
+    setIsCompactView(prev => !prev);
   };
 
   // Convert simple filters to the format expected by ExerciseFilters
@@ -291,6 +301,21 @@ const WorkoutTab = () => {
             </FeatureGuard>
           </motion.div>
 
+          {/* Exercise Counter and View Toggle */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25, duration: 0.5 }}
+          >
+            <ExerciseCounter
+              totalExercises={exercises?.length || 0}
+              filteredCount={filteredExercises.length}
+              isCompact={isCompactView}
+              onToggleView={handleToggleView}
+              hasScrollableContent={hasScrollableContent}
+            />
+          </motion.div>
+
           {/* Filters */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -309,14 +334,19 @@ const WorkoutTab = () => {
 
           {/* Exercise Grid */}
           <motion.div
+            ref={containerRef}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4, duration: 0.5 }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+            className={`relative ${
+              isCompactView 
+                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3" 
+                : "grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4"
+            }`}
           >
             {filteredExercises.length === 0 ? (
               <div className="col-span-full text-center py-8">
-                <p className="text-gray-500 mb-4">No exercises found matching your criteria.</p>
+                <p className="text-muted-foreground mb-4">No exercises found matching your criteria.</p>
                 <Button 
                   onClick={() => setFilters({ difficulty: 'all', category: 'all', searchTerm: '' })}
                   variant="outline"
@@ -326,13 +356,9 @@ const WorkoutTab = () => {
               </div>
             ) : (
               filteredExercises.map((exercise, index) => (
-                <motion.div
-                  key={exercise.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.05 * index, duration: 0.3 }}
-                >
-                  <EnhancedExerciseCard
+                isCompactView ? (
+                  <CompactExerciseCard
+                    key={exercise.id}
                     exercise={exercise}
                     index={index}
                     onStart={() => handleExerciseSelect(exercise)}
@@ -340,8 +366,29 @@ const WorkoutTab = () => {
                     recommendationType={recommendations?.find(rec => rec.exercise_id === exercise.id)?.recommendation_type}
                     confidenceScore={recommendations?.find(rec => rec.exercise_id === exercise.id)?.confidence_score}
                   />
-                </motion.div>
+                ) : (
+                  <motion.div
+                    key={exercise.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.05 * index, duration: 0.3 }}
+                  >
+                    <EnhancedExerciseCard
+                      exercise={exercise}
+                      index={index}
+                      onStart={() => handleExerciseSelect(exercise)}
+                      onViewDetails={handleViewDetails}
+                      recommendationType={recommendations?.find(rec => rec.exercise_id === exercise.id)?.recommendation_type}
+                      confidenceScore={recommendations?.find(rec => rec.exercise_id === exercise.id)?.confidence_score}
+                    />
+                  </motion.div>
+                )
               ))
+            )}
+            
+            {/* Scroll gradient fade */}
+            {hasScrollableContent && (
+              <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent pointer-events-none" />
             )}
           </motion.div>
         </motion.div>

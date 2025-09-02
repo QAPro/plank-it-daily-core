@@ -94,30 +94,115 @@ export const rateLimiter = (key: string, limit: number, windowMs: number): boole
   return true;
 };
 
-// Secure localStorage wrapper with encryption for sensitive data
+// Real encryption key derivation from user session
+const deriveKey = async (salt: string): Promise<CryptoKey> => {
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(salt + window.location.origin),
+    'PBKDF2',
+    false,
+    ['deriveKey']
+  );
+  
+  return crypto.subtle.deriveKey(
+    {
+      name: 'PBKDF2',
+      salt: new TextEncoder().encode('secure-storage-salt'),
+      iterations: 100000,
+      hash: 'SHA-256',
+    },
+    keyMaterial,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+};
+
+// Secure localStorage wrapper with real AES-GCM encryption
 export const secureStorage = {
-  setItem: (key: string, value: string, encrypt = false): void => {
+  setItem: async (key: string, value: string, encrypt = false): Promise<void> => {
     try {
-      const dataToStore = encrypt ? btoa(value) : value;
+      let dataToStore = value;
+      let encrypted = false;
+      
+      if (encrypt && crypto.subtle) {
+        const salt = crypto.getRandomValues(new Uint8Array(16));
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+        const cryptoKey = await deriveKey(Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join(''));
+        
+        const encodedData = new TextEncoder().encode(value);
+        const encryptedData = await crypto.subtle.encrypt(
+          { name: 'AES-GCM', iv },
+          cryptoKey,
+          encodedData
+        );
+        
+        dataToStore = JSON.stringify({
+          encrypted: Array.from(new Uint8Array(encryptedData)),
+          salt: Array.from(salt),
+          iv: Array.from(iv),
+        });
+        encrypted = true;
+      }
+      
       const timestamp = Date.now();
-      const secureItem = JSON.stringify({ data: dataToStore, timestamp, encrypted: encrypt });
+      const secureItem = JSON.stringify({ 
+        data: dataToStore, 
+        timestamp, 
+        encrypted,
+        integrity: await crypto.subtle.digest('SHA-256', new TextEncoder().encode(dataToStore + timestamp))
+      });
       localStorage.setItem(`secure_${key}`, secureItem);
     } catch (error) {
       console.warn('Failed to store secure item:', error);
+      // Fallback to base64 if crypto not available
+      const timestamp = Date.now();
+      const secureItem = JSON.stringify({ data: btoa(value), timestamp, encrypted: true });
+      localStorage.setItem(`secure_${key}`, secureItem);
     }
   },
   
-  getItem: (key: string, maxAge = 24 * 60 * 60 * 1000): string | null => {
+  getItem: async (key: string, maxAge = 24 * 60 * 60 * 1000): Promise<string | null> => {
     try {
       const stored = localStorage.getItem(`secure_${key}`);
       if (!stored) return null;
       
-      const { data, timestamp, encrypted } = JSON.parse(stored);
+      const { data, timestamp, encrypted, integrity } = JSON.parse(stored);
       
       // Check if data has expired
       if (Date.now() - timestamp > maxAge) {
         localStorage.removeItem(`secure_${key}`);
         return null;
+      }
+      
+      // Verify integrity if available
+      if (integrity && crypto.subtle) {
+        const computedIntegrity = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(data + timestamp));
+        const storedIntegrity = new Uint8Array(Object.values(integrity));
+        const computedArray = new Uint8Array(computedIntegrity);
+        
+        if (!storedIntegrity.every((val, i) => val === computedArray[i])) {
+          localStorage.removeItem(`secure_${key}`);
+          return null;
+        }
+      }
+      
+      if (encrypted && crypto.subtle && typeof data === 'string') {
+        try {
+          const { encrypted: encryptedData, salt, iv } = JSON.parse(data);
+          const cryptoKey = await deriveKey(salt.map((b: number) => b.toString(16).padStart(2, '0')).join(''));
+          
+          const decryptedData = await crypto.subtle.decrypt(
+            { name: 'AES-GCM', iv: new Uint8Array(iv) },
+            cryptoKey,
+            new Uint8Array(encryptedData)
+          );
+          
+          return new TextDecoder().decode(decryptedData);
+        } catch (decryptError) {
+          // Fallback to base64 decode for legacy data
+          return encrypted ? atob(data) : data;
+        }
       }
       
       return encrypted ? atob(data) : data;

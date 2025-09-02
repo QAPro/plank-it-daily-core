@@ -74,28 +74,28 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
     return null
   }
 
-  return (
-    <style
-      dangerouslySetInnerHTML={{
-        __html: Object.entries(THEMES)
-          .map(
-            ([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
-${colorConfig
-  .map(([key, itemConfig]) => {
-    const color =
-      itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
-      itemConfig.color
-    return color ? `  --color-${key}: ${color};` : null
+  // Safe CSS generation using React.createElement to avoid XSS
+  const cssText = Object.entries(THEMES)
+    .map(([theme, prefix]) => {
+      const themeStyles = colorConfig
+        .map(([key, itemConfig]) => {
+          const color =
+            itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
+            itemConfig.color
+          return color ? `  --color-${key}: ${color};` : null
+        })
+        .filter(Boolean)
+        .join("\n")
+      
+      return themeStyles ? `${prefix} [data-chart=${id}] {\n${themeStyles}\n}` : null
+    })
+    .filter(Boolean)
+    .join("\n")
+
+  return React.createElement("style", {
+    key: `chart-style-${id}`,
+    children: cssText,
   })
-  .join("\n")}
-}
-`
-          )
-          .join("\n"),
-      }}
-    />
-  )
 }
 
 const ChartTooltip = RechartsPrimitive.Tooltip

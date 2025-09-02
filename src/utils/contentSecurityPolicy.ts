@@ -1,0 +1,45 @@
+// Content Security Policy configuration for enhanced security
+export const generateCSPHeader = (): string => {
+  const SUPABASE_ORIGIN = "https://kgwmplptoctmoaefnpfg.supabase.co";
+  
+  const cspDirectives = [
+    "default-src 'self'",
+    "base-uri 'self'",
+    "object-src 'none'",
+    "frame-ancestors 'none'",
+    "script-src 'self' 'unsafe-inline'", // unsafe-inline needed for chart styles
+    "style-src 'self' 'unsafe-inline'", // unsafe-inline needed for dynamic styles
+    "img-src 'self' data: blob: https:",
+    "font-src 'self' data:",
+    `connect-src 'self' ${SUPABASE_ORIGIN} wss://kgwmplptoctmoaefnpfg.supabase.co`,
+    "form-action 'self'",
+    "upgrade-insecure-requests",
+    "block-all-mixed-content"
+  ];
+  
+  return cspDirectives.join("; ");
+};
+
+// Apply CSP via meta tag (fallback if server headers not available)
+export const applyCSPMetaTag = (): void => {
+  if (typeof document !== 'undefined') {
+    const existingMeta = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
+    if (existingMeta) return;
+    
+    const meta = document.createElement('meta');
+    meta.httpEquiv = 'Content-Security-Policy';
+    meta.content = generateCSPHeader();
+    document.head.appendChild(meta);
+  }
+};
+
+// Security headers for development reference
+export const securityHeaders = {
+  "Content-Security-Policy": generateCSPHeader(),
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "DENY",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+  "X-XSS-Protection": "1; mode=block",
+  "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=()"
+};

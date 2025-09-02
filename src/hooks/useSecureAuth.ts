@@ -2,39 +2,31 @@ import { useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { secureStorage } from '@/utils/security';
 import { supabase } from '@/integrations/supabase/client';
+import { securityMonitor, logAuthEvent, logSuspiciousActivity } from '@/utils/securityMonitoring';
 
 // Enhanced authentication security hook
 export const useSecureAuth = () => {
   const { user } = useAuth();
 
-  // Monitor for suspicious activity
-  const logSecurityEvent = useCallback((event: string, details?: any) => {
-    const securityLog = {
-      timestamp: Date.now(),
+  // Enhanced security monitoring
+  const logSecurityEvent = useCallback(async (event: string, details?: any) => {
+    await logAuthEvent({
       event,
       userId: user?.id,
-      userAgent: navigator.userAgent,
       url: window.location.href,
       details
-    };
-    
-    // Store security events (encrypted)
-    const existingLogs = JSON.parse(secureStorage.getItem('security_events') || '[]');
-    existingLogs.push(securityLog);
-    
-    // Keep only last 50 events
-    const recentLogs = existingLogs.slice(-50);
-    secureStorage.setItem('security_events', JSON.stringify(recentLogs), true);
+    }, details?.severity || 'low');
   }, [user?.id]);
 
-  // Check for session anomalies
+  // Enhanced session validation with anomaly detection
   const validateSession = useCallback(async () => {
     if (!user) return;
 
     // Check for multiple tabs with different users (basic detection)
-    const storedUserId = secureStorage.getItem('current_user_id');
+    const storedUserId = await secureStorage.getItem('current_user_id');
     if (storedUserId && storedUserId !== user.id) {
-      logSecurityEvent('session_anomaly', { 
+      await logSuspiciousActivity({ 
+        reason: 'Session user mismatch',
         storedUserId, 
         currentUserId: user.id 
       });
@@ -42,11 +34,21 @@ export const useSecureAuth = () => {
       return;
     }
 
+    // Detect suspicious patterns
+    const { detected, anomalies } = securityMonitor.detectAnomalies(user.id);
+    if (detected) {
+      await logSuspiciousActivity({
+        reason: 'Anomaly detection triggered',
+        anomalies,
+        userId: user.id
+      });
+    }
+
     // Update stored user ID
-    secureStorage.setItem('current_user_id', user.id);
+    await secureStorage.setItem('current_user_id', user.id);
 
     // Log successful session validation
-    logSecurityEvent('session_validated');
+    await logSecurityEvent('session_validated');
   }, [user, logSecurityEvent]);
 
   // Monitor for tab visibility changes (potential session hijacking)
@@ -57,8 +59,8 @@ export const useSecureAuth = () => {
   }, [user, validateSession]);
 
   // Cleanup on logout
-  const handleLogout = useCallback(() => {
-    logSecurityEvent('user_logout');
+  const handleLogout = useCallback(async () => {
+    await logSecurityEvent('user_logout');
     secureStorage.clear();
   }, [logSecurityEvent]);
 
@@ -76,20 +78,26 @@ export const useSecureAuth = () => {
   }, [user, validateSession, handleVisibilityChange, handleLogout]);
 
   // Report suspicious activity
-  const reportSuspiciousActivity = useCallback((activity: string, details?: any) => {
-    logSecurityEvent('suspicious_activity', { activity, details });
+  const reportSuspiciousActivity = useCallback(async (activity: string, details?: any) => {
+    await logSuspiciousActivity({ activity, ...details });
     console.warn(`Suspicious activity detected: ${activity}`, details);
-  }, [logSecurityEvent]);
+  }, []);
 
   // Get security events for admin review
-  const getSecurityEvents = useCallback(() => {
-    return JSON.parse(secureStorage.getItem('security_events') || '[]');
+  const getSecurityEvents = useCallback(async () => {
+    return securityMonitor.getRecentEvents();
+  }, []);
+
+  // Get critical security events
+  const getCriticalEvents = useCallback(async () => {
+    return securityMonitor.getCriticalEvents();
   }, []);
 
   return {
     validateSession,
     reportSuspiciousActivity,
     getSecurityEvents,
+    getCriticalEvents,
     logSecurityEvent
   };
 };

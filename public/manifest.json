@@ -1,0 +1,34 @@
+{
+  "name": "Plank Coach - Your Daily Fitness Companion",
+  "short_name": "Plank Coach",
+  "description": "Transform your core strength with personalized plank workouts, achievement tracking, and social challenges.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#hsl(var(--background))",
+  "theme_color": "#hsl(var(--primary))",
+  "orientation": "portrait-primary",
+  "categories": ["fitness", "health", "sports"],
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/placeholder.svg",
+      "sizes": "1280x720",
+      "type": "image/svg+xml",
+      "form_factor": "wide",
+      "label": "Plank Coach Dashboard"
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "scope": "/",
+  "id": "plank-coach-pwa"
+}

@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Bell } from 'lucide-react';
 
 export const PushNotificationTest = () => {
+  console.log('[PushNotificationTest] Component rendering...');
+  
   const {
     isSupported,
     isSubscribed,
@@ -12,6 +14,12 @@ export const PushNotificationTest = () => {
     subscribe,
     unsubscribe
   } = usePushNotifications();
+
+  console.log('[PushNotificationTest] Hook values:', {
+    isSupported,
+    isSubscribed,
+    isLoading
+  });
 
   useEffect(() => {
     console.log('[PushNotificationTest] Component mounted', {

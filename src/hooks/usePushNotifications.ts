@@ -13,12 +13,23 @@ interface PushSubscription {
 }
 
 export const usePushNotifications = () => {
+  console.log('[usePushNotifications] Hook called');
+  
   const { user } = useAuth();
   const [isSupported, setIsSupported] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [subscription, setSubscription] = useState<PushSubscription | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [swReady, setSwReady] = useState(false);
+
+  console.log('[usePushNotifications] Current state:', {
+    hasUser: !!user,
+    isSupported,
+    isSubscribed,
+    isLoading,
+    swReady,
+    location: window.location.protocol
+  });
 
   useEffect(() => {
     console.log('[PushNotifications] Initializing...', { user: user?.id });

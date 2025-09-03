@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,6 +14,7 @@ import { toast } from 'sonner';
 export function DevToolsNotifications() {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const [customTitle, setCustomTitle] = useState('Test Notification');
   const [customBody, setCustomBody] = useState('This is a test push notification from Plank Coach!');
   const [notificationType, setNotificationType] = useState('test');
@@ -56,14 +58,22 @@ export function DevToolsNotifications() {
     }
   };
 
-  if (process.env.NODE_ENV !== 'development') {
+  if (process.env.NODE_ENV !== 'development' || !isVisible) {
     return null;
   }
 
   return (
     <Card className="w-full max-w-2xl">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
         <CardTitle>Notification Testing</CardTitle>
+        <Button
+          onClick={() => setIsVisible(false)}
+          size="sm"
+          variant="ghost"
+          className="h-8 w-8 p-0"
+        >
+          <X className="h-4 w-4" />
+        </Button>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-2 gap-4">

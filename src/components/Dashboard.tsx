@@ -13,7 +13,7 @@ import EventsTab from './tabs/EventsTab';
 import ProfileTab from './tabs/ProfileTab';
 import AdminDashboard from './admin/AdminDashboard';
 import { useAuth } from '@/contexts/AuthContext';
-import { PushNotificationTest } from '@/components/PushNotificationTest';
+import { EnhancedPushNotificationTest } from '@/components/EnhancedPushNotificationTest';
 import { PushNotificationDebug } from '@/components/PushNotificationDebug';
 
 const Dashboard = () => {
@@ -71,7 +71,7 @@ const Dashboard = () => {
       {process.env.NODE_ENV === 'development' && (
         <>
           <PushNotificationDebug />
-          <PushNotificationTest />
+          <EnhancedPushNotificationTest />
         </>
       )}
       

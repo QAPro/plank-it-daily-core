@@ -15,6 +15,7 @@ import SubscriptionManagement from '@/components/subscription/SubscriptionManage
 import SubscriptionPlansPage from '@/components/subscription/SubscriptionPlansPage';
 import { PushNotificationManager } from '@/components/notifications/PushNotificationManager';
 import { NotificationPreferences } from '@/components/notifications/NotificationPreferences';
+import { PushNotificationDebugger } from '@/components/debug/PushNotificationDebugger';
 
 interface ProfileTabProps {
   initialView?: 'overview' | 'subscription-plans';
@@ -110,6 +111,9 @@ const ProfileTab = ({ initialView = 'overview' }: ProfileTabProps) => {
 
         <TabsContent value="settings" className="space-y-6">
           <PreferencesSettings />
+          
+          {/* Push Notification Debug */}
+          <PushNotificationDebugger />
           
           {/* Push Notification Management */}
           <PushNotificationManager />

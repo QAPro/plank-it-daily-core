@@ -2782,6 +2782,10 @@ export type Database = {
         Args: { _user_id?: string }
         Returns: boolean
       }
+      notify_via_edge_function: {
+        Args: { p_payload: Json }
+        Returns: undefined
+      }
       refresh_user_cohort_memberships: {
         Args: { _user_id: string }
         Returns: undefined

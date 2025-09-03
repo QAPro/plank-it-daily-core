@@ -12,21 +12,37 @@ export const VapidKeyDebugger: React.FC = () => {
   const [validation, setValidation] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [testResult, setTestResult] = useState<any>(null);
+  const [serverError, setServerError] = useState<string>('');
 
   const handleFetchKey = async () => {
     setIsLoading(true);
+    setServerError('');
+    setValidation(null);
+    setTestResult(null);
+    
     try {
       const { data, error } = await supabase.functions.invoke('get-vapid-public-key');
       
       if (error) {
         console.error('[VAPID Debug] Fetch error:', error);
-        setValidation({ isValid: false, errors: [`Fetch error: ${error.message}`] });
+        const errorMsg = `Function error: ${error.message}`;
+        setServerError(errorMsg);
+        setValidation({ isValid: false, errors: [errorMsg] });
+        return;
+      }
+
+      if (data?.error) {
+        console.error('[VAPID Debug] Server error:', data.error);
+        setServerError(data.error);
+        setValidation({ isValid: false, errors: [data.error] });
         return;
       }
 
       if (!data?.publicKey) {
         console.error('[VAPID Debug] No public key in response:', data);
-        setValidation({ isValid: false, errors: ['No public key in server response'] });
+        const errorMsg = 'No public key in server response';
+        setServerError(errorMsg);
+        setValidation({ isValid: false, errors: [errorMsg] });
         return;
       }
 
@@ -87,6 +103,26 @@ export const VapidKeyDebugger: React.FC = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {serverError && (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Server Error:</strong> {serverError}
+              {serverError.includes('VAPID public key not configured') && (
+                <div className="mt-2 text-sm">
+                  <strong>Fix:</strong> Go to Supabase → Project → Edge Functions → Secrets and re-save the VAPID_PUBLIC_KEY secret. 
+                  Make sure to paste the key without quotes or extra spaces.
+                </div>
+              )}
+              {serverError.includes('Function error') && (
+                <div className="mt-2 text-sm">
+                  This usually means the edge function couldn't access the VAPID_PUBLIC_KEY secret.
+                </div>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
+
         <div className="flex gap-2">
           <Button 
             onClick={handleFetchKey} 

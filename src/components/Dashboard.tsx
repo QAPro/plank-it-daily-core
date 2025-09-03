@@ -13,6 +13,7 @@ import EventsTab from './tabs/EventsTab';
 import ProfileTab from './tabs/ProfileTab';
 import AdminDashboard from './admin/AdminDashboard';
 import { useAuth } from '@/contexts/AuthContext';
+import { PushNotificationTest } from '@/components/PushNotificationTest';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('home');
@@ -65,6 +66,9 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
+      {/* Test Component - Temporarily visible */}
+      {process.env.NODE_ENV === 'development' && <PushNotificationTest />}
+      
       <div className="flex flex-col h-screen">
         {/* Main Content */}
         <div className="flex-1 overflow-y-auto">

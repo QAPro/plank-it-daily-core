@@ -11,7 +11,8 @@ export const PushNotificationManager = () => {
     isSubscribed,
     isLoading,
     subscribe,
-    unsubscribe
+    unsubscribe,
+    resubscribe
   } = usePushNotifications();
 
   const handleToggle = async () => {
@@ -91,6 +92,18 @@ export const PushNotificationManager = () => {
             variant="outline"
           >
             {isLoading ? "Enabling..." : "Enable Push Notifications"}
+          </Button>
+        )}
+
+        {isSubscribed && (
+          <Button 
+            onClick={resubscribe}
+            disabled={isLoading}
+            className="w-full"
+            variant="outline"
+            size="sm"
+          >
+            {isLoading ? "Refreshing..." : "Refresh Subscription"}
           </Button>
         )}
 

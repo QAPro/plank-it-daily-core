@@ -73,6 +73,22 @@ export const usePushNotifications = () => {
     return permission === 'granted';
   }, [isSupported]);
 
+  const fetchVapidPublicKey = useCallback(async (): Promise<string | null> => {
+    try {
+      const { data, error } = await supabase.functions.invoke('get-vapid-public-key');
+      
+      if (error) {
+        console.error('Error fetching VAPID public key:', error);
+        return null;
+      }
+      
+      return data?.publicKey || null;
+    } catch (error) {
+      console.error('Error fetching VAPID public key:', error);
+      return null;
+    }
+  }, []);
+
   const subscribe = useCallback(async () => {
     if (!user || !isSupported) return false;
 
@@ -86,8 +102,17 @@ export const usePushNotifications = () => {
 
       const registration = await navigator.serviceWorker.ready;
       
-      // VAPID public key - this should match your server's VAPID_PUBLIC_KEY
-      const vapidPublicKey = 'BJNxONU3mHWb0RN-cnkDLOtyQ1LTDFOYvGADjC7Gzk9zUo2pKvK0_6q0XOIPPGHbwmMJRRz8F1-KP8H9nWdNwCo';
+      // Fetch VAPID public key from server
+      const vapidPublicKey = await fetchVapidPublicKey();
+      if (!vapidPublicKey) {
+        toast({
+          title: "Configuration Error",
+          description: "Unable to retrieve notification configuration. Please try again later.",
+          variant: "destructive"
+        });
+        setIsLoading(false);
+        return false;
+      }
       
       // Convert base64 to Uint8Array for VAPID key
       function urlBase64ToUint8Array(base64String: string): Uint8Array {
@@ -148,7 +173,7 @@ export const usePushNotifications = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [user, isSupported, requestPermission]);
+  }, [user, isSupported, requestPermission, fetchVapidPublicKey]);
 
   const unsubscribe = useCallback(async () => {
     if (!user || !isSupported) return false;
@@ -191,6 +216,17 @@ export const usePushNotifications = () => {
     }
   }, [user, isSupported]);
 
+  const resubscribe = useCallback(async () => {
+    if (!isSubscribed) return await subscribe();
+    
+    // First unsubscribe, then subscribe again
+    const unsubscribeResult = await unsubscribe();
+    if (unsubscribeResult) {
+      return await subscribe();
+    }
+    return false;
+  }, [isSubscribed, subscribe, unsubscribe]);
+
   return {
     isSupported,
     isSubscribed,
@@ -198,6 +234,7 @@ export const usePushNotifications = () => {
     isLoading,
     subscribe,
     unsubscribe,
+    resubscribe,
     requestPermission
   };
 };

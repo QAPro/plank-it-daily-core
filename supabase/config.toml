@@ -2,3 +2,6 @@ project_id = "kgwmplptoctmoaefnpfg"
 
 [functions.notification-events]
 verify_jwt = false
+
+[functions.get-vapid-public-key]
+verify_jwt = false

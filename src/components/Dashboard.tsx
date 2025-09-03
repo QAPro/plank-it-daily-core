@@ -20,6 +20,7 @@ import { VapidKeyManager } from '@/components/VapidKeyManager';
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('home');
   const [profileView, setProfileView] = useState<'overview' | 'subscription-plans'>('overview');
+  const [showVapidManager, setShowVapidManager] = useState(false);
   const { user } = useAuth();
 
   const handleTabChange = (tab: string) => {
@@ -69,9 +70,9 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
       {/* Debug Components - VAPID Key Manager for troubleshooting */}
-      <div className="fixed top-4 right-4 space-y-2 z-50 max-w-md">
-        <VapidKeyManager />
-      </div>
+      {showVapidManager && (
+        <VapidKeyManager onClose={() => setShowVapidManager(false)} />
+      )}
       
       <div className="flex flex-col h-screen">
         {/* Main Content */}

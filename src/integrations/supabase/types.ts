@@ -720,13 +720,6 @@ export type Database = {
             foreignKeyName: "feature_unlocks_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "user_engagement_metrics"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "feature_unlocks_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -2271,13 +2264,6 @@ export type Database = {
             foreignKeyName: "user_sessions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "user_engagement_metrics"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "user_sessions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -2309,13 +2295,6 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "user_streaks_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_engagement_metrics"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "user_streaks_user_id_fkey"
             columns: ["user_id"]
@@ -2529,13 +2508,6 @@ export type Database = {
             foreignKeyName: "xp_transactions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "user_engagement_metrics"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "xp_transactions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -2543,33 +2515,7 @@ export type Database = {
       }
     }
     Views: {
-      subscription_analytics: {
-        Row: {
-          date: string | null
-          plan_name: string | null
-          status: string | null
-          subscription_count: number | null
-          total_revenue_cents: number | null
-          unique_users: number | null
-        }
-        Relationships: []
-      }
-      user_engagement_metrics: {
-        Row: {
-          avg_session_duration: number | null
-          current_streak: number | null
-          email: string | null
-          engagement_status: string | null
-          last_session_date: string | null
-          longest_streak: number | null
-          registration_date: string | null
-          subscription_tier: string | null
-          total_duration: number | null
-          total_sessions: number | null
-          user_id: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       admin_bulk_change_tier: {
@@ -2582,7 +2528,15 @@ export type Database = {
       }
       admin_get_subscription_analytics: {
         Args: Record<PropertyKey, never>
-        Returns: unknown[]
+        Returns: {
+          active_subscriptions: number
+          churn_rate: number
+          mrr: number
+          period_end: string
+          period_start: string
+          plan_id: string
+          plan_name: string
+        }[]
       }
       admin_get_user_ids_by_engagement_status: {
         Args: { _status: string }
@@ -2714,9 +2668,16 @@ export type Database = {
           transaction_id: string
         }[]
       }
-      get_user_engagement_metrics_row: {
-        Args: { target_user_id: string }
-        Returns: unknown[]
+      get_user_engagement_metrics: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          avg_session_duration: number
+          engagement_score: number
+          engagement_status: string
+          last_activity_date: string
+          total_sessions: number
+          user_id: string
+        }[]
       }
       get_user_engagement_summary: {
         Args: Record<PropertyKey, never>
@@ -2820,10 +2781,6 @@ export type Database = {
       is_admin: {
         Args: { _user_id?: string }
         Returns: boolean
-      }
-      refresh_subscription_analytics: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
       }
       refresh_user_cohort_memberships: {
         Args: { _user_id: string }

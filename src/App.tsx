@@ -10,6 +10,7 @@ import ProductionCheck from "@/pages/ProductionCheck";
 import NotFound from "@/pages/NotFound";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { InstallPrompt } from "@/components/notifications/InstallPrompt";
+import { DevToolsNotifications } from "@/components/DevToolsNotifications";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,6 +30,11 @@ function App() {
         <AuthProvider>
           <Router>
             <InstallPrompt />
+            {process.env.NODE_ENV === 'development' && (
+              <div className="fixed bottom-4 left-4 z-50">
+                <DevToolsNotifications />
+              </div>
+            )}
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />

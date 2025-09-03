@@ -59,30 +59,45 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('push', (event) => {
   console.log('[SW] Push received:', event);
   
-  if (!event.data) {
-    return;
-  }
-  
-  const options = {
-    ...event.data.json(),
+  let title = 'Plank Coach';
+  let options = {
+    body: 'Time for your workout!',
     icon: '/favicon.ico',
     badge: '/favicon.ico',
     vibrate: [200, 100, 200],
     requireInteraction: true,
+    tag: 'plank-coach-notification',
     actions: [
       {
         action: 'start-workout',
         title: '💪 Start Workout'
       },
       {
-        action: 'view-progress',
+        action: 'view-progress',  
         title: '📊 View Progress'
       }
     ]
   };
   
+  // Parse notification data if available
+  if (event.data) {
+    try {
+      const data = event.data.json();
+      title = data.title || title;
+      options.body = data.body || options.body;
+      if (data.icon) options.icon = data.icon;
+      if (data.badge) options.badge = data.badge;
+      if (data.tag) options.tag = data.tag;
+      if (data.actions) options.actions = data.actions;
+      if (data.data) options.data = data.data;
+      if (data.requireInteraction !== undefined) options.requireInteraction = data.requireInteraction;
+    } catch (error) {
+      console.error('[SW] Error parsing push data:', error);
+    }
+  }
+  
   event.waitUntil(
-    self.registration.showNotification('Plank Coach', options)
+    self.registration.showNotification(title, options)
   );
 });
 

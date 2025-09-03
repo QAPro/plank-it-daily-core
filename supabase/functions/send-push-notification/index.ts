@@ -6,6 +6,79 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Web Push utility functions
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding)
+    .replace(/\-/g, '+')
+    .replace(/_/g, '/');
+  const rawData = atob(base64);
+  return new Uint8Array([...rawData].map(char => char.charCodeAt(0)));
+}
+
+async function sendWebPushNotification(
+  subscription: any,
+  payload: string,
+  vapidPublicKey: string,
+  vapidPrivateKey: string
+): Promise<Response> {
+  const vapidKeys = {
+    publicKey: urlBase64ToUint8Array(vapidPublicKey),
+    privateKey: urlBase64ToUint8Array(vapidPrivateKey),
+  };
+
+  // Create JWT header and payload for VAPID
+  const header = {
+    typ: 'JWT',
+    alg: 'ES256'
+  };
+
+  const jwtPayload = {
+    aud: new URL(subscription.endpoint).origin,
+    exp: Math.floor(Date.now() / 1000) + 12 * 60 * 60, // 12 hours
+    sub: 'mailto:support@plankcoach.com'
+  };
+
+  // Import the private key for signing
+  const privateKeyBuffer = vapidKeys.privateKey.slice(0, 32);
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw',
+    privateKeyBuffer,
+    { name: 'ECDSA', namedCurve: 'P-256' },
+    false,
+    ['sign']
+  );
+
+  // Create JWT token (simplified version - in production you'd use a proper JWT library)
+  const encodedHeader = btoa(JSON.stringify(header)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+  const encodedPayload = btoa(JSON.stringify(jwtPayload)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+  
+  const unsignedToken = `${encodedHeader}.${encodedPayload}`;
+  const signature = await crypto.subtle.sign(
+    { name: 'ECDSA', hash: 'SHA-256' },
+    cryptoKey,
+    new TextEncoder().encode(unsignedToken)
+  );
+  
+  const encodedSignature = btoa(String.fromCharCode(...new Uint8Array(signature)))
+    .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+  
+  const jwt = `${unsignedToken}.${encodedSignature}`;
+
+  // Send the push notification
+  const response = await fetch(subscription.endpoint, {
+    method: 'POST',
+    headers: {
+      'Authorization': `vapid t=${jwt}, k=${vapidPublicKey}`,
+      'Content-Type': 'application/octet-stream',
+      'TTL': '86400'
+    },
+    body: payload
+  });
+
+  return response;
+}
+
 interface NotificationPayload {
   user_id?: string;
   user_ids?: string[];
@@ -117,6 +190,14 @@ serve(async (req) => {
 
     console.log(`Filtered to ${filteredSubscriptions.length} eligible subscriptions`);
 
+    // Get VAPID keys
+    const vapidPublicKey = Deno.env.get('VAPID_PUBLIC_KEY');
+    const vapidPrivateKey = Deno.env.get('VAPID_PRIVATE_KEY');
+
+    if (!vapidPublicKey || !vapidPrivateKey) {
+      throw new Error('VAPID keys not configured');
+    }
+
     // Send notifications
     const results = [];
     let successCount = 0;
@@ -134,15 +215,12 @@ serve(async (req) => {
           actions
         });
 
-        const response = await fetch(subscription.endpoint, {
-          method: 'POST',
-          headers: {
-            'Authorization': `key=${Deno.env.get('FCM_SERVER_KEY') || ''}`,
-            'Content-Type': 'application/json',
-            'TTL': '86400'
-          },
-          body: payload
-        });
+        const response = await sendWebPushNotification(
+          subscription,
+          payload,
+          vapidPublicKey,
+          vapidPrivateKey
+        );
 
         const success = response.ok;
         

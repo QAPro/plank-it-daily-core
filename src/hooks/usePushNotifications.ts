@@ -86,12 +86,22 @@ export const usePushNotifications = () => {
 
       const registration = await navigator.serviceWorker.ready;
       
-      // Generate VAPID public key - in production this should come from your server
-      const vapidPublicKey = 'BEl62iUYgUivxIkv69yViEuiBIa40HI80NM9LkwTBHYoFSHulIEm3dq7rHPzQP86ysAYR1HZCzs6-aQdZsQFV3Y';
+      // VAPID public key - this should match your server's VAPID_PUBLIC_KEY
+      const vapidPublicKey = 'BJNxONU3mHWb0RN-cnkDLOtyQ1LTDFOYvGADjC7Gzk9zUo2pKvK0_6q0XOIPPGHbwmMJRRz8F1-KP8H9nWdNwCo';
+      
+      // Convert base64 to Uint8Array for VAPID key
+      function urlBase64ToUint8Array(base64String: string): Uint8Array {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding)
+          .replace(/\-/g, '+')
+          .replace(/_/g, '/');
+        const rawData = atob(base64);
+        return new Uint8Array([...rawData].map(char => char.charCodeAt(0)));
+      }
       
       const pushSubscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: vapidPublicKey
+        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
       });
 
       const subscriptionData = {

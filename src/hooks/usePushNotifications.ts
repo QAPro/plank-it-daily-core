@@ -18,18 +18,64 @@ export const usePushNotifications = () => {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [subscription, setSubscription] = useState<PushSubscription | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [swReady, setSwReady] = useState(false);
 
   useEffect(() => {
-    setIsSupported('serviceWorker' in navigator && 'PushManager' in window);
-    checkSubscriptionStatus();
-  }, [user]);
+    console.log('[PushNotifications] Initializing...', { user: user?.id });
+    
+    const supported = 'serviceWorker' in navigator && 'PushManager' in window;
+    setIsSupported(supported);
+    
+    if (supported) {
+      waitForServiceWorker();
+    } else {
+      console.log('[PushNotifications] Not supported in this browser');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (swReady && user) {
+      console.log('[PushNotifications] Service worker ready and user authenticated, checking subscription status');
+      checkSubscriptionStatus();
+    }
+  }, [swReady, user]);
+
+  const waitForServiceWorker = useCallback(async () => {
+    try {
+      console.log('[PushNotifications] Waiting for service worker...');
+      
+      if (navigator.serviceWorker.controller) {
+        console.log('[PushNotifications] Service worker already active');
+        setSwReady(true);
+        return;
+      }
+
+      const registration = await navigator.serviceWorker.ready;
+      console.log('[PushNotifications] Service worker ready:', registration.scope);
+      setSwReady(true);
+    } catch (error) {
+      console.error('[PushNotifications] Service worker not ready:', error);
+      toast({
+        title: "Service Worker Error",
+        description: "Push notifications require a service worker. Please refresh the page.",
+        variant: "destructive"
+      });
+    }
+  }, []);
 
   const checkSubscriptionStatus = useCallback(async () => {
-    if (!user || !isSupported) return;
+    if (!user || !isSupported || !swReady) {
+      console.log('[PushNotifications] Skipping subscription check:', { user: !!user, isSupported, swReady });
+      return;
+    }
 
+    console.log('[PushNotifications] Checking subscription status...');
+    
     try {
       const registration = await navigator.serviceWorker.ready;
       const subscription = await registration.pushManager.getSubscription();
+      
+      console.log('[PushNotifications] Current subscription:', !!subscription);
       
       if (subscription) {
         setIsSubscribed(true);
@@ -45,12 +91,20 @@ export const usePushNotifications = () => {
         setSubscription(null);
       }
     } catch (error) {
-      console.error('Error checking subscription status:', error);
+      console.error('[PushNotifications] Error checking subscription status:', error);
+      toast({
+        title: "Subscription Check Failed",
+        description: "Unable to check push notification status. Please try again.",
+        variant: "destructive"
+      });
     }
-  }, [user, isSupported]);
+  }, [user, isSupported, swReady]);
 
   const requestPermission = useCallback(async (): Promise<boolean> => {
+    console.log('[PushNotifications] Requesting permission...');
+    
     if (!isSupported) {
+      console.log('[PushNotifications] Not supported');
       toast({
         title: "Not Supported",
         description: "Push notifications are not supported in this browser.",
@@ -59,52 +113,95 @@ export const usePushNotifications = () => {
       return false;
     }
 
-    const permission = await Notification.requestPermission();
-    
-    if (permission === 'denied') {
+    try {
+      const permission = await Notification.requestPermission();
+      console.log('[PushNotifications] Permission result:', permission);
+      
+      if (permission === 'denied') {
+        toast({
+          title: "Permission Denied",
+          description: "Please enable notifications in your browser settings.",
+          variant: "destructive"
+        });
+        return false;
+      }
+
+      return permission === 'granted';
+    } catch (error) {
+      console.error('[PushNotifications] Permission request failed:', error);
       toast({
-        title: "Permission Denied",
-        description: "Please enable notifications in your browser settings.",
+        title: "Permission Error",
+        description: "Failed to request notification permission. Please try again.",
         variant: "destructive"
       });
       return false;
     }
-
-    return permission === 'granted';
   }, [isSupported]);
 
   const fetchVapidPublicKey = useCallback(async (): Promise<string | null> => {
+    console.log('[PushNotifications] Fetching VAPID public key...');
+    
     try {
       const { data, error } = await supabase.functions.invoke('get-vapid-public-key');
       
       if (error) {
-        console.error('Error fetching VAPID public key:', error);
+        console.error('[PushNotifications] VAPID key fetch error:', error);
         return null;
       }
       
+      console.log('[PushNotifications] VAPID key received:', !!data?.publicKey);
       return data?.publicKey || null;
     } catch (error) {
-      console.error('Error fetching VAPID public key:', error);
+      console.error('[PushNotifications] VAPID key fetch exception:', error);
       return null;
     }
   }, []);
 
   const subscribe = useCallback(async () => {
-    if (!user || !isSupported) return false;
+    console.log('[PushNotifications] Starting subscription...', { user: !!user, isSupported, swReady });
+    
+    if (!user) {
+      console.log('[PushNotifications] No user authenticated');
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to enable push notifications.",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    if (!isSupported) {
+      console.log('[PushNotifications] Not supported');
+      return false;
+    }
+
+    if (!swReady) {
+      console.log('[PushNotifications] Service worker not ready');
+      toast({
+        title: "Service Worker Not Ready",
+        description: "Please wait for the page to fully load and try again.",
+        variant: "destructive"
+      });
+      return false;
+    }
 
     setIsLoading(true);
     try {
+      console.log('[PushNotifications] Requesting permission...');
       const hasPermission = await requestPermission();
       if (!hasPermission) {
         setIsLoading(false);
         return false;
       }
 
+      console.log('[PushNotifications] Getting service worker registration...');
       const registration = await navigator.serviceWorker.ready;
       
       // Fetch VAPID public key from server
+      console.log('[PushNotifications] Fetching VAPID key...');
       const vapidPublicKey = await fetchVapidPublicKey();
       if (!vapidPublicKey) {
+        console.error('[PushNotifications] No VAPID key received');
         toast({
           title: "Configuration Error",
           description: "Unable to retrieve notification configuration. Please try again later.",
@@ -115,6 +212,7 @@ export const usePushNotifications = () => {
       }
       
       // Convert base64 to Uint8Array for VAPID key
+      console.log('[PushNotifications] Converting VAPID key...');
       function urlBase64ToUint8Array(base64String: string): Uint8Array {
         const padding = '='.repeat((4 - base64String.length % 4) % 4);
         const base64 = (base64String + padding)
@@ -124,11 +222,14 @@ export const usePushNotifications = () => {
         return new Uint8Array([...rawData].map(char => char.charCodeAt(0)));
       }
       
+      console.log('[PushNotifications] Subscribing to push manager...');
       const pushSubscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
       });
 
+      console.log('[PushNotifications] Push subscription created, saving to database...');
+      
       const subscriptionData = {
         user_id: user.id,
         endpoint: pushSubscription.endpoint,
@@ -143,9 +244,11 @@ export const usePushNotifications = () => {
         .insert(subscriptionData);
 
       if (error) {
-        console.error('Error saving subscription:', error);
+        console.error('[PushNotifications] Database save error:', error);
         throw error;
       }
+      
+      console.log('[PushNotifications] Subscription saved successfully');
 
       setIsSubscribed(true);
       setSubscription({
@@ -161,9 +264,10 @@ export const usePushNotifications = () => {
         description: "You'll now receive push notifications for workouts and achievements!"
       });
 
+      console.log('[PushNotifications] Subscription complete!');
       return true;
     } catch (error) {
-      console.error('Error subscribing to push notifications:', error);
+      console.error('[PushNotifications] Subscription failed:', error);
       toast({
         title: "Subscription Failed",
         description: "Failed to enable push notifications. Please try again.",
@@ -173,10 +277,12 @@ export const usePushNotifications = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [user, isSupported, requestPermission, fetchVapidPublicKey]);
+  }, [user, isSupported, swReady, requestPermission, fetchVapidPublicKey]);
 
   const unsubscribe = useCallback(async () => {
-    if (!user || !isSupported) return false;
+    console.log('[PushNotifications] Unsubscribing...');
+    
+    if (!user || !isSupported || !swReady) return false;
 
     setIsLoading(true);
     try {
@@ -184,8 +290,10 @@ export const usePushNotifications = () => {
       const subscription = await registration.pushManager.getSubscription();
       
       if (subscription) {
+        console.log('[PushNotifications] Unsubscribing from push manager...');
         await subscription.unsubscribe();
         
+        console.log('[PushNotifications] Removing from database...');
         // Remove subscription from database
         await supabase
           .from('push_subscriptions')
@@ -197,6 +305,7 @@ export const usePushNotifications = () => {
       setIsSubscribed(false);
       setSubscription(null);
 
+      console.log('[PushNotifications] Unsubscribe complete');
       toast({
         title: "Notifications Disabled",
         description: "You will no longer receive push notifications."
@@ -204,7 +313,7 @@ export const usePushNotifications = () => {
 
       return true;
     } catch (error) {
-      console.error('Error unsubscribing from push notifications:', error);
+      console.error('[PushNotifications] Unsubscribe failed:', error);
       toast({
         title: "Unsubscribe Failed",
         description: "Failed to disable push notifications. Please try again.",
@@ -214,7 +323,7 @@ export const usePushNotifications = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [user, isSupported]);
+  }, [user, isSupported, swReady]);
 
   const resubscribe = useCallback(async () => {
     if (!isSubscribed) return await subscribe();

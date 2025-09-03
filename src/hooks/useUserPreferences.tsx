@@ -26,6 +26,18 @@ export interface UserPreferences {
   background_music: boolean;
   music_volume: number;
   vibration_intensity: number;
+  // Push notification preferences
+  push_notifications_enabled?: boolean;
+  notification_types?: {
+    reminders?: boolean;
+    achievements?: boolean;
+    streaks?: boolean;
+    milestones?: boolean;
+    social?: boolean;
+  };
+  quiet_hours_start?: string;
+  quiet_hours_end?: string;
+  notification_frequency?: 'minimal' | 'normal' | 'frequent';
 }
 
 export const useUserPreferences = () => {
@@ -72,6 +84,18 @@ export const useUserPreferences = () => {
           background_music: data.background_music ?? false,
           music_volume: Number(data.music_volume ?? 0.3),
           vibration_intensity: Number(data.vibration_intensity ?? 3),
+          // Push notification fields with defaults
+          push_notifications_enabled: data.push_notifications_enabled ?? true,
+          notification_types: (data.notification_types as any) ?? {
+            reminders: true,
+            achievements: true,
+            streaks: true,
+            milestones: true,
+            social: false
+          },
+          quiet_hours_start: data.quiet_hours_start ?? '22:00',
+          quiet_hours_end: data.quiet_hours_end ?? '08:00',
+          notification_frequency: (data.notification_frequency as 'minimal' | 'normal' | 'frequent') ?? 'normal'
         });
       }
     } catch (error) {

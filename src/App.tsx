@@ -9,6 +9,7 @@ import EmailVerify from "@/pages/EmailVerify";
 import ProductionCheck from "@/pages/ProductionCheck";
 import NotFound from "@/pages/NotFound";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { InstallPrompt } from "@/components/notifications/InstallPrompt";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,6 +28,7 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <Router>
+            <InstallPrompt />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />

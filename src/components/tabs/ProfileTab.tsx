@@ -13,6 +13,8 @@ import AccountStats from '@/components/profile/AccountStats';
 import PreferencesSettings from '@/components/profile/PreferencesSettings';
 import SubscriptionManagement from '@/components/subscription/SubscriptionManagement';
 import SubscriptionPlansPage from '@/components/subscription/SubscriptionPlansPage';
+import { PushNotificationManager } from '@/components/notifications/PushNotificationManager';
+import { NotificationPreferences } from '@/components/notifications/NotificationPreferences';
 
 interface ProfileTabProps {
   initialView?: 'overview' | 'subscription-plans';
@@ -108,6 +110,10 @@ const ProfileTab = ({ initialView = 'overview' }: ProfileTabProps) => {
 
         <TabsContent value="settings" className="space-y-6">
           <PreferencesSettings />
+          
+          {/* Push Notification Management */}
+          <PushNotificationManager />
+          <NotificationPreferences />
           
           {/* Sign Out Section */}
           <Card>

@@ -982,6 +982,42 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_logs: {
+        Row: {
+          body: string
+          data: Json | null
+          delivery_status: string | null
+          error_message: string | null
+          id: string
+          notification_type: string
+          sent_at: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          data?: Json | null
+          delivery_status?: string | null
+          error_message?: string | null
+          id?: string
+          notification_type: string
+          sent_at?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          data?: Json | null
+          delivery_status?: string | null
+          error_message?: string | null
+          id?: string
+          notification_type?: string
+          sent_at?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       performance_benchmarks: {
         Row: {
           data_period: string | null
@@ -1060,6 +1096,42 @@ export type Database = {
           name?: string
           primary_muscles?: string[] | null
           tags?: string[] | null
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth_key: string
+          created_at: string | null
+          endpoint: string
+          id: string
+          is_active: boolean | null
+          p256dh_key: string
+          updated_at: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth_key: string
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          is_active?: boolean | null
+          p256dh_key: string
+          updated_at?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth_key?: string
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          is_active?: boolean | null
+          p256dh_key?: string
+          updated_at?: string | null
+          user_agent?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -2018,8 +2090,13 @@ export type Database = {
           haptic_feedback: boolean | null
           id: string
           music_volume: number | null
+          notification_frequency: string | null
+          notification_types: Json | null
           preferred_workout_duration: number | null
           progression_sensitivity: number | null
+          push_notifications_enabled: boolean | null
+          quiet_hours_end: string | null
+          quiet_hours_start: string | null
           reminder_time: string | null
           sound_effects: boolean | null
           theme_preference: string | null
@@ -2044,8 +2121,13 @@ export type Database = {
           haptic_feedback?: boolean | null
           id?: string
           music_volume?: number | null
+          notification_frequency?: string | null
+          notification_types?: Json | null
           preferred_workout_duration?: number | null
           progression_sensitivity?: number | null
+          push_notifications_enabled?: boolean | null
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
           reminder_time?: string | null
           sound_effects?: boolean | null
           theme_preference?: string | null
@@ -2070,8 +2152,13 @@ export type Database = {
           haptic_feedback?: boolean | null
           id?: string
           music_volume?: number | null
+          notification_frequency?: string | null
+          notification_types?: Json | null
           preferred_workout_duration?: number | null
           progression_sensitivity?: number | null
+          push_notifications_enabled?: boolean | null
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
           reminder_time?: string | null
           sound_effects?: boolean | null
           theme_preference?: string | null

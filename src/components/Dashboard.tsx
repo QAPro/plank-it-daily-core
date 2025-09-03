@@ -15,6 +15,7 @@ import AdminDashboard from './admin/AdminDashboard';
 import { useAuth } from '@/contexts/AuthContext';
 import { EnhancedPushNotificationTest } from '@/components/EnhancedPushNotificationTest';
 import { PushNotificationDebug } from '@/components/PushNotificationDebug';
+import { VapidKeyManager } from '@/components/VapidKeyManager';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('home');
@@ -67,10 +68,9 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
-      {/* Debug Components - Always visible for troubleshooting */}
-      <div className="fixed bottom-4 right-4 space-y-2 z-50">
-        <PushNotificationDebug />
-        <EnhancedPushNotificationTest />
+      {/* Debug Components - VAPID Key Manager for troubleshooting */}
+      <div className="fixed top-4 right-4 space-y-2 z-50 max-w-md">
+        <VapidKeyManager />
       </div>
       
       <div className="flex flex-col h-screen">

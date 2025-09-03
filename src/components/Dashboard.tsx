@@ -67,13 +67,11 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
-      {/* Debug Components - Temporarily visible */}
-      {process.env.NODE_ENV === 'development' && (
-        <>
-          <PushNotificationDebug />
-          <EnhancedPushNotificationTest />
-        </>
-      )}
+      {/* Debug Components - Always visible for troubleshooting */}
+      <div className="fixed bottom-4 right-4 space-y-2 z-50">
+        <PushNotificationDebug />
+        <EnhancedPushNotificationTest />
+      </div>
       
       <div className="flex flex-col h-screen">
         {/* Main Content */}

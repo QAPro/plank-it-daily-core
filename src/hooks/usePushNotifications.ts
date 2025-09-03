@@ -51,18 +51,64 @@ export const usePushNotifications = () => {
     }
   }, [swReady, user]);
 
+  // Monitor permission changes and page visibility
+  useEffect(() => {
+    console.log('[PushNotifications] Setting up permission and visibility monitoring');
+    
+    const handlePermissionChange = () => {
+      console.log('[PushNotifications] Permission state changed to:', Notification.permission);
+      if (Notification.permission === 'granted' && swReady && user) {
+        console.log('[PushNotifications] Permission granted, rechecking subscription status');
+        checkSubscriptionStatus();
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden && swReady && user) {
+        console.log('[PushNotifications] Page became visible, rechecking subscription status');
+        checkSubscriptionStatus();
+      }
+    };
+
+    // Listen for permission changes (if supported by browser)
+    if ('permissions' in navigator) {
+      navigator.permissions.query({ name: 'notifications' }).then(permission => {
+        permission.addEventListener('change', handlePermissionChange);
+      }).catch(error => {
+        console.log('[PushNotifications] Permission API not available:', error);
+      });
+    }
+
+    // Listen for page visibility changes
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handlePermissionChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handlePermissionChange);
+    };
+  }, [swReady, user]);
+
   const waitForServiceWorker = useCallback(async () => {
     try {
       console.log('[PushNotifications] Waiting for service worker...');
+      console.log('[PushNotifications] Current controller:', navigator.serviceWorker.controller);
       
       if (navigator.serviceWorker.controller) {
-        console.log('[PushNotifications] Service worker already active');
+        console.log('[PushNotifications] Service worker already active with scope:', navigator.serviceWorker.controller.scriptURL);
         setSwReady(true);
         return;
       }
 
+      console.log('[PushNotifications] Waiting for service worker registration to be ready...');
       const registration = await navigator.serviceWorker.ready;
-      console.log('[PushNotifications] Service worker ready:', registration.scope);
+      console.log('[PushNotifications] Service worker ready with details:', {
+        scope: registration.scope,
+        active: !!registration.active,
+        installing: !!registration.installing,
+        waiting: !!registration.waiting,
+        updateViaCache: registration.updateViaCache
+      });
       setSwReady(true);
     } catch (error) {
       console.error('[PushNotifications] Service worker not ready:', error);
@@ -76,19 +122,34 @@ export const usePushNotifications = () => {
 
   const checkSubscriptionStatus = useCallback(async () => {
     if (!user || !isSupported || !swReady) {
-      console.log('[PushNotifications] Skipping subscription check:', { user: !!user, isSupported, swReady });
+      console.log('[PushNotifications] Skipping subscription check - missing requirements:', { 
+        hasUser: !!user, 
+        isSupported, 
+        swReady 
+      });
       return;
     }
 
     console.log('[PushNotifications] Checking subscription status...');
+    console.log('[PushNotifications] Current Notification permission:', Notification.permission);
     
     try {
       const registration = await navigator.serviceWorker.ready;
-      const subscription = await registration.pushManager.getSubscription();
+      console.log('[PushNotifications] Got registration for subscription check:', {
+        scope: registration.scope,
+        active: !!registration.active
+      });
       
-      console.log('[PushNotifications] Current subscription:', !!subscription);
+      const subscription = await registration.pushManager.getSubscription();
+      console.log('[PushNotifications] Push manager subscription check result:', !!subscription);
       
       if (subscription) {
+        console.log('[PushNotifications] Found existing subscription:', {
+          endpoint: subscription.endpoint.substring(0, 50) + '...',
+          expirationTime: subscription.expirationTime,
+          hasKeys: !!(subscription.getKey && subscription.getKey('p256dh'))
+        });
+        
         setIsSubscribed(true);
         setSubscription({
           endpoint: subscription.endpoint,
@@ -98,11 +159,14 @@ export const usePushNotifications = () => {
           }
         });
       } else {
+        console.log('[PushNotifications] No existing subscription found');
         setIsSubscribed(false);
         setSubscription(null);
       }
     } catch (error) {
       console.error('[PushNotifications] Error checking subscription status:', error);
+      setIsSubscribed(false);
+      setSubscription(null);
       toast({
         title: "Subscription Check Failed",
         description: "Unable to check push notification status. Please try again.",
@@ -113,9 +177,10 @@ export const usePushNotifications = () => {
 
   const requestPermission = useCallback(async (): Promise<boolean> => {
     console.log('[PushNotifications] Requesting permission...');
+    console.log('[PushNotifications] Current permission status:', Notification.permission);
     
     if (!isSupported) {
-      console.log('[PushNotifications] Not supported');
+      console.log('[PushNotifications] Not supported in this browser');
       toast({
         title: "Not Supported",
         description: "Push notifications are not supported in this browser.",
@@ -124,20 +189,44 @@ export const usePushNotifications = () => {
       return false;
     }
 
+    // Check current permission status
+    if (Notification.permission === 'granted') {
+      console.log('[PushNotifications] Permission already granted');
+      return true;
+    }
+
+    if (Notification.permission === 'denied') {
+      console.log('[PushNotifications] Permission previously denied - cannot request again');
+      toast({
+        title: "Permission Denied",
+        description: "Push notifications are blocked. Please enable them in your browser settings and refresh the page.",
+        variant: "destructive"
+      });
+      return false;
+    }
+
     try {
+      console.log('[PushNotifications] Requesting permission from user...');
       const permission = await Notification.requestPermission();
-      console.log('[PushNotifications] Permission result:', permission);
+      console.log('[PushNotifications] Permission request result:', permission);
       
       if (permission === 'denied') {
+        console.log('[PushNotifications] User denied permission');
         toast({
           title: "Permission Denied",
-          description: "Please enable notifications in your browser settings.",
+          description: "Please enable notifications in your browser settings to receive updates.",
           variant: "destructive"
         });
         return false;
       }
 
-      return permission === 'granted';
+      if (permission === 'granted') {
+        console.log('[PushNotifications] Permission granted successfully');
+        return true;
+      }
+
+      console.log('[PushNotifications] Permission request returned:', permission);
+      return false;
     } catch (error) {
       console.error('[PushNotifications] Permission request failed:', error);
       toast({
@@ -155,15 +244,42 @@ export const usePushNotifications = () => {
     try {
       const { data, error } = await supabase.functions.invoke('get-vapid-public-key');
       
+      console.log('[PushNotifications] VAPID key response received:', {
+        hasData: !!data,
+        hasError: !!error,
+        hasPublicKey: !!data?.publicKey,
+        publicKeyLength: data?.publicKey?.length || 0
+      });
+      
       if (error) {
         console.error('[PushNotifications] VAPID key fetch error:', error);
+        toast({
+          title: "Configuration Error", 
+          description: "Unable to fetch server configuration for push notifications. Please contact support.",
+          variant: "destructive"
+        });
         return null;
       }
       
-      console.log('[PushNotifications] VAPID key received:', !!data?.publicKey);
-      return data?.publicKey || null;
+      if (!data?.publicKey) {
+        console.error('[PushNotifications] No VAPID public key in response:', data);
+        toast({
+          title: "Configuration Error",
+          description: "Server configuration incomplete. Please contact support.",
+          variant: "destructive"
+        });
+        return null;
+      }
+      
+      console.log('[PushNotifications] VAPID key received successfully, length:', data.publicKey.length);
+      return data.publicKey;
     } catch (error) {
       console.error('[PushNotifications] VAPID key fetch exception:', error);
+      toast({
+        title: "Network Error",
+        description: "Failed to connect to notification server. Please check your connection.",
+        variant: "destructive"
+      });
       return null;
     }
   }, []);

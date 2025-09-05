@@ -2,8 +2,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Bell, BellOff, Smartphone, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Bell, BellOff, Smartphone, AlertCircle, ExternalLink, Info } from "lucide-react";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { isInIframe, openInNewTab } from "@/utils/iframe";
 
 export const PushNotificationManager = () => {
   const {
@@ -14,6 +16,8 @@ export const PushNotificationManager = () => {
     unsubscribe,
     resubscribe
   } = usePushNotifications();
+
+  const inIframe = isInIframe();
 
   const handleToggle = async () => {
     if (isSubscribed) {
@@ -64,6 +68,24 @@ export const PushNotificationManager = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {inIframe && (
+          <Alert>
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              Push notifications are blocked in preview mode. 
+              <Button 
+                variant="link" 
+                size="sm" 
+                onClick={openInNewTab}
+                className="h-auto p-0 ml-1"
+              >
+                <ExternalLink className="h-3 w-3 mr-1" />
+                Open in new tab
+              </Button>
+              for full functionality.
+            </AlertDescription>
+          </Alert>
+        )}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Smartphone className="h-4 w-4 text-muted-foreground" />

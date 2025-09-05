@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, AlertTriangle, Loader2, Bell } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { CheckCircle, AlertTriangle, Loader2, Bell, ExternalLink, Info } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { isInIframe, openInNewTab } from '@/utils/iframe';
 
 export const PushNotificationDebugger: React.FC = () => {
   const { user } = useAuth();
@@ -26,6 +28,8 @@ export const PushNotificationDebugger: React.FC = () => {
   const [permissionStatus, setPermissionStatus] = useState<string>('');
   const [browserInfo, setBrowserInfo] = useState<any>({});
   const [lastAction, setLastAction] = useState<string>('');
+  
+  const inIframe = isInIframe();
 
   useEffect(() => {
     const updateDebugInfo = () => {
@@ -38,7 +42,8 @@ export const PushNotificationDebugger: React.FC = () => {
         protocol: window.location.protocol,
         isSupported,
         isSubscribed,
-        isLoading
+        isLoading,
+        inIframe
       };
       setDebugInfo(info);
       setPermissionStatus(Notification.permission);
@@ -163,6 +168,24 @@ export const PushNotificationDebugger: React.FC = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {inIframe && (
+          <Alert className="border-orange-200 bg-orange-50">
+            <Info className="h-4 w-4 text-orange-600" />
+            <AlertDescription className="text-orange-800">
+              <strong>Iframe Mode Detected:</strong> Push notifications are blocked in preview environments. 
+              <Button 
+                variant="link" 
+                size="sm" 
+                onClick={openInNewTab}
+                className="h-auto p-0 ml-1 text-orange-600 hover:text-orange-800"
+              >
+                <ExternalLink className="h-3 w-3 mr-1" />
+                Open in standalone tab
+              </Button>
+              to test notifications.
+            </AlertDescription>
+          </Alert>
+        )}
         <div className="space-y-3">
           <h4 className="font-medium">Prerequisites:</h4>
           
@@ -197,6 +220,12 @@ export const PushNotificationDebugger: React.FC = () => {
             <div className="flex items-center gap-2">
               {getStatusIcon(debugInfo.protocol === 'https:')}
               <span>Secure context: {debugInfo.protocol}</span>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              {getStatusIcon(!inIframe)}
+              <span>Standalone mode: {inIframe ? 'No (in iframe)' : 'Yes'}</span>
+              {inIframe && <Badge variant="destructive" className="text-xs">Preview Mode</Badge>}
             </div>
           </div>
         </div>

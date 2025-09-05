@@ -756,6 +756,203 @@ export const usePushNotifications = () => {
     }
   }, [user, isSupported, swReady, forceRequestPermission, fetchVapidPublicKey]);
 
+  // Nuclear Reset - Complete cleanup and restart
+  const nuclearReset = useCallback(async (): Promise<boolean> => {
+    if (!isSupported || !user) return false;
+
+    setIsLoading(true);
+    console.log('[PushNotifications] Nuclear reset initiated');
+
+    try {
+      // 1. Unsubscribe from current subscription
+      try {
+        await unsubscribe();
+      } catch (e) {
+        console.log('[PushNotifications] Unsubscribe during nuclear reset failed (expected):', e);
+      }
+
+      // 2. Unregister ALL service workers
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        console.log(`[PushNotifications] Found ${registrations.length} service worker registrations`);
+        
+        for (const registration of registrations) {
+          console.log('[PushNotifications] Unregistering service worker:', registration.scope);
+          await registration.unregister();
+        }
+      }
+
+      // 3. Clear all caches
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        console.log(`[PushNotifications] Found ${cacheNames.length} caches to clear`);
+        
+        for (const cacheName of cacheNames) {
+          console.log('[PushNotifications] Clearing cache:', cacheName);
+          await caches.delete(cacheName);
+        }
+      }
+
+      // 4. Clear relevant localStorage items
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.includes('push') || key.includes('notification') || key.includes('vapid'))) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach(key => {
+        console.log('[PushNotifications] Removing localStorage key:', key);
+        localStorage.removeItem(key);
+      });
+
+      // 5. Reset component state
+      setIsSubscribed(false);
+      setSubscription(null);
+      setSwReady(false);
+
+      console.log('[PushNotifications] Nuclear reset completed successfully');
+      
+      toast({
+        title: "Nuclear Reset Complete",
+        description: "All push notification data cleared. Please reload the page and try again.",
+        variant: "default"
+      });
+
+      return true;
+    } catch (error) {
+      console.error('[PushNotifications] Nuclear reset failed:', error);
+      
+      toast({
+        title: "Nuclear Reset Failed",
+        description: error instanceof Error ? error.message : "Failed to perform nuclear reset",
+        variant: "destructive"
+      });
+      
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user, isSupported, unsubscribe]);
+
+  // Alternative permission request methods
+  const directPermissionRequest = useCallback(async (): Promise<boolean> => {
+    console.log('[PushNotifications] Direct permission request initiated');
+    
+    try {
+      // Method 1: Direct Notification.requestPermission()
+      const permission = await Notification.requestPermission();
+      console.log('[PushNotifications] Direct permission result:', permission);
+      
+      if (permission === 'granted') {
+        toast({
+          title: "Permission Granted",
+          description: "Notifications enabled via direct request",
+          variant: "default"
+        });
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('[PushNotifications] Direct permission request failed:', error);
+      return false;
+    }
+  }, []);
+
+  const alternativeSubscribe = useCallback(async (): Promise<boolean> => {
+    if (!isSupported || !user) return false;
+
+    setIsLoading(true);
+    console.log('[PushNotifications] Alternative subscribe method initiated');
+
+    try {
+      // Step 1: Try direct permission first
+      const hasPermission = await directPermissionRequest();
+      if (!hasPermission) {
+        console.log('[PushNotifications] Alternative subscribe: permission denied');
+        return false;
+      }
+
+      // Step 2: Force service worker registration
+      let registration;
+      try {
+        registration = await navigator.serviceWorker.register('/sw.js', { 
+          scope: '/',
+          updateViaCache: 'none'
+        });
+        console.log('[PushNotifications] Alternative: SW registered:', registration.scope);
+        
+        // Wait for activation
+        if (registration.installing) {
+          console.log('[PushNotifications] Alternative: Waiting for SW installation...');
+          await new Promise((resolve) => {
+            registration.installing!.addEventListener('statechange', () => {
+              if (registration.installing!.state === 'activated') {
+                resolve(true);
+              }
+            });
+          });
+        }
+      } catch (error) {
+        console.error('[PushNotifications] Alternative: SW registration failed:', error);
+        return false;
+      }
+
+      // Step 3: Get VAPID key and subscribe
+      const vapidKey = await fetchVapidPublicKey();
+      if (!vapidKey) return false;
+
+      // Step 4: Subscribe to push manager
+      const pushSubscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: vapidKey
+      });
+
+      // Step 5: Save to database
+      const subscriptionData = {
+        user_id: user.id,
+        endpoint: pushSubscription.endpoint,
+        p256dh_key: btoa(String.fromCharCode(...new Uint8Array(pushSubscription.getKey('p256dh')!))),
+        auth_key: btoa(String.fromCharCode(...new Uint8Array(pushSubscription.getKey('auth')!))),
+        user_agent: navigator.userAgent,
+        is_active: true
+      };
+
+      const { error: saveError } = await supabase
+        .from('push_subscriptions')
+        .upsert(subscriptionData, { 
+          onConflict: 'user_id',
+          ignoreDuplicates: false 
+        });
+
+      if (saveError) throw saveError;
+
+      setIsSubscribed(true);
+      setSubscription(pushSubscription);
+
+      toast({
+        title: "Alternative Subscribe Success",
+        description: "Push notifications enabled via alternative method",
+        variant: "default"
+      });
+
+      return true;
+    } catch (error) {
+      console.error('[PushNotifications] Alternative subscribe failed:', error);
+      
+      toast({
+        title: "Alternative Subscribe Failed",
+        description: error instanceof Error ? error.message : "Failed to subscribe via alternative method",
+        variant: "destructive"
+      });
+      
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user, isSupported, directPermissionRequest, fetchVapidPublicKey]);
+
   return {
     isSupported,
     isSubscribed,
@@ -767,6 +964,9 @@ export const usePushNotifications = () => {
     resubscribe,
     requestPermission,
     forceSubscribeIgnorePermission,
-    forceRequestPermission
+    forceRequestPermission,
+    nuclearReset,
+    directPermissionRequest,
+    alternativeSubscribe
   };
 };

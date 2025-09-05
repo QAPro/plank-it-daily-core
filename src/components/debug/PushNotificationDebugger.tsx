@@ -16,11 +16,16 @@ export const PushNotificationDebugger: React.FC = () => {
     unsubscribe,
     resubscribe,
     forceSubscribeIgnorePermission,
-    forceRequestPermission
+    forceRequestPermission,
+    nuclearReset,
+    directPermissionRequest,
+    alternativeSubscribe
   } = usePushNotifications();
 
   const [debugInfo, setDebugInfo] = useState<any>({});
   const [permissionStatus, setPermissionStatus] = useState<string>('');
+  const [browserInfo, setBrowserInfo] = useState<any>({});
+  const [lastAction, setLastAction] = useState<string>('');
 
   useEffect(() => {
     const updateDebugInfo = () => {
@@ -37,6 +42,19 @@ export const PushNotificationDebugger: React.FC = () => {
       };
       setDebugInfo(info);
       setPermissionStatus(Notification.permission);
+      
+      // Enhanced browser detection
+      const browserInfo = {
+        userAgent: navigator.userAgent,
+        isChrome: /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor),
+        isEdge: /Edg/.test(navigator.userAgent),
+        isFirefox: /Firefox/.test(navigator.userAgent),
+        isSafari: /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor),
+        isPrivateMode: false, // Will be detected separately
+        pushManagerExists: 'PushManager' in window,
+        serviceWorkerExists: 'serviceWorker' in navigator
+      };
+      setBrowserInfo(browserInfo);
     };
 
     updateDebugInfo();
@@ -45,31 +63,83 @@ export const PushNotificationDebugger: React.FC = () => {
   }, [user, isSupported, isSubscribed, isLoading]);
 
   const handleForceSubscribe = async () => {
+    setLastAction('Force Subscribe Clicked');
     console.log('[PushDebug] Force subscribe button CLICKED!');
     console.log('[PushDebug] Debug info:', debugInfo);
+    console.log('[PushDebug] Browser info:', browserInfo);
     console.log('[PushDebug] isLoading:', isLoading);
     console.log('[PushDebug] forceSubscribeIgnorePermission function:', typeof forceSubscribeIgnorePermission);
     
     try {
-      await forceSubscribeIgnorePermission();
-      console.log('[PushDebug] Force subscribe completed');
+      const result = await forceSubscribeIgnorePermission();
+      console.log('[PushDebug] Force subscribe completed:', result);
+      setLastAction(`Force Subscribe Result: ${result ? 'Success' : 'Failed'}`);
     } catch (error) {
       console.error('[PushDebug] Force subscribe failed:', error);
+      setLastAction(`Force Subscribe Error: ${error}`);
     }
   };
 
   const handleForceResetPermission = async () => {
+    setLastAction('Force Reset Permission Clicked');
     console.log('[PushDebug] Force reset permission button CLICKED!');
     console.log('[PushDebug] Current permission:', Notification.permission);
     console.log('[PushDebug] Debug info:', debugInfo);
+    console.log('[PushDebug] Browser info:', browserInfo);
     console.log('[PushDebug] isLoading:', isLoading);
     console.log('[PushDebug] forceRequestPermission function:', typeof forceRequestPermission);
     
     try {
-      await forceRequestPermission();
-      console.log('[PushDebug] Force reset permission completed');
+      const result = await forceRequestPermission();
+      console.log('[PushDebug] Force reset permission completed:', result);
+      setLastAction(`Force Reset Result: ${result ? 'Success' : 'Failed'}`);
     } catch (error) {
       console.error('[PushDebug] Force reset permission failed:', error);
+      setLastAction(`Force Reset Error: ${error}`);
+    }
+  };
+
+  const handleNuclearReset = async () => {
+    setLastAction('Nuclear Reset Clicked');
+    console.log('[PushDebug] Nuclear reset button CLICKED!');
+    
+    if (confirm('This will completely reset all push notification data and service workers. You will need to reload the page after this. Continue?')) {
+      try {
+        const result = await nuclearReset();
+        console.log('[PushDebug] Nuclear reset completed:', result);
+        setLastAction(`Nuclear Reset Result: ${result ? 'Success - Please reload page' : 'Failed'}`);
+      } catch (error) {
+        console.error('[PushDebug] Nuclear reset failed:', error);
+        setLastAction(`Nuclear Reset Error: ${error}`);
+      }
+    }
+  };
+
+  const handleDirectPermission = async () => {
+    setLastAction('Direct Permission Clicked');
+    console.log('[PushDebug] Direct permission button CLICKED!');
+    
+    try {
+      const result = await directPermissionRequest();
+      console.log('[PushDebug] Direct permission completed:', result);
+      setLastAction(`Direct Permission Result: ${result ? 'Success' : 'Failed'}`);
+    } catch (error) {
+      console.error('[PushDebug] Direct permission failed:', error);
+      setLastAction(`Direct Permission Error: ${error}`);
+    }
+  };
+
+  const handleAlternativeSubscribe = async () => {
+    setLastAction('Alternative Subscribe Clicked');
+    console.log('[PushDebug] Alternative subscribe button CLICKED!');
+    
+    try {
+      const result = await alternativeSubscribe();
+      console.log('[PushDebug] Alternative subscribe completed:', result);
+      setLastAction(`Alternative Subscribe Result: ${result ? 'Success' : 'Failed'}`);
+    } catch (error) {
+      console.error('[PushDebug] Alternative subscribe failed:', error);
+      setLastAction(`Alternative Subscribe Error: ${error}`);
     }
   };
 
@@ -143,42 +213,72 @@ export const PushNotificationDebugger: React.FC = () => {
 
         <div className="space-y-2">
           <div className="text-xs text-muted-foreground mb-2">
-            Debug: isLoading={String(isLoading)}, handlers={String(!!handleForceResetPermission && !!handleForceSubscribe)}
+            Debug: isLoading={String(isLoading)}, lastAction: {lastAction}
+          </div>
+
+          <div className="text-xs bg-muted p-2 rounded mb-2">
+            <div>Browser: {browserInfo.isChrome ? 'Chrome' : browserInfo.isEdge ? 'Edge' : browserInfo.isFirefox ? 'Firefox' : browserInfo.isSafari ? 'Safari' : 'Unknown'}</div>
+            <div>Permission API: {String(Notification.permission)}</div>
+            <div>SW Controller: {String(!!navigator.serviceWorker.controller)}</div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-2">
+            <Button 
+              onClick={handleDirectPermission}
+              disabled={isLoading}
+              variant="outline"
+              className="text-xs h-8"
+              style={{ pointerEvents: 'auto', zIndex: 10 }}
+              type="button"
+            >
+              Direct Permission
+            </Button>
+            
+            <Button 
+              onClick={handleForceResetPermission}
+              disabled={isLoading}
+              variant="secondary"
+              className="text-xs h-8"
+              style={{ pointerEvents: 'auto', zIndex: 10 }}
+              type="button"
+            >
+              Force Reset
+            </Button>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-2">
+            <Button 
+              onClick={handleAlternativeSubscribe}
+              disabled={isLoading}
+              variant="default"
+              className="text-xs h-8"
+              style={{ pointerEvents: 'auto', zIndex: 10 }}
+              type="button"
+            >
+              Alternative Subscribe
+            </Button>
+            
+            <Button 
+              onClick={handleForceSubscribe}
+              disabled={isLoading}
+              variant="default"
+              className="text-xs h-8"
+              style={{ pointerEvents: 'auto', zIndex: 10 }}
+              type="button"
+            >
+              Force Subscribe
+            </Button>
           </div>
           
           <Button 
-            onClick={handleForceResetPermission}
+            onClick={handleNuclearReset}
             disabled={isLoading}
-            variant="secondary"
-            className="w-full"
+            variant="destructive"
+            className="w-full text-xs h-8"
             style={{ pointerEvents: 'auto', zIndex: 10 }}
             type="button"
           >
-            {isLoading ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Resetting...
-              </>
-            ) : (
-              'Force Reset Permission'
-            )}
-          </Button>
-
-          <Button 
-            onClick={handleForceSubscribe}
-            disabled={isLoading}
-            className="w-full"
-            style={{ pointerEvents: 'auto', zIndex: 10 }}
-            type="button"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Force Subscribing...
-              </>
-            ) : (
-              'Force Subscribe (Bypass Permission Check)'
-            )}
+            🚨 Nuclear Reset (Clear Everything)
           </Button>
           
           {isSubscribed && (

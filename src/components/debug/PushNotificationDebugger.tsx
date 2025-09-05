@@ -45,16 +45,32 @@ export const PushNotificationDebugger: React.FC = () => {
   }, [user, isSupported, isSubscribed, isLoading]);
 
   const handleForceSubscribe = async () => {
-    console.log('[PushDebug] Force subscribe attempt');
+    console.log('[PushDebug] Force subscribe button CLICKED!');
     console.log('[PushDebug] Debug info:', debugInfo);
-    await forceSubscribeIgnorePermission();
+    console.log('[PushDebug] isLoading:', isLoading);
+    console.log('[PushDebug] forceSubscribeIgnorePermission function:', typeof forceSubscribeIgnorePermission);
+    
+    try {
+      await forceSubscribeIgnorePermission();
+      console.log('[PushDebug] Force subscribe completed');
+    } catch (error) {
+      console.error('[PushDebug] Force subscribe failed:', error);
+    }
   };
 
   const handleForceResetPermission = async () => {
-    console.log('[PushDebug] Force reset permission attempt');
+    console.log('[PushDebug] Force reset permission button CLICKED!');
     console.log('[PushDebug] Current permission:', Notification.permission);
     console.log('[PushDebug] Debug info:', debugInfo);
-    await forceRequestPermission();
+    console.log('[PushDebug] isLoading:', isLoading);
+    console.log('[PushDebug] forceRequestPermission function:', typeof forceRequestPermission);
+    
+    try {
+      await forceRequestPermission();
+      console.log('[PushDebug] Force reset permission completed');
+    } catch (error) {
+      console.error('[PushDebug] Force reset permission failed:', error);
+    }
   };
 
   const getStatusIcon = (condition: boolean) => {
@@ -126,11 +142,17 @@ export const PushNotificationDebugger: React.FC = () => {
         </div>
 
         <div className="space-y-2">
+          <div className="text-xs text-muted-foreground mb-2">
+            Debug: isLoading={String(isLoading)}, handlers={String(!!handleForceResetPermission && !!handleForceSubscribe)}
+          </div>
+          
           <Button 
             onClick={handleForceResetPermission}
             disabled={isLoading}
             variant="secondary"
             className="w-full"
+            style={{ pointerEvents: 'auto', zIndex: 10 }}
+            type="button"
           >
             {isLoading ? (
               <>
@@ -146,6 +168,8 @@ export const PushNotificationDebugger: React.FC = () => {
             onClick={handleForceSubscribe}
             disabled={isLoading}
             className="w-full"
+            style={{ pointerEvents: 'auto', zIndex: 10 }}
+            type="button"
           >
             {isLoading ? (
               <>

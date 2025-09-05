@@ -14,7 +14,9 @@ export const PushNotificationDebugger: React.FC = () => {
     isLoading,
     subscribe,
     unsubscribe,
-    resubscribe
+    resubscribe,
+    forceSubscribeIgnorePermission,
+    forceRequestPermission
   } = usePushNotifications();
 
   const [debugInfo, setDebugInfo] = useState<any>({});
@@ -45,7 +47,14 @@ export const PushNotificationDebugger: React.FC = () => {
   const handleForceSubscribe = async () => {
     console.log('[PushDebug] Force subscribe attempt');
     console.log('[PushDebug] Debug info:', debugInfo);
-    await subscribe();
+    await forceSubscribeIgnorePermission();
+  };
+
+  const handleForceResetPermission = async () => {
+    console.log('[PushDebug] Force reset permission attempt');
+    console.log('[PushDebug] Current permission:', Notification.permission);
+    console.log('[PushDebug] Debug info:', debugInfo);
+    await forceRequestPermission();
   };
 
   const getStatusIcon = (condition: boolean) => {
@@ -118,6 +127,22 @@ export const PushNotificationDebugger: React.FC = () => {
 
         <div className="space-y-2">
           <Button 
+            onClick={handleForceResetPermission}
+            disabled={isLoading}
+            variant="secondary"
+            className="w-full"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Resetting...
+              </>
+            ) : (
+              'Force Reset Permission'
+            )}
+          </Button>
+
+          <Button 
             onClick={handleForceSubscribe}
             disabled={isLoading}
             className="w-full"
@@ -125,10 +150,10 @@ export const PushNotificationDebugger: React.FC = () => {
             {isLoading ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Subscribing...
+                Force Subscribing...
               </>
             ) : (
-              'Force Subscribe'
+              'Force Subscribe (Bypass Permission Check)'
             )}
           </Button>
           
@@ -153,6 +178,17 @@ export const PushNotificationDebugger: React.FC = () => {
               {isLoading ? 'Unsubscribing...' : 'Unsubscribe'}
             </Button>
           )}
+        </div>
+
+        <div className="space-y-2 bg-muted/50 p-3 rounded-lg border">
+          <h4 className="font-medium text-sm">Troubleshooting Tips:</h4>
+          <ul className="text-xs space-y-1 text-muted-foreground">
+            <li>• Try hard refresh: Ctrl+F5 (PC) or Cmd+Shift+R (Mac)</li>
+            <li>• Test in incognito/private mode for clean state</li>
+            <li>• Clear site data: DevTools → Application → Storage → Clear</li>
+            <li>• Check browser notification settings for this site</li>
+            <li>• Ensure HTTPS connection (required for notifications)</li>
+          </ul>
         </div>
 
         <div className="text-xs text-muted-foreground bg-muted p-2 rounded">

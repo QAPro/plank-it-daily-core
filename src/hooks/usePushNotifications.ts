@@ -238,6 +238,52 @@ export const usePushNotifications = () => {
     }
   }, [isSupported]);
 
+  const forceRequestPermission = useCallback(async (): Promise<boolean> => {
+    console.log('[PushNotifications] FORCE requesting permission - ignoring current state...');
+    console.log('[PushNotifications] Current permission status:', Notification.permission);
+    
+    if (!isSupported) {
+      console.log('[PushNotifications] Not supported in this browser');
+      toast({
+        title: "Not Supported",
+        description: "Push notifications are not supported in this browser.",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    try {
+      console.log('[PushNotifications] FORCE requesting permission from user...');
+      const permission = await Notification.requestPermission();
+      console.log('[PushNotifications] FORCE permission request result:', permission);
+      
+      if (permission === 'granted') {
+        console.log('[PushNotifications] FORCE permission granted successfully');
+        toast({
+          title: "Permission Granted!",
+          description: "Push notifications are now enabled!",
+        });
+        return true;
+      } else {
+        console.log('[PushNotifications] FORCE permission not granted:', permission);
+        toast({
+          title: "Permission Not Granted",
+          description: `Permission status: ${permission}. Please check browser settings.`,
+          variant: "destructive"
+        });
+        return false;
+      }
+    } catch (error) {
+      console.error('[PushNotifications] FORCE permission request failed:', error);
+      toast({
+        title: "Permission Error",
+        description: "Failed to request notification permission. Please try again.",
+        variant: "destructive"
+      });
+      return false;
+    }
+  }, [isSupported]);
+
   const fetchVapidPublicKey = useCallback(async (): Promise<string | null> => {
     console.log('[PushNotifications] Fetching VAPID public key...');
     
@@ -546,14 +592,181 @@ export const usePushNotifications = () => {
     return false;
   }, [isSubscribed, subscribe, unsubscribe]);
 
+  const forceSubscribeIgnorePermission = useCallback(async () => {
+    console.log('[PushNotifications] FORCE SUBSCRIBE - ignoring permission state...');
+    console.log('[PushNotifications] Current permission:', Notification.permission);
+    
+    if (!user) {
+      console.log('[PushNotifications] No user authenticated');
+      toast({
+        title: "Authentication Required", 
+        description: "Please sign in to enable push notifications.",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    if (!isSupported) {
+      console.log('[PushNotifications] Not supported');
+      toast({
+        title: "Not Supported",
+        description: "Push notifications are not supported in this browser.",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    if (!swReady) {
+      console.log('[PushNotifications] Service worker not ready');
+      toast({
+        title: "Service Worker Not Ready",
+        description: "Please wait for the page to fully load and try again.",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    setIsLoading(true);
+    try {
+      // Step 1: FORCE request permission (even if currently denied)
+      console.log('[PushNotifications] FORCE Step 1: Requesting permission...');
+      toast({
+        title: "FORCE Setting up notifications...",
+        description: "Step 1: Force requesting permission",
+      });
+      
+      const hasPermission = await forceRequestPermission();
+      if (!hasPermission) {
+        console.error('[PushNotifications] FORCE permission denied or failed');
+        setIsLoading(false);
+        return false;
+      }
+
+      // Continue with normal subscription process
+      console.log('[PushNotifications] FORCE Step 2: Getting service worker registration...');
+      toast({
+        title: "FORCE Setting up notifications...",
+        description: "Step 2: Preparing service worker",
+      });
+      const registration = await navigator.serviceWorker.ready;
+      
+      // Step 3: Fetch VAPID public key from server
+      console.log('[PushNotifications] FORCE Step 3: Fetching VAPID key...');
+      toast({
+        title: "FORCE Setting up notifications...",
+        description: "Step 3: Fetching server configuration",
+      });
+      
+      const vapidPublicKey = await fetchVapidPublicKey();
+      if (!vapidPublicKey) {
+        console.error('[PushNotifications] FORCE No VAPID key received');
+        toast({
+          title: "Configuration Error",
+          description: "Unable to retrieve notification configuration. Please check server setup.",
+          variant: "destructive"
+        });
+        setIsLoading(false);
+        return false;
+      }
+      
+      // Step 4: Convert VAPID key
+      console.log('[PushNotifications] FORCE Step 4: Converting VAPID key...');
+      function urlBase64ToUint8Array(base64String: string): Uint8Array {
+        try {
+          const padding = '='.repeat((4 - base64String.length % 4) % 4);
+          const base64 = (base64String + padding)
+            .replace(/\-/g, '+')
+            .replace(/_/g, '/');
+          const rawData = atob(base64);
+          return new Uint8Array([...rawData].map(char => char.charCodeAt(0)));
+        } catch (error) {
+          console.error('[PushNotifications] FORCE Error converting VAPID key:', error);
+          throw new Error('Invalid VAPID key format');
+        }
+      }
+      
+      const applicationServerKey = urlBase64ToUint8Array(vapidPublicKey);
+      
+      // Step 5: Subscribe to push manager
+      console.log('[PushNotifications] FORCE Step 5: Subscribing to push manager...');
+      toast({
+        title: "FORCE Setting up notifications...",
+        description: "Step 5: Creating subscription",
+      });
+      
+      const pushSubscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: applicationServerKey
+      });
+
+      // Step 6: Save to database
+      console.log('[PushNotifications] FORCE Step 6: Saving to database...');
+      toast({
+        title: "FORCE Setting up notifications...",
+        description: "Step 6: Saving configuration",
+      });
+      
+      const subscriptionData = {
+        user_id: user.id,
+        endpoint: pushSubscription.endpoint,
+        p256dh_key: pushSubscription.toJSON().keys?.p256dh || '',
+        auth_key: pushSubscription.toJSON().keys?.auth || '',
+        user_agent: navigator.userAgent
+      };
+
+      // Save subscription to database
+      const { error } = await supabase
+        .from('push_subscriptions')
+        .insert(subscriptionData);
+
+      if (error) {
+        console.error('[PushNotifications] FORCE Database save error:', error);
+        throw new Error(`Database error: ${error.message}`);
+      }
+      
+      // Update local state
+      setIsSubscribed(true);
+      setSubscription({
+        endpoint: pushSubscription.endpoint,
+        keys: {
+          p256dh: pushSubscription.toJSON().keys?.p256dh || '',
+          auth: pushSubscription.toJSON().keys?.auth || ''
+        }
+      });
+
+      toast({
+        title: "FORCE Notifications Enabled!",
+        description: "Push notifications forcefully enabled despite previous permission state!"
+      });
+
+      console.log('[PushNotifications] FORCE Subscription complete successfully!');
+      return true;
+    } catch (error) {
+      console.error('[PushNotifications] FORCE Subscription failed with error:', error);
+      
+      toast({
+        title: "FORCE Subscription Failed",
+        description: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        variant: "destructive"
+      });
+      
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user, isSupported, swReady, forceRequestPermission, fetchVapidPublicKey]);
+
   return {
     isSupported,
     isSubscribed,
     subscription,
     isLoading,
+    swReady,
     subscribe,
     unsubscribe,
     resubscribe,
-    requestPermission
+    requestPermission,
+    forceSubscribeIgnorePermission,
+    forceRequestPermission
   };
 };

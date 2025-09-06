@@ -6,11 +6,15 @@ import { Badge } from '@/components/ui/badge';
 import { ValidationService, ValidationResult } from '@/services/validationService';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { CheckCircle, XCircle, AlertTriangle, Play, Bug } from 'lucide-react';
+import { CheckCircle, XCircle, AlertTriangle, Play, Bug, Bell } from 'lucide-react';
+import { DevToolsNotifications } from '@/components/DevToolsNotifications';
+import { PushNotificationDebugger } from '@/components/debug/PushNotificationDebugger';
 
 const DevTools = () => {
   const [validationResults, setValidationResults] = useState<ValidationResult[]>([]);
   const [isRunning, setIsRunning] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showDebugger, setShowDebugger] = useState(false);
 
   const runValidation = async () => {
     setIsRunning(true);
@@ -70,24 +74,44 @@ const DevTools = () => {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
-      <Card className="w-96 max-h-96">
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Bug className="h-4 w-4" />
-              <CardTitle className="text-sm">Dev Tools</CardTitle>
+    <>
+      <div className="fixed bottom-4 right-4 z-50">
+        <Card className="w-96 max-h-96">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Bug className="h-4 w-4" />
+                <CardTitle className="text-sm">Dev Tools</CardTitle>
+              </div>
+              <div className="flex gap-1">
+                <Button
+                  size="sm"
+                  onClick={() => setShowNotifications(true)}
+                  variant="outline"
+                  className="h-6 px-2 text-xs"
+                >
+                  <Bell className="h-3 w-3 mr-1" />
+                  Notifications
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => setShowDebugger(true)}
+                  variant="outline"
+                  className="h-6 px-2 text-xs"
+                >
+                  Debug
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={runValidation}
+                  disabled={isRunning}
+                  className="h-6 px-2 text-xs"
+                >
+                  <Play className="h-3 w-3 mr-1" />
+                  {isRunning ? 'Running...' : 'Validate'}
+                </Button>
+              </div>
             </div>
-            <Button
-              size="sm"
-              onClick={runValidation}
-              disabled={isRunning}
-              className="h-6 px-2 text-xs"
-            >
-              <Play className="h-3 w-3 mr-1" />
-              {isRunning ? 'Running...' : 'Validate'}
-            </Button>
-          </div>
           {summary.total > 0 && (
             <CardDescription className="text-xs">
               {summary.passed} passed, {summary.warnings} warnings, {summary.failed} failed
@@ -147,7 +171,36 @@ const DevTools = () => {
         )}
       </Card>
     </div>
-  );
+    
+    {showNotifications && (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]">
+        <div className="max-w-2xl w-full mx-4">
+          <DevToolsNotifications onClose={() => setShowNotifications(false)} />
+        </div>
+      </div>
+    )}
+    
+    {showDebugger && (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]">
+        <div className="max-w-4xl w-full mx-4 max-h-[90vh] overflow-auto">
+          <div className="bg-background rounded-lg">
+            <div className="flex justify-end p-2">
+              <Button
+                onClick={() => setShowDebugger(false)}
+                size="sm"
+                variant="ghost"
+              >
+                ✕
+              </Button>
+            </div>
+            <div className="p-4 pt-0">
+              <PushNotificationDebugger />
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+  </>);
 };
 
 export default DevTools;

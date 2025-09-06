@@ -11,10 +11,13 @@ import { NotificationService } from '@/services/notificationService';
 import { NotificationTestService } from '@/services/notificationTestService';
 import { toast } from 'sonner';
 
-export function DevToolsNotifications() {
+interface DevToolsNotificationsProps {
+  onClose?: () => void;
+}
+
+export function DevToolsNotifications({ onClose }: DevToolsNotificationsProps) {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
   const [customTitle, setCustomTitle] = useState('Test Notification');
   const [customBody, setCustomBody] = useState('This is a test push notification from Plank Coach!');
   const [notificationType, setNotificationType] = useState('test');
@@ -58,7 +61,7 @@ export function DevToolsNotifications() {
     }
   };
 
-  if (process.env.NODE_ENV !== 'development' || !isVisible) {
+  if (process.env.NODE_ENV !== 'development') {
     return null;
   }
 
@@ -67,7 +70,7 @@ export function DevToolsNotifications() {
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
         <CardTitle>Notification Testing</CardTitle>
         <Button
-          onClick={() => setIsVisible(false)}
+          onClick={onClose}
           size="sm"
           variant="ghost"
           className="h-8 w-8 p-0"

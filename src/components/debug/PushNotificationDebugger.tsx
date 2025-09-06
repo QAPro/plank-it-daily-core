@@ -7,6 +7,7 @@ import { CheckCircle, AlertTriangle, Loader2, Bell, ExternalLink, Info } from 'l
 import { useAuth } from '@/contexts/AuthContext';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { isInIframe, openInNewTab } from '@/utils/iframe';
+import { EnhancedPushNotificationDebug } from './EnhancedPushNotificationDebug';
 
 export const PushNotificationDebugger: React.FC = () => {
   const { user } = useAuth();
@@ -157,16 +158,19 @@ export const PushNotificationDebugger: React.FC = () => {
   };
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Bell className="h-5 w-5" />
-          Push Notifications Debug
-        </CardTitle>
-        <CardDescription>
-          Debug push notification subscription issues
-        </CardDescription>
-      </CardHeader>
+    <div className="space-y-4">
+      <EnhancedPushNotificationDebug />
+      
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Bell className="h-5 w-5" />
+            Legacy Debug Tools
+          </CardTitle>
+          <CardDescription>
+            Raw debugging tools and manual controls
+          </CardDescription>
+        </CardHeader>
       <CardContent className="space-y-4">
         {inIframe && (
           <Alert className="border-orange-200 bg-orange-50">
@@ -349,5 +353,6 @@ export const PushNotificationDebugger: React.FC = () => {
         </div>
       </CardContent>
     </Card>
+    </div>
   );
 };

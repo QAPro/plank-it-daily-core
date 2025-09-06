@@ -22,58 +22,65 @@ async function sendWebPushNotification(
   vapidPublicKey: string,
   vapidPrivateKey: string
 ): Promise<Response> {
-  const vapidKeys = {
-    publicKey: urlBase64ToUint8Array(vapidPublicKey),
-    privateKey: urlBase64ToUint8Array(vapidPrivateKey),
+  // Validate/prepare VAPID keys
+  const publicKeyBytes = urlBase64ToUint8Array(vapidPublicKey);
+  if (publicKeyBytes.length !== 65 || publicKeyBytes[0] !== 0x04) {
+    throw new Error(`Invalid VAPID public key: expected 65 bytes uncompressed (starts with 0x04), got ${publicKeyBytes.length}`);
+  }
+
+  // Private key must be imported as JWK for ECDSA P-256
+  const jwkPrivate: JsonWebKey = {
+    kty: 'EC',
+    crv: 'P-256',
+    d: vapidPrivateKey, // base64url 32-byte scalar
   };
+
+  let cryptoKey: CryptoKey;
+  try {
+    cryptoKey = await crypto.subtle.importKey(
+      'jwk',
+      jwkPrivate,
+      { name: 'ECDSA', namedCurve: 'P-256' },
+      false,
+      ['sign']
+    );
+  } catch (e) {
+    console.error('[VAPID] Failed to import private key as JWK', e);
+    throw new Error('VAPID private key is invalid. Ensure it is the 32-byte base64url "d" value from a P-256 key.');
+  }
 
   // Create JWT header and payload for VAPID
-  const header = {
-    typ: 'JWT',
-    alg: 'ES256'
-  };
-
+  const header = { typ: 'JWT', alg: 'ES256' };
   const jwtPayload = {
     aud: new URL(subscription.endpoint).origin,
     exp: Math.floor(Date.now() / 1000) + 12 * 60 * 60, // 12 hours
-    sub: 'mailto:support@plankcoach.com'
+    sub: 'mailto:support@plankcoach.com',
   };
 
-  // Import the private key for signing
-  const privateKeyBuffer = vapidKeys.privateKey.slice(0, 32);
-  const cryptoKey = await crypto.subtle.importKey(
-    'raw',
-    privateKeyBuffer,
-    { name: 'ECDSA', namedCurve: 'P-256' },
-    false,
-    ['sign']
-  );
+  const toB64Url = (input: string) => btoa(input).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 
-  // Create JWT token (simplified version - in production you'd use a proper JWT library)
-  const encodedHeader = btoa(JSON.stringify(header)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-  const encodedPayload = btoa(JSON.stringify(jwtPayload)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-  
+  const encodedHeader = toB64Url(JSON.stringify(header));
+  const encodedPayload = toB64Url(JSON.stringify(jwtPayload));
   const unsignedToken = `${encodedHeader}.${encodedPayload}`;
+
+  // Sign JWT with ECDSA P-256
   const signature = await crypto.subtle.sign(
     { name: 'ECDSA', hash: 'SHA-256' },
     cryptoKey,
     new TextEncoder().encode(unsignedToken)
   );
-  
-  const encodedSignature = btoa(String.fromCharCode(...new Uint8Array(signature)))
-    .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-  
+  const encodedSignature = toB64Url(String.fromCharCode(...new Uint8Array(signature)));
   const jwt = `${unsignedToken}.${encodedSignature}`;
 
-  // Send the push notification
+  // Send the push notification (note: some endpoints require encrypted payloads)
   const response = await fetch(subscription.endpoint, {
     method: 'POST',
     headers: {
       'Authorization': `vapid t=${jwt}, k=${vapidPublicKey}`,
       'Content-Type': 'application/octet-stream',
-      'TTL': '86400'
+      'TTL': '86400',
     },
-    body: payload
+    body: payload,
   });
 
   return response;

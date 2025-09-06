@@ -57,7 +57,7 @@ const Dashboard = () => {
       case 'admin':
         return <AdminDashboard />;
       case 'profile':
-        return <ProfileTab initialView={profileView} />;
+        return <ProfileTab initialView={profileView} onOpenVapidManager={() => setShowVapidManager(true)} />;
       default:
         return <HomeTab onTabChange={handleTabChange} onUpgradeClick={handleUpgradeNavigation} />;
     }

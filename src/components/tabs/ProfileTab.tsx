@@ -19,9 +19,10 @@ import { PushNotificationDebugger } from '@/components/debug/PushNotificationDeb
 
 interface ProfileTabProps {
   initialView?: 'overview' | 'subscription-plans';
+  onOpenVapidManager?: () => void;
 }
 
-const ProfileTab = ({ initialView = 'overview' }: ProfileTabProps) => {
+const ProfileTab = ({ initialView = 'overview', onOpenVapidManager }: ProfileTabProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
@@ -114,6 +115,24 @@ const ProfileTab = ({ initialView = 'overview' }: ProfileTabProps) => {
           
           {/* Push Notification Debug */}
           <PushNotificationDebugger />
+          
+          {/* VAPID Key Management */}
+          {onOpenVapidManager && (
+            <Card>
+              <CardHeader>
+                <CardTitle>VAPID Key Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Button
+                  onClick={onOpenVapidManager}
+                  variant="outline"
+                  className="w-full"
+                >
+                  Open VAPID Key Manager
+                </Button>
+              </CardContent>
+            </Card>
+          )}
           
           {/* Push Notification Management */}
           <PushNotificationManager />

@@ -55,6 +55,60 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
+// Helper function to select appropriate icon based on notification type
+function getNotificationIcon(notificationType, category) {
+  switch (category || notificationType) {
+    case 'achievement':
+    case 'achievements':
+      return '/icons/notification-achievement.png';
+    case 'streak':
+    case 'streaks':
+      return '/icons/notification-streak.png';
+    case 'progress':
+    case 'milestone':
+    case 'milestones':
+      return '/icons/notification-progress.png';
+    case 'reminder':
+    case 'reminders':
+    case 'workout':
+      return '/icons/notification-workout.png';
+    default:
+      return '/icons/notification-workout.png';
+  }
+}
+
+// Helper function to get appropriate vibration pattern
+function getVibrationPattern(category) {
+  switch (category) {
+    case 'achievement':
+      return [200, 150, 300, 150, 400]; // Celebratory pattern
+    case 'streak':
+      return [150, 100, 150, 100, 150]; // Urgent pattern
+    case 'progress':
+      return [100, 50, 100]; // Gentle pattern
+    case 'reminder':
+    default:
+      return [200, 100, 200]; // Standard pattern
+  }
+}
+
+// Helper function to get appropriate sound (for future implementation)
+function getNotificationSound(category) {
+  // Browser notification API doesn't support custom sounds directly
+  // This could be used for future web audio implementation
+  switch (category) {
+    case 'achievement':
+      return 'achievement.mp3';
+    case 'streak':
+      return 'streak.mp3';
+    case 'progress':
+      return 'progress.mp3';
+    case 'reminder':
+    default:
+      return 'default.mp3';
+  }
+}
+
 // Push event - handle push notifications
 self.addEventListener('push', (event) => {
   const timestamp = new Date().toISOString();
@@ -67,10 +121,13 @@ self.addEventListener('push', (event) => {
   });
   
   let title = 'Plank Coach';
+  let notificationType = 'reminder';
+  let category = 'reminder';
+  
   let options = {
     body: 'Time for your workout!',
-    icon: '/favicon.ico',
-    badge: '/favicon.ico',
+    icon: '/icons/notification-workout.png',
+    badge: '/icons/notification-workout.png',
     vibrate: [200, 100, 200],
     requireInteraction: true,
     tag: 'plank-coach-notification',
@@ -98,24 +155,53 @@ self.addEventListener('push', (event) => {
       
       title = data.title || title;
       options.body = data.body || options.body;
-      if (data.icon) options.icon = data.icon;
-      if (data.badge) options.badge = data.badge;
+      notificationType = data.notification_type || data.data?.notification_type || notificationType;
+      category = data.data?.category || notificationType;
+      
+      // Set custom icon and badge based on notification type
+      const customIcon = getNotificationIcon(notificationType, category);
+      options.icon = customIcon;
+      options.badge = customIcon;
+      
+      // Set custom vibration pattern
+      options.vibrate = getVibrationPattern(category);
+      
+      // Handle other notification options
       if (data.tag) options.tag = data.tag;
       if (data.actions) options.actions = data.actions;
-      if (data.data) options.data = { ...options.data, ...data.data };
+      if (data.data) options.data = { ...options.data, ...data.data, category };
       if (data.requireInteraction !== undefined) options.requireInteraction = data.requireInteraction;
+      
+      // Add custom action buttons based on category
+      if (category === 'achievement') {
+        options.actions = [
+          { action: 'view-achievement', title: '🏆 View Achievement' },
+          { action: 'share', title: '📤 Share' }
+        ];
+      } else if (category === 'streak') {
+        options.actions = [
+          { action: 'quick-workout', title: '⚡ Quick Plank' },
+          { action: 'full-workout', title: '💪 Full Workout' }
+        ];
+      } else if (category === 'progress') {
+        options.actions = [
+          { action: 'view-stats', title: '📈 View Stats' },
+          { action: 'set-goal', title: '🎯 Set Goal' }
+        ];
+      }
+      
     } catch (error) {
       console.error(`[SW] Error parsing push data (${pushId}):`, error);
       console.log(`[SW] Falling back to default notification (${pushId})`);
     }
   }
   
-  console.log(`[SW] Showing notification (${pushId}):`, { title, options });
+  console.log(`[SW] Showing notification (${pushId}) with category ${category}:`, { title, options });
   
   event.waitUntil(
     self.registration.showNotification(title, options)
       .then(() => {
-        console.log(`[SW] Notification displayed successfully (${pushId})`);
+        console.log(`[SW] Notification displayed successfully (${pushId}) with icon: ${options.icon}`);
       })
       .catch((error) => {
         console.error(`[SW] Failed to display notification (${pushId}):`, error);
@@ -123,13 +209,15 @@ self.addEventListener('push', (event) => {
   );
 });
 
-// Notification click event
+// Notification click event - Enhanced with better action handling
 self.addEventListener('notificationclick', (event) => {
   const pushId = event.notification.data?.pushId || 'unknown';
+  const category = event.notification.data?.category || 'reminder';
   const timestamp = new Date().toISOString();
   
   console.log(`[SW] Notification clicked at ${timestamp} (${pushId}):`, {
     action: event.action,
+    category: category,
     tag: event.notification.tag,
     data: event.notification.data
   });
@@ -139,21 +227,96 @@ self.addEventListener('notificationclick', (event) => {
   const action = event.action;
   let urlToOpen = '/';
   
-  if (action === 'start-workout') {
-    urlToOpen = '/?tab=workout';
-  } else if (action === 'view-progress') {
-    urlToOpen = '/?tab=stats';
+  // Enhanced action handling based on notification category and action
+  switch (action) {
+    // Workout actions
+    case 'start-workout':
+    case 'quick-workout':
+    case 'full-workout':
+      urlToOpen = '/?tab=workout';
+      break;
+    
+    // Progress/Stats actions
+    case 'view-progress':
+    case 'view-stats':
+    case 'plan-week':
+      urlToOpen = '/?tab=stats';
+      break;
+    
+    // Achievement actions
+    case 'view-achievement':
+      urlToOpen = '/?tab=achievements';
+      break;
+    
+    // Goal actions
+    case 'set-goal':
+    case 'next-goal':
+      urlToOpen = '/?tab=stats'; // Could be dedicated goals page
+      break;
+    
+    // Share actions (handle differently)
+    case 'share':
+      // For share actions, we'll post a message to the app
+      event.waitUntil(
+        clients.matchAll({ type: 'window' }).then((clientList) => {
+          if (clientList.length > 0) {
+            clientList[0].postMessage({
+              type: 'SHARE_ACHIEVEMENT',
+              data: event.notification.data
+            });
+            return clientList[0].focus();
+          } else {
+            return clients.openWindow('/?tab=achievements&share=true');
+          }
+        })
+      );
+      return;
+    
+    // Default actions
+    case 'dismiss':
+      // Just close the notification, no navigation needed
+      console.log(`[SW] Notification dismissed (${pushId})`);
+      return;
+    
+    default:
+      // Default click (no action button) - navigate based on category
+      switch (category) {
+        case 'achievement':
+          urlToOpen = '/?tab=achievements';
+          break;
+        case 'streak':
+        case 'reminder':
+          urlToOpen = '/?tab=workout';
+          break;
+        case 'progress':
+        case 'milestone':
+          urlToOpen = '/?tab=stats';
+          break;
+        default:
+          urlToOpen = '/';
+      }
   }
   
   event.waitUntil(
     clients.matchAll({ type: 'window' }).then((clientList) => {
       console.log(`[SW] Found ${clientList.length} open windows (${pushId})`);
       
-      // Try to focus existing window
+      // Try to focus existing window with same base URL
+      const baseUrl = urlToOpen.split('?')[0];
       for (const client of clientList) {
-        if (client.url.includes(urlToOpen.split('?')[0]) && 'focus' in client) {
+        if (client.url.includes(baseUrl) && 'focus' in client) {
           console.log(`[SW] Focusing existing window (${pushId}):`, client.url);
-          return client.focus();
+          // If the window is already on the right page, just focus it
+          if (client.url.includes(urlToOpen)) {
+            return client.focus();
+          }
+          // Otherwise, navigate to the new URL
+          return client.focus().then(() => {
+            client.postMessage({
+              type: 'NAVIGATE',
+              url: urlToOpen
+            });
+          });
         }
       }
       

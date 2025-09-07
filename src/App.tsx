@@ -11,6 +11,7 @@ import NotFound from "@/pages/NotFound";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { InstallPrompt } from "@/components/notifications/InstallPrompt";
 import { DevToolsNotifications } from "@/components/DevToolsNotifications";
+import ServiceWorkerMessageHandler from "@/components/notifications/ServiceWorkerMessageHandler";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,6 +30,7 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <Router>
+            <ServiceWorkerMessageHandler />
             <InstallPrompt />
             {process.env.NODE_ENV === 'development' && (
               <div className="fixed bottom-4 left-4 z-50">

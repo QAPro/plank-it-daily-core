@@ -86,7 +86,8 @@ export class NotificationService {
       body: 'Keep your streak alive and strengthen your core today.',
       data: { 
         url: '/?tab=workout',
-        category: 'reminder'
+        category: 'reminder',
+        notification_type: 'reminders'
       },
       actions: [
         { action: 'start-workout', title: '🚀 Start Now' },
@@ -102,7 +103,8 @@ export class NotificationService {
       data: { 
         achievement: achievementName,
         url: '/?tab=achievements',
-        category: 'achievement'
+        category: 'achievement',
+        notification_type: 'achievements'
       },
       actions: [
         { action: 'view-achievement', title: '👀 View Achievement' },
@@ -118,7 +120,8 @@ export class NotificationService {
       data: { 
         streak: currentStreak,
         url: '/?tab=workout',
-        category: 'streak'
+        category: 'streak',
+        notification_type: 'streaks'
       },
       actions: [
         { action: 'quick-workout', title: '⚡ Quick Plank' },
@@ -139,7 +142,8 @@ export class NotificationService {
         sessions: sessionsThisWeek,
         duration: totalDuration,
         url: '/?tab=stats',
-        category: 'progress'
+        category: 'progress',
+        notification_type: 'milestones'
       },
       actions: [
         { action: 'view-stats', title: '📈 View Stats' },
@@ -156,7 +160,8 @@ export class NotificationService {
         milestone,
         value,
         url: '/?tab=stats',
-        category: 'milestone'
+        category: 'milestone',
+        notification_type: 'milestones'
       },
       actions: [
         { action: 'view-progress', title: '🎯 View Progress' },

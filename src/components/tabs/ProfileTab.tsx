@@ -16,6 +16,7 @@ import SubscriptionPlansPage from '@/components/subscription/SubscriptionPlansPa
 import { PushNotificationManager } from '@/components/notifications/PushNotificationManager';
 import { NotificationPreferences } from '@/components/notifications/NotificationPreferences';
 import { PushNotificationDebugger } from '@/components/debug/PushNotificationDebugger';
+import RichNotificationTester from '@/components/debug/RichNotificationTester';
 
 interface ProfileTabProps {
   initialView?: 'overview' | 'subscription-plans';
@@ -117,6 +118,11 @@ const ProfileTab = ({ initialView = 'overview', onOpenVapidManager }: ProfileTab
           
           {/* Push Notification Management */}
           <PushNotificationManager />
+
+          {/* Rich Notification Testing - Dev Only */}
+          {process.env.NODE_ENV === 'development' && (
+            <RichNotificationTester />
+          )}
           <NotificationPreferences />
           
           {/* Sign Out Section */}

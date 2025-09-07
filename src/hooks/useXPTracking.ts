@@ -3,6 +3,8 @@ import { useState, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { awardXP } from '@/services/levelProgressionService';
 import { EnhancedXPService } from '@/services/enhancedXPService';
+import { HiddenAchievementEngine } from '@/services/hiddenAchievementService';
+import { SeasonalAchievementEngine } from '@/services/seasonalAchievementService';
 import { useLevelProgression } from './useLevelProgression';
 
 export const useXPTracking = () => {
@@ -81,6 +83,19 @@ export const useXPTracking = () => {
               unlocks: []
             });
           }, 1000);
+        }
+
+        // Check for hidden and seasonal achievements
+        const hiddenEngine = new HiddenAchievementEngine(user.id);
+        const seasonalEngine = new SeasonalAchievementEngine(user.id);
+        
+        try {
+          await Promise.all([
+            hiddenEngine.checkHiddenAchievements(),
+            seasonalEngine.checkSeasonalAchievements()
+          ]);
+        } catch (error) {
+          console.error('Error checking special achievements:', error);
         }
 
         // Refresh level data

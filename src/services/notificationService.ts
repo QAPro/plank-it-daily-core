@@ -10,8 +10,20 @@ interface NotificationOptions {
   }>;
 }
 
+interface NotificationResult {
+  successCount: number;
+  totalAttempts: number;
+  message?: string;
+  results?: Array<{
+    success: boolean;
+    subscription_id?: string;
+    error?: string;
+  }>;
+  timestamp?: string;
+}
+
 export class NotificationService {
-  static async sendToUser(userId: string, type: string, options: NotificationOptions) {
+  static async sendToUser(userId: string, type: string, options: NotificationOptions): Promise<NotificationResult> {
     try {
       const { data, error } = await supabase.functions.invoke('send-push-notification', {
         body: {
@@ -23,14 +35,21 @@ export class NotificationService {
 
       if (error) {
         console.error('Error sending notification:', error);
-        return false;
+        throw new Error(error.message || 'Failed to send notification');
       }
 
       console.log('Notification sent successfully:', data);
-      return true;
-    } catch (error) {
+      return {
+        successCount: data?.successCount || 0,
+        totalAttempts: data?.totalAttempts || 0,
+        message: data?.message,
+        results: data?.results || [],
+        timestamp: new Date().toISOString(),
+        ...data
+      };
+    } catch (error: any) {
       console.error('Failed to send notification:', error);
-      return false;
+      throw error;
     }
   }
 

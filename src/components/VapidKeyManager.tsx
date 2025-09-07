@@ -10,14 +10,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { validateVapidPublicKey, testVapidKey, type VapidKeyValidationResult } from '@/utils/vapidKeyValidator';
 import { NotificationService } from '@/services/notificationService';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from '@/components/ui/sonner';
 
 interface VapidKeyManagerProps {
   onClose?: () => void;
 }
 
 export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => {
-  const { toast } = useToast();
   const { user } = useAuth();
   const { isSubscribed, subscribe, unsubscribe } = usePushNotifications();
 
@@ -26,6 +25,8 @@ export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => 
   const [testResult, setTestResult] = useState<{ success: boolean; error?: string } | null>(null);
   const [isTesting, setIsTesting] = useState(false);
   const [isRepairing, setIsRepairing] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [lastTestResult, setLastTestResult] = useState<any>(null);
 
   const handleClose = () => {
     if (onClose) {
@@ -47,13 +48,14 @@ export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => 
       setValidation(v);
       const t = await testVapidKey(key);
       setTestResult(t);
-      toast({
-        title: t.success ? 'VAPID key valid' : 'VAPID key failed',
-        description: t.success ? `Format ${v.keyFormat}, length ${v.keyLength}` : t.error,
-      });
+      if (t.success) {
+        toast.success('VAPID key valid', { description: `Format ${v.keyFormat}, length ${v.keyLength}` });
+      } else {
+        toast.error('VAPID key failed', { description: t.error });
+      }
     } catch (e: any) {
       setTestResult({ success: false, error: e?.message ?? String(e) });
-      toast({ title: 'Error', description: e?.message ?? String(e) });
+      toast.error('Error', { description: e?.message ?? String(e) });
     } finally {
       setIsTesting(false);
     }
@@ -66,9 +68,9 @@ export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => 
         await unsubscribe();
       }
       await subscribe();
-      toast({ title: 'Subscription repaired', description: 'Push subscription refreshed.' });
+      toast.success('Subscription repaired', { description: 'Push subscription refreshed.' });
     } catch (e: any) {
-      toast({ title: 'Repair failed', description: e?.message ?? String(e) });
+      toast.error('Repair failed', { description: e?.message ?? String(e) });
     } finally {
       setIsRepairing(false);
     }
@@ -76,17 +78,32 @@ export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => 
 
   const handleSendTest = async () => {
     if (!user?.id) {
-      toast({ title: 'Sign in required', description: 'Sign in to receive a test push.' });
+      toast.error('Sign in required', { description: 'Sign in to receive a test push.' });
       return;
     }
     try {
-      await NotificationService.sendToUser(user.id, 'test', {
+      setIsSending(true);
+      const result = await NotificationService.sendToUser(user.id, 'test', {
         title: 'Test Push',
         body: 'This is a test push notification.',
       });
-      toast({ title: 'Test sent', description: 'Check your device.' });
+      setLastTestResult(result);
+      
+      if (result?.message === 'No active subscriptions found for target users') {
+        toast.error('No active subscriptions', { 
+          description: 'Use "Repair Subscription" button below, then retry.' 
+        });
+      } else {
+        toast.success('Test sent', { 
+          description: `Delivered to ${result?.successCount || 0} of ${result?.totalAttempts || 0} subscriptions.` 
+        });
+      }
     } catch (e: any) {
-      toast({ title: 'Send failed', description: e?.message ?? String(e) });
+      const errorResult = { error: e?.message ?? String(e), timestamp: new Date().toISOString() };
+      setLastTestResult(errorResult);
+      toast.error('Send failed', { description: e?.message ?? String(e) });
+    } finally {
+      setIsSending(false);
     }
   };
   return (
@@ -132,11 +149,57 @@ export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => 
                 <Wrench className="h-4 w-4 mr-2" />
                 {isRepairing ? 'Repairing…' : 'Repair Subscription'}
               </Button>
-              <Button onClick={handleSendTest} variant="outline">
+              <Button 
+                onClick={handleSendTest} 
+                variant="outline" 
+                disabled={isSending || !user?.id}
+              >
                 <Send className="h-4 w-4 mr-2" />
-                Send Test Notification
+                {isSending ? 'Sending…' : 'Send Test Notification'}
               </Button>
             </div>
+
+            {!user?.id && (
+              <Alert>
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Sign in required:</strong> You must be signed in to send test notifications.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {lastTestResult && (
+              <div className="rounded-md border p-3 text-sm">
+                <p className="font-medium mb-2">Last Test Result:</p>
+                {lastTestResult.error ? (
+                  <p className="text-destructive">Error: {lastTestResult.error}</p>
+                ) : lastTestResult.message === 'No active subscriptions found for target users' ? (
+                  <div className="space-y-2">
+                    <p className="text-orange-600">No active push subscriptions found</p>
+                    <p className="text-muted-foreground text-xs">
+                      Use the "Repair Subscription" button above to refresh your push subscription, then retry.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    <p>Sent: {lastTestResult.successCount || 0} / {lastTestResult.totalAttempts || 0}</p>
+                    {lastTestResult.results && lastTestResult.results.length > 0 && (
+                      <div className="text-xs space-y-1">
+                        {lastTestResult.results.slice(0, 3).map((result: any, i: number) => (
+                          <p key={i} className={result.success ? 'text-green-600' : 'text-red-600'}>
+                            {result.success ? '✓' : '✗'} {result.subscription_id?.slice(0, 8)}...
+                            {result.error && ` - ${result.error}`}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground mt-2">
+                  {new Date(lastTestResult.timestamp || Date.now()).toLocaleTimeString()}
+                </p>
+              </div>
+            )}
 
             {(publicKey || validation || testResult) && (
               <div className="rounded-md border p-3 text-sm">

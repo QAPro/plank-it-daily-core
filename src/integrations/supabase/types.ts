@@ -1168,6 +1168,42 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_message_variants: {
+        Row: {
+          category: string
+          content: Json
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          slot: string | null
+          updated_at: string
+          variant_key: string
+        }
+        Insert: {
+          category: string
+          content: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          slot?: string | null
+          updated_at?: string
+          variant_key: string
+        }
+        Update: {
+          category?: string
+          content?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          slot?: string | null
+          updated_at?: string
+          variant_key?: string
+        }
+        Relationships: []
+      }
       performance_benchmarks: {
         Row: {
           data_period: string | null
@@ -2150,6 +2186,44 @@ export type Database = {
         }
         Relationships: []
       }
+      user_notification_variant_assignments: {
+        Row: {
+          assigned_at: string
+          assignment_hash: string | null
+          category: string
+          id: string
+          slot: string | null
+          user_id: string
+          variant_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assignment_hash?: string | null
+          category: string
+          id?: string
+          slot?: string | null
+          user_id: string
+          variant_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assignment_hash?: string | null
+          category?: string
+          id?: string
+          slot?: string | null
+          user_id?: string
+          variant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_notification_variant_assignments_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "notification_message_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_onboarding: {
         Row: {
           completed_at: string | null
@@ -2250,6 +2324,7 @@ export type Database = {
           reminder_time: string | null
           sound_effects: boolean | null
           theme_preference: string | null
+          time_zone: string | null
           timer_sound_pack: string | null
           timer_theme: string | null
           updated_at: string | null
@@ -2281,6 +2356,7 @@ export type Database = {
           reminder_time?: string | null
           sound_effects?: boolean | null
           theme_preference?: string | null
+          time_zone?: string | null
           timer_sound_pack?: string | null
           timer_theme?: string | null
           updated_at?: string | null
@@ -2312,12 +2388,43 @@ export type Database = {
           reminder_time?: string | null
           sound_effects?: boolean | null
           theme_preference?: string | null
+          time_zone?: string | null
           timer_sound_pack?: string | null
           timer_theme?: string | null
           updated_at?: string | null
           user_id?: string
           vibration_intensity?: number | null
           workout_reminders?: boolean | null
+        }
+        Relationships: []
+      }
+      user_reminder_slots: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          reminder_time: string
+          slot: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          reminder_time: string
+          slot: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          reminder_time?: string
+          slot?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

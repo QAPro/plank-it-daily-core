@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { isInIframe, openInNewTab } from '@/utils/iframe';
 import { EnhancedPushNotificationDebug } from './EnhancedPushNotificationDebug';
+import { ServiceWorkerDebugger } from './ServiceWorkerDebugger';
 
 export const PushNotificationDebugger: React.FC = () => {
   const { user } = useAuth();
@@ -337,14 +338,20 @@ export const PushNotificationDebugger: React.FC = () => {
           )}
         </div>
 
+        {/* Service Worker Debugger */}
+        <ServiceWorkerDebugger />
+
         <div className="space-y-2 bg-muted/50 p-3 rounded-lg border">
           <h4 className="font-medium text-sm">Troubleshooting Tips:</h4>
           <ul className="text-xs space-y-1 text-muted-foreground">
+            <li>• Check browser console for [SW] service worker logs</li>
             <li>• Try hard refresh: Ctrl+F5 (PC) or Cmd+Shift+R (Mac)</li>
             <li>• Test in incognito/private mode for clean state</li>
             <li>• Clear site data: DevTools → Application → Storage → Clear</li>
             <li>• Check browser notification settings for this site</li>
             <li>• Ensure HTTPS connection (required for notifications)</li>
+            <li>• iOS: Add to home screen for better notification support</li>
+            <li>• Android: Check app-specific notification settings</li>
           </ul>
         </div>
 

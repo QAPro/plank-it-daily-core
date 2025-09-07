@@ -6,6 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { EnhancedNotificationPreferences } from "@/components/notifications/EnhancedNotificationPreferences";
+import { MusicPreferences } from "@/components/preferences/MusicPreferences";
 
 const PreferencesSettings = () => {
   const { preferences, loading, updatePreferences } = useUserPreferences();
@@ -140,6 +141,15 @@ const PreferencesSettings = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Music Preferences */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.2 }}
+      >
+        <MusicPreferences />
+      </motion.div>
 
       {/* Enhanced Notification Preferences */}
       <motion.div

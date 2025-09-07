@@ -20,6 +20,8 @@ import FeatureGuard from "@/components/access/FeatureGuard";
 import CustomWorkoutManager from "@/components/custom-workouts/CustomWorkoutManager";
 import { useQuickStart } from '@/hooks/useQuickStart';
 import { QuickStartButton } from '@/components/QuickStartButton';
+import { useWorkoutDeepLinking } from '@/hooks/useWorkoutDeepLinking';
+import { BackgroundMusicPlayer } from '@/components/audio/BackgroundMusicPlayer';
 
 type Exercise = Tables<'plank_exercises'>;
 
@@ -48,6 +50,18 @@ const WorkoutTab = () => {
   const { recommendations, isLoading: recommendationsLoading, generateRecommendations, isGenerating } = useExerciseRecommendations();
   const { preferences, updatePreferences } = useUserPreferences();
   const { quickStartData, isLoading: quickStartLoading } = useQuickStart();
+  const { deepLinkData, clearDeepLinkData } = useWorkoutDeepLinking();
+
+  // Handle deep link data when available
+  React.useEffect(() => {
+    if (deepLinkData && exercises && exercises.length > 0) {
+      const exercise = exercises.find(e => e.id === deepLinkData.exerciseId);
+      if (exercise) {
+        handleExerciseSelect(exercise, { quickStartDuration: deepLinkData.duration });
+        clearDeepLinkData();
+      }
+    }
+  }, [deepLinkData, exercises, clearDeepLinkData]);
 
   const recommendedExerciseIds = useMemo(() => {
     if (!recommendations) return new Set<string>();
@@ -273,6 +287,21 @@ const WorkoutTab = () => {
                   const ex = exercises?.find(e => e.id === quickStartData.exerciseId);
                   if (ex) handleExerciseSelect(ex as any, { quickStartDuration: quickStartData.duration });
                 }}
+              />
+            </motion.div>
+          )}
+
+          {/* Background Music Player */}
+          {preferences?.background_music && (
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+              className="mb-6 flex justify-center"
+            >
+              <BackgroundMusicPlayer 
+                isWorkoutActive={showTimer}
+                className="w-full max-w-md"
               />
             </motion.div>
           )}

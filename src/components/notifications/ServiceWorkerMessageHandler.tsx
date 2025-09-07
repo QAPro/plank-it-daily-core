@@ -15,6 +15,14 @@ export const ServiceWorkerMessageHandler = () => {
       switch (type) {
         case 'NAVIGATE':
           console.log('[App] Navigating to:', url);
+          
+          // Handle deep link parameters for workout starting
+          if (url.includes('exercise-id') || url.includes('quick-start')) {
+            // For workout deep links, navigate to root with parameters
+            window.location.href = url;
+            return;
+          }
+          
           // Extract tab from URL and navigate
           if (url.includes('?tab=')) {
             const urlParams = new URLSearchParams(url.split('?')[1]);

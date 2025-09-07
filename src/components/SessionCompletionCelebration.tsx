@@ -14,6 +14,7 @@ import CelebrationStats from "@/components/celebration/CelebrationStats";
 import SocialShareButtons from "@/components/celebration/SocialShareButtons";
 import CelebrationActions from "@/components/celebration/CelebrationActions";
 import { SocialSharingService } from "@/services/socialSharingService";
+import InAppPostDialog from "@/components/social/InAppPostDialog";
 
 type Exercise = Tables<'plank_exercises'>;
 
@@ -53,6 +54,7 @@ const SessionCompletionCelebration = ({
   const [animationPhase, setAnimationPhase] = useState<'initial' | 'stats' | 'achievements' | 'social'>('initial');
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const [showAchievements, setShowAchievements] = useState(false);
+  const [showInAppPost, setShowInAppPost] = useState(false);
   const { toast } = useToast();
 
   const completionPercentage = Math.min((timeElapsed / duration) * 100, 100);
@@ -171,7 +173,8 @@ const SessionCompletionCelebration = ({
     duration: timeElapsed,
     achievement: newAchievements[0]?.achievement_name,
     personalBest: isPersonalBest,
-    streakDays
+    streakDays,
+    isFullCompletion
   };
 
   return (
@@ -383,10 +386,23 @@ const SessionCompletionCelebration = ({
                   </p>
                 </motion.div>
 
-                {/* Social Sharing */}
+                {/* Social Sharing - In-App First */}
                 <AnimatePresence>
                   {animationPhase === 'social' && (
-                    <SocialShareButtons shareData={shareData} />
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mb-4"
+                    >
+                      <Button
+                        onClick={() => setShowInAppPost(true)}
+                        className="w-full bg-white/20 hover:bg-white/30 text-white border border-white/30 mb-3"
+                        size="lg"
+                      >
+                        📢 Share your achievement!
+                      </Button>
+                      <SocialShareButtons shareData={shareData} />
+                    </motion.div>
                   )}
                 </AnimatePresence>
 
@@ -399,6 +415,13 @@ const SessionCompletionCelebration = ({
               </CardContent>
             </Card>
           </motion.div>
+
+          {/* In-App Post Dialog */}
+          <InAppPostDialog
+            isOpen={showInAppPost}
+            onClose={() => setShowInAppPost(false)}
+            shareData={shareData}
+          />
         </motion.div>
       )}
     </AnimatePresence>

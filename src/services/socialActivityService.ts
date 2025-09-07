@@ -24,6 +24,8 @@ export interface ActivityData {
   duration?: number;
   difficulty_level?: number;
   calories_burned?: number;
+  custom_message?: string;
+  post_type?: string;
   
   // Achievement activity
   achievement_name?: string;
@@ -81,10 +83,12 @@ export interface ActivityFilters {
 export class SocialActivityManager {
   async createWorkoutActivity(userId: string, sessionData: any): Promise<void> {
     const activityData: ActivityData = {
-      exercise_name: sessionData.exercise_name || 'Workout',
-      duration: sessionData.duration_seconds || 30,
+      exercise_name: sessionData.exercise_name || sessionData.exercise || 'Workout',
+      duration: sessionData.duration_seconds || sessionData.duration || 30,
       difficulty_level: sessionData.difficulty_level || 1,
-      calories_burned: this.calculateCalories(sessionData)
+      calories_burned: this.calculateCalories(sessionData),
+      custom_message: sessionData.customMessage,
+      post_type: sessionData.postType || 'auto_generated'
     };
     
     await this.createActivity(userId, 'workout', activityData);

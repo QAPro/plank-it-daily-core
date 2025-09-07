@@ -2,7 +2,9 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Users, UserPlus, Activity, Settings, TrendingUp, Trophy } from 'lucide-react';
+import { useFeatureAccess } from '@/hooks/useFeatureAccess';
 import FriendsList from '../friends/FriendsList';
 import FriendSearch from '../friends/FriendSearch';
 import FriendActivityFeed from '../friends/FriendActivityFeed';
@@ -13,6 +15,7 @@ import ChallengeList from '../challenges/ChallengeList';
 
 const FriendsTab = () => {
   const [activeTab, setActiveTab] = useState('activity');
+  const { hasAccess } = useFeatureAccess();
 
   return (
     <div className="container mx-auto p-4 max-w-6xl">
@@ -27,13 +30,19 @@ const FriendsTab = () => {
             <Activity className="w-4 h-4" />
             <span className="hidden sm:inline">Activity</span>
           </TabsTrigger>
-          <TabsTrigger value="challenges" className="flex items-center gap-2">
+          <TabsTrigger value="challenges" className="flex items-center gap-2 relative">
             <Trophy className="w-4 h-4" />
             <span className="hidden sm:inline">Challenges</span>
+            {!hasAccess('social_challenges') && (
+              <Badge variant="secondary" className="ml-1 text-[10px] px-1 py-0">PRO</Badge>
+            )}
           </TabsTrigger>
-          <TabsTrigger value="insights" className="flex items-center gap-2">
+          <TabsTrigger value="insights" className="flex items-center gap-2 relative">
             <TrendingUp className="w-4 h-4" />
             <span className="hidden sm:inline">Insights</span>
+            {!hasAccess('social_challenges') && (
+              <Badge variant="secondary" className="ml-1 text-[10px] px-1 py-0">PRO</Badge>
+            )}
           </TabsTrigger>
           <TabsTrigger value="friends" className="flex items-center gap-2">
             <Users className="w-4 h-4" />
@@ -62,11 +71,37 @@ const FriendsTab = () => {
         </TabsContent>
 
         <TabsContent value="challenges" className="mt-6">
-          <ChallengeList />
+          {hasAccess('social_challenges') ? (
+            <ChallengeList />
+          ) : (
+            <Card>
+              <CardContent className="p-8 text-center">
+                <Trophy className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-xl font-semibold mb-2">Premium Feature</h3>
+                <p className="text-muted-foreground mb-4">
+                  Unlock challenges and compete with friends with a Premium subscription.
+                </p>
+                <Badge variant="secondary">Premium Only</Badge>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="insights" className="mt-6">
-          <SocialInsightsDashboard />
+          {hasAccess('social_challenges') ? (
+            <SocialInsightsDashboard />
+          ) : (
+            <Card>
+              <CardContent className="p-8 text-center">
+                <TrendingUp className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-xl font-semibold mb-2">Premium Feature</h3>
+                <p className="text-muted-foreground mb-4">
+                  Get detailed social insights and analytics with a Premium subscription.
+                </p>
+                <Badge variant="secondary">Premium Only</Badge>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="friends" className="mt-6">

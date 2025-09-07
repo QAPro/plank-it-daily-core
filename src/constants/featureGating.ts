@@ -27,7 +27,13 @@ export type FeatureName =
   | 'analytics_dashboard'
   | 'detailed_performance_tracking'
   | 'goal_tracking'
-  | 'ai_recommendations';
+  | 'ai_recommendations'
+  | 'friend_system'
+  | 'activity_feed'
+  | 'basic_social_sharing'
+  | 'workout_posting'
+  | 'league_sharing'
+  | 'competition_graphics';
 
 export const FEATURE_REQUIREMENTS: Record<FeatureName, SubscriptionTier> = {
   advanced_stats: 'premium',
@@ -39,6 +45,12 @@ export const FEATURE_REQUIREMENTS: Record<FeatureName, SubscriptionTier> = {
   detailed_performance_tracking: 'premium',
   goal_tracking: 'premium',
   ai_recommendations: 'premium',
+  friend_system: 'free',
+  activity_feed: 'free',  
+  basic_social_sharing: 'free',
+  workout_posting: 'free',
+  league_sharing: 'premium',
+  competition_graphics: 'premium',
 };
 
 // AI-related features that should be disabled when AI is off
@@ -52,4 +64,10 @@ export const AI_FEATURES: FeatureName[] = [
 // Social-related features that should be disabled when social is off
 export const SOCIAL_FEATURES: FeatureName[] = [
   'social_challenges',
+  'friend_system',
+  'activity_feed',
+  'basic_social_sharing',
+  'workout_posting',
+  'league_sharing',
+  'competition_graphics',
 ];

@@ -1,12 +1,14 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Camera, Music, BookOpen, TrendingUp, Users, Heart } from 'lucide-react';
+import { Camera, Music, BookOpen, TrendingUp, Users, Heart, BarChart3 } from 'lucide-react';
 import VictoryGallery from './VictoryGallery';
 import VictoryPlaylistManager from './VictoryPlaylistManager';
 import VictoryChronicles from './VictoryChronicles';
 import VictoryPartnershipsManager from './VictoryPartnershipsManager';
 import SuccessCircle from './SuccessCircle';
+import InvestmentROIDashboard from './InvestmentROIDashboard';
+import InvestmentTimeline from './InvestmentTimeline';
 import { motion } from 'framer-motion';
 
 const InvestmentDashboard: React.FC = () => {
@@ -26,7 +28,7 @@ const InvestmentDashboard: React.FC = () => {
       </div>
 
       {/* Investment Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -106,11 +108,31 @@ const InvestmentDashboard: React.FC = () => {
             </CardContent>
           </Card>
         </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+        >
+          <Card className="text-center">
+            <CardContent className="p-6">
+              <BarChart3 className="w-12 h-12 mx-auto text-primary mb-4" />
+              <h3 className="font-semibold text-lg mb-2">ROI Analytics</h3>
+              <p className="text-sm text-muted-foreground">
+                Track your fitness investment returns and growth
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
 
       {/* Main Content Tabs */}
-      <Tabs defaultValue="gallery" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+      <Tabs defaultValue="analytics" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="analytics" className="flex items-center">
+            <BarChart3 className="w-4 h-4 mr-2" />
+            ROI Analytics
+          </TabsTrigger>
           <TabsTrigger value="gallery" className="flex items-center">
             <Camera className="w-4 h-4 mr-2" />
             Victory Gallery
@@ -132,6 +154,13 @@ const InvestmentDashboard: React.FC = () => {
             Success Circle
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="analytics">
+          <div className="space-y-6">
+            <InvestmentROIDashboard />
+            <InvestmentTimeline />
+          </div>
+        </TabsContent>
 
         <TabsContent value="gallery">
           <VictoryGallery />

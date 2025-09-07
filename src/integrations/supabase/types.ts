@@ -2367,9 +2367,11 @@ export type Database = {
           last_duration: number | null
           last_exercise_id: string | null
           last_workout_timestamp: string | null
+          music_auto_start: string | null
           music_volume: number | null
           notification_frequency: string | null
           notification_types: Json | null
+          preferred_music_genre: string | null
           preferred_workout_duration: number | null
           progression_sensitivity: number | null
           push_notifications_enabled: boolean | null
@@ -2402,9 +2404,11 @@ export type Database = {
           last_duration?: number | null
           last_exercise_id?: string | null
           last_workout_timestamp?: string | null
+          music_auto_start?: string | null
           music_volume?: number | null
           notification_frequency?: string | null
           notification_types?: Json | null
+          preferred_music_genre?: string | null
           preferred_workout_duration?: number | null
           progression_sensitivity?: number | null
           push_notifications_enabled?: boolean | null
@@ -2437,9 +2441,11 @@ export type Database = {
           last_duration?: number | null
           last_exercise_id?: string | null
           last_workout_timestamp?: string | null
+          music_auto_start?: string | null
           music_volume?: number | null
           notification_frequency?: string | null
           notification_types?: Json | null
+          preferred_music_genre?: string | null
           preferred_workout_duration?: number | null
           progression_sensitivity?: number | null
           push_notifications_enabled?: boolean | null

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { VapidKeyDebugger } from '@/components/debug/VapidKeyDebugger';
+import { VapidKeySecretManager } from '@/components/VapidKeySecretManager';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, Key, X, Wrench, Send, RefreshCw } from 'lucide-react';
+import { AlertTriangle, Key, X, Wrench, Send, RefreshCw, CheckCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
@@ -28,6 +29,7 @@ export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => 
   const [isSending, setIsSending] = useState(false);
   const [lastTestResult, setLastTestResult] = useState<any>(null);
   const [connectivityTest, setConnectivityTest] = useState<any>(null);
+  const [serverValidation, setServerValidation] = useState<any>(null);
 
   const handleClose = () => {
     if (onClose) {
@@ -163,6 +165,45 @@ export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => 
       setIsSending(false);
     }
   };
+
+  const handleValidateServerKeys = async () => {
+    try {
+      setServerValidation({ status: 'testing', timestamp: new Date().toISOString() });
+      
+      const { data, error } = await supabase.functions.invoke('validate-vapid-keys');
+      
+      if (error) {
+        setServerValidation({ 
+          status: 'failed', 
+          error: `Validation failed: ${error.message}`,
+          timestamp: new Date().toISOString()
+        });
+        toast.error('Validation failed', { description: error.message });
+        return;
+      }
+      
+      setServerValidation({ 
+        status: 'completed', 
+        data,
+        timestamp: new Date().toISOString()
+      });
+      
+      if (data.isValid) {
+        toast.success('Server keys valid', { description: 'VAPID keys are correctly configured.' });
+      } else {
+        toast.error('Server keys invalid', { 
+          description: data.recommendations?.slice(0, 2).join('; ') || 'Keys need fixing.' 
+        });
+      }
+    } catch (e: any) {
+      setServerValidation({ 
+        status: 'failed', 
+        error: `Network error: ${e?.message ?? String(e)}`,
+        timestamp: new Date().toISOString()
+      });
+      toast.error('Validation error', { description: e?.message ?? String(e) });
+    }
+  };
   return (
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-4xl max-h-[90vh] flex flex-col">
@@ -218,6 +259,14 @@ export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => 
                 <Send className="h-4 w-4 mr-2" />
                 {isSending ? 'Sending…' : 'Send Test Notification'}
               </Button>
+              <Button 
+                onClick={handleValidateServerKeys} 
+                variant="outline" 
+                disabled={serverValidation?.status === 'testing'}
+              >
+                <CheckCircle className="h-4 w-4 mr-2" />
+                {serverValidation?.status === 'testing' ? 'Validating…' : 'Validate Server Keys'}
+              </Button>
             </div>
 
             {!user?.id && (
@@ -262,20 +311,20 @@ export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => 
                       Use the "Repair Subscription" button above to refresh your push subscription, then retry.
                     </p>
                   </div>
-                ) : (
-                  <div className="space-y-1">
-                    <p>Sent: {lastTestResult.successCount || 0} / {lastTestResult.totalAttempts || 0}</p>
-                    {lastTestResult.results && lastTestResult.results.length > 0 && (
-                      <div className="text-xs space-y-1">
-                        {lastTestResult.results.slice(0, 3).map((result: any, i: number) => (
-                          <p key={i} className={result.success ? 'text-green-600' : 'text-red-600'}>
-                            {result.success ? '✓' : '✗'} {result.subscription_id?.slice(0, 8)}...
-                            {result.error && ` - ${result.error}`}
-                          </p>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                 ) : (
+                   <div className="space-y-1">
+                     <p>Sent: {lastTestResult.successCount || 0} / {(lastTestResult.results?.length || lastTestResult.totalAttempts) || 0}</p>
+                     {lastTestResult.results && lastTestResult.results.length > 0 && (
+                       <div className="text-xs space-y-1">
+                         {lastTestResult.results.slice(0, 3).map((result: any, i: number) => (
+                           <p key={i} className={result.success ? 'text-green-600' : 'text-red-600'}>
+                             {result.success ? '✓' : '✗'} {result.subscription_id?.slice(0, 8)}...
+                             {result.error && ` - ${result.error}`}
+                           </p>
+                         ))}
+                       </div>
+                     )}
+                   </div>
                 )}
                 <p className="text-xs text-muted-foreground mt-2">
                   {new Date(lastTestResult.timestamp || Date.now()).toLocaleTimeString()}
@@ -304,6 +353,44 @@ export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => 
                 )}
               </div>
             )}
+
+            {serverValidation && (
+              <div className="rounded-md border p-3 text-sm">
+                <p className="font-medium mb-2">Server VAPID Key Validation:</p>
+                {serverValidation.status === 'testing' ? (
+                  <p className="text-blue-600">Validating server keys...</p>
+                ) : serverValidation.status === 'failed' ? (
+                  <p className="text-destructive">❌ {serverValidation.error}</p>
+                ) : serverValidation.data ? (
+                  <div className="space-y-2">
+                    <p className={serverValidation.data.isValid ? 'text-green-600' : 'text-destructive'}>
+                      {serverValidation.data.isValid ? '✅ Keys are valid' : '❌ Keys are invalid'}
+                    </p>
+                    {serverValidation.data.recommendations?.length > 0 && (
+                      <div className="text-xs space-y-1">
+                        {serverValidation.data.recommendations.map((rec: string, i: number) => (
+                          <p key={i} className="text-muted-foreground">• {rec}</p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground">No validation data</p>
+                )}
+                <p className="text-xs text-muted-foreground mt-2">
+                  {new Date(serverValidation.timestamp).toLocaleTimeString()}
+                </p>
+              </div>
+            )}
+            
+            <VapidKeySecretManager onKeysUpdated={() => {
+              // Clear previous results when keys are updated
+              setServerValidation(null);
+              setLastTestResult(null);
+              setTestResult(null);
+              setValidation(null);
+              setPublicKey(null);
+            }} />
             
             <VapidKeyDebugger />
           </CardContent>

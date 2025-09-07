@@ -3,8 +3,10 @@ import { motion } from "framer-motion";
 import StatsDashboard from "@/components/StatsDashboard";
 import SessionHistory from "@/components/SessionHistory";
 import AdvancedAnalyticsDashboard from "@/components/analytics/AdvancedAnalyticsDashboard";
+import PersonalSatisfactionDashboard from "@/components/analytics/PersonalSatisfactionDashboard";
 import FeatureGuard from "@/components/access/FeatureGuard";
 import AIFeatureGuard from "@/components/access/AIFeatureGuard";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Crown, TrendingUp } from "lucide-react";
@@ -55,39 +57,59 @@ const StatsTab = () => {
       {/* Header */}
       <div className="text-center pt-4">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Your Progress</h2>
-        <p className="text-gray-600">Track your plank journey</p>
+        <p className="text-gray-600">Track your plank journey and transformation</p>
       </div>
 
-      {/* Basic Statistics Dashboard */}
-      <StatsDashboard />
+      {/* Statistics Tabs */}
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="progress">Progress</TabsTrigger>
+          <TabsTrigger value="history">History</TabsTrigger>
+        </TabsList>
 
-      {/* Advanced Analytics - Premium Feature (Only show if AI is enabled) */}
-      <AIFeatureGuard>
-        <FeatureGuard 
-          feature="advanced_stats"
-          fallback={
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
+        <TabsContent value="overview" className="space-y-6">
+          {/* Basic Statistics Dashboard */}
+          <StatsDashboard />
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-6">
+          {/* Advanced Analytics - Premium Feature (Only show if AI is enabled) */}
+          <AIFeatureGuard>
+            <FeatureGuard 
+              feature="advanced_stats"
+              fallback={
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3, duration: 0.5 }}
+                >
+                  <PremiumUpgradePrompt />
+                </motion.div>
+              }
             >
-              <PremiumUpgradePrompt />
-            </motion.div>
-          }
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-            className="border-t pt-6"
-          >
-            <AdvancedAnalyticsDashboard />
-          </motion.div>
-        </FeatureGuard>
-      </AIFeatureGuard>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+              >
+                <AdvancedAnalyticsDashboard />
+              </motion.div>
+            </FeatureGuard>
+          </AIFeatureGuard>
+        </TabsContent>
 
-      {/* Session History */}
-      <SessionHistory />
+        <TabsContent value="progress" className="space-y-6">
+          {/* Personal Satisfaction Dashboard - Phase 4 */}
+          <PersonalSatisfactionDashboard />
+        </TabsContent>
+
+        <TabsContent value="history" className="space-y-6">
+          {/* Session History */}
+          <SessionHistory />
+        </TabsContent>
+      </Tabs>
     </motion.div>
   );
 };

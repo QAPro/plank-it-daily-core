@@ -158,36 +158,26 @@ export class SocialActivityManager {
         console.log('Privacy settings not available yet, using default visibility');
       }
       
-      // Use edge function invoke instead of RPC
-      const { error } = await supabase.functions.invoke('create_friend_activity', {
-        body: {
-          p_user_id: userId,
-          p_activity_type: type,
-          p_activity_data: data,
-          p_visibility: visibility
-        }
-      });
+      // Use direct database insert now that tables exist
+      const { error } = await supabase
+        .from('friend_activities')
+        .insert({
+          user_id: userId,
+          activity_type: type,
+          activity_data: data as any, // Cast to satisfy JSON type requirements
+          visibility: visibility
+        });
 
       if (error) {
-        console.error('Error creating activity via edge function:', error);
-        // Fallback: try direct insert with proper type casting
-        try {
-          const { error: insertError } = await (supabase as any)
-            .from('friend_activities')
-            .insert({
-              user_id: userId,
-              activity_type: type,
-              activity_data: data,
-              visibility: visibility
-            });
-          
-          if (insertError) {
-            console.error('Error creating activity via direct insert:', insertError);
-          }
-        } catch (fallbackError) {
-          console.error('Fallback insert also failed:', fallbackError);
-        }
+        console.error('Error creating activity:', error);
+        throw error;
       }
+
+      console.log('[SocialActivityManager] Activity created successfully:', {
+        user_id: userId,
+        activity_type: type,
+        visibility
+      });
     } catch (error) {
       console.error('Error creating activity:', error);
     }

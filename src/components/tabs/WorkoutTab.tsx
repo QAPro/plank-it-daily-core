@@ -260,7 +260,7 @@ const WorkoutTab = () => {
           </motion.div>
 
           {/* Quick Start Section */}
-          {quickStartData && (
+          {quickStartData && !quickStartLoading && (
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
+import { EnhancedNotificationPreferences } from "@/components/notifications/EnhancedNotificationPreferences";
 
 const PreferencesSettings = () => {
   const { preferences, loading, updatePreferences } = useUserPreferences();
@@ -139,6 +140,15 @@ const PreferencesSettings = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Enhanced Notification Preferences */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.3 }}
+      >
+        <EnhancedNotificationPreferences />
+      </motion.div>
     </motion.div>
   );
 };

@@ -2186,6 +2186,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_notification_schedules: {
+        Row: {
+          created_at: string | null
+          enabled: boolean
+          id: string
+          send_time: string
+          slot: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          enabled?: boolean
+          id?: string
+          send_time?: string
+          slot: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          enabled?: boolean
+          id?: string
+          send_time?: string
+          slot?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_notification_variant_assignments: {
         Row: {
           assigned_at: string

@@ -110,25 +110,25 @@ export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => 
         };
       }
       
-      // 2. Auth health check
+      // 2. Auth (SDK) connectivity check
       try {
-        const authUrl = 'https://kgwmplptoctmoaefnpfg.supabase.co/auth/v1/health';
-        const authResponse = await fetch(authUrl);
-        if (authResponse.ok) {
-          results.authHealth = { 
-            status: 'success', 
-            message: `Auth service OK (${authResponse.status})` 
+        const { data, error } = await supabase.auth.getSession();
+        if (error) {
+          results.authHealth = {
+            status: 'failed',
+            error: `Auth SDK error: ${error.message}`
           };
         } else {
-          results.authHealth = { 
-            status: 'failed', 
-            error: `Auth service error: ${authResponse.status} ${authResponse.statusText}` 
+          const email = data.session?.user?.email;
+          results.authHealth = {
+            status: 'success',
+            message: email ? `SDK reachable (session for ${email})` : 'SDK reachable (no active session)'
           };
         }
       } catch (e: any) {
-        results.authHealth = { 
-          status: 'failed', 
-          error: `Auth network error: ${e?.message ?? String(e)}` 
+        results.authHealth = {
+          status: 'failed',
+          error: `Auth SDK network error: ${e?.message ?? String(e)}`
         };
       }
       
@@ -424,7 +424,7 @@ export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => 
                         {connectivityTest.results.edgeFunction?.status === 'success' ? '✅' : '❌'} Edge Function: {connectivityTest.results.edgeFunction?.message || connectivityTest.results.edgeFunction?.error}
                       </p>
                       <p className={connectivityTest.results.authHealth?.status === 'success' ? 'text-green-600' : 'text-destructive'}>
-                        {connectivityTest.results.authHealth?.status === 'success' ? '✅' : '❌'} Auth Health: {connectivityTest.results.authHealth?.message || connectivityTest.results.authHealth?.error}
+                        {connectivityTest.results.authHealth?.status === 'success' ? '✅' : '❌'} Auth (SDK): {connectivityTest.results.authHealth?.message || connectivityTest.results.authHealth?.error}
                       </p>
                       <p className={connectivityTest.results.restCheck?.status === 'success' ? 'text-green-600' : 'text-destructive'}>
                         {connectivityTest.results.restCheck?.status === 'success' ? '✅' : '❌'} REST API: {connectivityTest.results.restCheck?.message || connectivityTest.results.restCheck?.error}

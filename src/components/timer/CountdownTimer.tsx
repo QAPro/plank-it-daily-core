@@ -17,6 +17,7 @@ interface CountdownTimerProps {
   selectedExercise: any;
   onBack: () => void;
   onExerciseChange: (exercise: any) => void;
+  quickStartDuration?: number;
 }
 
 const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange }: CountdownTimerProps) => {
@@ -69,12 +70,15 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange }: Countdow
     onPlayCountdownSound: countdownSoundsEnabled ? playCountdownSound : undefined,
   });
 
-  // Sync selectedExercise prop with hook's internal state
+  // If quickStartDuration is provided, bypass setup and auto-start
   useEffect(() => {
-    if (selectedExercise) {
-      selectExercise(selectedExercise);
+    if (typeof window !== 'undefined' && typeof quickStartDuration === 'number' && quickStartDuration > 0) {
+      setTimerDuration(quickStartDuration);
+      setShowSetup(false);
+      // Slight delay to ensure state updates before start
+      setTimeout(() => handleStart(), 50);
     }
-  }, [selectedExercise, selectExercise]);
+  }, [quickStartDuration, setTimerDuration, handleStart]);
 
   // Show celebration when session completes
   useEffect(() => {

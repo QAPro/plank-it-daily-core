@@ -8,9 +8,10 @@ interface PlankTimerProps {
   selectedExercise: any;
   onExerciseChange: (exercise: any) => void;
   onBack?: () => void;
+  quickStartDuration?: number;
 }
 
-const PlankTimer = ({ selectedExercise, onExerciseChange, onBack }: PlankTimerProps) => {
+const PlankTimer = ({ selectedExercise, onExerciseChange, onBack, quickStartDuration }: PlankTimerProps) => {
   const {
     exercises,
     isLoadingExercises,
@@ -81,6 +82,7 @@ const PlankTimer = ({ selectedExercise, onExerciseChange, onBack }: PlankTimerPr
       selectedExercise={currentExercise}
       onBack={handleBack}
       onExerciseChange={onExerciseChange}
+      quickStartDuration={quickStartDuration}
     />
   );
 };

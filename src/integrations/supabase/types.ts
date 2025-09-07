@@ -2364,6 +2364,9 @@ export type Database = {
           form_reminders: boolean | null
           haptic_feedback: boolean | null
           id: string
+          last_duration: number | null
+          last_exercise_id: string | null
+          last_workout_timestamp: string | null
           music_volume: number | null
           notification_frequency: string | null
           notification_types: Json | null
@@ -2396,6 +2399,9 @@ export type Database = {
           form_reminders?: boolean | null
           haptic_feedback?: boolean | null
           id?: string
+          last_duration?: number | null
+          last_exercise_id?: string | null
+          last_workout_timestamp?: string | null
           music_volume?: number | null
           notification_frequency?: string | null
           notification_types?: Json | null
@@ -2428,6 +2434,9 @@ export type Database = {
           form_reminders?: boolean | null
           haptic_feedback?: boolean | null
           id?: string
+          last_duration?: number | null
+          last_exercise_id?: string | null
+          last_workout_timestamp?: string | null
           music_volume?: number | null
           notification_frequency?: string | null
           notification_types?: Json | null

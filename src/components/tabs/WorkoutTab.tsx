@@ -18,6 +18,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { Tables } from "@/integrations/supabase/types";
 import FeatureGuard from "@/components/access/FeatureGuard";
 import CustomWorkoutManager from "@/components/custom-workouts/CustomWorkoutManager";
+import { useQuickStart } from '@/hooks/useQuickStart';
+import { QuickStartButton } from '@/components/QuickStartButton';
 
 type Exercise = Tables<'plank_exercises'>;
 
@@ -27,6 +29,7 @@ const WorkoutTab = () => {
   const [selectedDetailsExercise, setSelectedDetailsExercise] = useState<Exercise | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [isCompactView, setIsCompactView] = useState(false);
+  const quickStartDurationRef = React.useRef<number | null>(null);
   const [filters, setFilters] = useState<FilterState>({
     search: '',
     difficulty: [],
@@ -44,6 +47,7 @@ const WorkoutTab = () => {
   const { data: exercises, isLoading: exercisesLoading } = useExercises();
   const { recommendations, isLoading: recommendationsLoading, generateRecommendations, isGenerating } = useExerciseRecommendations();
   const { preferences, updatePreferences } = useUserPreferences();
+  const { quickStartData, isLoading: quickStartLoading } = useQuickStart();
 
   const recommendedExerciseIds = useMemo(() => {
     if (!recommendations) return new Set<string>();
@@ -124,8 +128,13 @@ const WorkoutTab = () => {
       .filter(Boolean);
   }, [recommendations, exercises]);
 
-  const handleExerciseSelect = (exercise: Exercise) => {
+  const handleExerciseSelect = (exercise: Exercise, opts?: { quickStartDuration?: number }) => {
     setSelectedExercise(exercise);
+    if (opts?.quickStartDuration) {
+      quickStartDurationRef.current = opts.quickStartDuration;
+    } else {
+      quickStartDurationRef.current = null;
+    }
     setShowTimer(true);
   };
 
@@ -148,6 +157,7 @@ const WorkoutTab = () => {
   const handleBackToList = () => {
     setShowTimer(false);
     setSelectedExercise(null);
+    quickStartDurationRef.current = null;
   };
 
   const handleRefreshRecommendations = () => {
@@ -206,6 +216,7 @@ const WorkoutTab = () => {
           selectedExercise={selectedExercise}
           onExerciseChange={setSelectedExercise}
           onBack={handleBackToList}
+          quickStartDuration={quickStartDurationRef.current || undefined}
         />
       </div>
     );
@@ -248,72 +259,21 @@ const WorkoutTab = () => {
             </p>
           </motion.div>
 
-          {/* Top Recommendations */}
-          {topRecommendedExercises.length > 0 && (
+          {/* Quick Start Section */}
+          {quickStartData && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-              className="mb-8"
+              transition={{ duration: 0.3 }}
+              className="mb-6"
             >
-              <Card className="bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Sparkles className="w-5 h-5 mr-2 text-orange-500" />
-                    Recommended for You
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-4">
-                    {topRecommendedExercises.map((item, index) => {
-                      if (!item) return null;
-                      const { recommendation, ...exercise } = item;
-                      return (
-                        <motion.div
-                          key={exercise.id}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.1 * index, duration: 0.3 }}
-                          className="flex items-center justify-between p-4 bg-white rounded-lg border border-orange-100 hover:border-orange-300 transition-all cursor-pointer group"
-                          onClick={() => handleExerciseSelect(exercise as any)}
-                        >
-                          <div className="flex items-center space-x-4 flex-1">
-                            <div className="w-12 h-12 rounded-lg bg-orange-500 flex items-center justify-center">
-                              <Play className="w-6 h-6 text-white" />
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-2 mb-1">
-                                <h4 className="font-semibold text-gray-800">{(exercise as any).name}</h4>
-                                <Badge variant="outline">
-                                  Level {(exercise as any).difficulty_level}
-                                </Badge>
-                                <Badge className="bg-orange-100 text-orange-800">
-                                  {Math.round((recommendation as any).confidence_score * 100)}% match
-                                </Badge>
-                              </div>
-                              <p className="text-sm text-gray-600 mb-1">{(exercise as any).description}</p>
-                              <p className="text-xs text-orange-600 font-medium">
-                                {(recommendation as any).reasoning}
-                              </p>
-                            </div>
-                          </div>
-                          <Button 
-                            size="sm"
-                            className="bg-orange-500 hover:bg-orange-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleExerciseSelect(exercise as any);
-                            }}
-                          >
-                            <Play className="w-4 h-4 mr-1" />
-                            Start
-                          </Button>
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
+              <QuickStartButton
+                quickStartData={quickStartData}
+                onQuickStart={() => {
+                  const ex = exercises?.find(e => e.id === quickStartData.exerciseId);
+                  if (ex) handleExerciseSelect(ex as any, { quickStartDuration: quickStartData.duration });
+                }}
+              />
             </motion.div>
           )}
 

@@ -83,42 +83,148 @@ export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => 
     try {
       setConnectivityTest({ status: 'testing', timestamp: new Date().toISOString() });
       
-      // Test basic connectivity to Supabase
-      const { data, error } = await supabase.from('user_preferences').select('id').limit(1);
+      const results: any = {
+        edgeFunction: { status: 'pending' },
+        authHealth: { status: 'pending' },
+        restCheck: { status: 'pending' }
+      };
       
-      if (error) {
-        setConnectivityTest({ 
+      // 1. Edge Function ping (get-vapid-public-key)
+      try {
+        const vapidResponse = await supabase.functions.invoke('get-vapid-public-key');
+        if (vapidResponse.error) {
+          results.edgeFunction = { 
+            status: 'failed', 
+            error: `Edge function error: ${vapidResponse.error.message}` 
+          };
+        } else {
+          results.edgeFunction = { 
+            status: 'success', 
+            message: 'Edge function reachable' 
+          };
+        }
+      } catch (e: any) {
+        results.edgeFunction = { 
           status: 'failed', 
-          error: `Database connectivity failed: ${error.message}`,
-          timestamp: new Date().toISOString()
-        });
-        return;
+          error: `Network error: ${e?.message ?? String(e)}` 
+        };
       }
       
-      // Test VAPID key endpoint
-      const vapidResponse = await supabase.functions.invoke('get-vapid-public-key');
-      if (vapidResponse.error) {
-        setConnectivityTest({ 
+      // 2. Auth health check
+      try {
+        const authUrl = 'https://kgwmplptoctmoaefnpfg.supabase.co/auth/v1/health';
+        const authResponse = await fetch(authUrl);
+        if (authResponse.ok) {
+          results.authHealth = { 
+            status: 'success', 
+            message: `Auth service OK (${authResponse.status})` 
+          };
+        } else {
+          results.authHealth = { 
+            status: 'failed', 
+            error: `Auth service error: ${authResponse.status} ${authResponse.statusText}` 
+          };
+        }
+      } catch (e: any) {
+        results.authHealth = { 
           status: 'failed', 
-          error: `VAPID endpoint failed: ${vapidResponse.error.message}`,
-          timestamp: new Date().toISOString()
-        });
-        return;
+          error: `Auth network error: ${e?.message ?? String(e)}` 
+        };
       }
+      
+      // 3. REST check with direct fetch
+      try {
+        const restUrl = 'https://kgwmplptoctmoaefnpfg.supabase.co/rest/v1/user_preferences?select=id&limit=1';
+        const restResponse = await fetch(restUrl, {
+          headers: {
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtnd21wbHB0b2N0bW9hZWZucGZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIwODgyMjMsImV4cCI6MjA2NzY2NDIyM30.vlPPhkFrPL-pEM974VB9h4KC9XebvmvWQa80Cl6Uidw',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtnd21wbHB0b2N0bW9hZWZucGZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIwODgyMjMsImV4cCI6MjA2NzY2NDIyM30.vlPPhkFrPL-pEM974VB9h4KC9XebvmvWQa80Cl6Uidw'
+          }
+        });
+        
+        if (restResponse.ok) {
+          results.restCheck = { 
+            status: 'success', 
+            message: `REST API reachable (${restResponse.status})` 
+          };
+        } else if (restResponse.status === 401 || restResponse.status === 403) {
+          results.restCheck = { 
+            status: 'success', 
+            message: `REST API reachable (${restResponse.status} - RLS/permissions blocked, not connectivity)` 
+          };
+        } else {
+          results.restCheck = { 
+            status: 'failed', 
+            error: `REST API error: ${restResponse.status} ${restResponse.statusText}` 
+          };
+        }
+      } catch (e: any) {
+        results.restCheck = { 
+          status: 'failed', 
+          error: `REST network error: ${e?.message ?? String(e)}` 
+        };
+      }
+      
+      // Generate diagnostics for console
+      const diagnostics = {
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        protocol: window.location.protocol,
+        host: window.location.host,
+        results
+      };
+      
+      console.log('VAPID Connectivity Diagnostics:', diagnostics);
+      
+      // Determine overall status
+      const allPassed = Object.values(results).every((r: any) => r.status === 'success');
+      const anyNetworkError = Object.values(results).some((r: any) => 
+        r.error && (r.error.includes('Network error') || r.error.includes('TypeError') || r.error.includes('Failed to fetch'))
+      );
       
       setConnectivityTest({ 
-        status: 'success', 
-        message: 'All connectivity tests passed',
+        status: allPassed ? 'success' : (anyNetworkError ? 'network-error' : 'partial'),
+        results,
+        diagnostics,
         timestamp: new Date().toISOString()
       });
-      toast.success('Connectivity OK', { description: 'All endpoints are reachable.' });
+      
+      if (allPassed) {
+        toast.success('Connectivity OK', { description: 'All three checks passed.' });
+      } else if (anyNetworkError) {
+        toast.error('Network connectivity issue', { 
+          description: 'Browser cannot reach Supabase. Check console for details.' 
+        });
+      } else {
+        toast.warning('Partial connectivity', { 
+          description: 'Some endpoints reachable. Check details below.' 
+        });
+      }
     } catch (e: any) {
+      const diagnostics = {
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        protocol: window.location.protocol,
+        host: window.location.host,
+        globalError: e?.message ?? String(e)
+      };
+      
+      console.log('VAPID Connectivity Diagnostics (Global Error):', diagnostics);
+      
       setConnectivityTest({ 
         status: 'failed', 
-        error: `Network error: ${e?.message ?? String(e)}`,
+        error: `Global network error: ${e?.message ?? String(e)}`,
+        diagnostics,
         timestamp: new Date().toISOString()
       });
       toast.error('Connectivity failed', { description: e?.message ?? String(e) });
+    }
+  };
+
+  const copyDiagnostics = () => {
+    if (connectivityTest?.diagnostics) {
+      navigator.clipboard.writeText(JSON.stringify(connectivityTest.diagnostics, null, 2));
+      toast.success('Diagnostics copied', { description: 'Paste in chat for troubleshooting.' });
     }
   };
 
@@ -288,9 +394,22 @@ export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => 
 
             {connectivityTest && (
               <div className="rounded-md border p-3 text-sm">
-                <p className="font-medium mb-2">Connectivity Test:</p>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="font-medium">Connectivity Test:</p>
+                  {connectivityTest.diagnostics && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={copyDiagnostics}
+                      className="h-6 text-xs"
+                    >
+                      Copy Diagnostics
+                    </Button>
+                  )}
+                </div>
+                
                 {connectivityTest.status === 'testing' ? (
-                  <p className="text-blue-600">Testing connection...</p>
+                  <p className="text-blue-600">Testing three connectivity endpoints...</p>
                 ) : connectivityTest.status === 'failed' ? (
                   <div className="space-y-2">
                     <p className="text-destructive">❌ {connectivityTest.error}</p>
@@ -298,9 +417,36 @@ export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => 
                       Try: Disable browser extensions, hard refresh (Ctrl+Shift+R), check network.
                     </p>
                   </div>
+                ) : connectivityTest.results ? (
+                  <div className="space-y-2">
+                    <div className="grid gap-1 text-xs">
+                      <p className={connectivityTest.results.edgeFunction?.status === 'success' ? 'text-green-600' : 'text-destructive'}>
+                        {connectivityTest.results.edgeFunction?.status === 'success' ? '✅' : '❌'} Edge Function: {connectivityTest.results.edgeFunction?.message || connectivityTest.results.edgeFunction?.error}
+                      </p>
+                      <p className={connectivityTest.results.authHealth?.status === 'success' ? 'text-green-600' : 'text-destructive'}>
+                        {connectivityTest.results.authHealth?.status === 'success' ? '✅' : '❌'} Auth Health: {connectivityTest.results.authHealth?.message || connectivityTest.results.authHealth?.error}
+                      </p>
+                      <p className={connectivityTest.results.restCheck?.status === 'success' ? 'text-green-600' : 'text-destructive'}>
+                        {connectivityTest.results.restCheck?.status === 'success' ? '✅' : '❌'} REST API: {connectivityTest.results.restCheck?.message || connectivityTest.results.restCheck?.error}
+                      </p>
+                    </div>
+                    
+                    {connectivityTest.status === 'network-error' && (
+                      <p className="text-xs text-muted-foreground bg-orange-50 dark:bg-orange-950/20 p-2 rounded">
+                        🔧 Network connectivity issue detected. Try: disable browser extensions, check firewall/proxy, try incognito mode, or open in new tab.
+                      </p>
+                    )}
+                    
+                    {connectivityTest.status === 'partial' && (
+                      <p className="text-xs text-muted-foreground bg-yellow-50 dark:bg-yellow-950/20 p-2 rounded">
+                        ⚠️ Partial connectivity. Some endpoints reachable but others failed.
+                      </p>
+                    )}
+                  </div>
                 ) : (
-                  <p className="text-green-600">✅ {connectivityTest.message}</p>
+                  <p className="text-green-600">✅ All connectivity tests passed</p>
                 )}
+                
                 <p className="text-xs text-muted-foreground mt-2">
                   {new Date(connectivityTest.timestamp).toLocaleTimeString()}
                 </p>

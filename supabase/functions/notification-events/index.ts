@@ -47,24 +47,27 @@ serve(async (req) => {
     const payload: EventPayload = await req.json();
     console.log('Notification event received:', payload);
 
-    // Handle scheduled tasks
-    if (payload.task) {
-      switch (payload.task) {
-        case 'daily_reminders':
-          await handleEnhancedDailyReminders(supabase);
-          break;
-        case 'streak_risk_alerts':
-          await handleEnhancedStreakRiskAlerts(supabase);
-          break;
-        case 'weekly_summary':
-          await handleEnhancedWeeklySummary(supabase);
-          break;
-        case 'reengagement':
-          await handleEnhancedReengagement(supabase);
-          break;
-        default:
-          console.log('Unknown task:', payload.task);
-      }
+  // Handle scheduled tasks
+  if (payload.task) {
+    switch (payload.task) {
+      case 'daily_reminders':
+        await handleEnhancedDailyReminders(supabase);
+        break;
+      case 'streak_risk_alerts':
+        await handleEnhancedStreakRiskAlerts(supabase);
+        break;
+      case 'weekly_summary':
+        await handleEnhancedWeeklySummary(supabase);
+        break;
+      case 'reengagement':
+        await handleEnhancedReengagement(supabase);
+        break;
+      case 'social_triggers':
+        await handleSocialTriggers(supabase);
+        break;
+      default:
+        console.log('Unknown task:', payload.task);
+    }
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
@@ -93,26 +96,98 @@ serve(async (req) => {
 
 // Enhanced event notification with A/B testing and personalization
 async function handleEnhancedEventNotification(supabase: any, payload: EventPayload) {
-  const variant = await getOrAssignMessageVariant(supabase, payload.user_id!, payload.type!);
-  
-  if (!variant) {
-    // Fallback to basic messages
-    await handleBasicEventNotification(supabase, payload);
-    return;
-  }
-
-  // Send notification with A/B tested variant
-  await supabase.functions.invoke('send-push-notification', {
-    body: {
-      user_id: payload.user_id,
-      title: variant.content.title,
-      body: variant.content.body,
-      notification_type: getNotificationTypeFromEvent(payload.type!),
-      data: { ...variant.content.data, variant_id: variant.id }
+  try {
+    console.log('Processing enhanced event notification:', payload);
+    
+    const { type, user_id, data = {} } = payload;
+    
+    if (!type || !user_id) {
+      throw new Error('Missing required fields: type or user_id');
     }
-  });
 
-  console.log(`Sent A/B tested ${payload.type} notification (variant ${variant.id}) to user ${payload.user_id}`);
+    // Check user preferences
+    const { data: preferences } = await supabase
+      .from('user_preferences')
+      .select('notification_types')
+      .eq('user_id', user_id)
+      .single();
+
+    const notificationTypes = preferences?.notification_types || {};
+    const notificationCategory = getNotificationTypeFromEvent(type);
+    
+    if (!notificationTypes[notificationCategory]) {
+      console.log(`User ${user_id} has disabled ${notificationCategory} notifications`);
+      return;
+    }
+
+    // Check quiet hours
+    const isQuietHours = await checkQuietHours(supabase, user_id, new Date());
+    if (isQuietHours) {
+      console.log(`Skipping notification for user ${user_id} - quiet hours`);
+      return;
+    }
+
+    // Check daily fatigue caps
+    const canSend = await checkDailyFatigueCaps(supabase, user_id, notificationCategory);
+    if (!canSend) {
+      console.log(`Skipping notification for user ${user_id} - daily limit reached`);
+      return;
+    }
+
+    // Get or assign message variant for A/B testing
+    const variant = await getOrAssignMessageVariant(supabase, user_id, notificationCategory);
+    
+    if (!variant) {
+      console.log(`No message variant found for category: ${notificationCategory}`);
+      // Fallback to basic notification
+      await handleBasicEventNotification(supabase, payload);
+      return;
+    }
+
+    // Prepare enhanced notification content using templates
+    let title = variant.title_template || variant.content?.title || 'Notification';
+    let body = variant.body_template || variant.content?.body || 'You have a new notification';
+    
+    // Replace placeholders based on event type
+    if (type === 'achievement_unlocked' && data.achievement) {
+      title = title.replace('{achievement_name}', data.achievement.name || 'New Achievement');
+      body = body.replace('{achievement_name}', data.achievement.name || 'New Achievement');
+    } else if (type === 'streak_milestone' && data.streak_days) {
+      title = title.replace('{streak_days}', data.streak_days.toString());
+      body = body.replace('{streak_days}', data.streak_days.toString());
+    }
+
+    // Prepare notification payload
+    const notificationPayload = {
+      userIds: [user_id],
+      title,
+      body,
+      data: {
+        type,
+        variant_id: variant.id,
+        variant_key: variant.variant_key,
+        experiment_key: variant.experiment_key,
+        ...data
+      },
+      actions: variant.content?.actions || []
+    };
+
+    // Send notification
+    const { error } = await supabase.functions.invoke('send-push-notification', {
+      body: notificationPayload
+    });
+
+    if (error) {
+      console.error('Failed to send enhanced notification:', error);
+    } else {
+      console.log(`Enhanced ${type} notification sent to user ${user_id}`);
+    }
+
+  } catch (error) {
+    console.error('Error in handleEnhancedEventNotification:', error);
+    // Fallback to basic notification
+    await handleBasicEventNotification(supabase, payload);
+  }
 }
 
 // Fallback basic event notification
@@ -631,72 +706,76 @@ async function handleEnhancedReengagement(supabase: any) {
   }
 }
 
-// A/B Testing and Message Variant Management
+// A/B Testing and Message Variant Management with Weighted Selection
 async function getOrAssignMessageVariant(
   supabase: any, 
   userId: string, 
   category: string, 
   slot?: string
-): Promise<MessageVariant | null> {
+): Promise<any> {
   try {
-    // Check if user already has an assignment
-    const { data: assignment } = await supabase
+    // Check for existing assignment
+    const { data: existingAssignment } = await supabase
       .from('user_notification_variant_assignments')
-      .select(`
-        variant_id,
-        notification_message_variants!inner(
-          id,
-          content,
-          is_active
-        )
-      `)
+      .select('variant_id, assignment_hash')
       .eq('user_id', userId)
       .eq('category', category)
-      .eq('slot', slot || null)
-      .eq('notification_message_variants.is_active', true)
+      .eq('slot', slot || '')
       .single();
 
-    if (assignment) {
-      return {
-        id: assignment.variant_id,
-        content: assignment.notification_message_variants.content
-      };
+    if (existingAssignment) {
+      // Get the variant details
+      const { data: variant } = await supabase
+        .from('notification_message_variants')
+        .select('*')
+        .eq('id', existingAssignment.variant_id)
+        .single();
+      
+      return variant;
     }
 
-    // Get available variants for this category/slot
+    // Get available variants for this category/slot with weights
     const { data: variants } = await supabase
       .from('notification_message_variants')
-      .select('id, content, variant_key')
+      .select('*')
       .eq('category', category)
-      .eq('slot', slot || null)
-      .eq('is_active', true);
+      .eq('slot', slot || '')
+      .eq('is_active', true)
+      .order('weight', { ascending: false });
 
-    if (!variants?.length) {
+    if (!variants || variants.length === 0) {
       return null;
     }
 
-    // Assign variant using deterministic hash
-    const hash = simpleHash(userId + category + (slot || ''));
-    const selectedVariant = variants[hash % variants.length];
-
-    // Store assignment
+    // Weighted random selection
+    const totalWeight = variants.reduce((sum, v) => sum + (v.weight || 1), 0);
+    const randomNum = Math.random() * totalWeight;
+    let currentWeight = 0;
+    
+    let selectedVariant = variants[0]; // fallback
+    for (const variant of variants) {
+      currentWeight += (variant.weight || 1);
+      if (randomNum <= currentWeight) {
+        selectedVariant = variant;
+        break;
+      }
+    }
+    
+    // Store the assignment
+    const assignmentHash = simpleHash(userId + category + (slot || '') + Date.now());
     await supabase
       .from('user_notification_variant_assignments')
       .insert({
         user_id: userId,
+        variant_id: selectedVariant.id,
         category,
         slot: slot || null,
-        variant_id: selectedVariant.id,
-        assignment_hash: hash.toString()
+        assignment_hash: assignmentHash
       });
 
-    return {
-      id: selectedVariant.id,
-      content: selectedVariant.content
-    };
-
+    return selectedVariant;
   } catch (error) {
-    console.error('Error in A/B variant assignment:', error);
+    console.error('Error in getOrAssignMessageVariant:', error);
     return null;
   }
 }
@@ -790,12 +869,188 @@ function getNotificationTypeFromEvent(eventType: string): string {
   return typeMap[eventType] || 'milestones';
 }
 
-function simpleHash(str: string): number {
+// Utility Functions
+function simpleHash(str: string): string {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
     hash = ((hash << 5) - hash) + char;
     hash = hash & hash; // Convert to 32-bit integer
   }
-  return Math.abs(hash);
+  return Math.abs(hash).toString(36);
+}
+
+async function checkQuietHours(supabase: any, userId: string, currentTime: Date): Promise<boolean> {
+  try {
+    const { data: preferences } = await supabase
+      .from('user_preferences')
+      .select('quiet_hours_start, quiet_hours_end, time_zone')
+      .eq('user_id', userId)
+      .single();
+
+    if (!preferences) return false;
+
+    const { quiet_hours_start, quiet_hours_end, time_zone } = preferences;
+    if (!quiet_hours_start || !quiet_hours_end) return false;
+
+    // Convert current time to user's timezone
+    const userTime = new Date(currentTime.toLocaleString("en-US", { timeZone: time_zone || 'UTC' }));
+    const currentHour = userTime.getHours();
+    const currentMinute = userTime.getMinutes();
+    const currentTotalMinutes = currentHour * 60 + currentMinute;
+
+    // Parse quiet hours
+    const [startHour, startMinute] = quiet_hours_start.split(':').map(Number);
+    const [endHour, endMinute] = quiet_hours_end.split(':').map(Number);
+    const startTotalMinutes = startHour * 60 + startMinute;
+    const endTotalMinutes = endHour * 60 + endMinute;
+
+    // Handle quiet hours that span midnight
+    if (startTotalMinutes > endTotalMinutes) {
+      return currentTotalMinutes >= startTotalMinutes || currentTotalMinutes <= endTotalMinutes;
+    } else {
+      return currentTotalMinutes >= startTotalMinutes && currentTotalMinutes <= endTotalMinutes;
+    }
+  } catch (error) {
+    console.error('Error checking quiet hours:', error);
+    return false;
+  }
+}
+
+function addRandomization(baseTime: Date, windowMinutes: number = 30): Date {
+  const randomOffset = Math.floor(Math.random() * (windowMinutes * 2)) - windowMinutes;
+  return new Date(baseTime.getTime() + randomOffset * 60 * 1000);
+}
+
+async function checkDailyFatigueCaps(supabase: any, userId: string, notificationType: string, slot?: string): Promise<boolean> {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Define daily limits per type
+    const limits: Record<string, number> = {
+      'reminder': 1, // Max 1 per slot per day
+      'streak_risk': 1, // Max 1 per day
+      'achievement': 5, // More lenient for achievements
+      'social': 3, // Moderate for social
+      'milestone': 2
+    };
+
+    const dailyLimit = limits[notificationType] || 1;
+
+    // Count today's notifications for this type/slot
+    let query = supabase
+      .from('notification_logs')
+      .select('id', { count: 'exact' })
+      .eq('user_id', userId)
+      .eq('notification_type', notificationType)
+      .gte('sent_at', `${today}T00:00:00.000Z`)
+      .lt('sent_at', `${today}T23:59:59.999Z`);
+
+    if (slot) {
+      query = query.eq('slot', slot);
+    }
+
+    const { count } = await query;
+    return (count || 0) < dailyLimit;
+  } catch (error) {
+    console.error('Error checking daily fatigue caps:', error);
+    return true; // Default to allowing notification on error
+  }
+}
+
+async function handleSocialTriggers(supabase: any): Promise<void> {
+  try {
+    console.log('Processing social activity triggers...');
+    
+    // Get recent friend activities (last hour)
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    
+    const { data: recentActivities } = await supabase
+      .from('friend_activities')
+      .select(`
+        user_id,
+        activity_data,
+        created_at,
+        users!friend_activities_user_id_fkey(username)
+      `)
+      .gte('created_at', oneHourAgo.toISOString())
+      .limit(100);
+
+    if (!recentActivities || recentActivities.length === 0) {
+      console.log('No recent friend activities found');
+      return;
+    }
+
+    // For each activity, notify their friends
+    for (const activity of recentActivities) {
+      const { data: friendships } = await supabase
+        .from('friendships')
+        .select('requester_id, addressee_id')
+        .or(`requester_id.eq.${activity.user_id},addressee_id.eq.${activity.user_id}`)
+        .eq('status', 'accepted');
+
+      if (!friendships) continue;
+
+      // Get friends of the active user
+      const friendIds = friendships.map(f => 
+        f.requester_id === activity.user_id ? f.addressee_id : f.requester_id
+      );
+
+      for (const friendId of friendIds) {
+        // Check if friend has social notifications enabled
+        const { data: preferences } = await supabase
+          .from('user_preferences')
+          .select('notification_types')
+          .eq('user_id', friendId)
+          .single();
+
+        const notificationTypes = preferences?.notification_types || {};
+        if (!notificationTypes.social) continue;
+
+        // Check quiet hours and fatigue caps
+        const isQuietHours = await checkQuietHours(supabase, friendId, new Date());
+        if (isQuietHours) continue;
+
+        const canSend = await checkDailyFatigueCaps(supabase, friendId, 'social');
+        if (!canSend) continue;
+
+        // Get message variant
+        const variant = await getOrAssignMessageVariant(supabase, friendId, 'social');
+        if (!variant) continue;
+
+        // Prepare notification payload
+        const friendName = activity.users?.username || 'A friend';
+        const title = variant.title_template.replace('{friend_name}', friendName);
+        const body = variant.body_template.replace('{friend_name}', friendName);
+
+        // Send notification
+        const notificationPayload = {
+          userIds: [friendId],
+          title,
+          body,
+          data: {
+            type: 'social',
+            friend_id: activity.user_id,
+            friend_name: friendName,
+            activity_type: activity.activity_data?.type || 'workout',
+            variant_key: variant.variant_key,
+            experiment_key: variant.experiment_key
+          },
+          actions: [
+            { action: 'view_activity', title: 'View Activity' },
+            { action: 'start_workout', title: 'Start Workout' }
+          ]
+        };
+
+        // Call send-push-notification function
+        await supabase.functions.invoke('send-push-notification', {
+          body: notificationPayload
+        });
+
+        console.log(`Social notification sent to user ${friendId} about ${friendName}'s activity`);
+      }
+    }
+  } catch (error) {
+    console.error('Error processing social triggers:', error);
+  }
 }

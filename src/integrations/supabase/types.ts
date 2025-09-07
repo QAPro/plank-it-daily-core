@@ -1138,69 +1138,90 @@ export type Database = {
           data: Json | null
           delivery_status: string | null
           error_message: string | null
+          experiment_key: string | null
           id: string
           notification_type: string
           sent_at: string | null
+          slot: string | null
           title: string
           user_id: string
+          variant_key: string | null
         }
         Insert: {
           body: string
           data?: Json | null
           delivery_status?: string | null
           error_message?: string | null
+          experiment_key?: string | null
           id?: string
           notification_type: string
           sent_at?: string | null
+          slot?: string | null
           title: string
           user_id: string
+          variant_key?: string | null
         }
         Update: {
           body?: string
           data?: Json | null
           delivery_status?: string | null
           error_message?: string | null
+          experiment_key?: string | null
           id?: string
           notification_type?: string
           sent_at?: string | null
+          slot?: string | null
           title?: string
           user_id?: string
+          variant_key?: string | null
         }
         Relationships: []
       }
       notification_message_variants: {
         Row: {
+          body_template: string | null
           category: string
           content: Json
           created_at: string
           created_by: string | null
+          experiment_key: string | null
           id: string
           is_active: boolean
           slot: string | null
+          title_template: string | null
           updated_at: string
           variant_key: string
+          weight: number | null
         }
         Insert: {
+          body_template?: string | null
           category: string
           content: Json
           created_at?: string
           created_by?: string | null
+          experiment_key?: string | null
           id?: string
           is_active?: boolean
           slot?: string | null
+          title_template?: string | null
           updated_at?: string
           variant_key: string
+          weight?: number | null
         }
         Update: {
+          body_template?: string | null
           category?: string
           content?: Json
           created_at?: string
           created_by?: string | null
+          experiment_key?: string | null
           id?: string
           is_active?: boolean
           slot?: string | null
+          title_template?: string | null
           updated_at?: string
           variant_key?: string
+          weight?: number | null
         }
         Relationships: []
       }

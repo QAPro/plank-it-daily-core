@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import FeatureGuard from '@/components/access/FeatureGuard';
+import ProgressionVisualizationCharts from './ProgressionVisualizationCharts';
 
 const UserAnalyticsDashboard = () => {
   const { user } = useAuth();
@@ -250,7 +251,7 @@ const UserAnalyticsDashboard = () => {
         </CardContent>
       </Card>
 
-      {/* Gated Advanced Features */}
+      {/* Enhanced Progression Analytics */}
       <FeatureGuard 
         feature="advanced_stats"
         fallback={
@@ -267,58 +268,7 @@ const UserAnalyticsDashboard = () => {
           </Card>
         }
       >
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Advanced metrics would go here */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Performance Insights</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                  <span className="text-sm font-medium">Consistency Score</span>
-                  <Badge className="bg-green-500">Excellent</Badge>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                  <span className="text-sm font-medium">Progress Rate</span>
-                  <Badge className="bg-blue-500">Above Average</Badge>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
-                  <span className="text-sm font-medium">Challenge Level</span>
-                  <Badge className="bg-orange-500">Optimal</Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Next Milestones</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 bg-gray-200 rounded-full h-2">
-                    <div className="bg-orange-500 h-2 rounded-full" style={{ width: '75%' }}></div>
-                  </div>
-                  <span className="text-sm font-medium">2min plank (75%)</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 bg-gray-200 rounded-full h-2">
-                    <div className="bg-green-500 h-2 rounded-full" style={{ width: '40%' }}></div>
-                  </div>
-                  <span className="text-sm font-medium">30-day streak (40%)</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 bg-gray-200 rounded-full h-2">
-                    <div className="bg-blue-500 h-2 rounded-full" style={{ width: '60%' }}></div>
-                  </div>
-                  <span className="text-sm font-medium">100 sessions (60%)</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <ProgressionVisualizationCharts days={90} />
       </FeatureGuard>
     </div>
   );

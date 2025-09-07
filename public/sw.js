@@ -1,19 +1,27 @@
 // Service Worker for Plank Coach PWA
-const CACHE_NAME = 'plank-coach-v1';
+const CACHE_NAME = 'plank-coach-v2';
 const OFFLINE_URL = '/';
 
-// Install event - cache essential resources
+// Enhanced cache with workout essentials
+const ESSENTIAL_RESOURCES = [
+  OFFLINE_URL,
+  '/favicon.ico',
+  '/placeholder.svg',
+  '/icons/notification-workout.png',
+  '/icons/notification-achievement.png',
+  '/icons/notification-streak.png',
+  '/icons/notification-progress.png',
+  '/sounds/notification-achievement.mp3'
+];
+
+// Install event - cache essential resources including workout data
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing service worker');
+  console.log('[SW] Installing enhanced service worker');
   
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('[SW] Caching offline page');
-      return cache.addAll([
-        OFFLINE_URL,
-        '/favicon.ico',
-        '/placeholder.svg'
-      ]);
+      console.log('[SW] Caching essential resources for offline workouts');
+      return cache.addAll(ESSENTIAL_RESOURCES);
     }).then(() => {
       console.log('[SW] Skip waiting on install');
       return self.skipWaiting();
@@ -42,13 +50,62 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch event - serve cached content when offline
+// Enhanced fetch event - comprehensive offline support
 self.addEventListener('fetch', (event) => {
-  if (event.request.mode === 'navigate') {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Handle navigation requests
+  if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).catch(() => {
-        return caches.open(CACHE_NAME).then((cache) => {
-          return cache.match(OFFLINE_URL);
+      fetch(request)
+        .catch(() => {
+          return caches.open(CACHE_NAME).then((cache) => {
+            return cache.match(OFFLINE_URL);
+          });
+        })
+    );
+    return;
+  }
+
+  // Handle API requests with offline fallback
+  if (url.hostname.includes('supabase.co') && request.method === 'GET') {
+    event.respondWith(
+      fetch(request)
+        .then(response => {
+          // Cache successful API responses
+          if (response.ok && (url.pathname.includes('/plank_exercises') || url.pathname.includes('/user_preferences'))) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(request, responseToCache);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          // Return cached version if available
+          return caches.match(request);
+        })
+    );
+    return;
+  }
+
+  // Handle static resources
+  if (request.destination === 'image' || request.destination === 'script' || request.destination === 'style') {
+    event.respondWith(
+      caches.match(request).then(cachedResponse => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        
+        return fetch(request).then(response => {
+          if (response.ok) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(request, responseToCache);
+            });
+          }
+          return response;
         });
       })
     );
@@ -370,21 +427,149 @@ async function logNotificationInteraction(pushId, action, category, notification
   }
 }
 
-// Background sync for offline session saving
+// Enhanced background sync for offline session saving
 self.addEventListener('sync', (event) => {
-  console.log('[SW] Background sync:', event.tag);
+  console.log('[SW] Background sync triggered:', event.tag);
   
   if (event.tag === 'sync-sessions') {
     event.waitUntil(syncOfflineSessions());
+  } else if (event.tag === 'cache-workout-data') {
+    event.waitUntil(cacheWorkoutDataForOffline());
   }
 });
 
 async function syncOfflineSessions() {
   try {
-    // Get pending sessions from IndexedDB and sync to server
-    console.log('[SW] Syncing offline sessions');
-    // Implementation would go here
+    console.log('[SW] Starting offline session sync...');
+    
+    // Get offline sessions from localStorage
+    const offlineSessionsData = await getFromStorage('offline_workout_sessions');
+    if (!offlineSessionsData) {
+      console.log('[SW] No offline sessions to sync');
+      return;
+    }
+
+    const sessions = JSON.parse(offlineSessionsData);
+    const unsynced = sessions.filter(s => !s.synced);
+    
+    if (unsynced.length === 0) {
+      console.log('[SW] All sessions already synced');
+      return;
+    }
+
+    console.log(`[SW] Syncing ${unsynced.length} offline sessions...`);
+    
+    let syncedCount = 0;
+    let failedCount = 0;
+
+    for (const session of unsynced) {
+      try {
+        const response = await fetch('https://kgwmplptoctmoaefnpfg.supabase.co/rest/v1/user_sessions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtnd21wbHB0b2N0bW9hZWZucGZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIwODgyMjMsImV4cCI6MjA2NzY2NDIyM30.vlPPhkFrPL-pEM974VB9h4KC9XebvmvWQa80Cl6Uidw'
+          },
+          body: JSON.stringify({
+            user_id: session.user_id,
+            exercise_id: session.exercise_id,
+            duration_seconds: session.duration_seconds,
+            completed_at: session.completed_at
+          })
+        });
+
+        if (response.ok) {
+          session.synced = true;
+          syncedCount++;
+          console.log('[SW] Synced session:', session.id);
+        } else {
+          failedCount++;
+          console.error('[SW] Failed to sync session:', session.id, response.status);
+        }
+      } catch (error) {
+        failedCount++;
+        console.error('[SW] Error syncing session:', session.id, error);
+      }
+    }
+
+    // Update localStorage with sync status
+    await setToStorage('offline_workout_sessions', JSON.stringify(sessions));
+    
+    // Remove synced sessions
+    const remaining = sessions.filter(s => !s.synced);
+    if (remaining.length < sessions.length) {
+      await setToStorage('offline_workout_sessions', JSON.stringify(remaining));
+    }
+
+    console.log(`[SW] Sync complete: ${syncedCount} synced, ${failedCount} failed`);
+    
+    // Notify app of sync completion
+    const clients = await self.clients.matchAll();
+    clients.forEach(client => {
+      client.postMessage({
+        type: 'OFFLINE_SYNC_COMPLETE',
+        data: { synced: syncedCount, failed: failedCount }
+      });
+    });
+
   } catch (error) {
-    console.error('[SW] Error syncing sessions:', error);
+    console.error('[SW] Error in syncOfflineSessions:', error);
   }
+}
+
+async function cacheWorkoutDataForOffline() {
+  try {
+    console.log('[SW] Caching essential workout data for offline use...');
+    
+    // Cache plank exercises
+    const exercisesResponse = await fetch('https://kgwmplptoctmoaefnpfg.supabase.co/rest/v1/plank_exercises?select=*', {
+      headers: {
+        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtnd21wbHB0b2N0bW9hZWZucGZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIwODgyMjMsImV4cCI6MjA2NzY2NDIyM30.vlPPhkFrPL-pEM974VB9h4KC9XebvmvWQa80Cl6Uidw'
+      }
+    });
+    
+    if (exercisesResponse.ok) {
+      const cache = await caches.open(CACHE_NAME);
+      await cache.put('offline-exercises', exercisesResponse.clone());
+      console.log('[SW] Cached exercises for offline use');
+    }
+
+  } catch (error) {
+    console.error('[SW] Error caching workout data:', error);
+  }
+}
+
+// Helper functions for localStorage access from service worker
+async function getFromStorage(key) {
+  return new Promise((resolve) => {
+    // Since service worker can't access localStorage directly,
+    // we'll use postMessage to communicate with the main thread
+    self.clients.matchAll().then(clients => {
+      if (clients.length > 0) {
+        clients[0].postMessage({
+          type: 'GET_STORAGE',
+          key: key
+        });
+      }
+    });
+    
+    // For now, return null - this would need to be implemented
+    // with proper message passing between SW and main thread
+    resolve(null);
+  });
+}
+
+async function setToStorage(key, value) {
+  return new Promise((resolve) => {
+    self.clients.matchAll().then(clients => {
+      if (clients.length > 0) {
+        clients[0].postMessage({
+          type: 'SET_STORAGE',
+          key: key,
+          value: value
+        });
+      }
+    });
+    resolve();
+  });
 }

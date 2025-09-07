@@ -21,6 +21,10 @@ import CustomWorkoutManager from "@/components/custom-workouts/CustomWorkoutMana
 import { useQuickStart } from '@/hooks/useQuickStart';
 import { QuickStartButton } from '@/components/QuickStartButton';
 import { useWorkoutDeepLinking } from '@/hooks/useWorkoutDeepLinking';
+import { usePredictiveLoading } from '@/hooks/usePredictiveLoading';
+import { useOfflineCapability } from '@/hooks/useOfflineCapability';
+import QuickStartOfflineIndicator from '@/components/QuickStartOfflineIndicator';
+import PredictiveQuickStart from '@/components/PredictiveQuickStart';
 import { BackgroundMusicPlayer } from '@/components/audio/BackgroundMusicPlayer';
 
 type Exercise = Tables<'plank_exercises'>;

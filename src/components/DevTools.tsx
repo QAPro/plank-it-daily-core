@@ -6,15 +6,17 @@ import { Badge } from '@/components/ui/badge';
 import { ValidationService, ValidationResult } from '@/services/validationService';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { CheckCircle, XCircle, AlertTriangle, Play, Bug, Bell } from 'lucide-react';
+import { CheckCircle, XCircle, AlertTriangle, Play, Bug, Bell, Zap } from 'lucide-react';
 import { DevToolsNotifications } from '@/components/DevToolsNotifications';
 import { PushNotificationDebugger } from '@/components/debug/PushNotificationDebugger';
+import { IntelligentRewardDebugger } from '@/components/debug/IntelligentRewardDebugger';
 
 const DevTools = () => {
   const [validationResults, setValidationResults] = useState<ValidationResult[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showDebugger, setShowDebugger] = useState(false);
+  const [showRewardDebugger, setShowRewardDebugger] = useState(false);
 
   const runValidation = async () => {
     setIsRunning(true);
@@ -99,7 +101,16 @@ const DevTools = () => {
                   variant="outline"
                   className="h-6 px-2 text-xs"
                 >
-                  Debug
+                  Push
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => setShowRewardDebugger(true)}
+                  variant="outline"
+                  className="h-6 px-2 text-xs"
+                >
+                  <Zap className="h-3 w-3 mr-1" />
+                  Rewards
                 </Button>
                 <Button
                   size="sm"
@@ -195,6 +206,27 @@ const DevTools = () => {
             </div>
             <div className="p-4 pt-0">
               <PushNotificationDebugger />
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+    
+    {showRewardDebugger && (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]">
+        <div className="max-w-5xl w-full mx-4 max-h-[90vh] overflow-auto">
+          <div className="bg-background rounded-lg">
+            <div className="flex justify-end p-2">
+              <Button
+                onClick={() => setShowRewardDebugger(false)}
+                size="sm"
+                variant="ghost"
+              >
+                ✕
+              </Button>
+            </div>
+            <div className="p-4 pt-0">
+              <IntelligentRewardDebugger />
             </div>
           </div>
         </div>

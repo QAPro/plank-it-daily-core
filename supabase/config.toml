@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.validate-vapid-keys]
 verify_jwt = false
+
+[functions.reward-timing-decide]
+verify_jwt = true

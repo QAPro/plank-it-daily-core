@@ -12,6 +12,7 @@ import CommunityStatsWidget from "@/components/social/CommunityStatsWidget";
 import UserRankingDisplay from "@/components/social/UserRankingDisplay";
 import XPMultiplierNotification from "@/components/xp/XPMultiplierNotification";
 import { useLevelProgression } from "@/hooks/useLevelProgression";
+import { useRewardTiming } from "@/hooks/useRewardTiming";
 
 interface HomeTabProps {
   onExerciseSelect?: (exerciseId: string) => void;
@@ -23,6 +24,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick }: HomeTabProps
   const { data: stats } = useSessionStats();
   const { user } = useAuth();
   const { userLevel, loading: levelLoading } = useLevelProgression();
+  const rewardTiming = useRewardTiming();
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);

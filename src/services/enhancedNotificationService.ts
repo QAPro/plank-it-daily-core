@@ -185,6 +185,80 @@ export class EnhancedNotificationService extends NotificationService {
   }
 
   /**
+   * Send surprise reward notification with XP bonus
+   */
+  static async sendSurpriseRewardNotification(userId: string, xpAmount: number) {
+    const rewardUrl = `/?tab=stats&highlight=xp-boost&source=surprise-reward`;
+
+    return this.sendToUser(userId, 'rewards', {
+      title: '🎉 Surprise XP Bonus!',
+      body: `Lucky you! You've earned ${xpAmount} bonus XP just for being awesome!`,
+      data: { 
+        url: rewardUrl,
+        xpAmount,
+        rewardType: 'surprise_xp',
+        category: 'reward',
+        notification_type: 'rewards'
+      },
+      actions: [
+        { action: 'claim-reward', title: '🎁 Claim Reward' },
+        { action: 'share-luck', title: '✨ Share Luck' }
+      ]
+    });
+  }
+
+  /**
+   * Send milestone approach notification
+   */
+  static async sendMilestoneApproachNotification(userId: string, milestone: string, progress: number) {
+    const milestoneUrl = `/?tab=achievements&highlight=${encodeURIComponent(milestone)}`;
+
+    return this.sendToUser(userId, 'milestones', {
+      title: '🎯 Milestone in Sight!',
+      body: `You're ${progress}% of the way to "${milestone}". Don't stop now!`,
+      data: { 
+        url: milestoneUrl,
+        milestone,
+        progress,
+        rewardType: 'milestone_nudge',
+        category: 'motivation',
+        notification_type: 'milestones'
+      },
+      actions: [
+        { action: 'push-milestone', title: '💪 Push Forward' },
+        { action: 'view-progress', title: '📊 View Progress' }
+      ]
+    });
+  }
+
+  /**
+   * Send comeback encouragement notification
+   */
+  static async sendComebackEncouragement(userId: string, daysSinceLastWorkout: number) {
+    const workoutUrl = `/?quick-start=true&source=comeback-encourage`;
+
+    const message = daysSinceLastWorkout >= 5 
+      ? `It's been ${daysSinceLastWorkout} days - but every champion has comeback stories! Ready to write yours?`
+      : `${daysSinceLastWorkout} days away is nothing! Jump back in and reclaim your momentum.`;
+
+    return this.sendToUser(userId, 'reminders', {
+      title: '👋 Your Comeback Awaits!',
+      body: message,
+      data: { 
+        url: workoutUrl,
+        daysSinceLastWorkout,
+        rewardType: 'comeback_encourage',
+        category: 'comeback',
+        notification_type: 'reminders'
+      },
+      actions: [
+        { action: 'start-comeback', title: '🚀 Start Comeback' },
+        { action: 'gentle-return', title: '🌱 Gentle Return' }
+      ]
+    });
+  }
+
+  /**
    * Schedule context-aware notifications based on user patterns
    */
   static async scheduleContextualReminders(userId: string) {

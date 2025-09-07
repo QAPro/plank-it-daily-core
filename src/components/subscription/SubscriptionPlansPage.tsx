@@ -13,19 +13,16 @@ const SubscriptionPlansPage = () => {
   const { plans, active, upgrade, loading, demoMode } = useSubscription();
 
   const getPlanIcon = (planName: string) => {
-    if (planName.toLowerCase().includes('pro')) return Crown;
     if (planName.toLowerCase().includes('premium')) return Star;
     return Zap;
   };
 
   const getPlanColor = (planName: string) => {
-    if (planName.toLowerCase().includes('pro')) return 'border-purple-200 bg-purple-50/50';
     if (planName.toLowerCase().includes('premium')) return 'border-blue-200 bg-blue-50/50';
     return 'border-gray-200 bg-gray-50/50';
   };
 
   const getPlanButtonColor = (planName: string) => {
-    if (planName.toLowerCase().includes('pro')) return 'bg-purple-600 hover:bg-purple-700';
     if (planName.toLowerCase().includes('premium')) return 'bg-blue-600 hover:bg-blue-700';
     return 'bg-gray-600 hover:bg-gray-700';
   };
@@ -36,21 +33,17 @@ const SubscriptionPlansPage = () => {
 
   const getFeaturesList = (planName: string) => {
     const name = planName.toLowerCase();
-    if (name.includes('pro')) {
-      return [
-        'All Premium features',
-        'Custom workout builder',
-        'Priority support',
-        'Advanced analytics',
-        'Unlimited everything'
-      ];
-    }
     if (name.includes('premium')) {
       return [
+        'All Free features',
         'Advanced statistics',
         'Smart recommendations',
         'Social challenges',
+        'Custom workout builder',
+        'Advanced analytics',
+        'Priority support',
         'Export data',
+        'API access',
         'No ads'
       ];
     }
@@ -58,7 +51,7 @@ const SubscriptionPlansPage = () => {
       'Basic workout tracking',
       'Simple statistics',
       'Community access',
-      'Limited features'
+      'Email support'
     ];
   };
 

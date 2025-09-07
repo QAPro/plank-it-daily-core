@@ -43,28 +43,23 @@ export type PlanFormData = z.infer<typeof planFormSchema>;
 
 // Feature templates for quick plan setup - make arrays mutable
 export const FEATURE_TEMPLATES = {
-  starter: [
+  free: [
     "Basic workout tracking",
     "Simple statistics", 
     "Community access",
     "Email support"
   ],
-  growth: [
+  premium: [
+    "All Free features",
     "Advanced statistics",
     "Smart recommendations",
     "Social challenges",
-    "Export data",
-    "Priority email support",
-    "Custom workout plans"
-  ],
-  enterprise: [
-    "All Growth features",
     "Custom workout builder",
     "Advanced analytics",
     "Priority support",
+    "Export data",
     "API access",
-    "White-label options",
-    "Dedicated account manager"
+    "No ads"
   ]
 };
 

@@ -47,7 +47,7 @@ const PremiumTabIndicator: React.FC<PremiumTabIndicatorProps> = ({
         variant="secondary" 
         className="absolute -top-1 -right-1 text-xs px-1 py-0.5 h-auto bg-amber-100 text-amber-700 border-amber-200"
       >
-        {requiredTier === 'premium' ? 'Premium' : 'Pro'}
+        Premium
       </Badge>
       {children}
     </TabsTrigger>

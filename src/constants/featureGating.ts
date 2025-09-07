@@ -1,7 +1,7 @@
 
-export type SubscriptionTier = 'free' | 'premium' | 'pro';
+export type SubscriptionTier = 'free' | 'premium';
 
-export const TIER_ORDER: SubscriptionTier[] = ['free', 'premium', 'pro'];
+export const TIER_ORDER: SubscriptionTier[] = ['free', 'premium'];
 
 export const isTierAtLeast = (current: SubscriptionTier, required: SubscriptionTier) => {
   return TIER_ORDER.indexOf(current) >= TIER_ORDER.indexOf(required);
@@ -33,8 +33,8 @@ export const FEATURE_REQUIREMENTS: Record<FeatureName, SubscriptionTier> = {
   advanced_stats: 'premium',
   smart_recommendations: 'premium',
   social_challenges: 'premium',
-  custom_workouts: 'pro',
-  priority_support: 'pro',
+  custom_workouts: 'premium',
+  priority_support: 'premium',
   analytics_dashboard: 'premium',
   detailed_performance_tracking: 'premium',
   goal_tracking: 'premium',

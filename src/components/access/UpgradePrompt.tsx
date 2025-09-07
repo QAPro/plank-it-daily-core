@@ -38,15 +38,13 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
   const getTierDisplayName = (tier: SubscriptionTier) => {
     switch (tier) {
       case 'premium': return 'Premium';
-      case 'pro': return 'Pro';
-      default: return tier;
+      default: return 'Free';
     }
   };
 
   const getTierIcon = (tier: SubscriptionTier) => {
     switch (tier) {
       case 'premium': return Star;
-      case 'pro': return Crown;
       default: return Zap;
     }
   };
@@ -54,7 +52,6 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
   const getTierColor = (tier: SubscriptionTier) => {
     switch (tier) {
       case 'premium': return 'text-blue-600 bg-blue-50 border-blue-200';
-      case 'pro': return 'text-purple-600 bg-purple-50 border-purple-200';
       default: return 'text-gray-600 bg-gray-50 border-gray-200';
     }
   };
@@ -64,7 +61,6 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({
     const tierMatch = (name: string) => {
       const lower = name.toLowerCase();
       if (requiredTier === 'premium') return lower.includes('premium');
-      if (requiredTier === 'pro') return lower.includes('pro');
       return false;
     };
 

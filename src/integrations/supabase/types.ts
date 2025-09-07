@@ -975,6 +975,36 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_interactions: {
+        Row: {
+          action: string
+          category: string | null
+          clicked_at: string
+          data: Json | null
+          id: string
+          notification_type: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          category?: string | null
+          clicked_at?: string
+          data?: Json | null
+          id?: string
+          notification_type: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          category?: string | null
+          clicked_at?: string
+          data?: Json | null
+          id?: string
+          notification_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notification_logs: {
         Row: {
           body: string

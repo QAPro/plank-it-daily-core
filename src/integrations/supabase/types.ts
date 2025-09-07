@@ -41,6 +41,41 @@ export type Database = {
         }
         Relationships: []
       }
+      activity_comments: {
+        Row: {
+          activity_id: string
+          content: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activity_id: string
+          content: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activity_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_comments_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "friend_activities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_audit_log: {
         Row: {
           action_details: Json | null
@@ -758,6 +793,98 @@ export type Database = {
           name?: string
           ranking_algorithm?: string | null
           season_duration_days?: number | null
+        }
+        Relationships: []
+      }
+      friend_activities: {
+        Row: {
+          activity_data: Json
+          activity_type: string
+          created_at: string
+          id: string
+          shares_count: number
+          updated_at: string
+          user_id: string
+          visibility: string
+        }
+        Insert: {
+          activity_data?: Json
+          activity_type: string
+          created_at?: string
+          id?: string
+          shares_count?: number
+          updated_at?: string
+          user_id: string
+          visibility?: string
+        }
+        Update: {
+          activity_data?: Json
+          activity_type?: string
+          created_at?: string
+          id?: string
+          shares_count?: number
+          updated_at?: string
+          user_id?: string
+          visibility?: string
+        }
+        Relationships: []
+      }
+      friend_reactions: {
+        Row: {
+          activity_id: string
+          created_at: string
+          id: string
+          reaction_type: string
+          user_id: string
+        }
+        Insert: {
+          activity_id: string
+          created_at?: string
+          id?: string
+          reaction_type: string
+          user_id: string
+        }
+        Update: {
+          activity_id?: string
+          created_at?: string
+          id?: string
+          reaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "friend_reactions_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "friend_activities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      friends: {
+        Row: {
+          created_at: string
+          friend_id: string
+          id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          friend_id: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          friend_id?: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

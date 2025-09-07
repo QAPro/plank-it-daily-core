@@ -65,58 +65,39 @@ export const PushNotificationDebugger: React.FC = () => {
     };
 
     updateDebugInfo();
-    const interval = setInterval(updateDebugInfo, 1000);
-    return () => clearInterval(interval);
+    // Removed polling interval to stop console spam
   }, [user, isSupported, isSubscribed, isLoading]);
 
   const handleForceSubscribe = async () => {
     setLastAction('Force Subscribe Clicked');
-    console.log('[PushDebug] Force subscribe button CLICKED!');
-    console.log('[PushDebug] Debug info:', debugInfo);
-    console.log('[PushDebug] Browser info:', browserInfo);
-    console.log('[PushDebug] isLoading:', isLoading);
-    console.log('[PushDebug] forceSubscribeIgnorePermission function:', typeof forceSubscribeIgnorePermission);
     
     try {
       const result = await forceSubscribeIgnorePermission();
-      console.log('[PushDebug] Force subscribe completed:', result);
       setLastAction(`Force Subscribe Result: ${result ? 'Success' : 'Failed'}`);
     } catch (error) {
-      console.error('[PushDebug] Force subscribe failed:', error);
       setLastAction(`Force Subscribe Error: ${error}`);
     }
   };
 
   const handleForceResetPermission = async () => {
     setLastAction('Force Reset Permission Clicked');
-    console.log('[PushDebug] Force reset permission button CLICKED!');
-    console.log('[PushDebug] Current permission:', Notification.permission);
-    console.log('[PushDebug] Debug info:', debugInfo);
-    console.log('[PushDebug] Browser info:', browserInfo);
-    console.log('[PushDebug] isLoading:', isLoading);
-    console.log('[PushDebug] forceRequestPermission function:', typeof forceRequestPermission);
     
     try {
       const result = await forceRequestPermission();
-      console.log('[PushDebug] Force reset permission completed:', result);
       setLastAction(`Force Reset Result: ${result ? 'Success' : 'Failed'}`);
     } catch (error) {
-      console.error('[PushDebug] Force reset permission failed:', error);
       setLastAction(`Force Reset Error: ${error}`);
     }
   };
 
   const handleNuclearReset = async () => {
     setLastAction('Nuclear Reset Clicked');
-    console.log('[PushDebug] Nuclear reset button CLICKED!');
     
     if (confirm('This will completely reset all push notification data and service workers. You will need to reload the page after this. Continue?')) {
       try {
         const result = await nuclearReset();
-        console.log('[PushDebug] Nuclear reset completed:', result);
         setLastAction(`Nuclear Reset Result: ${result ? 'Success - Please reload page' : 'Failed'}`);
       } catch (error) {
-        console.error('[PushDebug] Nuclear reset failed:', error);
         setLastAction(`Nuclear Reset Error: ${error}`);
       }
     }
@@ -124,28 +105,22 @@ export const PushNotificationDebugger: React.FC = () => {
 
   const handleDirectPermission = async () => {
     setLastAction('Direct Permission Clicked');
-    console.log('[PushDebug] Direct permission button CLICKED!');
     
     try {
       const result = await directPermissionRequest();
-      console.log('[PushDebug] Direct permission completed:', result);
       setLastAction(`Direct Permission Result: ${result ? 'Success' : 'Failed'}`);
     } catch (error) {
-      console.error('[PushDebug] Direct permission failed:', error);
       setLastAction(`Direct Permission Error: ${error}`);
     }
   };
 
   const handleAlternativeSubscribe = async () => {
     setLastAction('Alternative Subscribe Clicked');
-    console.log('[PushDebug] Alternative subscribe button CLICKED!');
     
     try {
       const result = await alternativeSubscribe();
-      console.log('[PushDebug] Alternative subscribe completed:', result);
       setLastAction(`Alternative Subscribe Result: ${result ? 'Success' : 'Failed'}`);
     } catch (error) {
-      console.error('[PushDebug] Alternative subscribe failed:', error);
       setLastAction(`Alternative Subscribe Error: ${error}`);
     }
   };
@@ -157,6 +132,11 @@ export const PushNotificationDebugger: React.FC = () => {
       <AlertTriangle className="h-4 w-4 text-red-500" />
     );
   };
+
+  // Only show in development mode
+  if (process.env.NODE_ENV !== 'development') {
+    return null;
+  }
 
   return (
     <div className="space-y-4">

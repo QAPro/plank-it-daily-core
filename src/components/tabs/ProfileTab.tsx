@@ -113,8 +113,6 @@ const ProfileTab = ({ initialView = 'overview', onOpenVapidManager }: ProfileTab
         <TabsContent value="settings" className="space-y-6">
           <PreferencesSettings />
           
-          {/* Push Notification Debug */}
-          <PushNotificationDebugger />
           
           {/* VAPID Key Management */}
           {onOpenVapidManager && (

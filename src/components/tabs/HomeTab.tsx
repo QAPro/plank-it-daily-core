@@ -10,6 +10,7 @@ import GatedRecommendationsDashboard from "@/components/recommendations/GatedRec
 import LevelProgressBar from "@/components/level/LevelProgressBar";
 import SubscriptionStatusCard from "@/components/subscription/SubscriptionStatusCard";
 import { useLevelProgression } from "@/hooks/useLevelProgression";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 interface HomeTabProps {
   onExerciseSelect?: (exerciseId: string) => void;
@@ -21,6 +22,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick }: HomeTabProps
   const { data: stats } = useSessionStats();
   const { user } = useAuth();
   const { userLevel, loading: levelLoading } = useLevelProgression();
+  const { sendTestNotification, isSupported: notificationSupported } = usePushNotifications();
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -127,6 +129,34 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick }: HomeTabProps
 
       {/* Streak Display */}
       <StreakDisplay />
+
+      {/* Quick Notification Test */}
+      {notificationSupported && (
+        <motion.div
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+        >
+          <Card className="bg-white/80 backdrop-blur-sm border-orange-100">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-gray-800">Test Notifications</h4>
+                  <p className="text-sm text-gray-600">Quick notification test</p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={sendTestNotification}
+                  className="shrink-0"
+                >
+                  Test
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 gap-3">

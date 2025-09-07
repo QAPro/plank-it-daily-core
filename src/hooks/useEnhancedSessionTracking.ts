@@ -188,6 +188,14 @@ const completeSession = async (duration: number, notes?: string) => {
 
     console.log('✅ Session created successfully:', session);
 
+    // Update last workout for quick start (async, don't wait)
+    try {
+      const { QuickStartService } = await import('@/services/quickStartService');
+      QuickStartService.updateLastWorkout(user.id, selectedExercise.id, duration).catch(console.error);
+    } catch (error) {
+      console.error('Error importing QuickStartService:', error);
+    }
+
     // Update user streak and get streak info for XP calculation
     console.log('📈 Updating streak...');
     const streakResult = await updateStreak();

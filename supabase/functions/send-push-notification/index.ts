@@ -28,11 +28,21 @@ async function sendWebPushNotification(
     throw new Error(`Invalid VAPID public key: expected 65 bytes uncompressed (starts with 0x04), got ${publicKeyBytes.length}`);
   }
 
-  // Private key must be imported as JWK for ECDSA P-256
+  // Extract x and y coordinates from public key (65 bytes: 0x04 + 32-byte X + 32-byte Y)
+  const x = publicKeyBytes.slice(1, 33);
+  const y = publicKeyBytes.slice(33, 65);
+  
+  // Convert to base64url format for JWK
+  const toBase64Url = (buffer: Uint8Array) => 
+    btoa(String.fromCharCode(...buffer)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+
+  // Build complete EC JWK with x, y coordinates and private scalar d
   const jwkPrivate: JsonWebKey = {
     kty: 'EC',
     crv: 'P-256',
     d: vapidPrivateKey, // base64url 32-byte scalar
+    x: toBase64Url(x),  // base64url X coordinate
+    y: toBase64Url(y),  // base64url Y coordinate
   };
 
   let cryptoKey: CryptoKey;
@@ -222,14 +232,19 @@ serve(async (req) => {
           actions
         });
 
+        // For test notifications, use empty payload to avoid encryption requirements
+        const isTestNotification = notification_type === 'test';
+        const payloadToSend = isTestNotification ? '' : payload;
+
         const response = await sendWebPushNotification(
           subscription,
-          payload,
+          payloadToSend,
           vapidPublicKey,
           vapidPrivateKey
         );
 
         const success = response.ok;
+        const responseText = success ? 'OK' : await response.text();
         
         // Log notification attempt
         await supabase
@@ -241,7 +256,7 @@ serve(async (req) => {
             body,
             data: data,
             delivery_status: success ? 'sent' : 'failed',
-            error_message: success ? null : await response.text()
+            error_message: success ? null : responseText
           });
 
         if (success) {
@@ -251,7 +266,8 @@ serve(async (req) => {
         results.push({
           user_id: subscription.user_id,
           success,
-          status: response.status
+          status: response.status,
+          error: success ? undefined : responseText
         });
 
         console.log(`Notification ${success ? 'sent' : 'failed'} to user ${subscription.user_id}`);

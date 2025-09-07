@@ -13,10 +13,13 @@ interface NotificationOptions {
 interface NotificationResult {
   successCount: number;
   totalAttempts: number;
+  sent?: number;
+  total?: number;
   message?: string;
   results?: Array<{
     success: boolean;
     subscription_id?: string;
+    user_id?: string;
     error?: string;
   }>;
   timestamp?: string;
@@ -40,8 +43,8 @@ export class NotificationService {
 
       console.log('Notification sent successfully:', data);
       return {
-        successCount: data?.successCount || 0,
-        totalAttempts: data?.totalAttempts || 0,
+        successCount: data?.sent || data?.successCount || 0,
+        totalAttempts: data?.total || data?.totalAttempts || 0,
         message: data?.message,
         results: data?.results || [],
         timestamp: new Date().toISOString(),

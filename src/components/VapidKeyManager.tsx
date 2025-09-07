@@ -140,9 +140,17 @@ export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => 
           description: 'Use "Repair Subscription" button below, then retry.' 
         });
       } else {
-        toast.success('Test sent', { 
-          description: `Delivered to ${result?.successCount || 0} of ${result?.totalAttempts || 0} subscriptions.` 
-        });
+        const sent = result?.sent || result?.successCount || 0;
+        const total = result?.total || result?.totalAttempts || 0;
+        if (sent === 0 && total > 0) {
+          toast.error('Test failed', { 
+            description: `Failed to deliver to ${total} subscription(s). Check error details below.` 
+          });
+        } else {
+          toast.success('Test sent', { 
+            description: `Delivered to ${sent} of ${total} subscriptions.` 
+          });
+        }
       }
     } catch (e: any) {
       const errorMsg = e?.message ?? String(e);
@@ -313,16 +321,24 @@ export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => 
                   </div>
                  ) : (
                    <div className="space-y-1">
-                     <p>Sent: {lastTestResult.successCount || 0} / {(lastTestResult.results?.length || lastTestResult.totalAttempts) || 0}</p>
+                     <p>Sent: {lastTestResult.sent || lastTestResult.successCount || 0} / {lastTestResult.total || lastTestResult.totalAttempts || (lastTestResult.results?.length) || 0}</p>
                      {lastTestResult.results && lastTestResult.results.length > 0 && (
                        <div className="text-xs space-y-1">
                          {lastTestResult.results.slice(0, 3).map((result: any, i: number) => (
                            <p key={i} className={result.success ? 'text-green-600' : 'text-red-600'}>
-                             {result.success ? '✓' : '✗'} {result.subscription_id?.slice(0, 8)}...
+                             {result.success ? '✓' : '✗'} User {result.user_id?.slice(0, 8)}...
                              {result.error && ` - ${result.error}`}
                            </p>
                          ))}
+                         {lastTestResult.results.length > 3 && (
+                           <p className="text-muted-foreground">...and {lastTestResult.results.length - 3} more</p>
+                         )}
                        </div>
+                     )}
+                     {lastTestResult.results?.[0]?.error && (
+                       <p className="text-xs text-destructive mt-1">
+                         First error: {lastTestResult.results[0].error}
+                       </p>
                      )}
                    </div>
                 )}

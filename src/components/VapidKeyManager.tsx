@@ -27,6 +27,7 @@ export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => 
   const [isRepairing, setIsRepairing] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [lastTestResult, setLastTestResult] = useState<any>(null);
+  const [connectivityTest, setConnectivityTest] = useState<any>(null);
 
   const handleClose = () => {
     if (onClose) {
@@ -76,6 +77,49 @@ export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => 
     }
   };
 
+  const handleConnectivityTest = async () => {
+    try {
+      setConnectivityTest({ status: 'testing', timestamp: new Date().toISOString() });
+      
+      // Test basic connectivity to Supabase
+      const { data, error } = await supabase.from('user_preferences').select('id').limit(1);
+      
+      if (error) {
+        setConnectivityTest({ 
+          status: 'failed', 
+          error: `Database connectivity failed: ${error.message}`,
+          timestamp: new Date().toISOString()
+        });
+        return;
+      }
+      
+      // Test VAPID key endpoint
+      const vapidResponse = await supabase.functions.invoke('get-vapid-public-key');
+      if (vapidResponse.error) {
+        setConnectivityTest({ 
+          status: 'failed', 
+          error: `VAPID endpoint failed: ${vapidResponse.error.message}`,
+          timestamp: new Date().toISOString()
+        });
+        return;
+      }
+      
+      setConnectivityTest({ 
+        status: 'success', 
+        message: 'All connectivity tests passed',
+        timestamp: new Date().toISOString()
+      });
+      toast.success('Connectivity OK', { description: 'All endpoints are reachable.' });
+    } catch (e: any) {
+      setConnectivityTest({ 
+        status: 'failed', 
+        error: `Network error: ${e?.message ?? String(e)}`,
+        timestamp: new Date().toISOString()
+      });
+      toast.error('Connectivity failed', { description: e?.message ?? String(e) });
+    }
+  };
+
   const handleSendTest = async () => {
     if (!user?.id) {
       toast.error('Sign in required', { description: 'Sign in to receive a test push.' });
@@ -87,7 +131,7 @@ export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => 
         title: 'Test Push',
         body: 'This is a test push notification.',
       });
-      setLastTestResult(result);
+      setLastTestResult({ ...result, timestamp: new Date().toISOString() });
       
       if (result?.message === 'No active subscriptions found for target users') {
         toast.error('No active subscriptions', { 
@@ -99,9 +143,22 @@ export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => 
         });
       }
     } catch (e: any) {
-      const errorResult = { error: e?.message ?? String(e), timestamp: new Date().toISOString() };
+      const errorMsg = e?.message ?? String(e);
+      const errorResult = { error: errorMsg, timestamp: new Date().toISOString() };
       setLastTestResult(errorResult);
-      toast.error('Send failed', { description: e?.message ?? String(e) });
+      
+      // Enhanced error diagnostics
+      if (errorMsg.includes('Failed to send a request to the Edge Function')) {
+        toast.error('Connection failed', { 
+          description: 'Cannot reach notification service. Check connectivity above.' 
+        });
+      } else if (errorMsg.includes('NetworkError') || errorMsg.includes('fetch')) {
+        toast.error('Network error', { 
+          description: 'Connection issue. Try disabling browser extensions.' 
+        });
+      } else {
+        toast.error('Send failed', { description: errorMsg });
+      }
     } finally {
       setIsSending(false);
     }
@@ -145,6 +202,10 @@ export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => 
                 <RefreshCw className="h-4 w-4 mr-2" />
                 {isTesting ? 'Testing…' : 'Fetch & Test VAPID Key'}
               </Button>
+              <Button onClick={handleConnectivityTest} disabled={connectivityTest?.status === 'testing'} variant="outline">
+                <AlertTriangle className="h-4 w-4 mr-2" />
+                {connectivityTest?.status === 'testing' ? 'Testing…' : 'Test Connectivity'}
+              </Button>
               <Button onClick={handleRepairSubscription} disabled={isRepairing} variant="secondary">
                 <Wrench className="h-4 w-4 mr-2" />
                 {isRepairing ? 'Repairing…' : 'Repair Subscription'}
@@ -166,6 +227,27 @@ export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => 
                   <strong>Sign in required:</strong> You must be signed in to send test notifications.
                 </AlertDescription>
               </Alert>
+            )}
+
+            {connectivityTest && (
+              <div className="rounded-md border p-3 text-sm">
+                <p className="font-medium mb-2">Connectivity Test:</p>
+                {connectivityTest.status === 'testing' ? (
+                  <p className="text-blue-600">Testing connection...</p>
+                ) : connectivityTest.status === 'failed' ? (
+                  <div className="space-y-2">
+                    <p className="text-destructive">❌ {connectivityTest.error}</p>
+                    <p className="text-muted-foreground text-xs">
+                      Try: Disable browser extensions, hard refresh (Ctrl+Shift+R), check network.
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-green-600">✅ {connectivityTest.message}</p>
+                )}
+                <p className="text-xs text-muted-foreground mt-2">
+                  {new Date(connectivityTest.timestamp).toLocaleTimeString()}
+                </p>
+              </div>
             )}
 
             {lastTestResult && (

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/components/ui/sonner';
 
 interface PushSubscription {
   id?: string;
@@ -112,10 +112,8 @@ export const usePushNotifications = () => {
       setSwReady(true);
     } catch (error) {
       console.error('[PushNotifications] Service worker not ready:', error);
-      toast({
-        title: "Service Worker Error",
-        description: "Push notifications require a service worker. Please refresh the page.",
-        variant: "destructive"
+      toast.error("Service Worker Error", { 
+        description: "Push notifications require a service worker. Please refresh the page."
       });
     }
   }, []);
@@ -167,10 +165,8 @@ export const usePushNotifications = () => {
       console.error('[PushNotifications] Error checking subscription status:', error);
       setIsSubscribed(false);
       setSubscription(null);
-      toast({
-        title: "Subscription Check Failed",
-        description: "Unable to check push notification status. Please try again.",
-        variant: "destructive"
+      toast.error("Subscription Check Failed", { 
+        description: "Unable to check push notification status. Please try again."
       });
     }
   }, [user, isSupported, swReady]);
@@ -181,10 +177,8 @@ export const usePushNotifications = () => {
     
     if (!isSupported) {
       console.log('[PushNotifications] Not supported in this browser');
-      toast({
-        title: "Not Supported",
-        description: "Push notifications are not supported in this browser.",
-        variant: "destructive"
+      toast.error("Not Supported", { 
+        description: "Push notifications are not supported in this browser."
       });
       return false;
     }
@@ -197,10 +191,8 @@ export const usePushNotifications = () => {
 
     if (Notification.permission === 'denied') {
       console.log('[PushNotifications] Permission previously denied - cannot request again');
-      toast({
-        title: "Permission Denied",
-        description: "Push notifications are blocked. Please enable them in your browser settings and refresh the page.",
-        variant: "destructive"
+      toast.error("Permission Denied", { 
+        description: "Push notifications are blocked. Please enable them in your browser settings and refresh the page."
       });
       return false;
     }
@@ -212,10 +204,8 @@ export const usePushNotifications = () => {
       
       if (permission === 'denied') {
         console.log('[PushNotifications] User denied permission');
-        toast({
-          title: "Permission Denied",
-          description: "Please enable notifications in your browser settings to receive updates.",
-          variant: "destructive"
+        toast.error("Permission Denied", { 
+          description: "Please enable notifications in your browser settings to receive updates."
         });
         return false;
       }
@@ -229,10 +219,8 @@ export const usePushNotifications = () => {
       return false;
     } catch (error) {
       console.error('[PushNotifications] Permission request failed:', error);
-      toast({
-        title: "Permission Error",
-        description: "Failed to request notification permission. Please try again.",
-        variant: "destructive"
+      toast.error("Permission Error", { 
+        description: "Failed to request notification permission. Please try again."
       });
       return false;
     }
@@ -244,10 +232,8 @@ export const usePushNotifications = () => {
     
     if (!isSupported) {
       console.log('[PushNotifications] Not supported in this browser');
-      toast({
-        title: "Not Supported",
-        description: "Push notifications are not supported in this browser.",
-        variant: "destructive"
+      toast.error("Not Supported", { 
+        description: "Push notifications are not supported in this browser."
       });
       return false;
     }
@@ -259,26 +245,21 @@ export const usePushNotifications = () => {
       
       if (permission === 'granted') {
         console.log('[PushNotifications] FORCE permission granted successfully');
-        toast({
-          title: "Permission Granted!",
-          description: "Push notifications are now enabled!",
+        toast.success("Permission Granted!", { 
+          description: "Push notifications are now enabled!"
         });
         return true;
       } else {
         console.log('[PushNotifications] FORCE permission not granted:', permission);
-        toast({
-          title: "Permission Not Granted",
-          description: `Permission status: ${permission}. Please check browser settings.`,
-          variant: "destructive"
+        toast.error("Permission Not Granted", { 
+          description: `Permission status: ${permission}. Please check browser settings.`
         });
         return false;
       }
     } catch (error) {
       console.error('[PushNotifications] FORCE permission request failed:', error);
-      toast({
-        title: "Permission Error",
-        description: "Failed to request notification permission. Please try again.",
-        variant: "destructive"
+      toast.error("Permission Error", { 
+        description: "Failed to request notification permission. Please try again."
       });
       return false;
     }
@@ -299,20 +280,16 @@ export const usePushNotifications = () => {
       
       if (error) {
         console.error('[PushNotifications] VAPID key fetch error:', error);
-        toast({
-          title: "Configuration Error", 
-          description: "Unable to fetch server configuration for push notifications. Please contact support.",
-          variant: "destructive"
+        toast.error("Configuration Error", { 
+          description: "Unable to fetch server configuration for push notifications. Please contact support."
         });
         return null;
       }
       
       if (!data?.publicKey) {
         console.error('[PushNotifications] No VAPID public key in response:', data);
-        toast({
-          title: "Configuration Error",
-          description: "Server configuration incomplete. Please contact support.",
-          variant: "destructive"
+        toast.error("Configuration Error", { 
+          description: "Server configuration incomplete. Please contact support."
         });
         return null;
       }
@@ -321,10 +298,8 @@ export const usePushNotifications = () => {
       return data.publicKey;
     } catch (error) {
       console.error('[PushNotifications] VAPID key fetch exception:', error);
-      toast({
-        title: "Network Error",
-        description: "Failed to connect to notification server. Please check your connection.",
-        variant: "destructive"
+      toast.error("Network Error", { 
+        description: "Failed to connect to notification server. Please check your connection."
       });
       return null;
     }
@@ -336,30 +311,24 @@ export const usePushNotifications = () => {
     
     if (!user) {
       console.log('[PushNotifications] No user authenticated');
-      toast({
-        title: "Authentication Required", 
-        description: "Please sign in to enable push notifications.",
-        variant: "destructive"
+      toast.error("Authentication Required", { 
+        description: "Please sign in to enable push notifications."
       });
       return false;
     }
 
     if (!isSupported) {
       console.log('[PushNotifications] Not supported');
-      toast({
-        title: "Not Supported",
-        description: "Push notifications are not supported in this browser.",
-        variant: "destructive"
+      toast.error("Not Supported", { 
+        description: "Push notifications are not supported in this browser."
       });
       return false;
     }
 
     if (!swReady) {
       console.log('[PushNotifications] Service worker not ready');
-      toast({
-        title: "Service Worker Not Ready",
-        description: "Please wait for the page to fully load and try again.",
-        variant: "destructive"
+      toast.error("Service Worker Not Ready", { 
+        description: "Please wait for the page to fully load and try again."
       });
       return false;
     }
@@ -371,9 +340,8 @@ export const usePushNotifications = () => {
       if (existingSubscription) {
         console.log('[PushNotifications] Already subscribed, updating state');
         setIsSubscribed(true);
-        toast({
-          title: "Already Subscribed",
-          description: "Push notifications are already enabled.",
+        toast.success("Already Subscribed", { 
+          description: "Push notifications are already enabled."
         });
         return true;
       }
@@ -385,9 +353,8 @@ export const usePushNotifications = () => {
     try {
       // Step 1: Request permission
       console.log('[PushNotifications] Step 1: Requesting permission...');
-      toast({
-        title: "Setting up notifications...",
-        description: "Step 1: Requesting permission",
+      toast("Setting up notifications...", { 
+        description: "Step 1: Requesting permission"
       });
       
       const hasPermission = await requestPermission();
@@ -399,26 +366,22 @@ export const usePushNotifications = () => {
 
       // Step 2: Get service worker registration
       console.log('[PushNotifications] Step 2: Getting service worker registration...');
-      toast({
-        title: "Setting up notifications...",
-        description: "Step 2: Preparing service worker",
+      toast("Setting up notifications...", { 
+        description: "Step 2: Preparing service worker"
       });
       const registration = await navigator.serviceWorker.ready;
       
       // Step 3: Fetch VAPID public key from server
       console.log('[PushNotifications] Step 3: Fetching VAPID key...');
-      toast({
-        title: "Setting up notifications...",
-        description: "Step 3: Fetching server configuration",
+      toast("Setting up notifications...", { 
+        description: "Step 3: Fetching server configuration"
       });
       
       const vapidPublicKey = await fetchVapidPublicKey();
       if (!vapidPublicKey) {
         console.error('[PushNotifications] No VAPID key received');
-        toast({
-          title: "Configuration Error",
-          description: "Unable to retrieve notification configuration. Please check server setup.",
-          variant: "destructive"
+        toast.error("Configuration Error", { 
+          description: "Unable to retrieve notification configuration. Please check server setup."
         });
         setIsLoading(false);
         return false;
@@ -446,9 +409,8 @@ export const usePushNotifications = () => {
       
       // Step 5: Subscribe to push manager
       console.log('[PushNotifications] Step 5: Subscribing to push manager...');
-      toast({
-        title: "Setting up notifications...",
-        description: "Step 5: Creating subscription",
+      toast("Setting up notifications...", { 
+        description: "Step 5: Creating subscription"
       });
       
       const pushSubscription = await registration.pushManager.subscribe({
@@ -461,9 +423,8 @@ export const usePushNotifications = () => {
       
       // Step 6: Save to database
       console.log('[PushNotifications] Step 6: Saving to database...');
-      toast({
-        title: "Setting up notifications...",
-        description: "Step 6: Saving configuration",
+      toast("Setting up notifications...", { 
+        description: "Step 6: Saving configuration"
       });
       
       const subscriptionData = {
@@ -481,64 +442,68 @@ export const usePushNotifications = () => {
         has_auth: !!subscriptionData.auth_key
       });
 
-      // Save subscription to database
-      const { error } = await supabase
+      const { error: dbError } = await supabase
         .from('push_subscriptions')
-        .insert(subscriptionData);
+        .upsert(subscriptionData, {
+          onConflict: 'user_id,endpoint'
+        });
 
-      if (error) {
-        console.error('[PushNotifications] Database save error:', error);
-        throw new Error(`Database error: ${error.message}`);
+      if (dbError) {
+        console.error('[PushNotifications] Database save error:', dbError);
+        toast.error("Save Error", { 
+          description: "Failed to save notification settings. Please try again."
+        });
+        setIsLoading(false);
+        return false;
       }
-      
-      console.log('[PushNotifications] Subscription saved successfully to database');
 
-      // Update local state
+      console.log('[PushNotifications] Subscription saved successfully');
+      
+      // Update state
       setIsSubscribed(true);
       setSubscription({
         endpoint: pushSubscription.endpoint,
         keys: {
-          p256dh: pushSubscription.toJSON().keys?.p256dh || '',
-          auth: pushSubscription.toJSON().keys?.auth || ''
+          p256dh: subscriptionData.p256dh_key,
+          auth: subscriptionData.auth_key
         }
       });
 
-      toast({
-        title: "Notifications Enabled!",
-        description: "You'll now receive push notifications for workouts and achievements!"
+      toast.success("Notifications Enabled!", { 
+        description: "Push notifications have been set up successfully."
       });
-
-      console.log('[PushNotifications] Subscription complete successfully!');
-      return true;
-    } catch (error) {
-      console.error('[PushNotifications] Subscription failed with error:', error);
       
-      let errorMessage = "Failed to enable push notifications. Please try again.";
-      if (error instanceof Error) {
-        if (error.message.includes('VAPID')) {
-          errorMessage = "Server configuration issue. Please contact support.";
-        } else if (error.message.includes('Database')) {
-          errorMessage = "Failed to save subscription. Please try again.";
-        } else if (error.message.includes('permission')) {
-          errorMessage = "Permission denied. Please enable notifications in browser settings.";
-        }
-      }
-      
-      toast({
-        title: "Subscription Failed",
-        description: errorMessage,
-        variant: "destructive"
-      });
-      return false;
-    } finally {
       setIsLoading(false);
+      return true;
+
+    } catch (error) {
+      console.error('[PushNotifications] Subscription failed:', error);
+      toast.error("Subscription Failed", { 
+        description: error instanceof Error ? error.message : "Unable to set up push notifications. Please try again."
+      });
+      setIsLoading(false);
+      return false;
     }
   }, [user, isSupported, swReady, requestPermission, fetchVapidPublicKey]);
 
   const unsubscribe = useCallback(async () => {
-    console.log('[PushNotifications] Unsubscribing...');
+    console.log('[PushNotifications] Starting unsubscribe...');
     
-    if (!user || !isSupported || !swReady) return false;
+    if (!user) {
+      console.log('[PushNotifications] No user authenticated');
+      toast.error("Authentication Required", { 
+        description: "Please sign in to manage notifications."
+      });
+      return false;
+    }
+
+    if (!isSupported || !swReady) {
+      console.log('[PushNotifications] Service worker not available');
+      toast.error("Service Worker Error", { 
+        description: "Unable to manage notifications. Please refresh the page."
+      });
+      return false;
+    }
 
     setIsLoading(true);
     try {
@@ -548,410 +513,104 @@ export const usePushNotifications = () => {
       if (subscription) {
         console.log('[PushNotifications] Unsubscribing from push manager...');
         await subscription.unsubscribe();
-        
-        console.log('[PushNotifications] Removing from database...');
-        // Remove subscription from database
-        await supabase
-          .from('push_subscriptions')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('endpoint', subscription.endpoint);
+        console.log('[PushNotifications] Successfully unsubscribed from push manager');
       }
 
+      // Remove from database
+      console.log('[PushNotifications] Removing from database...');
+      const { error: dbError } = await supabase
+        .from('push_subscriptions')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (dbError) {
+        console.error('[PushNotifications] Database removal error:', dbError);
+        toast.error("Database Error", { 
+          description: "Failed to remove notification settings from server."
+        });
+      } else {
+        console.log('[PushNotifications] Successfully removed from database');
+      }
+
+      // Update state
       setIsSubscribed(false);
       setSubscription(null);
-
-      console.log('[PushNotifications] Unsubscribe complete');
-      toast({
-        title: "Notifications Disabled",
-        description: "You will no longer receive push notifications."
+      
+      toast.success("Notifications Disabled", { 
+        description: "Push notifications have been turned off."
       });
-
+      
+      setIsLoading(false);
       return true;
+
     } catch (error) {
       console.error('[PushNotifications] Unsubscribe failed:', error);
-      toast({
-        title: "Unsubscribe Failed",
-        description: "Failed to disable push notifications. Please try again.",
-        variant: "destructive"
+      toast.error("Unsubscribe Failed", { 
+        description: error instanceof Error ? error.message : "Unable to disable notifications. Please try again."
       });
-      return false;
-    } finally {
       setIsLoading(false);
+      return false;
     }
   }, [user, isSupported, swReady]);
 
   const resubscribe = useCallback(async () => {
-    if (!isSubscribed) return await subscribe();
-    
-    // First unsubscribe, then subscribe again
+    console.log('[PushNotifications] Starting resubscribe...');
     const unsubscribeResult = await unsubscribe();
     if (unsubscribeResult) {
+      // Small delay to ensure cleanup
+      await new Promise(resolve => setTimeout(resolve, 500));
       return await subscribe();
     }
     return false;
-  }, [isSubscribed, subscribe, unsubscribe]);
+  }, [unsubscribe, subscribe]);
 
-  const forceSubscribeIgnorePermission = useCallback(async () => {
-    console.log('[PushNotifications] FORCE SUBSCRIBE - ignoring permission state...');
-    console.log('[PushNotifications] Current permission:', Notification.permission);
+  const sendTestNotification = useCallback(async () => {
+    console.log('[PushNotifications] Sending test notification...');
     
     if (!user) {
-      console.log('[PushNotifications] No user authenticated');
-      toast({
-        title: "Authentication Required", 
-        description: "Please sign in to enable push notifications.",
-        variant: "destructive"
+      toast.error("Authentication Required", { 
+        description: "Please sign in to send test notifications."
       });
-      return false;
+      return;
     }
 
-    if (!isSupported) {
-      console.log('[PushNotifications] Not supported');
-      toast({
-        title: "Not Supported",
-        description: "Push notifications are not supported in this browser.",
-        variant: "destructive"
+    if (!isSubscribed) {
+      toast.error("No Subscription", { 
+        description: "Please enable notifications first."
       });
-      return false;
+      return;
     }
 
-    if (!swReady) {
-      console.log('[PushNotifications] Service worker not ready');
-      toast({
-        title: "Service Worker Not Ready",
-        description: "Please wait for the page to fully load and try again.",
-        variant: "destructive"
-      });
-      return false;
-    }
-
-    setIsLoading(true);
     try {
-      // Step 1: FORCE request permission (even if currently denied)
-      console.log('[PushNotifications] FORCE Step 1: Requesting permission...');
-      toast({
-        title: "FORCE Setting up notifications...",
-        description: "Step 1: Force requesting permission",
-      });
-      
-      const hasPermission = await forceRequestPermission();
-      if (!hasPermission) {
-        console.error('[PushNotifications] FORCE permission denied or failed');
-        setIsLoading(false);
-        return false;
-      }
-
-      // Continue with normal subscription process
-      console.log('[PushNotifications] FORCE Step 2: Getting service worker registration...');
-      toast({
-        title: "FORCE Setting up notifications...",
-        description: "Step 2: Preparing service worker",
-      });
-      const registration = await navigator.serviceWorker.ready;
-      
-      // Step 3: Fetch VAPID public key from server
-      console.log('[PushNotifications] FORCE Step 3: Fetching VAPID key...');
-      toast({
-        title: "FORCE Setting up notifications...",
-        description: "Step 3: Fetching server configuration",
-      });
-      
-      const vapidPublicKey = await fetchVapidPublicKey();
-      if (!vapidPublicKey) {
-        console.error('[PushNotifications] FORCE No VAPID key received');
-        toast({
-          title: "Configuration Error",
-          description: "Unable to retrieve notification configuration. Please check server setup.",
-          variant: "destructive"
-        });
-        setIsLoading(false);
-        return false;
-      }
-      
-      // Step 4: Convert VAPID key
-      console.log('[PushNotifications] FORCE Step 4: Converting VAPID key...');
-      function urlBase64ToUint8Array(base64String: string): Uint8Array {
-        try {
-          const padding = '='.repeat((4 - base64String.length % 4) % 4);
-          const base64 = (base64String + padding)
-            .replace(/\-/g, '+')
-            .replace(/_/g, '/');
-          const rawData = atob(base64);
-          return new Uint8Array([...rawData].map(char => char.charCodeAt(0)));
-        } catch (error) {
-          console.error('[PushNotifications] FORCE Error converting VAPID key:', error);
-          throw new Error('Invalid VAPID key format');
+      const { data, error } = await supabase.functions.invoke('send-push-notification', {
+        body: {
+          userIds: [user.id],
+          title: 'Test Notification',
+          body: 'This is a test push notification from your fitness app!',
+          type: 'test'
         }
-      }
-      
-      const applicationServerKey = urlBase64ToUint8Array(vapidPublicKey);
-      
-      // Step 5: Subscribe to push manager
-      console.log('[PushNotifications] FORCE Step 5: Subscribing to push manager...');
-      toast({
-        title: "FORCE Setting up notifications...",
-        description: "Step 5: Creating subscription",
       });
-      
-      const pushSubscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: applicationServerKey
-      });
-
-      // Step 6: Save to database
-      console.log('[PushNotifications] FORCE Step 6: Saving to database...');
-      toast({
-        title: "FORCE Setting up notifications...",
-        description: "Step 6: Saving configuration",
-      });
-      
-      const subscriptionData = {
-        user_id: user.id,
-        endpoint: pushSubscription.endpoint,
-        p256dh_key: pushSubscription.toJSON().keys?.p256dh || '',
-        auth_key: pushSubscription.toJSON().keys?.auth || '',
-        user_agent: navigator.userAgent
-      };
-
-      // Save subscription to database
-      const { error } = await supabase
-        .from('push_subscriptions')
-        .insert(subscriptionData);
 
       if (error) {
-        console.error('[PushNotifications] FORCE Database save error:', error);
-        throw new Error(`Database error: ${error.message}`);
-      }
-      
-      // Update local state
-      setIsSubscribed(true);
-      setSubscription({
-        endpoint: pushSubscription.endpoint,
-        keys: {
-          p256dh: pushSubscription.toJSON().keys?.p256dh || '',
-          auth: pushSubscription.toJSON().keys?.auth || ''
-        }
-      });
-
-      toast({
-        title: "FORCE Notifications Enabled!",
-        description: "Push notifications forcefully enabled despite previous permission state!"
-      });
-
-      console.log('[PushNotifications] FORCE Subscription complete successfully!');
-      return true;
-    } catch (error) {
-      console.error('[PushNotifications] FORCE Subscription failed with error:', error);
-      
-      toast({
-        title: "FORCE Subscription Failed",
-        description: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        variant: "destructive"
-      });
-      
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user, isSupported, swReady, forceRequestPermission, fetchVapidPublicKey]);
-
-  // Nuclear Reset - Complete cleanup and restart
-  const nuclearReset = useCallback(async (): Promise<boolean> => {
-    if (!isSupported || !user) return false;
-
-    setIsLoading(true);
-    console.log('[PushNotifications] Nuclear reset initiated');
-
-    try {
-      // 1. Unsubscribe from current subscription
-      try {
-        await unsubscribe();
-      } catch (e) {
-        console.log('[PushNotifications] Unsubscribe during nuclear reset failed (expected):', e);
-      }
-
-      // 2. Unregister ALL service workers
-      if ('serviceWorker' in navigator) {
-        const registrations = await navigator.serviceWorker.getRegistrations();
-        console.log(`[PushNotifications] Found ${registrations.length} service worker registrations`);
-        
-        for (const registration of registrations) {
-          console.log('[PushNotifications] Unregistering service worker:', registration.scope);
-          await registration.unregister();
-        }
-      }
-
-      // 3. Clear all caches
-      if ('caches' in window) {
-        const cacheNames = await caches.keys();
-        console.log(`[PushNotifications] Found ${cacheNames.length} caches to clear`);
-        
-        for (const cacheName of cacheNames) {
-          console.log('[PushNotifications] Clearing cache:', cacheName);
-          await caches.delete(cacheName);
-        }
-      }
-
-      // 4. Clear relevant localStorage items
-      const keysToRemove = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && (key.includes('push') || key.includes('notification') || key.includes('vapid'))) {
-          keysToRemove.push(key);
-        }
-      }
-      keysToRemove.forEach(key => {
-        console.log('[PushNotifications] Removing localStorage key:', key);
-        localStorage.removeItem(key);
-      });
-
-      // 5. Reset component state
-      setIsSubscribed(false);
-      setSubscription(null);
-      setSwReady(false);
-
-      console.log('[PushNotifications] Nuclear reset completed successfully');
-      
-      toast({
-        title: "Nuclear Reset Complete",
-        description: "All push notification data cleared. Please reload the page and try again.",
-        variant: "default"
-      });
-
-      return true;
-    } catch (error) {
-      console.error('[PushNotifications] Nuclear reset failed:', error);
-      
-      toast({
-        title: "Nuclear Reset Failed",
-        description: error instanceof Error ? error.message : "Failed to perform nuclear reset",
-        variant: "destructive"
-      });
-      
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user, isSupported, unsubscribe]);
-
-  // Alternative permission request methods
-  const directPermissionRequest = useCallback(async (): Promise<boolean> => {
-    console.log('[PushNotifications] Direct permission request initiated');
-    
-    try {
-      // Method 1: Direct Notification.requestPermission()
-      const permission = await Notification.requestPermission();
-      console.log('[PushNotifications] Direct permission result:', permission);
-      
-      if (permission === 'granted') {
-        toast({
-          title: "Permission Granted",
-          description: "Notifications enabled via direct request",
-          variant: "default"
+        console.error('[PushNotifications] Test notification error:', error);
+        toast.error("Test Failed", { 
+          description: error.message || "Failed to send test notification."
         });
-        return true;
+        return;
       }
-      
-      return false;
+
+      console.log('[PushNotifications] Test notification sent:', data);
+      toast.success("Test Sent!", { 
+        description: "Check your device for the test notification."
+      });
+
     } catch (error) {
-      console.error('[PushNotifications] Direct permission request failed:', error);
-      return false;
+      console.error('[PushNotifications] Test notification exception:', error);
+      toast.error("Test Failed", { 
+        description: error instanceof Error ? error.message : "Unable to send test notification."
+      });
     }
-  }, []);
-
-  const alternativeSubscribe = useCallback(async (): Promise<boolean> => {
-    if (!isSupported || !user) return false;
-
-    setIsLoading(true);
-    console.log('[PushNotifications] Alternative subscribe method initiated');
-
-    try {
-      // Step 1: Try direct permission first
-      const hasPermission = await directPermissionRequest();
-      if (!hasPermission) {
-        console.log('[PushNotifications] Alternative subscribe: permission denied');
-        return false;
-      }
-
-      // Step 2: Force service worker registration
-      let registration;
-      try {
-        registration = await navigator.serviceWorker.register('/sw.js', { 
-          scope: '/',
-          updateViaCache: 'none'
-        });
-        console.log('[PushNotifications] Alternative: SW registered:', registration.scope);
-        
-        // Wait for activation
-        if (registration.installing) {
-          console.log('[PushNotifications] Alternative: Waiting for SW installation...');
-          await new Promise((resolve) => {
-            registration.installing!.addEventListener('statechange', () => {
-              if (registration.installing!.state === 'activated') {
-                resolve(true);
-              }
-            });
-          });
-        }
-      } catch (error) {
-        console.error('[PushNotifications] Alternative: SW registration failed:', error);
-        return false;
-      }
-
-      // Step 3: Get VAPID key and subscribe
-      const vapidKey = await fetchVapidPublicKey();
-      if (!vapidKey) return false;
-
-      // Step 4: Subscribe to push manager
-      const pushSubscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: vapidKey
-      });
-
-      // Step 5: Save to database
-      const subscriptionData = {
-        user_id: user.id,
-        endpoint: pushSubscription.endpoint,
-        p256dh_key: btoa(String.fromCharCode(...new Uint8Array(pushSubscription.getKey('p256dh')!))),
-        auth_key: btoa(String.fromCharCode(...new Uint8Array(pushSubscription.getKey('auth')!))),
-        user_agent: navigator.userAgent,
-        is_active: true
-      };
-
-      const { error: saveError } = await supabase
-        .from('push_subscriptions')
-        .upsert(subscriptionData, { 
-          onConflict: 'user_id',
-          ignoreDuplicates: false 
-        });
-
-      if (saveError) throw saveError;
-
-      setIsSubscribed(true);
-      setSubscription(pushSubscription);
-
-      toast({
-        title: "Alternative Subscribe Success",
-        description: "Push notifications enabled via alternative method",
-        variant: "default"
-      });
-
-      return true;
-    } catch (error) {
-      console.error('[PushNotifications] Alternative subscribe failed:', error);
-      
-      toast({
-        title: "Alternative Subscribe Failed",
-        description: error instanceof Error ? error.message : "Failed to subscribe via alternative method",
-        variant: "destructive"
-      });
-      
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user, isSupported, directPermissionRequest, fetchVapidPublicKey]);
+  }, [user, isSubscribed]);
 
   return {
     isSupported,
@@ -962,11 +621,12 @@ export const usePushNotifications = () => {
     subscribe,
     unsubscribe,
     resubscribe,
-    requestPermission,
-    forceSubscribeIgnorePermission,
+    sendTestNotification,
+    requestPermission: forceRequestPermission,
     forceRequestPermission,
-    nuclearReset,
-    directPermissionRequest,
-    alternativeSubscribe
+    forceSubscribeIgnorePermission: subscribe, // alias for compatibility
+    nuclearReset: resubscribe, // alias for compatibility
+    directPermissionRequest: forceRequestPermission, // alias for compatibility
+    alternativeSubscribe: subscribe // alias for compatibility
   };
 };

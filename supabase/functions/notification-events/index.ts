@@ -17,9 +17,10 @@ interface EventPayload {
 
 interface ReminderSlot {
   slot: string;
-  reminder_time: string;
+  send_time: string; // HH:MM:SS
   enabled: boolean;
 }
+
 
 interface MessageVariant {
   id: string;
@@ -164,107 +165,142 @@ async function handleBasicEventNotification(supabase: any, payload: EventPayload
 // Enhanced daily reminders with multiple time slots and contextual messages
 async function handleEnhancedDailyReminders(supabase: any) {
   console.log('Processing enhanced daily workout reminders...');
-  
-  const now = new Date();
-  const currentTimeStr = `${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}:00`;
-  
-  // Get users with reminder slots that match current time (±15 min window for flexibility)
-  const { data: reminderSlots, error } = await supabase
-    .from('user_reminder_slots')
-    .select(`
-      user_id,
-      slot,
-      reminder_time,
-      user_preferences!inner(
-        push_notifications_enabled,
-        notification_types,
-        time_zone
-      )
-    `)
-    .eq('enabled', true)
-    .eq('user_preferences.push_notifications_enabled', true);
 
-  if (error) {
-    console.error('Error fetching reminder slots:', error);
-    return;
+  const nowUtc = new Date();
+
+  // 1) Fetch active schedules from new table; fallback to legacy if empty
+  const { data: schedulesNew, error: schedErrNew } = await supabase
+    .from('user_notification_schedules')
+    .select('user_id, slot, send_time, enabled')
+    .eq('enabled', true);
+
+  let schedules: Array<{ user_id: string; slot: string; send_time: string; enabled: boolean }> = [];
+
+  if (schedErrNew) {
+    console.warn('user_notification_schedules query failed, falling back to user_reminder_slots:', schedErrNew.message);
+  } else if (schedulesNew?.length) {
+    schedules = schedulesNew as any;
   }
 
-  if (!reminderSlots?.length) {
+  if (!schedules.length) {
+    const { data: schedulesLegacy, error: schedErrLegacy } = await supabase
+      .from('user_reminder_slots')
+      .select('user_id, slot, reminder_time, enabled')
+      .eq('enabled', true);
+
+    if (schedErrLegacy) {
+      console.error('Error fetching reminder slots:', schedErrLegacy);
+      return;
+    }
+
+    schedules = (schedulesLegacy || []).map((r: any) => ({
+      user_id: r.user_id,
+      slot: r.slot,
+      send_time: r.reminder_time,
+      enabled: r.enabled,
+    }));
+  }
+
+  if (!schedules.length) {
     console.log('No active reminder slots found');
     return;
   }
 
-  for (const reminder of reminderSlots) {
+  // 2) Fetch user preferences in batch
+  const userIds = Array.from(new Set(schedules.map((s) => s.user_id)));
+  const { data: prefsList, error: prefsErr } = await supabase
+    .from('user_preferences')
+    .select('user_id, push_notifications_enabled, notification_types, time_zone');
+
+  if (prefsErr) {
+    console.error('Error fetching user preferences:', prefsErr);
+    return;
+  }
+
+  const prefMap = new Map<string, any>(prefsList?.map((p: any) => [p.user_id, p]) || []);
+
+  // 3) Helper to get local time in HH:MM for a timezone
+  const getLocalMinutes = (timeZone: string) => {
     try {
-      // Check if it's time for this reminder (within 15-minute window)
-      const [reminderHour, reminderMinute] = reminder.reminder_time.split(':').map(Number);
-      const timeDiff = Math.abs((now.getUTCHours() * 60 + now.getUTCMinutes()) - (reminderHour * 60 + reminderMinute));
-      
-      if (timeDiff > 15) continue;
+      const parts = new Intl.DateTimeFormat('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23',
+        timeZone,
+      }).formatToParts(nowUtc);
+      const hh = Number(parts.find((p) => p.type === 'hour')?.value || '0');
+      const mm = Number(parts.find((p) => p.type === 'minute')?.value || '0');
+      return hh * 60 + mm;
+    } catch {
+      // Fallback to UTC if timezone unsupported
+      return nowUtc.getUTCHours() * 60 + nowUtc.getUTCMinutes();
+    }
+  };
 
-      // Check if reminders are enabled in notification types
-      if (reminder.user_preferences?.notification_types?.reminders === false) continue;
+  for (const sched of schedules) {
+    try {
+      const prefs = prefMap.get(sched.user_id);
+      if (!prefs) continue;
 
-      // Check if we already sent this type of reminder today
-      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
-      const { data: recentReminder } = await supabase
+      if (prefs.push_notifications_enabled === false) continue;
+      if (prefs.notification_types?.reminders === false) continue;
+
+      const tz = prefs.time_zone || 'UTC';
+      const localNowMin = getLocalMinutes(tz);
+
+      const [hh, mm] = (sched.send_time || '18:00:00').split(':').map((n) => Number(n));
+      const targetMin = hh * 60 + mm;
+      const diff = Math.abs(localNowMin - targetMin);
+
+      // 15-minute send window
+      if (diff > 15) continue;
+
+      // Rate limit: avoid sending duplicate slot today (UTC day window kept simple)
+      const dayStartUtc = new Date(Date.UTC(nowUtc.getUTCFullYear(), nowUtc.getUTCMonth(), nowUtc.getUTCDate())).toISOString();
+      const { data: recent } = await supabase
         .from('notification_logs')
         .select('id')
-        .eq('user_id', reminder.user_id)
+        .eq('user_id', sched.user_id)
         .eq('notification_type', 'reminders')
-        .gte('sent_at', todayStart)
-        .like('body', `%${reminder.slot}%`)
+        .contains('data', { slot: sched.slot })
+        .gte('sent_at', dayStartUtc)
         .limit(1);
 
-      if (recentReminder?.length) continue;
+      if (recent?.length) continue;
 
-      // Get A/B tested message variant for this slot
-      const variant = await getOrAssignMessageVariant(
-        supabase, 
-        reminder.user_id, 
-        'daily_reminder', 
-        reminder.slot
-      );
+      // A/B variant for this slot
+      const variant = await getOrAssignMessageVariant(supabase, sched.user_id, 'daily_reminder', sched.slot);
 
       if (variant) {
-        // Send A/B tested reminder
         await supabase.functions.invoke('send-push-notification', {
           body: {
-            user_id: reminder.user_id,
+            user_id: sched.user_id,
             title: variant.content.title,
             body: variant.content.body,
             notification_type: 'reminders',
-            data: { 
-              ...variant.content.data,
-              slot: reminder.slot,
-              variant_id: variant.id
-            }
-          }
+            data: { ...variant.content.data, slot: sched.slot, variant_id: variant.id },
+          },
         });
       } else {
-        // Fallback contextual reminder
-        const { title, body } = getContextualReminderMessage(reminder.slot);
+        const { title, body } = getContextualReminderMessage(sched.slot);
         await supabase.functions.invoke('send-push-notification', {
           body: {
-            user_id: reminder.user_id,
+            user_id: sched.user_id,
             title,
             body,
             notification_type: 'reminders',
-            data: { 
-              type: 'daily_reminder',
-              slot: reminder.slot
-            }
-          }
+            data: { type: 'daily_reminder', slot: sched.slot },
+          },
         });
       }
 
-      console.log(`Sent ${reminder.slot} reminder to user ${reminder.user_id}`);
-      
+      console.log(`Sent ${sched.slot} reminder to user ${sched.user_id}`);
     } catch (error) {
-      console.error(`Error sending reminder to user ${reminder.user_id}:`, error);
+      console.error(`Error sending reminder to user ${sched.user_id}:`, error);
     }
   }
 }
+
 
 // Enhanced streak risk alerts with milestone-specific messaging
 async function handleEnhancedStreakRiskAlerts(supabase: any) {

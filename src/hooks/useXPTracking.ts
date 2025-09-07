@@ -2,6 +2,7 @@
 import { useState, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { awardXP } from '@/services/levelProgressionService';
+import { EnhancedXPService } from '@/services/enhancedXPService';
 import { useLevelProgression } from './useLevelProgression';
 
 export const useXPTracking = () => {
@@ -39,13 +40,34 @@ export const useXPTracking = () => {
     console.log('trackXP proceeding with user:', user.id);
 
     try {
-      const result = await awardXP(user.id, source, data);
+      // Calculate enhanced XP with bonuses
+      const enhancedXP = await EnhancedXPService.calculateEnhancedXP(source, data, user.id);
       
-      if (result.xpAmount > 0) {
-        // Show XP notification
+      // Award the enhanced XP amount
+      const result = await awardXP(user.id, source, { 
+        ...data, 
+        calculated_xp: enhancedXP.totalXP 
+      });
+      
+      if (enhancedXP.totalXP > 0) {
+        // Show enhanced XP notification with bonuses
+        let description = enhancedXP.description;
+        
+        // Add bonus indicators
+        if (enhancedXP.bonuses.length > 0) {
+          const bonusText = enhancedXP.bonuses
+            .map(b => `+${b.amount} ${b.type.replace('_', ' ')}`)
+            .join(', ');
+          description += ` (${bonusText})`;
+        }
+
+        if (enhancedXP.multiplier > 1.0) {
+          description += ` [${enhancedXP.multiplier}x Day!]`;
+        }
+
         setXpNotification({
-          amount: result.xpAmount,
-          description: `${source === 'workout' ? 'Workout completed' : source}`,
+          amount: enhancedXP.totalXP,
+          description,
           isVisible: true
         });
 

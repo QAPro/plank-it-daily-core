@@ -106,6 +106,11 @@ export class LevelProgressionEngine {
   }
   
   static calculateXPReward(source: string, data: any): number {
+    // If enhanced XP was pre-calculated, use that
+    if (data.calculated_xp) {
+      return data.calculated_xp;
+    }
+    
     switch (source) {
       case 'workout':
         let baseXP = 10;

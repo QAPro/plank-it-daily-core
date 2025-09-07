@@ -8,6 +8,9 @@ import StreakDisplay from "@/components/StreakDisplay";
 import GatedRecommendationsDashboard from "@/components/recommendations/GatedRecommendationsDashboard";
 import LevelProgressBar from "@/components/level/LevelProgressBar";
 import SubscriptionStatusCard from "@/components/subscription/SubscriptionStatusCard";
+import CommunityStatsWidget from "@/components/social/CommunityStatsWidget";
+import UserRankingDisplay from "@/components/social/UserRankingDisplay";
+import XPMultiplierNotification from "@/components/xp/XPMultiplierNotification";
 import { useLevelProgression } from "@/hooks/useLevelProgression";
 
 interface HomeTabProps {
@@ -93,6 +96,9 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick }: HomeTabProps
       transition={{ duration: 0.5 }}
       className="p-6 space-y-6"
     >
+      {/* XP Multiplier Notification */}
+      <XPMultiplierNotification />
+
       {/* Header */}
       <div className="text-center pt-4">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">
@@ -124,9 +130,14 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick }: HomeTabProps
         />
       </motion.div>
 
+      {/* Community & Personal Stats Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <CommunityStatsWidget />
+        <UserRankingDisplay />
+      </div>
+
       {/* Streak Display */}
       <StreakDisplay />
-
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 gap-3">

@@ -227,6 +227,7 @@ serve(async (req) => {
           data: {
             ...data,
             notification_type,
+            user_id: subscription.user_id, // Include user_id for interaction tracking
             timestamp: new Date().toISOString()
           },
           actions

@@ -301,6 +301,9 @@ self.addEventListener('notificationclick', (event) => {
     clients.matchAll({ type: 'window' }).then((clientList) => {
       console.log(`[SW] Found ${clientList.length} open windows (${pushId})`);
       
+      // Log the click interaction
+      logNotificationInteraction(pushId, action, category, event.notification.data);
+      
       // Try to focus existing window with same base URL
       const baseUrl = urlToOpen.split('?')[0];
       for (const client of clientList) {
@@ -331,6 +334,41 @@ self.addEventListener('notificationclick', (event) => {
     })
   );
 });
+
+// Function to log notification interactions
+async function logNotificationInteraction(pushId, action, category, notificationData) {
+  try {
+    const interactionData = {
+      notification_type: notificationData?.notification_type || 'unknown',
+      category: category || 'unknown',
+      action: action || 'click',
+      data: {
+        pushId,
+        timestamp: new Date().toISOString(),
+        ...notificationData
+      }
+    };
+
+    console.log(`[SW] Logging notification interaction (${pushId}):`, interactionData);
+
+    // Send to edge function for logging
+    const response = await fetch('https://kgwmplptoctmoaefnpfg.supabase.co/functions/v1/log-notification-interaction', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(interactionData)
+    });
+
+    if (!response.ok) {
+      console.error(`[SW] Failed to log interaction (${pushId}):`, response.status);
+    } else {
+      console.log(`[SW] Interaction logged successfully (${pushId})`);
+    }
+  } catch (error) {
+    console.error(`[SW] Error logging interaction (${pushId}):`, error);
+  }
+}
 
 // Background sync for offline session saving
 self.addEventListener('sync', (event) => {

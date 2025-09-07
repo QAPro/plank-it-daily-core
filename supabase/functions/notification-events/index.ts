@@ -37,11 +37,14 @@ serve(async (req) => {
         case 'daily_reminders':
           await handleDailyReminders(supabase);
           break;
-        case 'streak_risk':
+        case 'streak_risk_alerts':
           await handleStreakRiskAlerts(supabase);
           break;
         case 'weekly_summary':
           await handleWeeklySummary(supabase);
+          break;
+        case 'reengagement':
+          await handleReengagement(supabase);
           break;
         default:
           console.log('Unknown task:', payload.task);
@@ -340,6 +343,81 @@ async function handleWeeklySummary(supabase: any) {
       
     } catch (error) {
       console.error(`Error sending weekly summary to user ${userId}:`, error);
+    }
+  }
+}
+
+async function handleReengagement(supabase: any) {
+  console.log('Processing re-engagement campaigns...');
+  
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  // Get users who were active 7-30 days ago but not in last 7 days
+  const { data: inactiveUsers } = await supabase
+    .from('user_sessions')
+    .select('user_id')
+    .lt('completed_at', sevenDaysAgo.toISOString())
+    .gte('completed_at', thirtyDaysAgo.toISOString());
+
+  if (!inactiveUsers?.length) {
+    console.log('No inactive users to re-engage');
+    return;
+  }
+
+  // Remove duplicates
+  const uniqueUserIds = [...new Set(inactiveUsers.map(u => u.user_id))];
+  
+  // Check if they've been active recently (filter out recently active users)
+  const { data: recentActivity } = await supabase
+    .from('user_sessions')
+    .select('user_id')
+    .in('user_id', uniqueUserIds)
+    .gte('completed_at', sevenDaysAgo.toISOString());
+
+  const recentActiveIds = new Set(recentActivity?.map(u => u.user_id) || []);
+  const trulyInactiveIds = uniqueUserIds.filter(id => !recentActiveIds.has(id));
+
+  console.log(`Sending re-engagement messages to ${trulyInactiveIds.length} users`);
+
+  // Send re-engagement notifications
+  for (const userId of trulyInactiveIds) {
+    try {
+      // Check user preferences
+      const { data: prefs } = await supabase
+        .from('user_preferences')
+        .select('push_notifications_enabled, notification_types')
+        .eq('user_id', userId)
+        .single();
+
+      if (!prefs?.push_notifications_enabled || prefs?.notification_types?.reminders === false) {
+        continue;
+      }
+
+      await supabase.functions.invoke('send-push-notification', {
+        body: {
+          user_id: userId,
+          notification_type: 'reminders',
+          title: '👋 We miss you!',
+          body: 'Ready to get back to building your core strength? Your plank journey awaits!',
+          data: { 
+            url: '/?tab=workout',
+            category: 'reengagement',
+            notification_type: 'reminders'
+          },
+          actions: [
+            { action: 'start-workout', title: '💪 I\'m Back!' },
+            { action: 'view-progress', title: '📊 Check Progress' }
+          ]
+        }
+      });
+
+      console.log(`Sent re-engagement to user ${userId}`);
+    } catch (error) {
+      console.error(`Failed to send re-engagement to user ${userId}:`, error);
     }
   }
 }

@@ -2634,6 +2634,75 @@ export type Database = {
           },
         ]
       }
+      user_victory_photos: {
+        Row: {
+          celebration_notes: string | null
+          celebration_timestamp: string
+          created_at: string
+          id: string
+          is_public: boolean | null
+          milestone_achieved: string | null
+          photo_url: string
+          stats_overlay: Json | null
+          user_id: string
+          victory_title: string
+        }
+        Insert: {
+          celebration_notes?: string | null
+          celebration_timestamp?: string
+          created_at?: string
+          id?: string
+          is_public?: boolean | null
+          milestone_achieved?: string | null
+          photo_url: string
+          stats_overlay?: Json | null
+          user_id: string
+          victory_title: string
+        }
+        Update: {
+          celebration_notes?: string | null
+          celebration_timestamp?: string
+          created_at?: string
+          id?: string
+          is_public?: boolean | null
+          milestone_achieved?: string | null
+          photo_url?: string
+          stats_overlay?: Json | null
+          user_id?: string
+          victory_title?: string
+        }
+        Relationships: []
+      }
+      user_victory_playlists: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_default: boolean | null
+          playlist_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_default?: boolean | null
+          playlist_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_default?: boolean | null
+          playlist_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_weekly_stats: {
         Row: {
           average_duration: number | null
@@ -2714,6 +2783,50 @@ export type Database = {
           username?: string | null
         }
         Relationships: []
+      }
+      victory_playlist_songs: {
+        Row: {
+          artist_name: string
+          created_at: string
+          duration_seconds: number | null
+          energy_level: number | null
+          id: string
+          playlist_id: string
+          song_title: string
+          sort_order: number | null
+          victory_moment_tag: string | null
+        }
+        Insert: {
+          artist_name: string
+          created_at?: string
+          duration_seconds?: number | null
+          energy_level?: number | null
+          id?: string
+          playlist_id: string
+          song_title: string
+          sort_order?: number | null
+          victory_moment_tag?: string | null
+        }
+        Update: {
+          artist_name?: string
+          created_at?: string
+          duration_seconds?: number | null
+          energy_level?: number | null
+          id?: string
+          playlist_id?: string
+          song_title?: string
+          sort_order?: number | null
+          victory_moment_tag?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "victory_playlist_songs_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "user_victory_playlists"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       workout_ratings: {
         Row: {
@@ -2807,6 +2920,59 @@ export type Database = {
           workout_data?: Json
         }
         Relationships: []
+      }
+      workout_victory_logs: {
+        Row: {
+          breakthrough_achieved: boolean | null
+          created_at: string
+          energy_after: number | null
+          energy_before: number | null
+          growth_insights: string | null
+          id: string
+          power_moments: string[] | null
+          session_id: string
+          todays_win: string | null
+          user_id: string
+          victory_level: number | null
+          victory_notes: string | null
+        }
+        Insert: {
+          breakthrough_achieved?: boolean | null
+          created_at?: string
+          energy_after?: number | null
+          energy_before?: number | null
+          growth_insights?: string | null
+          id?: string
+          power_moments?: string[] | null
+          session_id: string
+          todays_win?: string | null
+          user_id: string
+          victory_level?: number | null
+          victory_notes?: string | null
+        }
+        Update: {
+          breakthrough_achieved?: boolean | null
+          created_at?: string
+          energy_after?: number | null
+          energy_before?: number | null
+          growth_insights?: string | null
+          id?: string
+          power_moments?: string[] | null
+          session_id?: string
+          todays_win?: string | null
+          user_id?: string
+          victory_level?: number | null
+          victory_notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workout_victory_logs_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "user_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       xp_transactions: {
         Row: {

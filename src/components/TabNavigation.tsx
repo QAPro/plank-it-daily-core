@@ -10,7 +10,8 @@ import {
   User,
   Calendar,
   Zap,
-  Settings
+  Settings,
+  TrendingUp
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -32,6 +33,7 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, onTabChange })
     { id: 'stats', label: 'Stats', icon: BarChart3 },
     { id: 'analytics', label: 'Analytics', icon: Zap },
     { id: 'achievements', label: 'Achievements', icon: Trophy },
+    { id: 'investment', label: 'Investment', icon: TrendingUp },
     { id: 'compete', label: 'Compete', icon: Users, requiresSocial: true },
     { id: 'friends', label: 'Friends', icon: Users, requiresSocial: true },
     { id: 'events', label: 'Events', icon: Calendar, requiresSocial: true },

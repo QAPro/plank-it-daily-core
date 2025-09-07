@@ -1,10 +1,12 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Camera, Music, BookOpen, TrendingUp } from 'lucide-react';
+import { Camera, Music, BookOpen, TrendingUp, Users, Heart } from 'lucide-react';
 import VictoryGallery from './VictoryGallery';
 import VictoryPlaylistManager from './VictoryPlaylistManager';
 import VictoryChronicles from './VictoryChronicles';
+import VictoryPartnershipsManager from './VictoryPartnershipsManager';
+import SuccessCircle from './SuccessCircle';
 import { motion } from 'framer-motion';
 
 const InvestmentDashboard: React.FC = () => {
@@ -24,7 +26,7 @@ const InvestmentDashboard: React.FC = () => {
       </div>
 
       {/* Investment Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -72,11 +74,43 @@ const InvestmentDashboard: React.FC = () => {
             </CardContent>
           </Card>
         </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <Card className="text-center">
+            <CardContent className="p-6">
+              <Users className="w-12 h-12 mx-auto text-primary mb-4" />
+              <h3 className="font-semibold text-lg mb-2">Victory Partners</h3>
+              <p className="text-sm text-muted-foreground">
+                Your accountability partners who share the success journey
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+        >
+          <Card className="text-center">
+            <CardContent className="p-6">
+              <Heart className="w-12 h-12 mx-auto text-primary mb-4" />
+              <h3 className="font-semibold text-lg mb-2">Success Circle</h3>
+              <p className="text-sm text-muted-foreground">
+                Share stories and inspire others in the community
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="gallery" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="gallery" className="flex items-center">
             <Camera className="w-4 h-4 mr-2" />
             Victory Gallery
@@ -88,6 +122,14 @@ const InvestmentDashboard: React.FC = () => {
           <TabsTrigger value="chronicles" className="flex items-center">
             <BookOpen className="w-4 h-4 mr-2" />
             Success Chronicles
+          </TabsTrigger>
+          <TabsTrigger value="partners" className="flex items-center">
+            <Users className="w-4 h-4 mr-2" />
+            Victory Partners
+          </TabsTrigger>
+          <TabsTrigger value="community" className="flex items-center">
+            <Heart className="w-4 h-4 mr-2" />
+            Success Circle
           </TabsTrigger>
         </TabsList>
 
@@ -102,13 +144,21 @@ const InvestmentDashboard: React.FC = () => {
         <TabsContent value="chronicles">
           <VictoryChronicles />
         </TabsContent>
+
+        <TabsContent value="partners">
+          <VictoryPartnershipsManager />
+        </TabsContent>
+
+        <TabsContent value="community">
+          <SuccessCircle />
+        </TabsContent>
       </Tabs>
 
       {/* Investment Value Indicator */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
+        transition={{ delay: 0.6 }}
       >
         <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
           <CardContent className="p-6">

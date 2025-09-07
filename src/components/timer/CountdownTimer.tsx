@@ -20,7 +20,7 @@ interface CountdownTimerProps {
   quickStartDuration?: number;
 }
 
-const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange }: CountdownTimerProps) => {
+const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStartDuration }: CountdownTimerProps) => {
   const [showSetup, setShowSetup] = useState(true);
   const [showCelebration, setShowCelebration] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -79,6 +79,13 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange }: Countdow
       setTimeout(() => handleStart(), 50);
     }
   }, [quickStartDuration, setTimerDuration, handleStart]);
+
+  // Sync selectedExercise prop with hook's internal state
+  useEffect(() => {
+    if (selectedExercise) {
+      selectExercise(selectedExercise);
+    }
+  }, [selectedExercise, selectExercise]);
 
   // Show celebration when session completes
   useEffect(() => {

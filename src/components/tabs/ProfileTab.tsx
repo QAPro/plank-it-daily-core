@@ -114,23 +114,6 @@ const ProfileTab = ({ initialView = 'overview', onOpenVapidManager }: ProfileTab
           <PreferencesSettings />
           
           
-          {/* VAPID Key Management */}
-          {onOpenVapidManager && (
-            <Card>
-              <CardHeader>
-                <CardTitle>VAPID Key Management</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Button
-                  onClick={onOpenVapidManager}
-                  variant="outline"
-                  className="w-full"
-                >
-                  Open VAPID Key Manager
-                </Button>
-              </CardContent>
-            </Card>
-          )}
           
           {/* Push Notification Management */}
           <PushNotificationManager />

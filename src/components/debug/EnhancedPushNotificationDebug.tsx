@@ -144,14 +144,10 @@ export const EnhancedPushNotificationDebug: React.FC = () => {
     fetchDatabaseSubscriptions();
     fetchBrowserSubscription();
     
-    const interval = setInterval(() => {
-      updateDebugInfo();
-      fetchDatabaseSubscriptions();
-      fetchBrowserSubscription();
-    }, 5000);
-    
-    return () => clearInterval(interval);
-  }, [user, isSupported, isSubscribed, isLoading, dbSubscriptions.length, browserSubscription]);
+    // Disable auto-polling to prevent console/network spam
+    // Users can refresh manually via actions in this panel
+    return () => {};
+  }, [user]);
 
   const getStatusIcon = (condition: boolean) => {
     return condition ? (

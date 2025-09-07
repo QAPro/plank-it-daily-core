@@ -416,6 +416,47 @@ export type Database = {
         }
         Relationships: []
       }
+      community_challenge_participants: {
+        Row: {
+          challenge_id: string
+          completed_at: string | null
+          completion_percentage: number | null
+          id: string
+          joined_at: string
+          participation_status: string
+          progress_data: Json | null
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          completed_at?: string | null
+          completion_percentage?: number | null
+          id?: string
+          joined_at?: string
+          participation_status?: string
+          progress_data?: Json | null
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          completed_at?: string | null
+          completion_percentage?: number | null
+          id?: string
+          joined_at?: string
+          participation_status?: string
+          progress_data?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_challenge_participants_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "community_success_challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       community_challenges: {
         Row: {
           challenge_type: string
@@ -468,6 +509,60 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      community_success_challenges: {
+        Row: {
+          challenge_description: string
+          challenge_rules: Json
+          challenge_title: string
+          challenge_type: string
+          created_at: string
+          creator_id: string
+          current_participants: number | null
+          end_date: string
+          id: string
+          is_public: boolean | null
+          max_participants: number | null
+          reward_type: string | null
+          start_date: string
+          success_criteria: Json
+          updated_at: string
+        }
+        Insert: {
+          challenge_description: string
+          challenge_rules?: Json
+          challenge_title: string
+          challenge_type?: string
+          created_at?: string
+          creator_id: string
+          current_participants?: number | null
+          end_date: string
+          id?: string
+          is_public?: boolean | null
+          max_participants?: number | null
+          reward_type?: string | null
+          start_date: string
+          success_criteria?: Json
+          updated_at?: string
+        }
+        Update: {
+          challenge_description?: string
+          challenge_rules?: Json
+          challenge_title?: string
+          challenge_type?: string
+          created_at?: string
+          creator_id?: string
+          current_participants?: number | null
+          end_date?: string
+          id?: string
+          is_public?: boolean | null
+          max_participants?: number | null
+          reward_type?: string | null
+          start_date?: string
+          success_criteria?: Json
+          updated_at?: string
+        }
+        Relationships: []
       }
       custom_workout_exercises: {
         Row: {
@@ -1562,6 +1657,73 @@ export type Database = {
           },
         ]
       }
+      success_story_comments: {
+        Row: {
+          comment_text: string
+          created_at: string
+          id: string
+          is_encouragement: boolean | null
+          story_id: string
+          user_id: string
+        }
+        Insert: {
+          comment_text: string
+          created_at?: string
+          id?: string
+          is_encouragement?: boolean | null
+          story_id: string
+          user_id: string
+        }
+        Update: {
+          comment_text?: string
+          created_at?: string
+          id?: string
+          is_encouragement?: boolean | null
+          story_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "success_story_comments_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "user_success_stories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      success_story_reactions: {
+        Row: {
+          created_at: string
+          id: string
+          reaction_type: string
+          story_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reaction_type?: string
+          story_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reaction_type?: string
+          story_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "success_story_reactions_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "user_success_stories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       timer_sessions_detailed: {
         Row: {
           breathing_guidance_used: boolean | null
@@ -2634,6 +2796,54 @@ export type Database = {
           },
         ]
       }
+      user_success_stories: {
+        Row: {
+          comments_count: number | null
+          created_at: string
+          id: string
+          is_featured: boolean | null
+          is_public: boolean | null
+          likes_count: number | null
+          shares_count: number | null
+          story_content: string
+          story_title: string
+          story_type: string
+          transformation_data: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          comments_count?: number | null
+          created_at?: string
+          id?: string
+          is_featured?: boolean | null
+          is_public?: boolean | null
+          likes_count?: number | null
+          shares_count?: number | null
+          story_content: string
+          story_title: string
+          story_type?: string
+          transformation_data?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          comments_count?: number | null
+          created_at?: string
+          id?: string
+          is_featured?: boolean | null
+          is_public?: boolean | null
+          likes_count?: number | null
+          shares_count?: number | null
+          story_content?: string
+          story_title?: string
+          story_type?: string
+          transformation_data?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_victory_photos: {
         Row: {
           celebration_notes: string | null
@@ -2781,6 +2991,92 @@ export type Database = {
           total_xp?: number | null
           updated_at?: string | null
           username?: string | null
+        }
+        Relationships: []
+      }
+      victory_partner_checkins: {
+        Row: {
+          checkin_type: string
+          created_at: string
+          id: string
+          is_read: boolean | null
+          message: string
+          partnership_id: string
+          receiver_id: string
+          sender_id: string
+          workout_data: Json | null
+        }
+        Insert: {
+          checkin_type?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message: string
+          partnership_id: string
+          receiver_id: string
+          sender_id: string
+          workout_data?: Json | null
+        }
+        Update: {
+          checkin_type?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          partnership_id?: string
+          receiver_id?: string
+          sender_id?: string
+          workout_data?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "victory_partner_checkins_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: false
+            referencedRelation: "victory_partnerships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      victory_partnerships: {
+        Row: {
+          check_in_frequency: string | null
+          created_at: string
+          id: string
+          motivation_style: string | null
+          partner1_id: string
+          partner2_id: string
+          partnership_end_date: string | null
+          partnership_start_date: string | null
+          partnership_status: string
+          shared_goals: Json | null
+          updated_at: string
+        }
+        Insert: {
+          check_in_frequency?: string | null
+          created_at?: string
+          id?: string
+          motivation_style?: string | null
+          partner1_id: string
+          partner2_id: string
+          partnership_end_date?: string | null
+          partnership_start_date?: string | null
+          partnership_status?: string
+          shared_goals?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          check_in_frequency?: string | null
+          created_at?: string
+          id?: string
+          motivation_style?: string | null
+          partner1_id?: string
+          partner2_id?: string
+          partnership_end_date?: string | null
+          partnership_start_date?: string | null
+          partnership_status?: string
+          shared_goals?: Json | null
+          updated_at?: string
         }
         Relationships: []
       }

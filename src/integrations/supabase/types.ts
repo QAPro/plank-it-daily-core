@@ -2063,6 +2063,42 @@ export type Database = {
         }
         Relationships: []
       }
+      special_permissions: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          granted_by: string | null
+          id: string
+          is_active: boolean
+          permission_type: string
+          reason: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          granted_by?: string | null
+          id?: string
+          is_active?: boolean
+          permission_type: string
+          reason?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          granted_by?: string | null
+          id?: string
+          is_active?: boolean
+          permission_type?: string
+          reason?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscription_plans: {
         Row: {
           billing_interval: string
@@ -4451,7 +4487,14 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role:
+        | "admin"
+        | "moderator"
+        | "user"
+        | "superadmin"
+        | "beta_tester"
+        | "support_agent"
+        | "content_creator"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -4579,7 +4622,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: [
+        "admin",
+        "moderator",
+        "user",
+        "superadmin",
+        "beta_tester",
+        "support_agent",
+        "content_creator",
+      ],
     },
   },
 } as const

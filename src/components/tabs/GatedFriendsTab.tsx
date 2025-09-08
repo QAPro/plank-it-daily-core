@@ -2,7 +2,7 @@
 import React from 'react';
 import { useFeatureAccess } from '@/hooks/useFeatureAccess';
 import { useSubscription } from '@/hooks/useSubscription';
-import EnhancedFeatureGuard from '@/components/access/EnhancedFeatureGuard';
+import CrossSystemGuard from '@/components/access/CrossSystemGuard';
 import FriendsTab from './FriendsTab';
 
 const GatedFriendsTab: React.FC = () => {
@@ -16,16 +16,30 @@ const GatedFriendsTab: React.FC = () => {
     }
   };
 
+  // Cross-system requirements for social features
+  const socialRequirements = [
+    {
+      type: 'track_level' as const,
+      track: 'consistency',
+      level: 3,
+      description: 'Reach Consistency Level 3 to unlock social features'
+    },
+    {
+      type: 'social_activity' as const,
+      socialActions: 5,
+      description: 'Complete 5 social interactions (posts, reactions, etc.)'
+    }
+  ];
+
   return (
-    <EnhancedFeatureGuard
-      feature="social_challenges"
-      mode="preview"
-      previewHeight={400}
-      showUpgradePrompt={true}
-      compact={false}
+    <CrossSystemGuard
+      requirements={socialRequirements}
+      fallbackTitle="Social Features Locked"
+      fallbackDescription="Build your fitness foundation before accessing social features. Progress in multiple areas to unlock advanced social capabilities."
+      upgradeAction={handleUpgrade}
     >
       <FriendsTab />
-    </EnhancedFeatureGuard>
+    </CrossSystemGuard>
   );
 };
 

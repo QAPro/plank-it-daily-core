@@ -8,15 +8,35 @@ import {
   BarChart3, 
   Flag,
   Beaker,
-  TrendingUp
+  TrendingUp,
+  Target
 } from 'lucide-react';
 import UserManagement from './UserManagement';
 import FeatureFlagsManager from './FeatureFlagsManager';
 import EnhancedAdminAnalytics from './analytics/EnhancedAdminAnalytics';
 import ABTestingDashboard from './analytics/ABTestingDashboard';
 import NotificationAnalyticsDashboard from './analytics/NotificationAnalyticsDashboard';
+import { HookModelDashboard } from '../analytics/HookModelDashboard';
+import { useAdmin } from '@/hooks/useAdmin';
 
 const AdminDashboard = () => {
+  const { isAdmin, loading } = useAdmin();
+
+  if (loading) {
+    return <div className="container mx-auto px-4 py-8">Loading...</div>;
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h2>
+          <p className="text-gray-600">You need admin privileges to access this dashboard.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -25,7 +45,7 @@ const AdminDashboard = () => {
       </div>
 
       <Tabs defaultValue="analytics" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="analytics" className="flex items-center gap-2">
             <BarChart3 className="w-4 h-4" />
             Analytics
@@ -49,6 +69,10 @@ const AdminDashboard = () => {
           <TabsTrigger value="insights" className="flex items-center gap-2">
             <TrendingUp className="w-4 h-4" />
             Insights
+          </TabsTrigger>
+          <TabsTrigger value="hook-model" className="flex items-center gap-2">
+            <Target className="w-4 h-4" />
+            Hook Model
           </TabsTrigger>
         </TabsList>
 
@@ -117,6 +141,10 @@ const AdminDashboard = () => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="hook-model" className="space-y-6">
+          <HookModelDashboard />
         </TabsContent>
       </Tabs>
     </div>

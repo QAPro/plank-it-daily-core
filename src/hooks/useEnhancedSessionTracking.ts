@@ -29,6 +29,7 @@ export const useEnhancedSessionTracking = () => {
   const [completedSession, setCompletedSession] = useState<CompletedSession | null>(null);
   const [sessionNotes, setSessionNotes] = useState('');
   const [isCompleting, setIsCompleting] = useState(false);
+  const [currentHookCycleId, setCurrentHookCycleId] = useState<string | null>(null);
   const { showMilestone } = useStreak();
   const { trackXP } = useXPTracking();
   const { submitFeedback } = useWorkoutFeedback();

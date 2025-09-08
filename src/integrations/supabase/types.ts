@@ -1101,6 +1101,45 @@ export type Database = {
         }
         Relationships: []
       }
+      friction_point_logs: {
+        Row: {
+          created_at: string
+          friction_data: Json | null
+          friction_location: string
+          friction_type: string
+          id: string
+          impact_score: number | null
+          resolution_method: string | null
+          session_id: string | null
+          time_to_resolve_seconds: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          friction_data?: Json | null
+          friction_location: string
+          friction_type: string
+          id?: string
+          impact_score?: number | null
+          resolution_method?: string | null
+          session_id?: string | null
+          time_to_resolve_seconds?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          friction_data?: Json | null
+          friction_location?: string
+          friction_type?: string
+          id?: string
+          impact_score?: number | null
+          resolution_method?: string | null
+          session_id?: string | null
+          time_to_resolve_seconds?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       friend_activities: {
         Row: {
           activity_data: Json
@@ -1189,6 +1228,57 @@ export type Database = {
           id?: string
           status?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      hook_cycle_events: {
+        Row: {
+          action_duration_seconds: number | null
+          action_taken: boolean | null
+          action_type: string | null
+          created_at: string
+          cycle_completed_at: string | null
+          cycle_start_at: string
+          cycle_success_score: number | null
+          id: string
+          investment_actions: Json | null
+          reward_data: Json | null
+          reward_given: string | null
+          trigger_data: Json | null
+          trigger_type: string
+          user_id: string
+        }
+        Insert: {
+          action_duration_seconds?: number | null
+          action_taken?: boolean | null
+          action_type?: string | null
+          created_at?: string
+          cycle_completed_at?: string | null
+          cycle_start_at?: string
+          cycle_success_score?: number | null
+          id?: string
+          investment_actions?: Json | null
+          reward_data?: Json | null
+          reward_given?: string | null
+          trigger_data?: Json | null
+          trigger_type: string
+          user_id: string
+        }
+        Update: {
+          action_duration_seconds?: number | null
+          action_taken?: boolean | null
+          action_type?: string | null
+          created_at?: string
+          cycle_completed_at?: string | null
+          cycle_start_at?: string
+          cycle_success_score?: number | null
+          id?: string
+          investment_actions?: Json | null
+          reward_data?: Json | null
+          reward_given?: string | null
+          trigger_data?: Json | null
+          trigger_type?: string
           user_id?: string
         }
         Relationships: []
@@ -1572,6 +1662,54 @@ export type Database = {
           updated_at?: string
           variant_key?: string
           weight?: number | null
+        }
+        Relationships: []
+      }
+      optimization_experiments: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          end_date: string | null
+          experiment_name: string
+          experiment_type: string
+          id: string
+          is_active: boolean | null
+          results: Json | null
+          start_date: string
+          target_metric: string
+          variant_a_config: Json
+          variant_b_config: Json
+          winner_variant: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          experiment_name: string
+          experiment_type: string
+          id?: string
+          is_active?: boolean | null
+          results?: Json | null
+          start_date?: string
+          target_metric: string
+          variant_a_config?: Json
+          variant_b_config?: Json
+          winner_variant?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          experiment_name?: string
+          experiment_type?: string
+          id?: string
+          is_active?: boolean | null
+          results?: Json | null
+          start_date?: string
+          target_metric?: string
+          variant_a_config?: Json
+          variant_b_config?: Json
+          winner_variant?: string | null
         }
         Relationships: []
       }
@@ -2417,6 +2555,57 @@ export type Database = {
           planned_load?: number | null
           recovery_score?: number | null
           stress_indicators?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      trigger_effectiveness_logs: {
+        Row: {
+          created_at: string
+          day_of_week: number
+          effectiveness_score: number | null
+          id: string
+          notification_id: string | null
+          response_action: string | null
+          response_delay_seconds: number | null
+          response_timestamp: string | null
+          time_of_day: number
+          trigger_content: string | null
+          trigger_timestamp: string
+          trigger_type: string
+          user_context: Json | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: number
+          effectiveness_score?: number | null
+          id?: string
+          notification_id?: string | null
+          response_action?: string | null
+          response_delay_seconds?: number | null
+          response_timestamp?: string | null
+          time_of_day: number
+          trigger_content?: string | null
+          trigger_timestamp?: string
+          trigger_type: string
+          user_context?: Json | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number
+          effectiveness_score?: number | null
+          id?: string
+          notification_id?: string | null
+          response_action?: string | null
+          response_delay_seconds?: number | null
+          response_timestamp?: string | null
+          time_of_day?: number
+          trigger_content?: string | null
+          trigger_timestamp?: string
+          trigger_type?: string
+          user_context?: Json | null
           user_id?: string
         }
         Relationships: []
@@ -3384,6 +3573,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_success_correlations: {
+        Row: {
+          confidence_level: number | null
+          correlation_key: string
+          correlation_type: string
+          created_at: string
+          id: string
+          last_updated: string
+          sample_size: number
+          success_rate: number
+          user_id: string
+        }
+        Insert: {
+          confidence_level?: number | null
+          correlation_key: string
+          correlation_type: string
+          created_at?: string
+          id?: string
+          last_updated?: string
+          sample_size?: number
+          success_rate?: number
+          user_id: string
+        }
+        Update: {
+          confidence_level?: number | null
+          correlation_key?: string
+          correlation_type?: string
+          created_at?: string
+          id?: string
+          last_updated?: string
+          sample_size?: number
+          success_rate?: number
+          user_id?: string
+        }
+        Relationships: []
       }
       user_success_stories: {
         Row: {

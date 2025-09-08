@@ -5,7 +5,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Calendar, TrendingUp } from 'lucide-react';
 import { useProgressAnalytics } from '@/hooks/useProgressAnalytics';
 
-const InvestmentTimeline: React.FC = () => {
+const ProgressTimeline: React.FC = () => {
   const { data: analytics, isLoading } = useProgressAnalytics();
 
   if (isLoading) {
@@ -179,4 +179,4 @@ const InvestmentTimeline: React.FC = () => {
   );
 };
 
-export default InvestmentTimeline;
+export default ProgressTimeline;

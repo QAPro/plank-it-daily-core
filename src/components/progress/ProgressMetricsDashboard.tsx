@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { TrendingUp, DollarSign, Target, Zap, Clock, Trophy } from 'lucide-react';
 import { useProgressAnalytics } from '@/hooks/useProgressAnalytics';
 
-const InvestmentROIDashboard: React.FC = () => {
+const ProgressMetricsDashboard: React.FC = () => {
   const { data: analytics, isLoading } = useProgressAnalytics();
 
   if (isLoading) {
@@ -272,4 +272,4 @@ const InvestmentROIDashboard: React.FC = () => {
   );
 };
 
-export default InvestmentROIDashboard;
+export default ProgressMetricsDashboard;

@@ -2,16 +2,16 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Camera, Music, BookOpen, TrendingUp, Users, Heart, BarChart3 } from 'lucide-react';
-import VictoryGallery from './VictoryGallery';
-import VictoryPlaylistManager from './VictoryPlaylistManager';
-import VictoryChronicles from './VictoryChronicles';
-import VictoryPartnershipsManager from './VictoryPartnershipsManager';
-import SuccessCircle from './SuccessCircle';
-import InvestmentROIDashboard from './InvestmentROIDashboard';
-import InvestmentTimeline from './InvestmentTimeline';
+import VictoryGallery from '../investment/VictoryGallery';
+import VictoryPlaylistManager from '../investment/VictoryPlaylistManager';
+import VictoryChronicles from '../investment/VictoryChronicles';
+import VictoryPartnershipsManager from '../investment/VictoryPartnershipsManager';
+import SuccessCircle from '../investment/SuccessCircle';
+import ProgressMetricsDashboard from './ProgressMetricsDashboard';
+import ProgressTimeline from './ProgressTimeline';
 import { motion } from 'framer-motion';
 
-const InvestmentDashboard: React.FC = () => {
+const ProgressDashboard: React.FC = () => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -157,8 +157,8 @@ const InvestmentDashboard: React.FC = () => {
 
         <TabsContent value="analytics">
           <div className="space-y-6">
-            <InvestmentROIDashboard />
-            <InvestmentTimeline />
+            <ProgressMetricsDashboard />
+            <ProgressTimeline />
           </div>
         </TabsContent>
 
@@ -212,4 +212,4 @@ const InvestmentDashboard: React.FC = () => {
   );
 };
 
-export default InvestmentDashboard;
+export default ProgressDashboard;

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrendingUp, Heart, Download, Award, Users } from 'lucide-react';
-import InvestmentDashboard from '@/components/investment/InvestmentDashboard';
+import ProgressDashboard from '@/components/progress/ProgressDashboard';
 import ProgressCelebrationDashboard from '@/components/progress/ProgressCelebrationDashboard';
 import DataPortabilityHelper from '@/components/data/DataPortabilityHelper';
 import CommunityValueDashboard from '@/components/community/CommunityValueDashboard';
@@ -57,7 +57,7 @@ const ProgressTab: React.FC = () => {
           </TabsContent>
 
           <TabsContent value="overview" className="space-y-6">
-            <InvestmentDashboard />
+            <ProgressDashboard />
           </TabsContent>
 
           <TabsContent value="community" className="space-y-6">

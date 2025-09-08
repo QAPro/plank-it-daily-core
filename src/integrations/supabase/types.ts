@@ -4210,6 +4210,14 @@ export type Database = {
         Args: { _override_id: string; _reason?: string }
         Returns: boolean
       }
+      assign_role: {
+        Args: {
+          _reason?: string
+          _role: Database["public"]["Enums"]["app_role"]
+          _target_user_id: string
+        }
+        Returns: boolean
+      }
       bootstrap_first_admin: {
         Args: { user_email: string }
         Returns: boolean
@@ -4230,6 +4238,10 @@ export type Database = {
           technique_score: number
         }
         Returns: number
+      }
+      can_modify_user_roles: {
+        Args: { _admin_id: string; _target_user_id: string }
+        Returns: boolean
       }
       does_username_exist: {
         Args: { target_username: string }
@@ -4262,6 +4274,17 @@ export type Database = {
           action_count: number
           action_type: string
           last_action_at: string
+        }[]
+      }
+      get_all_user_roles: {
+        Args: { _user_id: string }
+        Returns: {
+          expires_at: string
+          granted_at: string
+          granted_by: string
+          is_active: boolean
+          role_name: string
+          role_type: string
         }[]
       }
       get_device_platform_analytics: {
@@ -4401,6 +4424,10 @@ export type Database = {
           week_8_retention: number
         }[]
       }
+      get_user_role_level: {
+        Args: { _user_id?: string }
+        Returns: number
+      }
       get_user_subscription_timeline: {
         Args: { target_user_id: string }
         Returns: {
@@ -4441,6 +4468,10 @@ export type Database = {
         Args: { _user_id?: string }
         Returns: boolean
       }
+      is_superadmin: {
+        Args: { _user_id?: string }
+        Returns: boolean
+      }
       notify_via_edge_function: {
         Args: { p_payload: Json }
         Returns: undefined
@@ -4455,6 +4486,14 @@ export type Database = {
       }
       revoke_admin_role: {
         Args: { _reason?: string; _target_user_id: string }
+        Returns: boolean
+      }
+      revoke_role: {
+        Args: {
+          _reason?: string
+          _role: Database["public"]["Enums"]["app_role"]
+          _target_user_id: string
+        }
         Returns: boolean
       }
       set_user_feature_override: {

@@ -9,7 +9,8 @@ import {
   Flag,
   Beaker,
   TrendingUp,
-  Target
+  Target,
+  Shield
 } from 'lucide-react';
 import UserManagement from './UserManagement';
 import FeatureFlagsManager from './FeatureFlagsManager';
@@ -17,6 +18,7 @@ import EnhancedAdminAnalytics from './analytics/EnhancedAdminAnalytics';
 import ABTestingDashboard from './analytics/ABTestingDashboard';
 import NotificationAnalyticsDashboard from './analytics/NotificationAnalyticsDashboard';
 import { HookModelDashboard } from '../analytics/HookModelDashboard';
+import RoleManagementDashboard from './roles/RoleManagementDashboard';
 import { useAdmin } from '@/hooks/useAdmin';
 
 const AdminDashboard = () => {
@@ -45,7 +47,7 @@ const AdminDashboard = () => {
       </div>
 
       <Tabs defaultValue="analytics" className="w-full">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="analytics" className="flex items-center gap-2">
             <BarChart3 className="w-4 h-4" />
             Analytics
@@ -57,6 +59,10 @@ const AdminDashboard = () => {
           <TabsTrigger value="users" className="flex items-center gap-2">
             <Users className="w-4 h-4" />
             Users
+          </TabsTrigger>
+          <TabsTrigger value="roles" className="flex items-center gap-2">
+            <Shield className="w-4 h-4" />
+            Roles
           </TabsTrigger>
           <TabsTrigger value="features" className="flex items-center gap-2">
             <Flag className="w-4 h-4" />

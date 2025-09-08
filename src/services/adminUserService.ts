@@ -8,7 +8,15 @@ export type AdminUserSummary = {
   full_name: string | null;
 };
 
-export type AppRole = "admin" | "moderator" | "user";
+export type AppRole =
+  | "superadmin"
+  | "admin"
+  | "moderator"
+  | "subscriber"
+  | "user"
+  | "beta_tester"
+  | "support_agent"
+  | "content_creator";
 
 export type UserFeatureOverride = {
   id: string;
@@ -703,9 +711,62 @@ async function deleteUserSegment(segmentId: string): Promise<boolean> {
   return true;
 }
 
+// Role management helpers
+async function getAllUserRoles(userId: string): Promise<Array<{ role_type: string; role_name: AppRole | string; granted_at: string; expires_at: string | null; is_active: boolean }>> {
+  console.log("[adminUserService] getAllUserRoles", userId);
+  const clientAny = supabase as any;
+  const { data, error } = await clientAny.rpc("get_all_user_roles", {
+    _user_id: userId,
+  });
+
+  if (error) {
+    console.error("[adminUserService] getAllUserRoles error", error);
+    throw error;
+  }
+
+  return (data as any[]) || [];
+}
+
+async function assignRole(userId: string, role: AppRole, reason?: string): Promise<boolean> {
+  console.log("[adminUserService] assignRole", userId, role, reason);
+  const clientAny = supabase as any;
+  const { data, error } = await clientAny.rpc("assign_role", {
+    _target_user_id: userId,
+    _role: role,
+    _reason: reason ?? null,
+  });
+
+  if (error) {
+    console.error("[adminUserService] assignRole error", error);
+    throw error;
+  }
+
+  return data === true;
+}
+
+async function revokeRole(userId: string, role: AppRole, reason?: string): Promise<boolean> {
+  console.log("[adminUserService] revokeRole", userId, role, reason);
+  const clientAny = supabase as any;
+  const { data, error } = await clientAny.rpc("revoke_role", {
+    _target_user_id: userId,
+    _role: role,
+    _reason: reason ?? null,
+  });
+
+  if (error) {
+    console.error("[adminUserService] revokeRole error", error);
+    throw error;
+  }
+
+  return data === true;
+}
+
 export const adminUserService = {
   searchUsers: searchUsersRaw,
   getUserRoles,
+  getAllUserRoles,
+  assignRole,
+  revokeRole,
   grantAdminRole,
   revokeAdminRole,
   getFeatureOverrides,

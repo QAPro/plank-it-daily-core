@@ -3,7 +3,7 @@ import CrossSystemGuard from './CrossSystemGuard';
 import type { CrossSystemRequirement } from './CrossSystemGuard';
 
 interface AdvancedFeatureGuardProps {
-  feature: 'advanced_analytics' | 'photo_sharing' | 'playlist_sharing' | 'unlimited_posts' | 'moderator_tools';
+  feature: 'advanced_analytics' | 'photo_sharing' | 'playlist_sharing' | 'unlimited_posts' | 'moderator_tools' | 'exercise_mastery';
   children: React.ReactNode;
   upgradeAction?: () => void;
 }
@@ -78,6 +78,26 @@ const AdvancedFeatureGuard: React.FC<AdvancedFeatureGuardProps> = ({
           ],
           title: 'Moderator Tools Locked',
           description: 'Moderation capabilities are reserved for trusted community leaders who have demonstrated expertise and positive engagement.'
+        };
+
+      case 'exercise_mastery':
+        return {
+          requirements: [
+            {
+              type: 'track_level',
+              track: 'consistency',
+              level: 3,
+              description: 'Demonstrate consistent workout habits'
+            },
+            {
+              type: 'track_level', 
+              track: 'strength',
+              level: 2,
+              description: 'Show basic strength development'
+            }
+          ],
+          title: 'Exercise Mastery Locked',
+          description: 'Advanced skill tracking and certification features unlock as you build consistent workout habits and demonstrate exercise progression.'
         };
 
       default:

@@ -66,6 +66,36 @@ const EnhancedAchievementCelebration = ({
     }
   };
 
+  const getRarityColors = () => {
+    switch (achievement.rarity) {
+      case 'legendary':
+        return {
+          gradient: 'bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500',
+          glow: 'shadow-[0_0_50px_rgba(251,191,36,0.5)]'
+        };
+      case 'epic':
+        return {
+          gradient: 'bg-gradient-to-br from-purple-400 via-pink-500 to-red-500',
+          glow: 'shadow-[0_0_40px_rgba(168,85,247,0.5)]'
+        };
+      case 'rare':
+        return {
+          gradient: 'bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500',
+          glow: 'shadow-[0_0_30px_rgba(59,130,246,0.5)]'
+        };
+      case 'uncommon':
+        return {
+          gradient: 'bg-gradient-to-br from-green-400 to-blue-500',
+          glow: 'shadow-[0_0_20px_rgba(34,197,94,0.5)]'
+        };
+      default:
+        return {
+          gradient: 'bg-gradient-to-br from-slate-600 to-slate-800',
+          glow: 'shadow-[0_0_15px_rgba(71,85,105,0.5)]'
+        };
+    }
+  };
+
   return (
     <AnimatePresence>
       {isVisible && (
@@ -138,7 +168,7 @@ const EnhancedAchievementCelebration = ({
               <X className="w-4 h-4" />
             </Button>
 
-            <Card className={`${achievement.badge_color} text-white border-0 shadow-2xl overflow-hidden`}>
+            <Card className={`${getRarityColors().gradient} ${getRarityColors().glow} text-white border-0 shadow-2xl overflow-hidden`}>
               <CardContent className="p-8 text-center relative">
                 {/* Rarity Badge */}
                 {achievement.rarity !== 'common' && (

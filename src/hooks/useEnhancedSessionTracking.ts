@@ -8,6 +8,7 @@ import { useStreak } from '@/components/StreakProvider';
 import { ExpandedAchievementEngine } from '@/services/expandedAchievementService';
 import { useXPTracking } from './useXPTracking';
 import { useWorkoutFeedback } from './useWorkoutFeedback';
+import { useAutoHookTracking } from './useHookModelTracking';
 import type { WorkoutFeedback } from '@/components/feedback/WorkoutFeedback';
 
 interface CompletedSession {
@@ -33,6 +34,7 @@ export const useEnhancedSessionTracking = () => {
   const { showMilestone } = useStreak();
   const { trackXP } = useXPTracking();
   const { submitFeedback } = useWorkoutFeedback();
+  const { autoStartWorkoutCycle, autoCompleteWorkoutCycle, autoLogFriction } = useAutoHookTracking();
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
@@ -46,12 +48,21 @@ export const useEnhancedSessionTracking = () => {
     return () => clearInterval(intervalId);
   }, [isTimerRunning]);
 
-  const startSession = (exercise: any) => {
+  const startSession = async (exercise: any) => {
     setSelectedExercise(exercise);
     setSessionDuration(0);
     setIsTimerRunning(true);
     setCompletedSession(null);
     setSessionNotes('');
+    
+    // Start hook cycle tracking
+    try {
+      const cycleId = await autoStartWorkoutCycle(exercise.id);
+      setCurrentHookCycleId(cycleId);
+      console.log('Hook cycle started:', cycleId);
+    } catch (error) {
+      console.error('Failed to start hook cycle:', error);
+    }
   };
 
   const pauseSession = () => {
@@ -159,11 +170,22 @@ const completeSession = async (duration: number, notes?: string) => {
     duration, 
     notes,
     hasUser: !!user,
-    hasSelectedExercise: !!selectedExercise
+    hasSelectedExercise: !!selectedExercise,
+    hookCycleId: currentHookCycleId
   });
   
   if (!user || !selectedExercise) {
     console.error('❌ COMPLETE SESSION FAILED: Missing user or exercise', { user: !!user, selectedExercise: !!selectedExercise });
+    
+    // Complete hook cycle as abandoned if we have one
+    if (currentHookCycleId) {
+      try {
+        await autoCompleteWorkoutCycle(0, false);
+        setCurrentHookCycleId(null);
+      } catch (error) {
+        console.error('Failed to complete hook cycle on error:', error);
+      }
+    }
     return;
   }
 
@@ -264,6 +286,17 @@ const completeSession = async (duration: number, notes?: string) => {
       console.error('Error inserting detailed timer session:', detailedError);
     }
 
+    // Complete hook cycle tracking
+    if (currentHookCycleId) {
+      try {
+        await autoCompleteWorkoutCycle(duration, true);
+        setCurrentHookCycleId(null);
+        console.log('Hook cycle completed successfully');
+      } catch (error) {
+        console.error('Failed to complete hook cycle:', error);
+      }
+    }
+
     // Check for new achievements using expanded engine
     console.log('🏆 Checking for achievements...');
     const achievementEngine = new ExpandedAchievementEngine(user.id);
@@ -354,6 +387,8 @@ const completeSession = async (duration: number, notes?: string) => {
     sessionNotes,
     setSessionNotes,
     isCompleting,
-    handleFeedbackSubmission
+    handleFeedbackSubmission,
+    autoLogFriction, // Expose friction logging for timer components
+    currentHookCycleId // Expose for debugging
   };
 };

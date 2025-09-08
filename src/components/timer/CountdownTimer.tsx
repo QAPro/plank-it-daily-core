@@ -42,7 +42,8 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
     setSessionNotes,
     isCompleting,
     selectExercise,
-    handleFeedbackSubmission
+    handleFeedbackSubmission,
+    autoLogFriction
   } = useEnhancedSessionTracking();
 
   const {
@@ -114,6 +115,15 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
     console.log('CountdownTimer: handlePauseTimer called');
     handlePause();
     toast.info('Timer paused');
+    
+    // Log friction point for early pause
+    if (duration - timeLeft < duration * 0.3) { // Paused before 30% completion
+      autoLogFriction('timer', 'confusion', {
+        pause_time: duration - timeLeft,
+        completion_percentage: ((duration - timeLeft) / duration) * 100,
+        reason: 'early_pause'
+      }).catch(console.error);
+    }
   };
 
   const handleResumeTimer = () => {
@@ -126,6 +136,13 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
     console.log('CountdownTimer: handleStopTimer called');
     handleStop();
     toast.info('Timer stopped');
+    
+    // Log friction point for early stop (abandonment)
+    autoLogFriction('timer', 'abandonment', {
+      stop_time: duration - timeLeft,
+      completion_percentage: ((duration - timeLeft) / duration) * 100,
+      reason: 'user_stopped'
+    }).catch(console.error);
   };
 
   const handleResetTimer = () => {

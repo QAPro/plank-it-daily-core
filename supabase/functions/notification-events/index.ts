@@ -94,7 +94,7 @@ serve(async (req) => {
   }
 });
 
-// Enhanced event notification with A/B testing and personalization
+// Enhanced event notification with Hook Model trigger logging
 async function handleEnhancedEventNotification(supabase: any, payload: EventPayload) {
   try {
     console.log('Processing enhanced event notification:', payload);
@@ -157,6 +157,21 @@ async function handleEnhancedEventNotification(supabase: any, payload: EventPayl
       body = body.replace('{streak_days}', data.streak_days.toString());
     }
 
+    // Log trigger effectiveness for Hook Model analytics
+    const { data: triggerLog } = await supabase
+      .from('trigger_effectiveness_logs')
+      .insert({
+        user_id,
+        notification_id: null, // Will be updated when push notification is sent
+        trigger_type: type,
+        trigger_content: JSON.stringify({ title, body }),
+        user_context: data,
+        response_action: null, // Will be updated if user responds
+        response_timestamp: null
+      })
+      .select('id')
+      .single();
+
     // Prepare notification payload
     const notificationPayload = {
       userIds: [user_id],
@@ -167,6 +182,7 @@ async function handleEnhancedEventNotification(supabase: any, payload: EventPayl
         variant_id: variant.id,
         variant_key: variant.variant_key,
         experiment_key: variant.experiment_key,
+        trigger_log_id: triggerLog?.id, // Include for response tracking
         ...data
       },
       actions: variant.content?.actions || []
@@ -181,6 +197,14 @@ async function handleEnhancedEventNotification(supabase: any, payload: EventPayl
       console.error('Failed to send enhanced notification:', error);
     } else {
       console.log(`Enhanced ${type} notification sent to user ${user_id}`);
+      
+      // Update trigger log with notification ID if available
+      if (triggerLog?.id && notificationPayload.data?.notification_id) {
+        await supabase
+          .from('trigger_effectiveness_logs')
+          .update({ notification_id: notificationPayload.data.notification_id })
+          .eq('id', triggerLog.id);
+      }
     }
 
   } catch (error) {

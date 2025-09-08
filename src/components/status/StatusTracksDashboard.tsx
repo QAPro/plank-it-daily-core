@@ -8,6 +8,7 @@ import { TrendingUp, Trophy, Crown, Star, Lock, Unlock } from 'lucide-react';
 import { useStatusTracks, useFeaturedUsers } from '@/hooks/useStatusTracks';
 import { TRACK_METADATA } from '@/services/statusTrackService';
 import StatusTrackCard from './StatusTrackCard';
+import FeaturedUsersCard from './FeaturedUsersCard';
 import { motion } from 'framer-motion';
 
 const StatusTracksDashboard = () => {
@@ -48,68 +49,22 @@ const StatusTracksDashboard = () => {
   const featuredContent = (
     <div className="space-y-6">
       {/* Featured This Week */}
-      {weeklyFeatured && weeklyFeatured.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Star className="w-5 h-5 text-yellow-500" />
-              Featured This Week
-            </CardTitle>
-            <CardDescription>
-              Community members making exceptional progress
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {weeklyFeatured.slice(0, 3).map((featured) => (
-                <div key={featured.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
-                  <Badge className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white">
-                    Featured
-                  </Badge>
-                  <div>
-                    <div className="font-medium">{featured.featured_for}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {new Date(featured.start_date).toLocaleDateString()}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
+      <FeaturedUsersCard
+        type="weekly"
+        featuredUsers={weeklyFeatured || []}
+        title="Featured This Week"
+        description="Community members making exceptional progress"
+        icon={<Star className="w-5 h-5 text-yellow-500" />}
+      />
+      
       {/* Hall of Fame */}
-      {hallOfFame && hallOfFame.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Crown className="w-5 h-5 text-purple-500" />
-              Hall of Fame
-            </CardTitle>
-            <CardDescription>
-              Legendary community members with exceptional achievements
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {hallOfFame.slice(0, 5).map((legend) => (
-                <div key={legend.id} className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-purple-500/10 to-pink-500/10">
-                  <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-                    Legend
-                  </Badge>
-                  <div>
-                    <div className="font-medium">{legend.featured_for}</div>
-                    <div className="text-sm text-muted-foreground">
-                      Achieved: {new Date(legend.start_date).toLocaleDateString()}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      <FeaturedUsersCard
+        type="hall_of_fame"
+        featuredUsers={hallOfFame || []}
+        title="Hall of Fame"
+        description="Legendary achievers who reached the pinnacle"
+        icon={<Crown className="w-5 h-5 text-purple-500" />}
+      />
     </div>
   );
 

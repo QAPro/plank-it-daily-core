@@ -235,9 +235,261 @@ export class StatusTrackService {
   }
 
   static async getFeaturedUsers(type: 'weekly' | 'monthly' | 'hall_of_fame'): Promise<FeaturedUser[]> {
-    // For now, return empty array until featured_users table is properly integrated
-    console.log('Featured users feature coming soon for type:', type);
-    return [];
+    try {
+      const { data, error } = await supabase
+        .from('featured_users')
+        .select('*')
+        .eq('feature_type', type)
+        .eq('is_active', true)
+        .order('start_date', { ascending: false });
+
+      if (error) throw error;
+      
+      return (data || []).map(user => ({
+        ...user,
+        feature_type: user.feature_type as 'weekly' | 'monthly' | 'hall_of_fame',
+        featured_data: user.featured_data as Record<string, any>
+      }));
+    } catch (error) {
+      console.warn('Error getting featured users:', error);
+      return [];
+    }
+  }
+
+  // Automatic selection methods for featured users
+  static async selectWeeklyFeaturedUsers(): Promise<void> {
+    try {
+      // Deactivate current weekly featured users
+      await supabase
+        .from('featured_users')
+        .update({ is_active: false })
+        .eq('feature_type', 'weekly')
+        .eq('is_active', true);
+
+      // Find users with significant achievements in the last week
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+
+      // Get top performers from each track
+      const topPerformers = await this.getTopPerformersThisWeek(weekAgo);
+      
+      // Create featured user entries
+      for (const performer of topPerformers.slice(0, 3)) {
+        const startDate = new Date().toISOString();
+        const endDate = new Date();
+        endDate.setDate(endDate.getDate() + 7);
+
+        await supabase
+          .from('featured_users')
+          .insert({
+            user_id: performer.user_id,
+            feature_type: 'weekly',
+            featured_for: performer.achievement,
+            featured_data: performer.data,
+            start_date: startDate,
+            end_date: endDate.toISOString(),
+            is_active: true
+          });
+      }
+    } catch (error) {
+      console.error('Error selecting weekly featured users:', error);
+    }
+  }
+
+  static async selectMonthlyFeaturedUsers(): Promise<void> {
+    try {
+      // Deactivate current monthly featured users
+      await supabase
+        .from('featured_users')
+        .update({ is_active: false })
+        .eq('feature_type', 'monthly')
+        .eq('is_active', true);
+
+      // Find users with exceptional progress in the last month
+      const monthAgo = new Date();
+      monthAgo.setMonth(monthAgo.getMonth() - 1);
+
+      const topMonthlyPerformers = await this.getTopPerformersThisMonth(monthAgo);
+      
+      // Create featured user entries
+      for (const performer of topMonthlyPerformers.slice(0, 5)) {
+        const startDate = new Date().toISOString();
+        const endDate = new Date();
+        endDate.setDate(endDate.getDate() + 30);
+
+        await supabase
+          .from('featured_users')
+          .insert({
+            user_id: performer.user_id,
+            feature_type: 'monthly',
+            featured_for: performer.achievement,
+            featured_data: performer.data,
+            start_date: startDate,
+            end_date: endDate.toISOString(),
+            is_active: true
+          });
+      }
+    } catch (error) {
+      console.error('Error selecting monthly featured users:', error);
+    }
+  }
+
+  static async selectHallOfFameUsers(): Promise<void> {
+    try {
+      // Hall of Fame users are permanent, so we only add new ones
+      // Find users who have achieved legendary status (level 10 in any track)
+      const { data: legendaryUsers, error } = await supabase
+        .from('user_status_tracks')
+        .select('user_id, track_name, track_level, experience_points')
+        .eq('track_level', 10);
+
+      if (error) throw error;
+
+      if (legendaryUsers) {
+        for (const user of legendaryUsers) {
+          // Check if already in hall of fame
+          const { data: existing } = await supabase
+            .from('featured_users')
+            .select('id')
+            .eq('user_id', user.user_id)
+            .eq('feature_type', 'hall_of_fame')
+            .single();
+
+          if (!existing) {
+            const trackMeta = TRACK_METADATA[user.track_name as TrackName];
+            await supabase
+              .from('featured_users')
+              .insert({
+                user_id: user.user_id,
+                feature_type: 'hall_of_fame',
+                featured_for: `${trackMeta?.displayName || user.track_name} Legend`,
+                featured_data: {
+                  track_name: user.track_name,
+                  level: user.track_level,
+                  experience_points: user.experience_points,
+                  achievement_date: new Date().toISOString()
+                },
+                start_date: new Date().toISOString(),
+                is_active: true
+              });
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error selecting hall of fame users:', error);
+    }
+  }
+
+  private static async getTopPerformersThisWeek(weekAgo: Date): Promise<Array<{
+    user_id: string;
+    achievement: string;
+    data: Record<string, any>;
+  }>> {
+    try {
+      // Get users who leveled up this week
+      const { data: recentLevelUps, error } = await supabase
+        .from('user_status_tracks')
+        .select('user_id, track_name, track_level, updated_at')
+        .gte('updated_at', weekAgo.toISOString())
+        .order('track_level', { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+
+      const performers = (recentLevelUps || []).map(track => {
+        const trackMeta = TRACK_METADATA[track.track_name as TrackName];
+        return {
+          user_id: track.user_id,
+          achievement: `Reached Level ${track.track_level} in ${trackMeta?.displayName || track.track_name}`,
+          data: {
+            track_name: track.track_name,
+            level: track.track_level,
+            level_up_date: track.updated_at,
+            type: 'level_up'
+          }
+        };
+      });
+
+      // Also get users with high XP gains this week
+      const { data: highXPUsers, error: xpError } = await supabase
+        .from('user_status_tracks')
+        .select('user_id, track_name, experience_points, updated_at')
+        .gte('updated_at', weekAgo.toISOString())
+        .order('experience_points', { ascending: false })
+        .limit(10);
+
+      if (!xpError && highXPUsers) {
+        const xpPerformers = highXPUsers.slice(0, 5).map(track => {
+          const trackMeta = TRACK_METADATA[track.track_name as TrackName];
+          return {
+            user_id: track.user_id,
+            achievement: `${track.experience_points} XP in ${trackMeta?.displayName || track.track_name}`,
+            data: {
+              track_name: track.track_name,
+              level: 0, // Default level for XP-based achievements
+              level_up_date: track.updated_at,
+              experience_points: track.experience_points,
+              period: 'this_week',
+              type: 'high_xp'
+            }
+          };
+        });
+        performers.push(...xpPerformers);
+      }
+
+      // Remove duplicates by user_id and return top performers
+      const uniquePerformers = performers.filter((performer, index, self) => 
+        index === self.findIndex(p => p.user_id === performer.user_id)
+      );
+
+      return uniquePerformers.slice(0, 5);
+    } catch (error) {
+      console.error('Error getting top performers this week:', error);
+      return [];
+    }
+  }
+
+  private static async getTopPerformersThisMonth(monthAgo: Date): Promise<Array<{
+    user_id: string;
+    achievement: string;
+    data: Record<string, any>;
+  }>> {
+    try {
+      // Get users with most consistent progress this month
+      const { data: consistentUsers, error } = await supabase
+        .from('user_status_tracks')
+        .select('user_id, track_name, experience_points, track_level, updated_at')
+        .gte('updated_at', monthAgo.toISOString())
+        .order('experience_points', { ascending: false })
+        .limit(15);
+
+      if (error) throw error;
+
+      const performers = (consistentUsers || []).map(track => {
+        const trackMeta = TRACK_METADATA[track.track_name as TrackName];
+        return {
+          user_id: track.user_id,
+          achievement: `Outstanding ${trackMeta?.displayName || track.track_name} Progress`,
+          data: {
+            track_name: track.track_name,
+            level: track.track_level,
+            experience_points: track.experience_points,
+            period: 'this_month',
+            type: 'consistent_progress'
+          }
+        };
+      });
+
+      // Remove duplicates and return top performers
+      const uniquePerformers = performers.filter((performer, index, self) => 
+        index === self.findIndex(p => p.user_id === performer.user_id)
+      );
+
+      return uniquePerformers.slice(0, 8);
+    } catch (error) {
+      console.error('Error getting top performers this month:', error);
+      return [];
+    }
   }
 
   static async checkFeatureAccess(userId: string, featureName: string): Promise<boolean> {

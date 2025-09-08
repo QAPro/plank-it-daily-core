@@ -4,7 +4,7 @@ export interface ProgressMetrics {
   improvementPercentage: number;
   strengthGainPercentage: number;
   costSavings: number;
-  timeInvestment: {
+  timeDedicated: {
     totalHours: number;
     dailyAverage: number;
     weeklyAverage: number;
@@ -63,7 +63,7 @@ export class PersonalProgressService {
     const consistencyScore = Math.min(sessions.length / totalDays, 1) * 100;
     const strengthGainPercentage = Math.min(improvementPercentage * 0.7 + consistencyScore * 0.3, 200);
 
-    // Time investment calculations
+    // Time dedication calculations
     const totalSeconds = sessions.reduce((sum, s) => sum + (s.duration_seconds || 0), 0);
     const totalHours = totalSeconds / 3600;
     const dailyAverage = totalHours / Math.max(totalDays, 1);
@@ -82,7 +82,7 @@ export class PersonalProgressService {
       improvementPercentage: Math.round(improvementPercentage * 10) / 10,
       strengthGainPercentage: Math.round(strengthGainPercentage * 10) / 10,
       costSavings: Math.round(costSavings),
-      timeInvestment: {
+      timeDedicated: {
         totalHours: Math.round(totalHours * 10) / 10,
         dailyAverage: Math.round(dailyAverage * 60 * 10) / 10, // in minutes
         weeklyAverage: Math.round(weeklyAverage * 60 * 10) / 10, // in minutes
@@ -216,7 +216,7 @@ export class PersonalProgressService {
       improvementPercentage: 0,
       strengthGainPercentage: 0,
       costSavings: 0,
-      timeInvestment: {
+      timeDedicated: {
         totalHours: 0,
         dailyAverage: 0,
         weeklyAverage: 0,

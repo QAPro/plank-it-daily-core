@@ -29,7 +29,7 @@ const ValuePropositionCard: React.FC<ValuePropositionCardProps> = ({ metrics }) 
     if (savings >= 150) return { 
       level: 'Smart Saver', 
       color: 'text-green-600', 
-      message: 'Great ROI on your time investment!' 
+      message: 'Amazing progress from your daily dedication!' 
     };
     if (savings >= 50) return { 
       level: 'Wise Investor', 
@@ -61,16 +61,16 @@ const ValuePropositionCard: React.FC<ValuePropositionCardProps> = ({ metrics }) 
     },
     {
       icon: Clock,
-      title: 'Time Invested',
-      value: formatTime(metrics.timeInvestment.totalHours),
-      subtitle: `${Math.round(metrics.timeInvestment.dailyAverage)}min/day avg`,
+      title: 'Time Dedicated',
+      value: formatTime(metrics.timeDedicated.totalHours),
+      subtitle: `${Math.round(metrics.timeDedicated.dailyAverage)}min/day avg`,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100 dark:bg-blue-900/20',
     },
     {
       icon: Target,
       title: 'Efficiency',
-      value: `${Math.round((metrics.costSavings / Math.max(metrics.timeInvestment.totalHours, 1)) * 10) / 10}`,
+      value: `${Math.round((metrics.costSavings / Math.max(metrics.timeDedicated.totalHours, 1)) * 10) / 10}`,
       subtitle: '$/hour value',
       color: 'text-purple-600',
       bgColor: 'bg-purple-100 dark:bg-purple-900/20',
@@ -83,7 +83,7 @@ const ValuePropositionCard: React.FC<ValuePropositionCardProps> = ({ metrics }) 
       <CardHeader className="relative">
         <CardTitle className="flex items-center gap-2">
           <DollarSign className="w-6 h-6 text-emerald-600" />
-          Your Investment Value
+          Your Progress Value
         </CardTitle>
         <p className="text-sm text-muted-foreground">
           The real-world impact of your consistency
@@ -172,8 +172,8 @@ const ValuePropositionCard: React.FC<ValuePropositionCardProps> = ({ metrics }) 
           transition={{ delay: 0.8 }}
         >
           <p className="text-sm font-medium text-blue-700 dark:text-blue-300">
-            🚀 Just {Math.round(metrics.timeInvestment.dailyAverage)} minutes daily = 
-            ${Math.round(metrics.costSavings / (Math.max(metrics.timeInvestment.totalHours, 1) * 60) * 100) / 100} value per minute!
+            🚀 Just {Math.round(metrics.timeDedicated.dailyAverage)} minutes daily = 
+            ${Math.round(metrics.costSavings / (Math.max(metrics.timeDedicated.totalHours, 1) * 60) * 100) / 100} value per minute!
           </p>
         </motion.div>
       </CardContent>

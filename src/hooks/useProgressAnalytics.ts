@@ -66,7 +66,7 @@ export const useProgressAnalytics = () => {
       const currentStreak = streak?.current_streak || 0;
       const longestStreak = streak?.longest_streak || 0;
 
-      // Calculate ROI Score (achievements + XP per hour of investment)
+      // Calculate Progress Score (achievements + XP per hour of dedication)
       const roiScore = totalTimeInvestedHours > 0 
         ? Math.round((achievementsEarned * 100 + xpGained) / totalTimeInvestedHours)
         : 0;
@@ -118,7 +118,7 @@ export const useProgressAnalytics = () => {
         });
       });
 
-      // Calculate portfolio breakdown (investment value in different areas)
+      // Calculate progress breakdown (growth value in different areas)
       const portfolioBreakdown = {
         streakValue: Math.min(currentStreak * 10, 500), // Max 500 points for streaks
         achievementValue: achievementsEarned * 25,

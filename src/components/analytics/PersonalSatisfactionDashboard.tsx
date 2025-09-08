@@ -251,25 +251,25 @@ const PersonalSatisfactionDashboard: React.FC = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Clock className="w-5 h-5" />
-                    Time Investment
+                    Time Dedicated
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="text-center">
                     <p className="text-3xl font-bold text-blue-600">
-                      {progressMetrics.timeInvestment.totalHours}h
+                      {progressMetrics.timeDedicated.totalHours}h
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      Total time invested in your health
+                      Total time dedicated to your health
                     </p>
                   </div>
                   <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                     <div className="text-center">
-                      <p className="text-lg font-bold">{progressMetrics.timeInvestment.dailyAverage}min</p>
+                      <p className="text-lg font-bold">{progressMetrics.timeDedicated.dailyAverage}min</p>
                       <p className="text-xs text-muted-foreground">Daily average</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-lg font-bold">{progressMetrics.timeInvestment.weeklyAverage}min</p>
+                      <p className="text-lg font-bold">{progressMetrics.timeDedicated.weeklyAverage}min</p>
                       <p className="text-xs text-muted-foreground">Weekly average</p>
                     </div>
                   </div>

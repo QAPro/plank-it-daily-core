@@ -42,7 +42,7 @@ const ProgressCelebrationDashboard: React.FC = () => {
   };
 
   const celebrationMessages = [
-    "Every workout is an investment in your future self! 💪",
+    "Every workout is a gift to your future self! 💪",
     "Your consistency is truly inspiring! ✨",
     "Look how far you've come - you're amazing! 🌟",
     "Your dedication is building something incredible! 🎯"

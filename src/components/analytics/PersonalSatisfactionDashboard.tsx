@@ -115,7 +115,7 @@ const PersonalSatisfactionDashboard: React.FC = () => {
           <TabsTrigger value="progress">Progress</TabsTrigger>
           <TabsTrigger value="health">Health Impact</TabsTrigger>
           <TabsTrigger value="habits">Habit Formation</TabsTrigger>
-          <TabsTrigger value="value">Value & ROI</TabsTrigger>
+          <TabsTrigger value="value">Value & Impact</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">

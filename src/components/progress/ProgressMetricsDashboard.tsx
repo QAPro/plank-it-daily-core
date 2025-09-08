@@ -43,7 +43,7 @@ const ProgressMetricsDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* ROI Header */}
+      {/* Progress Score Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -55,14 +55,14 @@ const ProgressMetricsDashboard: React.FC = () => {
               <div>
                 <h2 className="text-2xl font-bold text-primary mb-2">Your Progress Overview</h2>
                 <p className="text-muted-foreground">
-                  {formatTime(analytics.totalTimeInvested)} dedicated • Progress Score: {analytics.roiScore}
+                  {formatTime(analytics.totalTimeInvested)} dedicated • Progress Score: {analytics.progressScore}
                 </p>
               </div>
               <div className="text-right">
                 <div className="flex items-center text-primary">
                   <TrendingUp className="w-8 h-8 mr-2" />
                   <div>
-                    <div className="text-3xl font-bold">{analytics.roiScore}</div>
+                    <div className="text-3xl font-bold">{analytics.progressScore}</div>
                     <div className="text-sm text-muted-foreground">Progress Points</div>
                   </div>
                 </div>

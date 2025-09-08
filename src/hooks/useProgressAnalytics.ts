@@ -12,7 +12,7 @@ export interface ProgressMetrics {
   xpGained: number;
   currentStreak: number;
   longestStreak: number;
-  roiScore: number; // calculated ROI metric
+  progressScore: number; // calculated progress metric
   progressGrowth: Array<{
     date: string;
     cumulativeTime: number;
@@ -67,7 +67,7 @@ export const useProgressAnalytics = () => {
       const longestStreak = streak?.longest_streak || 0;
 
       // Calculate Progress Score (achievements + XP per hour of dedication)
-      const roiScore = totalTimeInvestedHours > 0 
+      const progressScore = totalTimeInvestedHours > 0 
         ? Math.round((achievementsEarned * 100 + xpGained) / totalTimeInvestedHours)
         : 0;
 
@@ -133,7 +133,7 @@ export const useProgressAnalytics = () => {
         xpGained,
         currentStreak,
         longestStreak,
-        roiScore,
+        progressScore,
         progressGrowth,
         portfolioBreakdown,
       };

@@ -198,7 +198,7 @@ const CrossSystemGuard: React.FC<CrossSystemGuardProps> = ({
               </div>
               <div>
                 <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
-                  Investment Web System
+                  Progress Web System
                 </h4>
                 <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
                   Features are interconnected across tracks, social activity, and achievements. 

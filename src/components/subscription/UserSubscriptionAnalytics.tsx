@@ -41,16 +41,16 @@ const UserSubscriptionAnalytics = () => {
   const avgSessionsPerMonth = 28;
   const costPerSession = monthlyValue > 0 ? monthlyValue / avgSessionsPerMonth : 0;
 
-  // Calculate ROI metrics
-  const roiMetrics = useMemo(() => {
+  // Calculate value metrics
+  const valueMetrics = useMemo(() => {
     const alternativeCostPerSession = 15; // Gym session cost
     const potentialSavings = (avgSessionsPerMonth * alternativeCostPerSession) - monthlyValue;
-    const roiPercentage = monthlyValue > 0 ? ((potentialSavings / monthlyValue) * 100) : 0;
+    const valuePercentage = monthlyValue > 0 ? ((potentialSavings / monthlyValue) * 100) : 0;
     
     return {
       costPerSession: costPerSession.toFixed(2),
       potentialSavings: potentialSavings.toFixed(0),
-      roiPercentage: roiPercentage.toFixed(0),
+      valuePercentage: valuePercentage.toFixed(0),
       breakEvenSessions: monthlyValue > 0 ? Math.ceil(monthlyValue / alternativeCostPerSession) : 0
     };
   }, [monthlyValue, costPerSession, avgSessionsPerMonth]);
@@ -109,7 +109,7 @@ const UserSubscriptionAnalytics = () => {
         <p className="text-gray-600">Track your subscription value and optimize your fitness journey</p>
       </div>
 
-      {/* ROI Overview */}
+      {/* Value Overview */}
       <div className="grid md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
@@ -119,9 +119,9 @@ const UserSubscriptionAnalytics = () => {
               </div>
               <div>
                 <p className="text-2xl font-bold text-green-600">
-                  {roiMetrics.roiPercentage}%
+                  {valueMetrics.valuePercentage}%
                 </p>
-                <p className="text-sm text-gray-600">ROI vs Gym</p>
+                <p className="text-sm text-gray-600">Value vs Gym</p>
               </div>
             </div>
           </CardContent>
@@ -135,7 +135,7 @@ const UserSubscriptionAnalytics = () => {
               </div>
               <div>
                 <p className="text-2xl font-bold text-blue-600">
-                  ${roiMetrics.costPerSession}
+                  ${valueMetrics.costPerSession}
                 </p>
                 <p className="text-sm text-gray-600">Per Session</p>
               </div>
@@ -151,7 +151,7 @@ const UserSubscriptionAnalytics = () => {
               </div>
               <div>
                 <p className="text-2xl font-bold text-purple-600">
-                  ${roiMetrics.potentialSavings}
+                  ${valueMetrics.potentialSavings}
                 </p>
                 <p className="text-sm text-gray-600">Monthly Savings</p>
               </div>
@@ -167,7 +167,7 @@ const UserSubscriptionAnalytics = () => {
               </div>
               <div>
                 <p className="text-2xl font-bold text-orange-600">
-                  {roiMetrics.breakEvenSessions}
+                  {valueMetrics.breakEvenSessions}
                 </p>
                 <p className="text-sm text-gray-600">Break-even Point</p>
               </div>

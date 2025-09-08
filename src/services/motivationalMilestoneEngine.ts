@@ -19,7 +19,7 @@ export class MotivationalMilestoneEngine {
     improvement: [25, 50, 100, 200, 300], // % improvement
     strength: [20, 40, 60, 80, 100], // % strength gain
     cost_savings: [50, 100, 200, 300, 500], // $ saved
-    time_investment: [5, 10, 20, 30, 50], // hours invested
+    time_dedicated: [5, 10, 20, 30, 50], // hours dedicated
     consistency: [50, 70, 80, 90, 95], // % consistency score
   };
 
@@ -60,7 +60,7 @@ export class MotivationalMilestoneEngine {
     // Generate value milestones
     milestones.push(...this.generateValueMilestones(costSavings, totalHours));
 
-    // Generate time investment milestones
+    // Generate time dedication milestones
     milestones.push(...this.generateTimeMilestones(totalHours, daysActive));
 
     // Generate health milestones
@@ -144,14 +144,14 @@ export class MotivationalMilestoneEngine {
   private static generateTimeMilestones(totalHours: number, daysActive: number): MotivationalMilestone[] {
     const milestones: MotivationalMilestone[] = [];
 
-    this.CELEBRATION_THRESHOLDS.time_investment.forEach((threshold, index) => {
+    this.CELEBRATION_THRESHOLDS.time_dedicated.forEach((threshold, index) => {
       if (totalHours >= threshold) {
         const dailyAvg = (totalHours * 60) / Math.max(daysActive, 1);
         milestones.push({
           id: `time_${threshold}`,
           type: 'time',
-          title: `${threshold} Hour Investor`,
-          message: `You've invested ${Math.round(totalHours * 10) / 10} hours in your health!`,
+          title: `${threshold} Hour Achiever`,
+          message: `You've dedicated ${Math.round(totalHours * 10) / 10} hours to your health!`,
           value: `${Math.round(totalHours * 10) / 10} hours`,
           subtext: `Just ${Math.round(dailyAvg)} minutes per day on average`,
           icon: '⏰',

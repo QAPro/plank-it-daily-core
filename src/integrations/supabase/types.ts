@@ -345,6 +345,51 @@ export type Database = {
         }
         Relationships: []
       }
+      certifications: {
+        Row: {
+          approved_at: string | null
+          certification_data: Json | null
+          certification_level: string
+          created_at: string
+          evidence_urls: string[] | null
+          exercise_id: string
+          expires_at: string | null
+          id: string
+          status: string
+          user_id: string
+          validation_type: string
+          validator_id: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          certification_data?: Json | null
+          certification_level?: string
+          created_at?: string
+          evidence_urls?: string[] | null
+          exercise_id: string
+          expires_at?: string | null
+          id?: string
+          status?: string
+          user_id: string
+          validation_type?: string
+          validator_id?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          certification_data?: Json | null
+          certification_level?: string
+          created_at?: string
+          evidence_urls?: string[] | null
+          exercise_id?: string
+          expires_at?: string | null
+          id?: string
+          status?: string
+          user_id?: string
+          validation_type?: string
+          validator_id?: string | null
+        }
+        Relationships: []
+      }
       challenge_participants: {
         Row: {
           challenge_id: string
@@ -738,6 +783,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      exercise_masteries: {
+        Row: {
+          best_performance: Json | null
+          consistency_score: number | null
+          created_at: string
+          exercise_id: string
+          id: string
+          last_practice_at: string | null
+          mastery_level: number
+          mastery_unlocked_at: string | null
+          progression_score: number | null
+          technique_score: number | null
+          total_sessions: number
+          updated_at: string
+          user_id: string
+          validation_data: Json | null
+        }
+        Insert: {
+          best_performance?: Json | null
+          consistency_score?: number | null
+          created_at?: string
+          exercise_id: string
+          id?: string
+          last_practice_at?: string | null
+          mastery_level?: number
+          mastery_unlocked_at?: string | null
+          progression_score?: number | null
+          technique_score?: number | null
+          total_sessions?: number
+          updated_at?: string
+          user_id: string
+          validation_data?: Json | null
+        }
+        Update: {
+          best_performance?: Json | null
+          consistency_score?: number | null
+          created_at?: string
+          exercise_id?: string
+          id?: string
+          last_practice_at?: string | null
+          mastery_level?: number
+          mastery_unlocked_at?: string | null
+          progression_score?: number | null
+          technique_score?: number | null
+          total_sessions?: number
+          updated_at?: string
+          user_id?: string
+          validation_data?: Json | null
+        }
+        Relationships: []
       }
       feature_cohorts: {
         Row: {
@@ -1640,6 +1736,36 @@ export type Database = {
         }
         Relationships: []
       }
+      skill_requirements: {
+        Row: {
+          created_at: string
+          exercise_id: string
+          id: string
+          required_exercise_id: string
+          required_mastery_level: number
+          requirement_type: string
+          unlock_data: Json | null
+        }
+        Insert: {
+          created_at?: string
+          exercise_id: string
+          id?: string
+          required_exercise_id: string
+          required_mastery_level?: number
+          requirement_type?: string
+          unlock_data?: Json | null
+        }
+        Update: {
+          created_at?: string
+          exercise_id?: string
+          id?: string
+          required_exercise_id?: string
+          required_mastery_level?: number
+          requirement_type?: string
+          unlock_data?: Json | null
+        }
+        Relationships: []
+      }
       subscription_plans: {
         Row: {
           billing_interval: string
@@ -1801,6 +1927,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      technique_validations: {
+        Row: {
+          created_at: string
+          exercise_id: string
+          form_feedback: string | null
+          id: string
+          improvement_suggestions: string | null
+          technique_rating: number
+          user_id: string
+          validation_video_url: string | null
+          validator_id: string
+        }
+        Insert: {
+          created_at?: string
+          exercise_id: string
+          form_feedback?: string | null
+          id?: string
+          improvement_suggestions?: string | null
+          technique_rating: number
+          user_id: string
+          validation_video_url?: string | null
+          validator_id: string
+        }
+        Update: {
+          created_at?: string
+          exercise_id?: string
+          form_feedback?: string | null
+          id?: string
+          improvement_suggestions?: string | null
+          technique_rating?: number
+          user_id?: string
+          validation_video_url?: string | null
+          validator_id?: string
+        }
+        Relationships: []
       }
       timer_sessions_detailed: {
         Row: {
@@ -3507,6 +3669,14 @@ export type Database = {
       bootstrap_first_admin: {
         Args: { user_email: string }
         Returns: boolean
+      }
+      calculate_mastery_score: {
+        Args: {
+          consistency_score: number
+          progression_score: number
+          technique_score: number
+        }
+        Returns: number
       }
       does_username_exist: {
         Args: { target_username: string }

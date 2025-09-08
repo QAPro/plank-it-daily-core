@@ -9,7 +9,7 @@ import Index from "@/pages/Index";
 import Auth from "@/pages/Auth";
 import EmailVerify from "@/pages/EmailVerify";
 import ProductionCheck from "@/pages/ProductionCheck";
-import InvestmentWebDemo from "@/pages/InvestmentWebDemo";
+
 import ExerciseMasteryHub from "@/pages/ExerciseMasteryHub";
 import NotFound from "@/pages/NotFound";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -61,7 +61,7 @@ function App() {
               <Route path="/auth/verify" element={<EmailVerify />} />
               <Route path="/verify-email" element={<EmailVerify />} />
               <Route path="/production-check" element={<ProductionCheck />} />
-              <Route path="/investment-web" element={<InvestmentWebDemo />} />
+              
               <Route path="/exercise-mastery" element={<ExerciseMasteryHub />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

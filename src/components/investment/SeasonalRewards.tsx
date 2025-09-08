@@ -4,8 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Award, Calendar, Clock, Users, Zap, AlertTriangle, Crown } from 'lucide-react';
-import { useSeasonalCertifications } from '@/hooks/useInvestmentProtection';
+import { Award, Calendar, Clock, Users, Zap, AlertTriangle, Crown, Sparkles } from 'lucide-react';
+import { useSeasonalCertifications } from '@/hooks/useProgressCelebration';
 
 const SeasonalRewards: React.FC = () => {
   const { data: certifications, isLoading } = useSeasonalCertifications();
@@ -67,10 +67,10 @@ const SeasonalRewards: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Seasonal Rewards</h2>
-          <p className="text-muted-foreground mt-1">
-            Limited-time certifications that expire if not maintained
-          </p>
+        <h2 className="text-2xl font-bold">Seasonal Challenges</h2>
+        <p className="text-muted-foreground mt-1">
+          Celebrate your progress with seasonal fitness challenges and achievements
+        </p>
         </div>
         <Badge variant="outline" className="text-sm">
           {userCertifications.length} Active Certifications
@@ -128,19 +128,11 @@ const SeasonalRewards: React.FC = () => {
                           {getDaysRemaining(cert.userCertification!.expiresAt)} days
                         </span>
                       </div>
-                      {cert.userCertification!.abandonmentCost > 0 && (
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Abandonment Cost:</span>
-                          <span className="font-medium text-red-600">
-                            ${cert.userCertification!.abandonmentCost.toFixed(2)}
-                          </span>
-                        </div>
-                      )}
                     </div>
 
                     {isExpiringSoon(cert.userCertification!.expiresAt) && (
-                      <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded text-xs text-red-700 dark:text-red-300">
-                        ⚠️ This certification expires soon! Maintain your progress to keep it.
+                      <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded text-xs text-blue-700 dark:text-blue-300">
+                        🌟 Keep up your great progress to maintain this achievement!
                       </div>
                     )}
                   </CardContent>
@@ -244,8 +236,8 @@ const SeasonalRewards: React.FC = () => {
                     )}
 
                     {spotsRemaining <= 5 && (
-                      <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded text-xs text-red-700 dark:text-red-300">
-                        🔥 Only {spotsRemaining} spots remaining! This certification may close soon.
+                      <div className="p-2 bg-orange-50 dark:bg-orange-900/20 rounded text-xs text-orange-700 dark:text-orange-300">
+                        ⭐ Popular challenge with {spotsRemaining} spots remaining!
                       </div>
                     )}
 
@@ -277,46 +269,46 @@ const SeasonalRewards: React.FC = () => {
         </div>
       </div>
 
-      {/* FOMO Warning */}
-      <Card className="border-red-500/20 bg-red-500/5">
+      {/* Motivation Section */}
+      <Card className="border-primary/20 bg-primary/5">
         <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2 text-red-600">
-            <Clock className="w-5 h-5" />
-            Time-Sensitive Investment Warning
+          <CardTitle className="text-lg flex items-center gap-2 text-primary">
+            <Sparkles className="w-5 h-5" />
+            Seasonal Challenge Benefits
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            <p className="text-sm text-red-700 dark:text-red-300">
-              Seasonal certifications are <strong>limited-time investments</strong> that require consistent maintenance. 
-              Once expired, they cannot be re-earned and represent permanent loss of prestige value.
+            <p className="text-sm text-muted-foreground">
+              Seasonal challenges are a fun way to stay motivated and celebrate your progress with the community. 
+              Each challenge offers unique rewards and helps you build lasting healthy habits.
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                <h5 className="font-medium text-red-700 dark:text-red-300 mb-1">⚠️ Expiration Risks</h5>
-                <ul className="text-xs text-red-600 dark:text-red-400 space-y-0.5">
-                  <li>• Certifications expire if maintenance drops below 50%</li>
-                  <li>• No recovery mechanism once expired</li>
-                  <li>• Prestige value permanently lost</li>
-                  <li>• Future seasonal access may be restricted</li>
+              <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <h5 className="font-medium text-green-700 dark:text-green-300 mb-1">🎯 Challenge Benefits</h5>
+                <ul className="text-xs text-green-600 dark:text-green-400 space-y-0.5">
+                  <li>• Build consistent workout habits</li>
+                  <li>• Connect with like-minded people</li>
+                  <li>• Celebrate your achievements</li>
+                  <li>• Stay motivated year-round</li>
                 </ul>
               </div>
               
-              <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                <h5 className="font-medium text-yellow-700 dark:text-yellow-300 mb-1">🔥 Scarcity Pressure</h5>
-                <ul className="text-xs text-yellow-600 dark:text-yellow-400 space-y-0.5">
-                  <li>• Limited spots create competitive pressure</li>
-                  <li>• First-come, first-served allocation</li>
-                  <li>• Exclusive access to future opportunities</li>
-                  <li>• Social status differentiation</li>
+              <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <h5 className="font-medium text-blue-700 dark:text-blue-300 mb-1">✨ Community Spirit</h5>
+                <ul className="text-xs text-blue-600 dark:text-blue-400 space-y-0.5">
+                  <li>• Share your progress journey</li>
+                  <li>• Support and encourage others</li>
+                  <li>• Learn new workout techniques</li>
+                  <li>• Create lasting friendships</li>
                 </ul>
               </div>
             </div>
 
-            <div className="text-center p-3 bg-primary/5 rounded-lg">
+            <div className="text-center p-3 bg-primary/10 rounded-lg">
               <p className="text-sm font-medium text-primary">
-                💎 Your seasonal certifications are irreplaceable investments in your platform status
+                🌟 Your participation makes our community stronger and more supportive!
               </p>
             </div>
           </div>

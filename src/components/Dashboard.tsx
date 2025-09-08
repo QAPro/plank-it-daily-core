@@ -7,7 +7,7 @@ import WorkoutTab from './tabs/WorkoutTab';
 import StatsTab from './tabs/StatsTab';
 import AnalyticsTab from './tabs/AnalyticsTab';
 import AchievementsTab from './tabs/AchievementsTab';
-import InvestmentTab from './tabs/InvestmentTab';
+import ProgressTab from './tabs/ProgressTab';
 import GatedCompeteTab from './tabs/GatedCompeteTab';
 import FriendsTab from './tabs/FriendsTab';
 import EventsTab from './tabs/EventsTab';
@@ -50,7 +50,7 @@ const Dashboard = () => {
       case 'achievements':
         return <AchievementsTab />;
       case 'investment':
-        return <InvestmentTab />;
+        return <ProgressTab />;
       case 'compete':
         return <GatedCompeteTab />;
       case 'friends':

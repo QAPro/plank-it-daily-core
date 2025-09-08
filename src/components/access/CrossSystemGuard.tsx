@@ -3,14 +3,13 @@ import { useStatusTracks } from '@/hooks/useStatusTracks';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Lock, Trophy, Users, Star, Crown } from 'lucide-react';
+import { Lock, Trophy, Users, Star } from 'lucide-react';
 
 interface CrossSystemRequirement {
-  type: 'track_level' | 'social_activity' | 'analytics_tier' | 'mentor_status';
+  type: 'track_level' | 'social_activity' | 'analytics_tier';
   track?: string;
   level?: number;
   socialActions?: number;
-  mentorships?: number;
   description: string;
 }
 
@@ -47,10 +46,6 @@ const CrossSystemGuard: React.FC<CrossSystemGuardProps> = ({
         const highestLevel = Math.max(...statusTracks.map(t => t.track_level));
         return highestLevel >= 5;
 
-      case 'mentor_status':
-        // TODO: Check mentor status from mentor service
-        return false;
-
       default:
         return false;
     }
@@ -71,8 +66,6 @@ const CrossSystemGuard: React.FC<CrossSystemGuardProps> = ({
         return <Users className="w-5 h-5 text-blue-500" />;
       case 'analytics_tier':
         return <Star className="w-5 h-5 text-purple-500" />;
-      case 'mentor_status':
-        return <Crown className="w-5 h-5 text-orange-500" />;
       default:
         return <Lock className="w-5 h-5 text-gray-500" />;
     }

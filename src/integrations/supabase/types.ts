@@ -690,6 +690,45 @@ export type Database = {
         }
         Relationships: []
       }
+      data_export_requests: {
+        Row: {
+          complexity_score: number
+          created_at: string
+          data_interconnection_count: number
+          estimated_completion_hours: number
+          expires_at: string
+          export_type: string
+          id: string
+          status: string
+          user_id: string
+          warning_acknowledged: boolean
+        }
+        Insert: {
+          complexity_score?: number
+          created_at?: string
+          data_interconnection_count?: number
+          estimated_completion_hours?: number
+          expires_at?: string
+          export_type: string
+          id?: string
+          status?: string
+          user_id: string
+          warning_acknowledged?: boolean
+        }
+        Update: {
+          complexity_score?: number
+          created_at?: string
+          data_interconnection_count?: number
+          estimated_completion_hours?: number
+          expires_at?: string
+          export_type?: string
+          id?: string
+          status?: string
+          user_id?: string
+          warning_acknowledged?: boolean
+        }
+        Relationships: []
+      }
       event_challenges: {
         Row: {
           badge_reward: string | null
@@ -783,6 +822,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      exclusive_features: {
+        Row: {
+          created_at: string
+          current_users: number | null
+          feature_name: string
+          feature_type: string
+          id: string
+          invitation_requirements: Json
+          is_active: boolean
+          max_users: number | null
+          prestige_value: number
+          scarcity_multiplier: number
+        }
+        Insert: {
+          created_at?: string
+          current_users?: number | null
+          feature_name: string
+          feature_type: string
+          id?: string
+          invitation_requirements?: Json
+          is_active?: boolean
+          max_users?: number | null
+          prestige_value?: number
+          scarcity_multiplier?: number
+        }
+        Update: {
+          created_at?: string
+          current_users?: number | null
+          feature_name?: string
+          feature_type?: string
+          id?: string
+          invitation_requirements?: Json
+          is_active?: boolean
+          max_users?: number | null
+          prestige_value?: number
+          scarcity_multiplier?: number
+        }
+        Relationships: []
       }
       exercise_masteries: {
         Row: {
@@ -1110,6 +1188,45 @@ export type Database = {
           friend_id?: string
           id?: string
           status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      investment_streaks: {
+        Row: {
+          created_at: string
+          current_multiplier: number
+          id: string
+          last_activity_date: string
+          max_multiplier_achieved: number
+          reset_penalty_value: number
+          streak_type: string
+          total_investment_value: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_multiplier?: number
+          id?: string
+          last_activity_date?: string
+          max_multiplier_achieved?: number
+          reset_penalty_value?: number
+          streak_type: string
+          total_investment_value?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_multiplier?: number
+          id?: string
+          last_activity_date?: string
+          max_multiplier_achieved?: number
+          reset_penalty_value?: number
+          streak_type?: string
+          total_investment_value?: number
           updated_at?: string
           user_id?: string
         }
@@ -1608,6 +1725,51 @@ export type Database = {
           note?: string | null
           points?: number
           user_id?: string
+        }
+        Relationships: []
+      }
+      seasonal_certifications: {
+        Row: {
+          certification_name: string
+          created_at: string
+          current_holders: number | null
+          end_date: string
+          expiry_date: string
+          id: string
+          maintenance_requirement: Json
+          max_holders: number | null
+          prestige_value: number
+          season_period: string
+          season_year: number
+          start_date: string
+        }
+        Insert: {
+          certification_name: string
+          created_at?: string
+          current_holders?: number | null
+          end_date: string
+          expiry_date: string
+          id?: string
+          maintenance_requirement?: Json
+          max_holders?: number | null
+          prestige_value?: number
+          season_period: string
+          season_year: number
+          start_date: string
+        }
+        Update: {
+          certification_name?: string
+          created_at?: string
+          current_holders?: number | null
+          end_date?: string
+          expiry_date?: string
+          id?: string
+          maintenance_requirement?: Json
+          max_holders?: number | null
+          prestige_value?: number
+          season_period?: string
+          season_year?: number
+          start_date?: string
         }
         Relationships: []
       }
@@ -2396,6 +2558,50 @@ export type Database = {
           },
         ]
       }
+      user_exclusive_access: {
+        Row: {
+          abandonment_penalty: number
+          access_level: string
+          created_at: string
+          feature_id: string
+          granted_at: string
+          id: string
+          investment_value: number
+          invited_by: string | null
+          user_id: string
+        }
+        Insert: {
+          abandonment_penalty?: number
+          access_level?: string
+          created_at?: string
+          feature_id: string
+          granted_at?: string
+          id?: string
+          investment_value?: number
+          invited_by?: string | null
+          user_id: string
+        }
+        Update: {
+          abandonment_penalty?: number
+          access_level?: string
+          created_at?: string
+          feature_id?: string
+          granted_at?: string
+          id?: string
+          investment_value?: number
+          invited_by?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_exclusive_access_feature_id_fkey"
+            columns: ["feature_id"]
+            isOneToOne: false
+            referencedRelation: "exclusive_features"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_exercise_performance: {
         Row: {
           average_duration_seconds: number
@@ -2565,6 +2771,102 @@ export type Database = {
           target_date?: string
           target_value?: number
           title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_investment_portfolio: {
+        Row: {
+          abandonment_cost_24h: number
+          abandonment_cost_30d: number
+          abandonment_cost_7d: number
+          created_at: string
+          exclusive_access_value: number
+          id: string
+          last_calculated_at: string
+          mastery_investment_value: number
+          recovery_difficulty_score: number
+          seasonal_certification_value: number
+          social_capital_value: number
+          streak_multiplier_value: number
+          total_portfolio_value: number
+          total_time_invested_hours: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          abandonment_cost_24h?: number
+          abandonment_cost_30d?: number
+          abandonment_cost_7d?: number
+          created_at?: string
+          exclusive_access_value?: number
+          id?: string
+          last_calculated_at?: string
+          mastery_investment_value?: number
+          recovery_difficulty_score?: number
+          seasonal_certification_value?: number
+          social_capital_value?: number
+          streak_multiplier_value?: number
+          total_portfolio_value?: number
+          total_time_invested_hours?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          abandonment_cost_24h?: number
+          abandonment_cost_30d?: number
+          abandonment_cost_7d?: number
+          created_at?: string
+          exclusive_access_value?: number
+          id?: string
+          last_calculated_at?: string
+          mastery_investment_value?: number
+          recovery_difficulty_score?: number
+          seasonal_certification_value?: number
+          social_capital_value?: number
+          streak_multiplier_value?: number
+          total_portfolio_value?: number
+          total_time_invested_hours?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_investment_weaving: {
+        Row: {
+          composite_score: number
+          created_at: string
+          id: string
+          interdependency_factor: number
+          last_calculated_at: string
+          mastery_weight: number
+          social_weight: number
+          status_weight: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          composite_score?: number
+          created_at?: string
+          id?: string
+          interdependency_factor?: number
+          last_calculated_at?: string
+          mastery_weight?: number
+          social_weight?: number
+          status_weight?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          composite_score?: number
+          created_at?: string
+          id?: string
+          interdependency_factor?: number
+          last_calculated_at?: string
+          mastery_weight?: number
+          social_weight?: number
+          status_weight?: number
           updated_at?: string
           user_id?: string
         }
@@ -2949,6 +3251,53 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_seasonal_certifications: {
+        Row: {
+          abandonment_cost: number
+          certification_id: string
+          created_at: string
+          earned_at: string
+          expires_at: string
+          id: string
+          is_expired: boolean
+          maintenance_score: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          abandonment_cost?: number
+          certification_id: string
+          created_at?: string
+          earned_at?: string
+          expires_at: string
+          id?: string
+          is_expired?: boolean
+          maintenance_score?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          abandonment_cost?: number
+          certification_id?: string
+          created_at?: string
+          earned_at?: string
+          expires_at?: string
+          id?: string
+          is_expired?: boolean
+          maintenance_score?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_seasonal_certifications_certification_id_fkey"
+            columns: ["certification_id"]
+            isOneToOne: false
+            referencedRelation: "seasonal_certifications"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_segments: {
         Row: {
@@ -3669,6 +4018,24 @@ export type Database = {
       bootstrap_first_admin: {
         Args: { user_email: string }
         Returns: boolean
+      }
+      calculate_abandonment_cost: {
+        Args: { _user_id: string }
+        Returns: {
+          cost_24h: number
+          cost_30d: number
+          cost_7d: number
+          recovery_difficulty: number
+        }[]
+      }
+      calculate_composite_investment_score: {
+        Args: {
+          _mastery_weight?: number
+          _social_weight?: number
+          _status_weight?: number
+          _user_id: string
+        }
+        Returns: number
       }
       calculate_mastery_score: {
         Args: {

@@ -260,11 +260,11 @@ export const awardXP = async (userId: string, source: string, data: any): Promis
 
 const handleLevelUp = async (userId: string, oldLevel: number, newLevel: number) => {
   try {
-    // Get available unlocks for the new level
+    // Get available unlocks for the new level - handle both schemas
     const { data: levelUnlocks } = await supabase
       .from('level_unlocks')
       .select('*')
-      .eq('level', newLevel);
+      .eq('level_required', newLevel);
     
     // Unlock new features
     if (levelUnlocks && levelUnlocks.length > 0) {
@@ -272,7 +272,7 @@ const handleLevelUp = async (userId: string, oldLevel: number, newLevel: number)
         await supabase.from('feature_unlocks').insert({
           user_id: userId,
           feature_name: unlock.feature_name,
-          unlock_level: unlock.level
+          unlock_level: unlock.level_required || (unlock as any).level
         }).select().single();
       }
     }

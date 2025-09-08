@@ -92,7 +92,19 @@ export class StatusTrackService {
       .order('track_level', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    
+    // Map the data to ensure all required fields exist with defaults
+    return (data || []).map(track => ({
+      id: track.id,
+      user_id: track.user_id,
+      track_name: track.track_name,
+      track_level: track.track_level,
+      awarded_at: track.awarded_at || new Date().toISOString(),
+      updated_at: track.updated_at,
+      // Add defaults for new fields that might not exist yet
+      experience_points: (track as any).experience_points || 0,
+      level_progress: (track as any).level_progress || 0.0
+    }));
   }
 
   static async updateTrackProgress(
@@ -128,19 +140,30 @@ export class StatusTrackService {
         .single();
 
       if (error) throw error;
-      return newTrack;
+      
+      return {
+        id: newTrack.id,
+        user_id: newTrack.user_id,
+        track_name: newTrack.track_name,
+        track_level: newTrack.track_level,
+        awarded_at: newTrack.awarded_at || new Date().toISOString(),
+        updated_at: newTrack.updated_at,
+        experience_points: finalXP,
+        level_progress: this.calculateLevelProgress(1, finalXP)
+      };
     }
 
     // Update existing track
-    const newXP = existingTrack.experience_points + finalXP;
+    const currentXP = (existingTrack as any).experience_points || 0;
+    const newXP = currentXP + finalXP;
     const newLevel = this.calculateLevel(newXP);
     const levelProgress = this.calculateLevelProgress(newLevel, newXP);
 
     const { data: updatedTrack, error } = await supabase
       .from('user_status_tracks')
       .update({
-        experience_points: newXP,
         track_level: newLevel,
+        experience_points: newXP,
         level_progress: levelProgress,
         updated_at: new Date().toISOString()
       })
@@ -155,46 +178,76 @@ export class StatusTrackService {
       await this.handleLevelUp(userId, trackName, existingTrack.track_level, newLevel);
     }
 
-    return updatedTrack;
+    return {
+      id: updatedTrack.id,
+      user_id: updatedTrack.user_id,
+      track_name: updatedTrack.track_name,
+      track_level: updatedTrack.track_level,
+      awarded_at: updatedTrack.awarded_at || new Date().toISOString(),
+      updated_at: updatedTrack.updated_at,
+      experience_points: newXP,
+      level_progress: levelProgress
+    };
   }
 
   static async getAllLevelUnlocks(): Promise<LevelUnlock[]> {
-    const { data, error } = await supabase
-      .from('level_unlocks')
-      .select('*')
-      .eq('is_active', true)
-      .order('track_name')
-      .order('level_required');
+    try {
+      const { data, error } = await supabase
+        .from('level_unlocks')
+        .select('*')
+        .eq('is_active', true)
+        .order('track_name')
+        .order('level_required');
 
-    if (error) throw error;
-    return data || [];
+      if (error) {
+        console.warn('Level unlocks not available yet:', error);
+        return [];
+      }
+      
+      return (data || []).map(unlock => ({
+        id: unlock.id,
+        track_name: unlock.track_name,
+        level_required: unlock.level_required,
+        feature_name: unlock.feature_name,
+        feature_type: unlock.feature_type as 'feature' | 'theme' | 'privilege' | 'reward',
+        unlock_data: typeof unlock.unlock_data === 'object' ? unlock.unlock_data as Record<string, any> : {},
+        is_active: unlock.is_active
+      }));
+    } catch (error) {
+      console.warn('Level unlocks table not available yet:', error);
+      return [];
+    }
   }
 
   static async getUserUnlockedFeatures(userId: string): Promise<LevelUnlock[]> {
-    const tracks = await this.getUserStatusTracks(userId);
-    const allUnlocks = await this.getAllLevelUnlocks();
+    try {
+      const tracks = await this.getUserStatusTracks(userId);
+      const allUnlocks = await this.getAllLevelUnlocks();
 
-    return allUnlocks.filter(unlock => {
-      const userTrack = tracks.find(t => t.track_name === unlock.track_name);
-      return userTrack && userTrack.track_level >= unlock.level_required;
-    });
+      return allUnlocks.filter(unlock => {
+        const userTrack = tracks.find(t => t.track_name === unlock.track_name);
+        return userTrack && userTrack.track_level >= unlock.level_required;
+      });
+    } catch (error) {
+      console.warn('Error getting unlocked features:', error);
+      return [];
+    }
   }
 
   static async getFeaturedUsers(type: 'weekly' | 'monthly' | 'hall_of_fame'): Promise<FeaturedUser[]> {
-    const { data, error } = await supabase
-      .from('featured_users')
-      .select('*')
-      .eq('feature_type', type)
-      .eq('is_active', true)
-      .order('start_date', { ascending: false });
-
-    if (error) throw error;
-    return data || [];
+    // For now, return empty array until featured_users table is properly integrated
+    console.log('Featured users feature coming soon for type:', type);
+    return [];
   }
 
   static async checkFeatureAccess(userId: string, featureName: string): Promise<boolean> {
-    const unlockedFeatures = await this.getUserUnlockedFeatures(userId);
-    return unlockedFeatures.some(unlock => unlock.feature_name === featureName);
+    try {
+      const unlockedFeatures = await this.getUserUnlockedFeatures(userId);
+      return unlockedFeatures.some(unlock => unlock.feature_name === featureName);
+    } catch (error) {
+      console.warn('Error checking feature access:', error);
+      return false;
+    }
   }
 
   private static getXPMultiplier(trackName: TrackName, activityType: string): number {
@@ -240,7 +293,7 @@ export class StatusTrackService {
     let level = 1;
     let xpNeeded = 0;
     
-    while (xpNeeded <= totalXP) {
+    while (xpNeeded <= totalXP && level < 10) {
       level++;
       xpNeeded += level * 100; // Each level needs more XP
     }
@@ -273,29 +326,86 @@ export class StatusTrackService {
     oldLevel: number,
     newLevel: number
   ): Promise<void> {
-    // Get newly unlocked features
-    const { data: newUnlocks } = await supabase
-      .from('level_unlocks')
-      .select('*')
-      .eq('track_name', trackName)
-      .gt('level_required', oldLevel)
-      .lte('level_required', newLevel);
+    try {
+      // Get newly unlocked features
+      const allUnlocks = await this.getAllLevelUnlocks();
+      const newUnlocks = allUnlocks.filter(unlock => 
+        unlock.track_name === trackName &&
+        unlock.level_required > oldLevel &&
+        unlock.level_required <= newLevel
+      );
 
-    if (newUnlocks && newUnlocks.length > 0) {
-      // Record feature unlocks
-      for (const unlock of newUnlocks) {
-        await supabase
-          .from('feature_unlocks')
-          .insert({
-            user_id: userId,
-            feature_name: unlock.feature_name,
-            unlock_level: unlock.level_required
-          });
+      if (newUnlocks.length > 0) {
+        // Record feature unlocks
+        for (const unlock of newUnlocks) {
+          try {
+            await supabase
+              .from('feature_unlocks')
+              .insert({
+                user_id: userId,
+                feature_name: unlock.feature_name,
+                unlock_level: unlock.level_required
+              });
+          } catch (error) {
+            console.warn('Could not record feature unlock:', error);
+          }
+        }
+
+        // Trigger level up notification
+        console.log(`User ${userId} leveled up to ${newLevel} in ${trackName}! Unlocked:`, newUnlocks);
       }
-
-      // Trigger level up notification
-      // This could integrate with the existing notification system
-      console.log(`User ${userId} leveled up to ${newLevel} in ${trackName}! Unlocked:`, newUnlocks);
+    } catch (error) {
+      console.warn('Error handling level up:', error);
     }
+  }
+
+  // Utility method to initialize all tracks for a new user
+  static async initializeUserTracks(userId: string): Promise<StatusTrack[]> {
+    const trackNames: TrackName[] = ['core_master', 'consistency_champion', 'endurance_expert', 'form_perfectionist', 'community_leader'];
+    const results: StatusTrack[] = [];
+
+    for (const trackName of trackNames) {
+      try {
+        // Check if track already exists
+        const { data: existing } = await supabase
+          .from('user_status_tracks')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('track_name', trackName)
+          .single();
+
+        if (!existing) {
+          // Create new track
+          const { data: newTrack, error } = await supabase
+            .from('user_status_tracks')
+            .insert({
+              user_id: userId,
+              track_name: trackName,
+              track_level: 1,
+              experience_points: 0,
+              level_progress: 0.0
+            })
+            .select()
+            .single();
+
+          if (!error && newTrack) {
+            results.push({
+              id: newTrack.id,
+              user_id: newTrack.user_id,
+              track_name: newTrack.track_name,
+              track_level: newTrack.track_level,
+              awarded_at: newTrack.awarded_at || new Date().toISOString(),
+              updated_at: newTrack.updated_at,
+              experience_points: 0,
+              level_progress: 0.0
+            });
+          }
+        }
+      } catch (error) {
+        console.warn(`Error initializing track ${trackName}:`, error);
+      }
+    }
+
+    return results;
   }
 }

@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Settings, CreditCard, LogOut } from 'lucide-react';
+import { User, Settings, CreditCard, LogOut, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -17,6 +17,7 @@ import { PushNotificationManager } from '@/components/notifications/PushNotifica
 import { NotificationPreferences } from '@/components/notifications/NotificationPreferences';
 import { PushNotificationDebugger } from '@/components/debug/PushNotificationDebugger';
 import RichNotificationTester from '@/components/debug/RichNotificationTester';
+import StatusTracksDashboard from '@/components/status/StatusTracksDashboard';
 
 interface ProfileTabProps {
   initialView?: 'overview' | 'subscription-plans';
@@ -71,10 +72,14 @@ const ProfileTab = ({ initialView = 'overview', onOpenVapidManager }: ProfileTab
       <ProfileHeader />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <User className="w-4 h-4" />
             Overview
+          </TabsTrigger>
+          <TabsTrigger value="status" className="flex items-center gap-2">
+            <Trophy className="w-4 h-4" />
+            Status
           </TabsTrigger>
           <TabsTrigger value="subscription" className="flex items-center gap-2">
             <CreditCard className="w-4 h-4" />
@@ -88,6 +93,10 @@ const ProfileTab = ({ initialView = 'overview', onOpenVapidManager }: ProfileTab
 
         <TabsContent value="overview" className="space-y-6">
           <AccountStats />
+        </TabsContent>
+
+        <TabsContent value="status" className="space-y-6">
+          <StatusTracksDashboard />
         </TabsContent>
 
         <TabsContent value="subscription" className="space-y-6">

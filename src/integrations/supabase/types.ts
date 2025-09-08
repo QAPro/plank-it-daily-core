@@ -855,6 +855,42 @@ export type Database = {
           },
         ]
       }
+      featured_users: {
+        Row: {
+          created_at: string
+          end_date: string | null
+          feature_type: string
+          featured_data: Json
+          featured_for: string
+          id: string
+          is_active: boolean
+          start_date: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_date?: string | null
+          feature_type?: string
+          featured_data?: Json
+          featured_for: string
+          id?: string
+          is_active?: boolean
+          start_date?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string | null
+          feature_type?: string
+          featured_data?: Json
+          featured_for?: string
+          id?: string
+          is_active?: boolean
+          start_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       fitness_leagues: {
         Row: {
           created_at: string
@@ -1136,25 +1172,34 @@ export type Database = {
       }
       level_unlocks: {
         Row: {
-          category: string
-          feature_description: string
+          created_at: string
           feature_name: string
-          icon: string
-          level: number
+          feature_type: string
+          id: string
+          is_active: boolean
+          level_required: number
+          track_name: string
+          unlock_data: Json
         }
         Insert: {
-          category: string
-          feature_description: string
+          created_at?: string
           feature_name: string
-          icon: string
-          level: number
+          feature_type?: string
+          id?: string
+          is_active?: boolean
+          level_required: number
+          track_name: string
+          unlock_data?: Json
         }
         Update: {
-          category?: string
-          feature_description?: string
+          created_at?: string
           feature_name?: string
-          icon?: string
-          level?: number
+          feature_type?: string
+          id?: string
+          is_active?: boolean
+          level_required?: number
+          track_name?: string
+          unlock_data?: Json
         }
         Relationships: []
       }
@@ -2830,7 +2875,9 @@ export type Database = {
       user_status_tracks: {
         Row: {
           awarded_at: string | null
+          experience_points: number
           id: string
+          level_progress: number
           track_level: number
           track_name: string
           updated_at: string
@@ -2838,7 +2885,9 @@ export type Database = {
         }
         Insert: {
           awarded_at?: string | null
+          experience_points?: number
           id?: string
+          level_progress?: number
           track_level?: number
           track_name: string
           updated_at?: string
@@ -2846,7 +2895,9 @@ export type Database = {
         }
         Update: {
           awarded_at?: string | null
+          experience_points?: number
           id?: string
+          level_progress?: number
           track_level?: number
           track_name?: string
           updated_at?: string

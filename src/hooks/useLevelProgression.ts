@@ -35,16 +35,28 @@ export const useLevelProgression = () => {
 
       const unlockedFeatureNames = unlockedFeatures?.map(f => f.feature_name) || [];
 
-      // Get all level unlocks for next unlock calculation
+      // Get all level unlocks for next unlock calculation - handle both schemas
       const { data: levelUnlocks } = await supabase
         .from('level_unlocks')
         .select('*')
-        .order('level', { ascending: true });
+        .order('level_required', { ascending: true });
 
-      setAllLevelUnlocks(levelUnlocks || []);
+      // Map to consistent structure for backwards compatibility
+      const mappedUnlocks = (levelUnlocks || []).map(unlock => {
+        const unlockData = unlock.unlock_data as Record<string, any> | null;
+        return {
+          ...unlock,
+          level: unlock.level_required || (unlock as any).level || 1,
+          feature_description: unlockData?.description || (unlock as any).feature_description || '',
+          icon: unlockData?.icon || (unlock as any).icon || '',
+          category: unlock.feature_type || (unlock as any).category || 'general'
+        };
+      });
+
+      setAllLevelUnlocks(mappedUnlocks);
 
       // Find next unlock
-      const nextUnlock = levelUnlocks?.find(unlock => 
+      const nextUnlock = mappedUnlocks?.find(unlock => 
         unlock.level > calculatedLevel.current_level
       ) || null;
 

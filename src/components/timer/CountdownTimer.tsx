@@ -11,7 +11,7 @@ import EnhancedConfetti from '@/components/celebration/EnhancedConfetti';
 import { useCountdownTimer } from '@/hooks/useCountdownTimer';
 import { useEnhancedTimerAudio } from '@/hooks/useEnhancedTimerAudio';
 import { useEnhancedSessionTracking } from '@/hooks/useEnhancedSessionTracking';
-import SessionCompletionCelebration from '@/components/SessionCompletionCelebration';
+import SessionCompletionCelebration from '@/components/session/SessionCompletionCelebration';
 
 interface CountdownTimerProps {
   selectedExercise: any;

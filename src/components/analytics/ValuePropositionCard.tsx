@@ -32,7 +32,7 @@ const ValuePropositionCard: React.FC<ValuePropositionCardProps> = ({ metrics }) 
       message: 'Amazing progress from your daily dedication!' 
     };
     if (savings >= 50) return { 
-      level: 'Wise Investor', 
+      level: 'Wise Achiever', 
       color: 'text-blue-600', 
       message: 'Already saving money!' 
     };

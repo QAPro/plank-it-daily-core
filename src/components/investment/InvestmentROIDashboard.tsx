@@ -24,11 +24,11 @@ const InvestmentROIDashboard: React.FC = () => {
 
   if (!analytics) {
     return (
-      <Card>
-        <CardContent className="p-6 text-center">
-          <p className="text-muted-foreground">Start your first workout to see your investment returns!</p>
-        </CardContent>
-      </Card>
+        <Card>
+          <CardContent className="p-6 text-center">
+            <p className="text-muted-foreground">Start your first workout to see your progress overview!</p>
+          </CardContent>
+        </Card>
     );
   }
 
@@ -53,9 +53,9 @@ const InvestmentROIDashboard: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-primary mb-2">Your Investment Returns</h2>
+                <h2 className="text-2xl font-bold text-primary mb-2">Your Progress Overview</h2>
                 <p className="text-muted-foreground">
-                  {formatTime(analytics.totalTimeInvested)} invested • ROI Score: {analytics.roiScore}
+                  {formatTime(analytics.totalTimeInvested)} dedicated • Progress Score: {analytics.roiScore}
                 </p>
               </div>
               <div className="text-right">
@@ -63,7 +63,7 @@ const InvestmentROIDashboard: React.FC = () => {
                   <TrendingUp className="w-8 h-8 mr-2" />
                   <div>
                     <div className="text-3xl font-bold">{analytics.roiScore}</div>
-                    <div className="text-sm text-muted-foreground">Investment Points</div>
+                    <div className="text-sm text-muted-foreground">Progress Points</div>
                   </div>
                 </div>
               </div>
@@ -72,7 +72,7 @@ const InvestmentROIDashboard: React.FC = () => {
         </Card>
       </motion.div>
 
-      {/* Investment Metrics */}
+      {/* Progress Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -83,7 +83,7 @@ const InvestmentROIDashboard: React.FC = () => {
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center text-lg">
                 <Clock className="w-5 h-5 mr-2 text-primary" />
-                Time Capital
+                Time Dedicated
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -91,7 +91,7 @@ const InvestmentROIDashboard: React.FC = () => {
                 {analytics.totalTimeInvestedHours.toFixed(1)}h
               </div>
               <p className="text-sm text-muted-foreground">
-                Total investment in your fitness portfolio
+                Total time dedicated to your fitness journey
               </p>
             </CardContent>
           </Card>
@@ -106,7 +106,7 @@ const InvestmentROIDashboard: React.FC = () => {
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center text-lg">
                 <Trophy className="w-5 h-5 mr-2 text-primary" />
-                Achievement Assets
+                Achievements Unlocked
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -129,7 +129,7 @@ const InvestmentROIDashboard: React.FC = () => {
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center text-lg">
                 <Zap className="w-5 h-5 mr-2 text-primary" />
-                Experience Equity
+                Experience Points
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -144,7 +144,7 @@ const InvestmentROIDashboard: React.FC = () => {
         </motion.div>
       </div>
 
-      {/* Investment Portfolio Breakdown */}
+      {/* Progress Breakdown */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -153,14 +153,14 @@ const InvestmentROIDashboard: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
-              <DollarSign className="w-5 h-5 mr-2 text-primary" />
-              Investment Portfolio Breakdown
+              <TrendingUp className="w-5 h-5 mr-2 text-primary" />
+              Progress Breakdown
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Streak Assets</span>
+                <span className="text-sm font-medium">Streak Progress</span>
                 <div className="flex items-center">
                   <div className="w-32 bg-muted rounded-full h-2 mr-3">
                     <div 
@@ -177,7 +177,7 @@ const InvestmentROIDashboard: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Achievement Holdings</span>
+                <span className="text-sm font-medium">Achievement Progress</span>
                 <div className="flex items-center">
                   <div className="w-32 bg-muted rounded-full h-2 mr-3">
                     <div 
@@ -194,7 +194,7 @@ const InvestmentROIDashboard: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Experience Bonds</span>
+                <span className="text-sm font-medium">Experience Progress</span>
                 <div className="flex items-center">
                   <div className="w-32 bg-muted rounded-full h-2 mr-3">
                     <div 
@@ -211,7 +211,7 @@ const InvestmentROIDashboard: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Consistency Stocks</span>
+                <span className="text-sm font-medium">Consistency Progress</span>
                 <div className="flex items-center">
                   <div className="w-32 bg-muted rounded-full h-2 mr-3">
                     <div 
@@ -231,7 +231,7 @@ const InvestmentROIDashboard: React.FC = () => {
         </Card>
       </motion.div>
 
-      {/* Investment Insights */}
+      {/* Progress Insights */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -241,27 +241,27 @@ const InvestmentROIDashboard: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center">
               <Target className="w-5 h-5 mr-2 text-primary" />
-              Investment Insights
+              Progress Insights
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
-                <h4 className="font-semibold text-primary mb-2">Strong Positions:</h4>
+                <h4 className="font-semibold text-primary mb-2">Strong Areas:</h4>
                 <ul className="space-y-1 text-muted-foreground">
                   {analytics.currentStreak >= 7 && <li>• Excellent streak momentum building</li>}
-                  {analytics.achievementsEarned >= 5 && <li>• Diverse achievement portfolio</li>}
+                  {analytics.achievementsEarned >= 5 && <li>• Great achievement diversity</li>}
                   {analytics.xpGained >= 1000 && <li>• Strong experience accumulation</li>}
-                  {analytics.totalTimeInvestedHours >= 5 && <li>• Substantial time investment committed</li>}
+                  {analytics.totalTimeInvestedHours >= 5 && <li>• Substantial time dedicated</li>}
                 </ul>
               </div>
               <div>
                 <h4 className="font-semibold text-primary mb-2">Growth Opportunities:</h4>
                 <ul className="space-y-1 text-muted-foreground">
-                  {analytics.currentStreak < 7 && <li>• Build consistency for streak returns</li>}
-                  {analytics.achievementsEarned < 5 && <li>• Unlock more achievement assets</li>}
-                  {analytics.totalTimeInvestedHours < 5 && <li>• Increase investment frequency</li>}
-                  <li>• Compound your fitness returns daily</li>
+                  {analytics.currentStreak < 7 && <li>• Build consistency for stronger streaks</li>}
+                  {analytics.achievementsEarned < 5 && <li>• Unlock more achievements</li>}
+                  {analytics.totalTimeInvestedHours < 5 && <li>• Increase workout frequency</li>}
+                  <li>• Build on your progress daily</li>
                 </ul>
               </div>
             </div>

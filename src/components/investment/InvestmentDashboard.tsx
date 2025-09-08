@@ -21,13 +21,13 @@ const InvestmentDashboard: React.FC = () => {
     >
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold mb-2">Your Success Investment Center</h1>
+        <h1 className="text-3xl font-bold mb-2">Your Progress Center</h1>
         <p className="text-muted-foreground text-lg">
-          Building your personal fitness empire, one victory at a time
+          Building your personal fitness journey, one victory at a time
         </p>
       </div>
 
-      {/* Investment Overview Cards */}
+      {/* Progress Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -117,9 +117,9 @@ const InvestmentDashboard: React.FC = () => {
           <Card className="text-center">
             <CardContent className="p-6">
               <BarChart3 className="w-12 h-12 mx-auto text-primary mb-4" />
-              <h3 className="font-semibold text-lg mb-2">ROI Analytics</h3>
+              <h3 className="font-semibold text-lg mb-2">Progress Analytics</h3>
               <p className="text-sm text-muted-foreground">
-                Track your fitness investment returns and growth
+                Track your fitness progress and growth metrics
               </p>
             </CardContent>
           </Card>
@@ -131,7 +131,7 @@ const InvestmentDashboard: React.FC = () => {
         <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="analytics" className="flex items-center">
             <BarChart3 className="w-4 h-4 mr-2" />
-            ROI Analytics
+            Progress Analytics
           </TabsTrigger>
           <TabsTrigger value="gallery" className="flex items-center">
             <Camera className="w-4 h-4 mr-2" />
@@ -183,7 +183,7 @@ const InvestmentDashboard: React.FC = () => {
         </TabsContent>
       </Tabs>
 
-      {/* Investment Value Indicator */}
+      {/* Progress Value Indicator */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -197,11 +197,11 @@ const InvestmentDashboard: React.FC = () => {
               </div>
               <div>
                 <h3 className="text-xl font-bold text-primary mb-2">
-                  Your Investment is Growing!
+                  Your Progress is Growing!
                 </h3>
                 <p className="text-muted-foreground">
-                  Every photo, playlist, and victory story you add increases the value of your fitness journey. 
-                  You're building something irreplaceable - your personal success empire that grows stronger with every workout!
+                  Every photo, playlist, and victory story you add enriches your fitness journey. 
+                  You're building something meaningful - your personal fitness story that grows stronger with every workout!
                 </p>
               </div>
             </div>

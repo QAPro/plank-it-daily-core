@@ -27,11 +27,11 @@ const InvestmentTimeline: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center">
             <Calendar className="w-5 h-5 mr-2 text-primary" />
-            Investment Growth Timeline
+            Progress Timeline
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6 text-center">
-          <p className="text-muted-foreground">Complete more workouts to see your investment growth over time!</p>
+          <p className="text-muted-foreground">Complete more workouts to see your progress over time!</p>
         </CardContent>
       </Card>
     );
@@ -91,10 +91,10 @@ const InvestmentTimeline: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center">
             <Calendar className="w-5 h-5 mr-2 text-primary" />
-            Investment Growth Timeline
+            Progress Timeline
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Track your cumulative investment returns over time
+            Track your cumulative progress over time
           </p>
         </CardHeader>
         <CardContent>
@@ -115,7 +115,7 @@ const InvestmentTimeline: React.FC = () => {
                   dataKey="timeInHours"
                   stroke="hsl(var(--primary))"
                   strokeWidth={2}
-                  name="Investment Time (hours)"
+                  name="Time Dedicated (hours)"
                   dot={{ r: 4, fill: "hsl(var(--primary))" }}
                 />
                 <Line
@@ -138,17 +138,17 @@ const InvestmentTimeline: React.FC = () => {
             </ResponsiveContainer>
           </div>
 
-          {/* Investment Growth Summary */}
+          {/* Progress Summary */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 pt-6 border-t">
             <div className="text-center">
               <div className="flex items-center justify-center mb-2">
                 <TrendingUp className="w-4 h-4 text-primary mr-1" />
-                <span className="text-sm font-medium">Total Growth</span>
+                <span className="text-sm font-medium">Total Progress</span>
               </div>
               <p className="text-lg font-bold text-primary">
                 {formatTime(analytics.totalTimeInvested)}
               </p>
-              <p className="text-xs text-muted-foreground">Time Invested</p>
+              <p className="text-xs text-muted-foreground">Time Dedicated</p>
             </div>
             
             <div className="text-center">

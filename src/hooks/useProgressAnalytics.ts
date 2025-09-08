@@ -5,7 +5,7 @@ import { useSessionStats } from './useSessionHistory';
 import { useStreakTracking } from './useStreakTracking';
 import { useUserAchievements } from './useUserAchievements';
 
-export interface InvestmentROI {
+export interface ProgressMetrics {
   totalTimeInvested: number; // seconds
   totalTimeInvestedHours: number;
   achievementsEarned: number;
@@ -13,7 +13,7 @@ export interface InvestmentROI {
   currentStreak: number;
   longestStreak: number;
   roiScore: number; // calculated ROI metric
-  investmentGrowth: Array<{
+  progressGrowth: Array<{
     date: string;
     cumulativeTime: number;
     cumulativeAchievements: number;
@@ -27,15 +27,15 @@ export interface InvestmentROI {
   };
 }
 
-export const useInvestmentAnalytics = () => {
+export const useProgressAnalytics = () => {
   const { user } = useAuth();
   const { data: sessionStats } = useSessionStats();
   const { streak } = useStreakTracking();
   const { achievements } = useUserAchievements();
 
   return useQuery({
-    queryKey: ['investment-analytics', user?.id],
-    queryFn: async (): Promise<InvestmentROI | null> => {
+    queryKey: ['progress-analytics', user?.id],
+    queryFn: async (): Promise<ProgressMetrics | null> => {
       if (!user) return null;
 
       // Get user's total XP
@@ -71,8 +71,8 @@ export const useInvestmentAnalytics = () => {
         ? Math.round((achievementsEarned * 100 + xpGained) / totalTimeInvestedHours)
         : 0;
 
-      // Build investment timeline
-      const investmentGrowth = [];
+      // Build progress timeline
+      const progressGrowth = [];
       let cumulativeTime = 0;
       let cumulativeAchievements = 0;
       let cumulativeXP = 0;
@@ -110,7 +110,7 @@ export const useInvestmentAnalytics = () => {
         cumulativeXP += dayData.xp;
         cumulativeAchievements += achievementIncrement;
 
-        investmentGrowth.push({
+        progressGrowth.push({
           date,
           cumulativeTime: Math.round(cumulativeTime),
           cumulativeAchievements: Math.round(cumulativeAchievements),
@@ -134,7 +134,7 @@ export const useInvestmentAnalytics = () => {
         currentStreak,
         longestStreak,
         roiScore,
-        investmentGrowth,
+        progressGrowth,
         portfolioBreakdown,
       };
     },

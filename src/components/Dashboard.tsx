@@ -49,7 +49,7 @@ const Dashboard = () => {
         return <AnalyticsTab />;
       case 'achievements':
         return <AchievementsTab />;
-      case 'investment':
+      case 'progress':
         return <ProgressTab />;
       case 'compete':
         return <GatedCompeteTab />;

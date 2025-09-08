@@ -4,10 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Trophy, Star, TrendingUp, Heart, Sparkles, Target } from 'lucide-react';
-import { useInvestmentAnalytics } from '@/hooks/useInvestmentAnalytics';
+import { useProgressAnalytics } from '@/hooks/useProgressAnalytics';
 
 const ProgressCelebrationDashboard: React.FC = () => {
-  const { data: analytics, isLoading } = useInvestmentAnalytics();
+  const { data: analytics, isLoading } = useProgressAnalytics();
 
   if (isLoading) {
     return (

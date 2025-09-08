@@ -2,10 +2,10 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { TrendingUp, DollarSign, Target, Zap, Clock, Trophy } from 'lucide-react';
-import { useInvestmentAnalytics } from '@/hooks/useInvestmentAnalytics';
+import { useProgressAnalytics } from '@/hooks/useProgressAnalytics';
 
 const InvestmentROIDashboard: React.FC = () => {
-  const { data: analytics, isLoading } = useInvestmentAnalytics();
+  const { data: analytics, isLoading } = useProgressAnalytics();
 
   if (isLoading) {
     return (

@@ -3,10 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Calendar, TrendingUp } from 'lucide-react';
-import { useInvestmentAnalytics } from '@/hooks/useInvestmentAnalytics';
+import { useProgressAnalytics } from '@/hooks/useProgressAnalytics';
 
 const InvestmentTimeline: React.FC = () => {
-  const { data: analytics, isLoading } = useInvestmentAnalytics();
+  const { data: analytics, isLoading } = useProgressAnalytics();
 
   if (isLoading) {
     return (
@@ -21,7 +21,7 @@ const InvestmentTimeline: React.FC = () => {
     );
   }
 
-  if (!analytics || analytics.investmentGrowth.length === 0) {
+  if (!analytics || analytics.progressGrowth.length === 0) {
     return (
       <Card>
         <CardHeader>
@@ -38,7 +38,7 @@ const InvestmentTimeline: React.FC = () => {
   }
 
   // Format data for chart
-  const chartData = analytics.investmentGrowth.map((point, index) => ({
+  const chartData = analytics.progressGrowth.map((point, index) => ({
     ...point,
     timeInHours: Math.round(point.cumulativeTime / 3600 * 10) / 10,
     date: new Date(point.date).toLocaleDateString('en-US', { 

@@ -1,17 +1,24 @@
 import React from 'react';
 import { useStatusTracks } from '@/hooks/useStatusTracks';
+import { useReputation } from '@/hooks/useReputation';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Lock, Trophy, Users, Star } from 'lucide-react';
+import { Lock, Trophy, Users, Star, Crown, Shield, Camera, Music, MessageSquare } from 'lucide-react';
 
 interface CrossSystemRequirement {
-  type: 'track_level' | 'social_activity' | 'analytics_tier';
+  type: 'track_level' | 'social_activity' | 'analytics_tier' | 'reputation_score' | 'multi_track_combo' | 'photo_sharing' | 'playlist_sharing' | 'post_limits' | 'leadership_role';
   track?: string;
   level?: number;
   socialActions?: number;
+  reputationThreshold?: number;
+  requiredTracks?: Array<{ track: string; level: number }>;
+  leadershipRole?: 'moderator' | 'community_leader' | 'expert';
   description: string;
 }
+
+export type { CrossSystemRequirement };
 
 interface CrossSystemGuardProps {
   requirements: CrossSystemRequirement[];
@@ -28,7 +35,9 @@ const CrossSystemGuard: React.FC<CrossSystemGuardProps> = ({
   fallbackDescription,
   upgradeAction
 }) => {
+  const { user } = useAuth();
   const { statusTracks, getTrackByName } = useStatusTracks();
+  const { getTotalKarma } = useReputation(user?.id);
 
   const checkRequirement = (requirement: CrossSystemRequirement): boolean => {
     switch (requirement.type) {
@@ -38,13 +47,59 @@ const CrossSystemGuard: React.FC<CrossSystemGuardProps> = ({
         return userTrack ? userTrack.track_level >= requirement.level : false;
 
       case 'social_activity':
-        // TODO: Implement social activity tracking
-        return false;
+        // Check if user meets social activity requirements (based on karma as proxy)
+        return getTotalKarma() >= (requirement.socialActions || 5);
 
       case 'analytics_tier':
-        // Check if user has high enough track levels for analytics
-        const highestLevel = Math.max(...statusTracks.map(t => t.track_level));
-        return highestLevel >= 5;
+        // Require Level 5+ in at least 2 different tracks for advanced analytics
+        const level5OrHigherTracks = statusTracks.filter(t => t.track_level >= 5);
+        return level5OrHigherTracks.length >= 2;
+
+      case 'reputation_score':
+        return getTotalKarma() >= (requirement.reputationThreshold || 100);
+
+      case 'multi_track_combo':
+        if (!requirement.requiredTracks) return false;
+        return requirement.requiredTracks.every(({ track, level }) => {
+          const userTrack = getTrackByName(track as any);
+          return userTrack ? userTrack.track_level >= level : false;
+        });
+
+      case 'photo_sharing':
+        // Require reputation threshold + consistency track level
+        const consistencyTrack = getTrackByName('consistency_champion');
+        return getTotalKarma() >= 50 && consistencyTrack && consistencyTrack.track_level >= 3;
+
+      case 'playlist_sharing':
+        // Require social activity + consistency levels
+        const socialActivityMet = getTotalKarma() >= 25;
+        const consistencyLevel = getTrackByName('consistency_champion')?.track_level || 0;
+        return socialActivityMet && consistencyLevel >= 2;
+
+      case 'post_limits':
+        // Higher reputation = higher post limits
+        const karma = getTotalKarma();
+        if (karma >= 500) return true; // Unlimited for high reputation
+        if (karma >= 100) return true; // High limits
+        if (karma >= 25) return true;  // Medium limits
+        return false; // Basic limits
+
+      case 'leadership_role':
+        // Check if user qualifies for leadership role based on track levels and reputation
+        const highLevel = Math.max(...statusTracks.map(t => t.track_level));
+        const communityTrack = getTrackByName('community_leader')?.track_level || 0;
+        const totalKarma = getTotalKarma();
+        
+        switch (requirement.leadershipRole) {
+          case 'moderator':
+            return highLevel >= 7 && totalKarma >= 200 && communityTrack >= 3;
+          case 'community_leader':
+            return highLevel >= 10 && totalKarma >= 500 && communityTrack >= 5;
+          case 'expert':
+            return highLevel >= 15 && totalKarma >= 1000;
+          default:
+            return false;
+        }
 
       default:
         return false;
@@ -66,6 +121,18 @@ const CrossSystemGuard: React.FC<CrossSystemGuardProps> = ({
         return <Users className="w-5 h-5 text-blue-500" />;
       case 'analytics_tier':
         return <Star className="w-5 h-5 text-purple-500" />;
+      case 'reputation_score':
+        return <Crown className="w-5 h-5 text-gold-500" />;
+      case 'multi_track_combo':
+        return <Trophy className="w-5 h-5 text-rainbow-500" />;
+      case 'photo_sharing':
+        return <Camera className="w-5 h-5 text-pink-500" />;
+      case 'playlist_sharing':
+        return <Music className="w-5 h-5 text-green-500" />;
+      case 'post_limits':
+        return <MessageSquare className="w-5 h-5 text-indigo-500" />;
+      case 'leadership_role':
+        return <Shield className="w-5 h-5 text-red-500" />;
       default:
         return <Lock className="w-5 h-5 text-gray-500" />;
     }

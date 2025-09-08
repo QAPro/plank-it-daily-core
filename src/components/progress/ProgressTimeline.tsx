@@ -146,7 +146,7 @@ const ProgressTimeline: React.FC = () => {
                 <span className="text-sm font-medium">Total Progress</span>
               </div>
               <p className="text-lg font-bold text-primary">
-                {formatTime(analytics.totalTimeInvested)}
+                {formatTime(analytics.totalTimeDedicated)}
               </p>
               <p className="text-xs text-muted-foreground">Time Dedicated</p>
             </div>

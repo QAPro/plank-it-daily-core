@@ -82,7 +82,7 @@ const ProgressCelebrationDashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-primary mb-2">
-                {formatTime(analytics.totalTimeInvested)}
+                {formatTime(analytics.totalTimeDedicated)}
               </div>
               <p className="text-sm text-muted-foreground">
                 Every minute counts toward your goals!

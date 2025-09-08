@@ -6,8 +6,8 @@ import { useStreakTracking } from './useStreakTracking';
 import { useUserAchievements } from './useUserAchievements';
 
 export interface ProgressMetrics {
-  totalTimeInvested: number; // seconds
-  totalTimeInvestedHours: number;
+  totalTimeDedicated: number; // seconds
+  totalTimeDedicatedHours: number;
   achievementsEarned: number;
   xpGained: number;
   currentStreak: number;
@@ -59,16 +59,16 @@ export const useProgressAnalytics = () => {
         .eq('user_id', user.id)
         .order('created_at', { ascending: true });
 
-      const totalTimeInvested = sessionStats?.totalTimeSpent || 0;
-      const totalTimeInvestedHours = totalTimeInvested / 3600;
+      const totalTimeDedicated = sessionStats?.totalTimeSpent || 0;
+      const totalTimeDedicatedHours = totalTimeDedicated / 3600;
       const achievementsEarned = achievements.length;
       const xpGained = userData?.total_xp || 0;
       const currentStreak = streak?.current_streak || 0;
       const longestStreak = streak?.longest_streak || 0;
 
       // Calculate Progress Score (achievements + XP per hour of dedication)
-      const progressScore = totalTimeInvestedHours > 0 
-        ? Math.round((achievementsEarned * 100 + xpGained) / totalTimeInvestedHours)
+      const progressScore = totalTimeDedicatedHours > 0 
+        ? Math.round((achievementsEarned * 100 + xpGained) / totalTimeDedicatedHours)
         : 0;
 
       // Build progress timeline
@@ -127,8 +127,8 @@ export const useProgressAnalytics = () => {
       };
 
       return {
-        totalTimeInvested,
-        totalTimeInvestedHours,
+        totalTimeDedicated,
+        totalTimeDedicatedHours,
         achievementsEarned,
         xpGained,
         currentStreak,

@@ -72,6 +72,30 @@ export class MotivationalMilestoneEngine {
     });
   }
 
+  private static generateTimeMilestones(totalHours: number, daysActive: number): MotivationalMilestone[] {
+    const milestones: MotivationalMilestone[] = [];
+
+    this.CELEBRATION_THRESHOLDS.time_dedicated.forEach((threshold, index) => {
+      if (totalHours >= threshold) {
+        const dailyAvg = (totalHours * 60) / Math.max(daysActive, 1);
+        milestones.push({
+          id: `time_${threshold}`,
+          type: 'time',
+          title: `${threshold} Hour Achiever`,
+          message: `You've dedicated ${Math.round(totalHours * 10) / 10} hours to your health!`,
+          value: `${Math.round(totalHours * 10) / 10} hours`,
+          subtext: `Just ${Math.round(dailyAvg)} minutes per day on average`,
+          icon: '⏰',
+          color: 'text-blue-600',
+          isAchieved: true,
+          celebrationLevel: index >= 3 ? 'legendary' : index >= 1 ? 'major' : 'minor',
+        });
+      }
+    });
+
+    return milestones;
+  }
+
   private static generateImprovementMilestones(improvementPercent: number, initial: number, current: number): MotivationalMilestone[] {
     const milestones: MotivationalMilestone[] = [];
 
@@ -132,30 +156,6 @@ export class MotivationalMilestoneEngine {
           subtext: `That's money in your pocket for other goals`,
           icon: '💰',
           color: 'text-emerald-600',
-          isAchieved: true,
-          celebrationLevel: index >= 3 ? 'legendary' : index >= 1 ? 'major' : 'minor',
-        });
-      }
-    });
-
-    return milestones;
-  }
-
-  private static generateTimeMilestones(totalHours: number, daysActive: number): MotivationalMilestone[] {
-    const milestones: MotivationalMilestone[] = [];
-
-    this.CELEBRATION_THRESHOLDS.time_dedicated.forEach((threshold, index) => {
-      if (totalHours >= threshold) {
-        const dailyAvg = (totalHours * 60) / Math.max(daysActive, 1);
-        milestones.push({
-          id: `time_${threshold}`,
-          type: 'time',
-          title: `${threshold} Hour Achiever`,
-          message: `You've dedicated ${Math.round(totalHours * 10) / 10} hours to your health!`,
-          value: `${Math.round(totalHours * 10) / 10} hours`,
-          subtext: `Just ${Math.round(dailyAvg)} minutes per day on average`,
-          icon: '⏰',
-          color: 'text-blue-600',
           isAchieved: true,
           celebrationLevel: index >= 3 ? 'legendary' : index >= 1 ? 'major' : 'minor',
         });

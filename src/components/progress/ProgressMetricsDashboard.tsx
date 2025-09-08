@@ -55,7 +55,7 @@ const ProgressMetricsDashboard: React.FC = () => {
               <div>
                 <h2 className="text-2xl font-bold text-primary mb-2">Your Progress Overview</h2>
                 <p className="text-muted-foreground">
-                  {formatTime(analytics.totalTimeInvested)} dedicated • Progress Score: {analytics.progressScore}
+                  {formatTime(analytics.totalTimeDedicated)} dedicated • Progress Score: {analytics.progressScore}
                 </p>
               </div>
               <div className="text-right">
@@ -88,7 +88,7 @@ const ProgressMetricsDashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-primary mb-2">
-                {analytics.totalTimeInvestedHours.toFixed(1)}h
+                {analytics.totalTimeDedicatedHours.toFixed(1)}h
               </div>
               <p className="text-sm text-muted-foreground">
                 Total time dedicated to your fitness journey
@@ -252,7 +252,7 @@ const ProgressMetricsDashboard: React.FC = () => {
                   {analytics.currentStreak >= 7 && <li>• Excellent streak momentum building</li>}
                   {analytics.achievementsEarned >= 5 && <li>• Great achievement diversity</li>}
                   {analytics.xpGained >= 1000 && <li>• Strong experience accumulation</li>}
-                  {analytics.totalTimeInvestedHours >= 5 && <li>• Substantial time dedicated</li>}
+                  {analytics.totalTimeDedicatedHours >= 5 && <li>• Substantial time dedicated</li>}
                 </ul>
               </div>
               <div>
@@ -260,7 +260,7 @@ const ProgressMetricsDashboard: React.FC = () => {
                 <ul className="space-y-1 text-muted-foreground">
                   {analytics.currentStreak < 7 && <li>• Build consistency for stronger streaks</li>}
                   {analytics.achievementsEarned < 5 && <li>• Unlock more achievements</li>}
-                  {analytics.totalTimeInvestedHours < 5 && <li>• Increase workout frequency</li>}
+                  {analytics.totalTimeDedicatedHours < 5 && <li>• Increase workout frequency</li>}
                   <li>• Build on your progress daily</li>
                 </ul>
               </div>

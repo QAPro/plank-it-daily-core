@@ -51,9 +51,9 @@ const EnhancedUserEngagementCharts = memo(({ daysBack = 30 }: EnhancedUserEngage
     }
   };
 
-  const handleChartClick = (data: any, index: number) => {
-    if (data && data.activePayload && data.activePayload[0]) {
-      const clickedData = data.activePayload[0].payload;
+  const handleChartClick = (event: any) => {
+    if (event && event.activePayload && event.activePayload[0]) {
+      const clickedData = event.activePayload[0].payload;
       console.log('Chart clicked:', clickedData);
       
       setDrillDown('timeframe', clickedData.date, {

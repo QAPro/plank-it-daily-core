@@ -35,9 +35,9 @@ const UserEngagementCharts = ({ daysBack = 30 }: UserEngagementChartsProps) => {
     }
   };
 
-  const handleChartClick = (data: any, index: number) => {
-    if (data && data.activePayload && data.activePayload[0]) {
-      const clickedData = data.activePayload[0].payload;
+  const handleChartClick = (event: any) => {
+    if (event && event.activePayload && event.activePayload[0]) {
+      const clickedData = event.activePayload[0].payload;
       console.log('Chart clicked:', clickedData);
       
       // Set drill-down for the clicked date

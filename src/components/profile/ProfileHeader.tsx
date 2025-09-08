@@ -1,9 +1,10 @@
 
 import { motion } from "framer-motion";
-import { User, Edit, Mail, Calendar, Check, X } from "lucide-react";
+import { User, Edit, Mail, Calendar, Check, X, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,10 +15,13 @@ import UsernameInput from "./UsernameInput";
 import EmailChangeDialog from "./EmailChangeDialog";
 import PendingEmailChangeBanner from "./PendingEmailChangeBanner";
 import { validateUsernameFormat } from "@/utils/usernameValidation";
+import ReputationBadge from "@/components/shared/ReputationBadge";
+import { useReputation } from "@/hooks/useReputation";
 
 const ProfileHeader = () => {
   const { user, session } = useAuth();
   const { toast } = useToast();
+  const { getTotalKarma } = useReputation(user?.id);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -238,6 +242,17 @@ const ProfileHeader = () => {
                 <>
                   <h3 className="text-xl font-bold mb-1">{getDisplayName()}</h3>
                   <p className="text-orange-100 mb-2">{getSubtitle()}</p>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Badge variant="secondary" className="text-xs bg-white/20 text-white border-0">
+                      <Star className="w-3 h-3 mr-1" />
+                      Level {userProfile?.current_level || 1}
+                    </Badge>
+                    <ReputationBadge 
+                      karmaScore={getTotalKarma()} 
+                      size="sm" 
+                      className="shrink-0"
+                    />
+                  </div>
                 </>
               )}
               

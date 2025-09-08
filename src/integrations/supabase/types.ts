@@ -1437,6 +1437,39 @@ export type Database = {
         }
         Relationships: []
       }
+      reputation_events: {
+        Row: {
+          actor_id: string
+          created_at: string
+          domain: string | null
+          event_type: string
+          id: string
+          note: string | null
+          points: number
+          user_id: string
+        }
+        Insert: {
+          actor_id: string
+          created_at?: string
+          domain?: string | null
+          event_type: string
+          id?: string
+          note?: string | null
+          points?: number
+          user_id: string
+        }
+        Update: {
+          actor_id?: string
+          created_at?: string
+          domain?: string | null
+          event_type?: string
+          id?: string
+          note?: string | null
+          points?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       seasonal_events: {
         Row: {
           created_at: string
@@ -2656,6 +2689,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_reputation: {
+        Row: {
+          domain: string
+          expertise_score: number
+          id: string
+          karma_score: number
+          last_updated: string
+          total_contributions: number
+          total_upvotes: number
+          user_id: string
+        }
+        Insert: {
+          domain: string
+          expertise_score?: number
+          id?: string
+          karma_score?: number
+          last_updated?: string
+          total_contributions?: number
+          total_upvotes?: number
+          user_id: string
+        }
+        Update: {
+          domain?: string
+          expertise_score?: number
+          id?: string
+          karma_score?: number
+          last_updated?: string
+          total_contributions?: number
+          total_upvotes?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -2760,6 +2826,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_status_tracks: {
+        Row: {
+          awarded_at: string | null
+          id: string
+          track_level: number
+          track_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          awarded_at?: string | null
+          id?: string
+          track_level?: number
+          track_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          awarded_at?: string | null
+          id?: string
+          track_level?: number
+          track_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_streaks: {
         Row: {

@@ -277,19 +277,19 @@ const SeasonalRewards: React.FC = () => {
         })}
       </div>
       
-      {/* Warning about losing rewards */}
-      <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800">
+      {/* Helpful tip about seasonal rewards */}
+      <Card className="border-blue-200 bg-blue-50 dark:bg-blue-950/30 dark:border-blue-800">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
-            <Clock className="w-5 h-5 text-amber-600 mt-0.5" />
+            <Clock className="w-5 h-5 text-blue-600 mt-0.5" />
             <div>
-              <h4 className="font-medium text-amber-900 dark:text-amber-100 mb-1">
-                Investment Protection Notice
+              <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-1">
+                Seasonal Progress
               </h4>
-              <p className="text-sm text-amber-700 dark:text-amber-300">
-                Seasonal rewards and exclusive themes are tied to your account progress. 
-                If you abandon your journey, these limited-time benefits will be permanently lost 
-                and cannot be recovered even if you return later.
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                Seasonal rewards celebrate your fitness journey and progress. 
+                Each challenge is time-limited to match the season, creating special moments 
+                to look back on and remember your achievements.
               </p>
             </div>
           </div>

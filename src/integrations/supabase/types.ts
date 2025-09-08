@@ -1200,7 +1200,6 @@ export type Database = {
           id: string
           last_activity_date: string
           max_multiplier_achieved: number
-          reset_penalty_value: number
           streak_type: string
           total_investment_value: number
           updated_at: string
@@ -1212,7 +1211,6 @@ export type Database = {
           id?: string
           last_activity_date?: string
           max_multiplier_achieved?: number
-          reset_penalty_value?: number
           streak_type: string
           total_investment_value?: number
           updated_at?: string
@@ -1224,7 +1222,6 @@ export type Database = {
           id?: string
           last_activity_date?: string
           max_multiplier_achieved?: number
-          reset_penalty_value?: number
           streak_type?: string
           total_investment_value?: number
           updated_at?: string
@@ -2560,7 +2557,6 @@ export type Database = {
       }
       user_exclusive_access: {
         Row: {
-          abandonment_penalty: number
           access_level: string
           created_at: string
           feature_id: string
@@ -2571,7 +2567,6 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          abandonment_penalty?: number
           access_level?: string
           created_at?: string
           feature_id: string
@@ -2582,7 +2577,6 @@ export type Database = {
           user_id: string
         }
         Update: {
-          abandonment_penalty?: number
           access_level?: string
           created_at?: string
           feature_id?: string
@@ -2771,63 +2765,6 @@ export type Database = {
           target_date?: string
           target_value?: number
           title?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      user_investment_portfolio: {
-        Row: {
-          abandonment_cost_24h: number
-          abandonment_cost_30d: number
-          abandonment_cost_7d: number
-          created_at: string
-          exclusive_access_value: number
-          id: string
-          last_calculated_at: string
-          mastery_investment_value: number
-          recovery_difficulty_score: number
-          seasonal_certification_value: number
-          social_capital_value: number
-          streak_multiplier_value: number
-          total_portfolio_value: number
-          total_time_invested_hours: number
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          abandonment_cost_24h?: number
-          abandonment_cost_30d?: number
-          abandonment_cost_7d?: number
-          created_at?: string
-          exclusive_access_value?: number
-          id?: string
-          last_calculated_at?: string
-          mastery_investment_value?: number
-          recovery_difficulty_score?: number
-          seasonal_certification_value?: number
-          social_capital_value?: number
-          streak_multiplier_value?: number
-          total_portfolio_value?: number
-          total_time_invested_hours?: number
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          abandonment_cost_24h?: number
-          abandonment_cost_30d?: number
-          abandonment_cost_7d?: number
-          created_at?: string
-          exclusive_access_value?: number
-          id?: string
-          last_calculated_at?: string
-          mastery_investment_value?: number
-          recovery_difficulty_score?: number
-          seasonal_certification_value?: number
-          social_capital_value?: number
-          streak_multiplier_value?: number
-          total_portfolio_value?: number
-          total_time_invested_hours?: number
           updated_at?: string
           user_id?: string
         }
@@ -3254,7 +3191,6 @@ export type Database = {
       }
       user_seasonal_certifications: {
         Row: {
-          abandonment_cost: number
           certification_id: string
           created_at: string
           earned_at: string
@@ -3266,7 +3202,6 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          abandonment_cost?: number
           certification_id: string
           created_at?: string
           earned_at?: string
@@ -3278,7 +3213,6 @@ export type Database = {
           user_id: string
         }
         Update: {
-          abandonment_cost?: number
           certification_id?: string
           created_at?: string
           earned_at?: string
@@ -4018,15 +3952,6 @@ export type Database = {
       bootstrap_first_admin: {
         Args: { user_email: string }
         Returns: boolean
-      }
-      calculate_abandonment_cost: {
-        Args: { _user_id: string }
-        Returns: {
-          cost_24h: number
-          cost_30d: number
-          cost_7d: number
-          recovery_difficulty: number
-        }[]
       }
       calculate_composite_investment_score: {
         Args: {

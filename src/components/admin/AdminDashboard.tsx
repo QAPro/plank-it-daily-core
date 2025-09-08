@@ -94,6 +94,10 @@ const AdminDashboard = () => {
           <UserManagement />
         </TabsContent>
 
+        <TabsContent value="roles" className="space-y-6">
+          <RoleManagementDashboard />
+        </TabsContent>
+
         <TabsContent value="features" className="space-y-6">
           <FeatureFlagsManager />
         </TabsContent>

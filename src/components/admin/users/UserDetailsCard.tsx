@@ -28,14 +28,23 @@ const UserDetailsCard: React.FC<Props> = ({ user }) => {
   const { toast } = useToast();
   const { user: currentAdmin } = useAuth();
 
-  // Roles
-  const { data: roles = [], isLoading: rolesLoading } = useQuery({
+  // Enhanced roles with all role types
+  const { data: allRoles = [], isLoading: rolesLoading } = useQuery({
+    queryKey: ["admin-user-all-roles", user.id],
+    queryFn: () => adminUserService.getAllUserRoles(user.id),
+    staleTime: 60_000,
+  });
+
+  const { data: roles = [], isLoading: legacyRolesLoading } = useQuery({
     queryKey: ["admin-user-roles", user.id],
     queryFn: () => adminUserService.getUserRoles(user.id),
     staleTime: 60_000,
   });
 
-  const isAdmin = roles.includes("admin");
+  const administrativeRoles = allRoles.filter(r => r.role_type === 'administrative').map(r => r.role_name);
+  const specialRoles = allRoles.filter(r => r.role_type === 'special').map(r => r.role_name);
+  const isAdmin = roles.includes("admin") || administrativeRoles.includes("admin");
+  const isSuperadmin = roles.includes("superadmin") || administrativeRoles.includes("superadmin");
 
   // Subscription data
   const { data: plans = [], isLoading: plansLoading } = useQuery({
@@ -256,7 +265,8 @@ const UserDetailsCard: React.FC<Props> = ({ user }) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           {user.full_name || user.username || user.email || "User"}
-          {isAdmin && <Badge variant="default">Admin</Badge>}
+          {isSuperadmin && <Badge variant="default" className="bg-gradient-to-r from-purple-500 to-blue-500">Superadmin</Badge>}
+          {isAdmin && !isSuperadmin && <Badge variant="default">Admin</Badge>}
           {lifetimeOverride && <Badge variant="secondary" className="ml-2">Lifetime</Badge>}
         </CardTitle>
         <CardDescription className="space-y-0.5">
@@ -266,26 +276,70 @@ const UserDetailsCard: React.FC<Props> = ({ user }) => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Role management */}
-        <div className="flex items-center gap-3">
-          {!rolesLoading && (
-            <>
-              {isAdmin ? (
-                <Button variant="destructive" onClick={handleRevoke} disabled={isBusy}>
-                  <ShieldMinus className="w-4 h-4 mr-2" />
-                  Revoke Admin
-                </Button>
+        {/* Enhanced Role Display */}
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <ShieldPlus className="w-4 h-4 text-primary" />
+            <h4 className="font-semibold">Roles & Permissions</h4>
+          </div>
+          
+          {/* Administrative roles */}
+          <div className="mb-3">
+            <div className="text-sm text-muted-foreground mb-2">Administrative Roles:</div>
+            <div className="flex flex-wrap gap-2">
+              {administrativeRoles.length > 0 ? (
+                administrativeRoles.map((role) => (
+                  <Badge 
+                    key={role} 
+                    variant={role === 'superadmin' ? 'default' : 'secondary'}
+                    className={role === 'superadmin' ? 'bg-gradient-to-r from-purple-500 to-blue-500' : ''}
+                  >
+                    {role}
+                  </Badge>
+                ))
               ) : (
-                <Button onClick={handleGrant} disabled={isBusy}>
-                  <ShieldPlus className="w-4 h-4 mr-2" />
-                  Grant Admin
-                </Button>
+                <span className="text-sm text-muted-foreground">No administrative roles</span>
               )}
-              <div className="ml-auto text-sm text-muted-foreground">
-                Roles: {roles.length ? roles.join(", ") : "None"}
-              </div>
-            </>
-          )}
+            </div>
+          </div>
+
+          {/* Special roles */}
+          <div className="mb-3">
+            <div className="text-sm text-muted-foreground mb-2">Special Roles:</div>
+            <div className="flex flex-wrap gap-2">
+              {specialRoles.length > 0 ? (
+                specialRoles.map((role) => (
+                  <Badge key={role} variant="outline">
+                    {role}
+                  </Badge>
+                ))
+              ) : (
+                <span className="text-sm text-muted-foreground">No special roles</span>
+              )}
+            </div>
+          </div>
+
+          {/* Legacy role management buttons */}
+          <div className="flex items-center gap-3">
+            {!rolesLoading && (
+              <>
+                {isAdmin ? (
+                  <Button variant="destructive" onClick={handleRevoke} disabled={isBusy}>
+                    <ShieldMinus className="w-4 h-4 mr-2" />
+                    Revoke Admin
+                  </Button>
+                ) : (
+                  <Button onClick={handleGrant} disabled={isBusy}>
+                    <ShieldPlus className="w-4 h-4 mr-2" />
+                    Grant Admin
+                  </Button>
+                )}
+                <div className="ml-auto text-sm text-muted-foreground">
+                  Use the Roles tab for advanced role management
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
         <Separator />

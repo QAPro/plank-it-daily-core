@@ -3,10 +3,11 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BarChart3, Share2, Trophy } from 'lucide-react';
+import { BarChart3, Share2, Trophy, MessageCircle } from 'lucide-react';
 import { formatDuration, intervalToDuration } from 'date-fns';
 import type { Tables } from '@/integrations/supabase/types';
 import SocialFeatureGuard from '@/components/access/SocialFeatureGuard';
+import WorkoutFeedback, { type WorkoutFeedback as WorkoutFeedbackType } from '@/components/feedback/WorkoutFeedback';
 
 // Type definitions based on Supabase schema
 type Achievement = Tables<'user_achievements'>;
@@ -18,6 +19,7 @@ type PersonalBest = {
 
 interface SessionCompletionCelebrationProps {
   session: {
+    id?: string;
     exercise_name: string;
     duration_seconds: number;
     completed_at: string;
@@ -27,6 +29,7 @@ interface SessionCompletionCelebrationProps {
   onContinue: () => void;
   onViewStats: () => void;
   onShare: () => void;
+  onFeedbackSubmit?: (feedback: WorkoutFeedbackType) => void;
 }
 
 const SessionCompletionCelebration: React.FC<SessionCompletionCelebrationProps> = ({
@@ -35,13 +38,43 @@ const SessionCompletionCelebration: React.FC<SessionCompletionCelebrationProps> 
   personalBests = [],
   onContinue,
   onViewStats,
-  onShare
+  onShare,
+  onFeedbackSubmit
 }) => {
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+  
   const duration = intervalToDuration({ start: 0, end: session.duration_seconds * 1000 });
   const formattedDuration = formatDuration(duration, {
     delimiter: ', ',
     format: ['minutes', 'seconds'],
   }).replace('minutes', 'min').replace('seconds', 'sec');
+
+  const handleFeedbackSubmit = (feedback: WorkoutFeedbackType) => {
+    setFeedbackSubmitted(true);
+    setShowFeedback(false);
+    onFeedbackSubmit?.(feedback);
+  };
+
+  const handleSkipFeedback = () => {
+    setShowFeedback(false);
+  };
+
+  if (showFeedback) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 20 }}
+        transition={{ duration: 0.3 }}
+      >
+        <WorkoutFeedback 
+          onSubmit={handleFeedbackSubmit}
+          onSkip={handleSkipFeedback}
+        />
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
@@ -95,6 +128,34 @@ const SessionCompletionCelebration: React.FC<SessionCompletionCelebrationProps> 
                 ))}
               </ul>
             </section>
+          )}
+
+          {/* Feedback Prompt */}
+          {!feedbackSubmitted && onFeedbackSubmit && (
+            <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <MessageCircle className="w-5 h-5 text-blue-600" />
+                  <div>
+                    <h4 className="font-medium text-blue-800">Share Your Experience</h4>
+                    <p className="text-sm text-blue-600">Help us understand how your workout felt</p>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => setShowFeedback(true)}
+                  size="sm"
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  Add Feedback
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {feedbackSubmitted && (
+            <div className="p-3 bg-green-50 rounded-lg border border-green-200 text-center">
+              <p className="text-sm text-green-700">✓ Thanks for sharing your feedback!</p>
+            </div>
           )}
 
           {/* Action Buttons */}

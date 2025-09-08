@@ -41,7 +41,8 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
     sessionNotes,
     setSessionNotes,
     isCompleting,
-    selectExercise
+    selectExercise,
+    handleFeedbackSubmission
   } = useEnhancedSessionTracking();
 
   const {
@@ -335,12 +336,17 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
       {/* Session Completion Celebration */}
       {showCelebration && completedSession && (
         <SessionCompletionCelebration
-          isVisible={showCelebration}
-          duration={completedSession.duration}
-          timeElapsed={completedSession.duration}
-          exercise={completedSession.exercise}
-          newAchievements={completedSession.achievements}
-          onClose={handleCloseCelebration}
+          session={{
+            id: completedSession.id,
+            exercise_name: completedSession.exercise?.name || 'Exercise',
+            duration_seconds: completedSession.duration,
+            completed_at: completedSession.timestamp
+          }}
+          achievements={completedSession.achievements}
+          onContinue={handleCloseCelebration}
+          onViewStats={() => {/* TODO: Implement stats view */}}
+          onShare={() => {/* TODO: Implement sharing */}}
+          onFeedbackSubmit={handleFeedbackSubmission}
         />
       )}
     </>

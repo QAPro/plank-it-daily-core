@@ -7,6 +7,8 @@ import { toast } from 'sonner';
 import { useStreak } from '@/components/StreakProvider';
 import { ExpandedAchievementEngine } from '@/services/expandedAchievementService';
 import { useXPTracking } from './useXPTracking';
+import { useWorkoutFeedback } from './useWorkoutFeedback';
+import type { WorkoutFeedback } from '@/components/feedback/WorkoutFeedback';
 
 interface CompletedSession {
   id: string;
@@ -29,6 +31,7 @@ export const useEnhancedSessionTracking = () => {
   const [isCompleting, setIsCompleting] = useState(false);
   const { showMilestone } = useStreak();
   const { trackXP } = useXPTracking();
+  const { submitFeedback } = useWorkoutFeedback();
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
@@ -327,6 +330,12 @@ const completeSession = async (duration: number, notes?: string) => {
   }
 };
 
+  const handleFeedbackSubmission = useCallback(async (feedback: WorkoutFeedback) => {
+    if (completedSession?.id) {
+      await submitFeedback(completedSession.id, feedback);
+    }
+  }, [completedSession, submitFeedback]);
+
   return {
     exercises,
     isLoadingExercises,
@@ -343,6 +352,7 @@ const completeSession = async (duration: number, notes?: string) => {
     clearCompletedSession,
     sessionNotes,
     setSessionNotes,
-    isCompleting
+    isCompleting,
+    handleFeedbackSubmission
   };
 };

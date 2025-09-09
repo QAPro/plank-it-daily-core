@@ -498,30 +498,7 @@ async function syncOfflineSessions() {
   }
 }
 
-    // Update localStorage with sync status
-    await setToStorage('offline_workout_sessions', JSON.stringify(sessions));
-    
-    // Remove synced sessions
-    const remaining = sessions.filter(s => !s.synced);
-    if (remaining.length < sessions.length) {
-      await setToStorage('offline_workout_sessions', JSON.stringify(remaining));
-    }
-
-    console.log(`[SW] Sync complete: ${syncedCount} synced, ${failedCount} failed`);
-    
-    // Notify app of sync completion
-    const clients = await self.clients.matchAll();
-    clients.forEach(client => {
-      client.postMessage({
-        type: 'OFFLINE_SYNC_COMPLETE',
-        data: { synced: syncedCount, failed: failedCount }
-      });
-    });
-
-  } catch (error) {
-    console.error('[SW] Error in syncOfflineSessions:', error);
-  }
-}
+// Legacy sync result handlers removed in secure flow
 
 async function cacheWorkoutDataForOffline() {
   try {

@@ -179,7 +179,13 @@ serve(async (req) => {
     const rateLimitWindow = 2 * 60 * 1000; // 2 minutes in milliseconds
     const maxNotifications = 3; // Max 3 notifications per 2 minutes
     
-    const { data: recentNotifications, error: rateLimitError } = await supabase
+    // Use service role for reliable rate limit checks
+    const adminClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    const { data: recentNotifications, error: rateLimitError } = await adminClient
       .from('notification_logs')
       .select('created_at')
       .eq('sender_user_id', user.id)

@@ -68,24 +68,52 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Handle API requests with offline fallback
+  // Handle Supabase API requests with strict caching rules
   if (url.hostname.includes('supabase.co') && request.method === 'GET') {
+    const hasAuth = request.headers.has('Authorization');
+
+    // Never cache or intercept authenticated or auth endpoints
+    if (hasAuth || url.pathname.startsWith('/auth/v1')) {
+      event.respondWith(fetch(request));
+      return;
+    }
+
+    // Cache only safe, non-user-specific endpoints
+    if (/^\/rest\/v1\/plank_exercises/.test(url.pathname)) {
+      event.respondWith(
+        fetch(request)
+          .then(response => {
+            if (response.ok) {
+              const responseToCache = response.clone();
+              caches.open(CACHE_NAME).then(cache => {
+                cache.put(request, responseToCache);
+              });
+            }
+            return response;
+          })
+          .catch(() => caches.match(request))
+      );
+      return;
+    }
+
+    if (/^\/storage\/v1\/object\/public\//.test(url.pathname)) {
+      event.respondWith(
+        caches.match(request).then(cached => {
+          return cached || fetch(request).then(response => {
+            if (response.ok) {
+              const responseToCache = response.clone();
+              caches.open(CACHE_NAME).then(cache => cache.put(request, responseToCache));
+            }
+            return response;
+          });
+        })
+      );
+      return;
+    }
+
+    // Default: network first, fall back to cache if available, but do not cache
     event.respondWith(
-      fetch(request)
-        .then(response => {
-          // Cache successful API responses
-          if (response.ok && (url.pathname.includes('/plank_exercises') || url.pathname.includes('/user_preferences'))) {
-            const responseToCache = response.clone();
-            caches.open(CACHE_NAME).then(cache => {
-              cache.put(request, responseToCache);
-            });
-          }
-          return response;
-        })
-        .catch(() => {
-          // Return cached version if available
-          return caches.match(request);
-        })
+      fetch(request).catch(() => caches.match(request))
     );
     return;
   }

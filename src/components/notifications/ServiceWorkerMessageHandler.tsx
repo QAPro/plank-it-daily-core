@@ -6,53 +6,90 @@ export const ServiceWorkerMessageHandler = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Handle messages from service worker
+    // Handle messages from service worker (sanitized)
     const handleMessage = (event: MessageEvent) => {
-      console.log('[App] Received message from service worker:', event.data);
-      
-      const { type, url, data } = event.data;
-      
-      switch (type) {
-        case 'NAVIGATE':
-          console.log('[App] Navigating to:', url);
-          
-          // Handle deep link parameters for workout starting
-          if (url.includes('exercise-id') || url.includes('quick-start')) {
-            // For workout deep links, navigate to root with parameters
-            window.location.href = url;
-            return;
-          }
-          
-          // Extract tab from URL and navigate
-          if (url.includes('?tab=')) {
-            const urlParams = new URLSearchParams(url.split('?')[1]);
-            const tab = urlParams.get('tab');
+      try {
+        console.log('[App] Received message from service worker:', event.data);
+        if (!event || !event.data || typeof event.data !== 'object') return;
+
+        // Only accept messages from our active service worker controller
+        const controller = navigator.serviceWorker?.controller || null;
+        if (event.source && controller && event.source !== controller) {
+          return;
+        }
+
+        const { type, url, data, key, value } = event.data as any;
+
+        switch (type) {
+          case 'NAVIGATE': {
+            if (typeof url !== 'string') return;
+
+            let dest: URL;
+            try {
+              dest = new URL(url, window.location.origin);
+            } catch {
+              return;
+            }
+            if (dest.origin !== window.location.origin) return;
+
+            const pathAndSearch = `${dest.pathname}${dest.search}`;
+
+            // Handle deep link parameters for workout starting
+            if (pathAndSearch.includes('exercise-id') || pathAndSearch.includes('quick-start')) {
+              window.location.href = pathAndSearch;
+              return;
+            }
+
+            // Extract tab from URL and navigate
+            const tab = dest.searchParams.get('tab');
             if (tab) {
-              // Set the active tab in localStorage or state management
               localStorage.setItem('activeTab', tab);
-              // Trigger a custom event to update the UI
               window.dispatchEvent(new CustomEvent('tabChange', { detail: { tab } }));
             }
+            navigate(pathAndSearch);
+            break;
           }
-          navigate(url);
-          break;
-          
-        case 'SHARE_ACHIEVEMENT':
-          console.log('[App] Share achievement triggered:', data);
-          // Handle achievement sharing
-          if (data?.achievement) {
-            toast({
-              title: "🎉 Share Your Achievement!",
-              description: `Ready to share your "${data.achievement}" achievement?`,
-              duration: 5000,
-            });
-            // Could open share dialog or navigate to achievements with share mode
-            navigate('/?tab=achievements&share=true');
+
+          case 'SHARE_ACHIEVEMENT': {
+            console.log('[App] Share achievement triggered:', data);
+            if (data?.achievement) {
+              toast({
+                title: '🎉 Share Your Achievement!',
+                description: `Ready to share your "${data.achievement}" achievement?`,
+                duration: 5000,
+              });
+              navigate('/?tab=achievements&share=true');
+            }
+            break;
           }
-          break;
-          
-        default:
-          console.log('[App] Unknown message type:', type);
+
+          case 'GET_STORAGE': {
+            const allowedKeys = new Set(['offline_workout_sessions']);
+            const response = {
+              type: 'STORAGE_VALUE',
+              key,
+              value: null as string | null,
+            };
+            if (key && allowedKeys.has(key)) {
+              response.value = localStorage.getItem(key);
+            }
+            (event.source as any)?.postMessage(response);
+            break;
+          }
+
+          case 'SET_STORAGE': {
+            const allowedKeys = new Set(['offline_workout_sessions']);
+            if (key && allowedKeys.has(key) && typeof value === 'string') {
+              localStorage.setItem(key, value);
+            }
+            break;
+          }
+
+          default:
+            console.log('[App] Unknown message type:', type);
+        }
+      } catch (err) {
+        console.warn('[App] Error handling SW message', err);
       }
     };
 

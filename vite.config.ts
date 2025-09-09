@@ -20,13 +20,24 @@ export default defineConfig(({ mode }) => ({
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024, // 6MB limit
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/kgwmplptoctmoaefnpfg\.supabase\.co\/.*/i,
+            urlPattern: /^https:\/\/kgwmplptoctmoaefnpfg\.supabase\.co\/rest\/v1\/plank_exercises(\?.*)?$/i,
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'supabase-cache',
+              cacheName: 'supabase-plank-exercises',
               expiration: {
                 maxEntries: 100,
                 maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
+              }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/kgwmplptoctmoaefnpfg\.supabase\.co\/storage\/v1\/object\/public\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'supabase-public-storage',
+              expiration: {
+                maxEntries: 200,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
               }
             }
           }

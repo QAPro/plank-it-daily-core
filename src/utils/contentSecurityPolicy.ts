@@ -7,11 +7,14 @@ export const generateCSPHeader = (): string => {
     "base-uri 'self'",
     "object-src 'none'",
     "frame-ancestors 'none'",
-    "script-src 'self' 'unsafe-inline'", // unsafe-inline needed for chart styles
+    "script-src 'self'",
+    "script-src-attr 'none'",
     "style-src 'self' 'unsafe-inline'", // unsafe-inline needed for dynamic styles
     "img-src 'self' data: blob: https:",
     "font-src 'self' data:",
     `connect-src 'self' ${SUPABASE_ORIGIN} wss://kgwmplptoctmoaefnpfg.supabase.co`,
+    "worker-src 'self' blob:",
+    "manifest-src 'self'",
     "form-action 'self'",
     "upgrade-insecure-requests",
     "block-all-mixed-content"

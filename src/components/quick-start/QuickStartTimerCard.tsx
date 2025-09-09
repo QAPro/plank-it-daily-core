@@ -1,14 +1,12 @@
 import { motion } from "framer-motion";
-import { Play, ChevronDown, Settings } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useExercises } from "@/hooks/useExercises";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
-import { useQuickStart } from "@/hooks/useQuickStart";
 import { useToast } from "@/hooks/use-toast";
 import DurationIncrementControls from "./DurationIncrementControls";
-import CompactStreakBadge from "./CompactStreakBadge";
+import CircularProgressTimer from "../timer/CircularProgressTimer";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Exercise = Tables<'plank_exercises'>;
@@ -20,7 +18,6 @@ interface QuickStartTimerCardProps {
 const QuickStartTimerCard = ({ onStartWorkout }: QuickStartTimerCardProps) => {
   const { data: exercises, isLoading: exercisesLoading } = useExercises();
   const { preferences, updatePreferences } = useUserPreferences();
-  const { quickStartData, isLoading: quickStartLoading } = useQuickStart();
   const { toast } = useToast();
 
   // Default to Basic Plank if no history
@@ -71,27 +68,13 @@ const QuickStartTimerCard = ({ onStartWorkout }: QuickStartTimerCardProps) => {
     return `${seconds}s`;
   };
 
-  const getExerciseIcon = (exercise: Exercise) => {
-    // Default icons based on exercise name or category
-    const name = exercise.name.toLowerCase();
-    if (name.includes('side')) return '🔄';
-    if (name.includes('reverse')) return '🔄';
-    if (name.includes('dynamic')) return '⚡';
-    if (name.includes('advanced')) return '🔥';
-    return '🏋️'; // Default plank icon
-  };
 
-  if (exercisesLoading || quickStartLoading) {
+  if (exercisesLoading) {
     return (
-      <Card className="bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200">
-        <CardContent className="p-6">
-          <div className="animate-pulse space-y-4">
-            <div className="h-6 bg-orange-200 rounded"></div>
-            <div className="h-16 bg-orange-200 rounded"></div>
-            <div className="h-10 bg-orange-200 rounded"></div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="animate-pulse space-y-4">
+        <div className="h-64 bg-muted rounded-lg"></div>
+        <div className="h-10 bg-muted rounded"></div>
+      </div>
     );
   }
 
@@ -100,88 +83,54 @@ const QuickStartTimerCard = ({ onStartWorkout }: QuickStartTimerCardProps) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
+      className="space-y-4"
     >
-      <Card className="bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200 shadow-lg">
-        <CardContent className="p-6">
-          {/* Header with Streak */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium text-muted-foreground">
-                Ready to start
-              </span>
-            </div>
-            <CompactStreakBadge />
-          </div>
+      {/* Timer with Controls */}
+      <div className="relative">
+        <CircularProgressTimer
+          timeLeft={currentDuration}
+          duration={currentDuration}
+          state="setup"
+          progress={0}
+        />
+        
+        {/* Duration Controls overlay at bottom of timer */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex items-center gap-4 bg-background/80 backdrop-blur-sm rounded-lg p-3 shadow-lg">
+          <DurationIncrementControls
+            duration={currentDuration}
+            onDurationChange={handleDurationChange}
+          />
+        </div>
+      </div>
 
-          {/* Timer Display */}
-          <div className="text-center mb-6">
-            <div className="text-5xl font-bold text-primary mb-2">
-              {formatTime(currentDuration)}
-            </div>
-            <p className="text-muted-foreground">
-              Last workout: {quickStartData ? formatTime(quickStartData.duration) : formatTime(currentDuration)}
-            </p>
-          </div>
+      {/* Exercise Selection */}
+      <Select value={selectedExerciseId} onValueChange={handleExerciseChange}>
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="Select exercise" />
+        </SelectTrigger>
+        <SelectContent>
+          {exercises?.map((exercise) => (
+            <SelectItem key={exercise.id} value={exercise.id}>
+              <div className="flex items-center justify-between w-full">
+                <span>{exercise.name}</span>
+                <span className="text-xs text-muted-foreground ml-2">
+                  Level {exercise.difficulty_level}
+                </span>
+              </div>
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
-          {/* Duration Controls */}
-          <div className="flex justify-center mb-6">
-            <DurationIncrementControls
-              duration={currentDuration}
-              onDurationChange={handleDurationChange}
-            />
-          </div>
-
-          {/* Exercise Selection */}
-          <div className="mb-6">
-            <Select value={selectedExerciseId} onValueChange={handleExerciseChange}>
-              <SelectTrigger className="w-full bg-white/80 border-orange-200">
-                <div className="flex items-center space-x-2">
-                  <span className="text-2xl">{selectedExercise ? getExerciseIcon(selectedExercise) : '🏋️'}</span>
-                  <SelectValue placeholder="Select exercise" />
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                {exercises?.map((exercise) => (
-                  <SelectItem key={exercise.id} value={exercise.id}>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-lg">{getExerciseIcon(exercise)}</span>
-                      <span>{exercise.name}</span>
-                      <span className="text-xs text-muted-foreground ml-2">
-                        Level {exercise.difficulty_level}
-                      </span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Start Button */}
-          <Button
-            onClick={handleStartWorkout}
-            size="lg"
-            className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-4 text-lg shadow-lg"
-          >
-            <Play className="mr-2 h-5 w-5" />
-            Start {formatTime(currentDuration)} {selectedExercise?.name || 'Workout'}
-          </Button>
-
-          {/* Quick Challenge Hint */}
-          {quickStartData && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="mt-4 text-center"
-            >
-              <p className="text-sm text-muted-foreground">
-                💪 Try beating your last {formatTime(quickStartData.duration)} session!
-              </p>
-            </motion.div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Start Button */}
+      <Button
+        onClick={handleStartWorkout}
+        size="lg"
+        className="w-full"
+      >
+        <Play className="mr-2 h-4 w-4" />
+        Start
+      </Button>
     </motion.div>
   );
 };

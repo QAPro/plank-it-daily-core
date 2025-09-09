@@ -7,6 +7,10 @@ import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { useToast } from "@/hooks/use-toast";
 import DurationIncrementControls from "./DurationIncrementControls";
 import CircularProgressTimer from "../timer/CircularProgressTimer";
+import UserLevelBadge from "./UserLevelBadge";
+import CompactStreakBadge from "./CompactStreakBadge";
+import PersonalBestBadge from "./PersonalBestBadge";
+import TrendBadge from "./TrendBadge";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Exercise = Tables<'plank_exercises'>;
@@ -85,8 +89,22 @@ const QuickStartTimerCard = ({ onStartWorkout }: QuickStartTimerCardProps) => {
       transition={{ duration: 0.5 }}
       className="space-y-4"
     >
-      {/* Timer with Controls */}
+      {/* Timer with Corner Badges */}
       <div className="relative">
+        {/* Corner Badges */}
+        <div className="absolute top-3 left-3 z-10">
+          <UserLevelBadge />
+        </div>
+        <div className="absolute top-3 right-3 z-10">
+          <CompactStreakBadge />
+        </div>
+        <div className="absolute bottom-3 left-3 z-10">
+          <PersonalBestBadge exerciseId={selectedExerciseId} />
+        </div>
+        <div className="absolute bottom-3 right-3 z-10">
+          <TrendBadge exerciseId={selectedExerciseId} />
+        </div>
+
         <CircularProgressTimer
           timeLeft={currentDuration}
           duration={currentDuration}
@@ -94,7 +112,7 @@ const QuickStartTimerCard = ({ onStartWorkout }: QuickStartTimerCardProps) => {
           progress={0}
         />
         
-        {/* Duration Controls overlay at bottom of timer */}
+        {/* Duration Controls overlay at bottom center of timer */}
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex items-center gap-4 bg-background/80 backdrop-blur-sm rounded-lg p-3 shadow-lg">
           <DurationIncrementControls
             duration={currentDuration}

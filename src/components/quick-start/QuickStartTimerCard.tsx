@@ -89,8 +89,8 @@ const QuickStartTimerCard = ({ onStartWorkout }: QuickStartTimerCardProps) => {
       transition={{ duration: 0.5 }}
       className="px-4 sm:px-0"
     >
-      {/* Mobile Layout - Stacked */}
-      <div className="space-y-6 sm:hidden">
+      {/* Mobile Layout - Stacked (< 768px) */}
+      <div className="space-y-6 md:hidden">
         {/* Timer with Corner Badges */}
         <div className="relative mx-auto w-fit">
           {/* Corner Badges - Further from circle */}
@@ -113,6 +113,18 @@ const QuickStartTimerCard = ({ onStartWorkout }: QuickStartTimerCardProps) => {
             state="setup"
             progress={0}
           />
+        </div>
+
+        {/* Start Button - Directly under timer */}
+        <div className="flex justify-center">
+          <Button
+            onClick={handleStartWorkout}
+            size="lg"
+            className="w-[200px]"
+          >
+            <Play className="mr-2 h-4 w-4" />
+            Start
+          </Button>
         </div>
 
         {/* Duration Controls */}
@@ -141,25 +153,83 @@ const QuickStartTimerCard = ({ onStartWorkout }: QuickStartTimerCardProps) => {
             ))}
           </SelectContent>
         </Select>
+      </div>
 
-        {/* Start Button - Centered and smaller */}
-        <div className="flex justify-center">
-          <Button
-            onClick={handleStartWorkout}
-            size="lg"
-            className="w-[200px]"
-          >
-            <Play className="mr-2 h-4 w-4" />
-            Start
-          </Button>
+      {/* Tablet Layout - Stacked but wider (768px - 1024px) */}
+      <div className="hidden md:block lg:hidden">
+        <div className="max-w-2xl mx-auto space-y-8">
+          {/* Timer with Corner Badges */}
+          <div className="relative mx-auto w-fit">
+            {/* Corner Badges - Further from circle */}
+            <div className="absolute -top-3 -left-3 z-10">
+              <UserLevelBadge />
+            </div>
+            <div className="absolute -top-3 -right-3 z-10">
+              <CompactStreakBadge />
+            </div>
+            <div className="absolute -bottom-3 -left-3 z-10">
+              <PersonalBestBadge exerciseId={selectedExerciseId} />
+            </div>
+            <div className="absolute -bottom-3 -right-3 z-10">
+              <TrendBadge exerciseId={selectedExerciseId} />
+            </div>
+
+            <CircularProgressTimer
+              timeLeft={currentDuration}
+              duration={currentDuration}
+              state="setup"
+              progress={0}
+            />
+          </div>
+
+          {/* Start Button - Directly under timer */}
+          <div className="flex justify-center">
+            <Button
+              onClick={handleStartWorkout}
+              size="lg"
+              className="w-[280px]"
+            >
+              <Play className="mr-2 h-4 w-4" />
+              Start
+            </Button>
+          </div>
+
+          {/* Duration Controls */}
+          <div className="flex justify-center">
+            <DurationIncrementControls
+              duration={currentDuration}
+              onDurationChange={handleDurationChange}
+            />
+          </div>
+
+          {/* Exercise Selection - Wider but contained */}
+          <div className="max-w-md mx-auto">
+            <Select value={selectedExerciseId} onValueChange={handleExerciseChange}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select exercise" />
+              </SelectTrigger>
+              <SelectContent>
+                {exercises?.map((exercise) => (
+                  <SelectItem key={exercise.id} value={exercise.id}>
+                    <div className="flex items-center justify-between w-full">
+                      <span>{exercise.name}</span>
+                      <span className="text-xs text-muted-foreground ml-2">
+                        Level {exercise.difficulty_level}
+                      </span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
-      {/* Desktop Layout - Three Columns */}
-      <div className="hidden sm:block">
-        <div className="grid grid-cols-3 gap-8 items-start max-w-6xl mx-auto">
-          {/* Left Column - Exercise Selection */}
-          <div className="space-y-4 pt-20">
+      {/* Desktop Layout - Three Columns Optimized (> 1024px) */}
+      <div className="hidden lg:block">
+        <div className="flex items-start justify-between gap-16 max-w-7xl mx-auto px-8">
+          {/* Left Column - Exercise Selection (Narrower) */}
+          <div className="w-64 flex-shrink-0 pt-20">
             <h3 className="text-lg font-semibold mb-4">Exercise</h3>
             <Select value={selectedExerciseId} onValueChange={handleExerciseChange}>
               <SelectTrigger className="w-full">
@@ -180,8 +250,8 @@ const QuickStartTimerCard = ({ onStartWorkout }: QuickStartTimerCardProps) => {
             </Select>
           </div>
 
-          {/* Center Column - Timer */}
-          <div className="flex flex-col items-center space-y-6">
+          {/* Center Column - Timer (Flexible) */}
+          <div className="flex-1 flex flex-col items-center space-y-6 min-w-0">
             <div className="relative">
               {/* Corner Badges - Further from circle */}
               <div className="absolute -top-4 -left-4 z-10">
@@ -216,8 +286,8 @@ const QuickStartTimerCard = ({ onStartWorkout }: QuickStartTimerCardProps) => {
             </Button>
           </div>
 
-          {/* Right Column - Duration Controls */}
-          <div className="space-y-4 pt-20">
+          {/* Right Column - Duration Controls (Compact) */}
+          <div className="w-56 flex-shrink-0 pt-20">
             <h3 className="text-lg font-semibold mb-4">Duration</h3>
             <DurationIncrementControls
               duration={currentDuration}

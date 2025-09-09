@@ -420,7 +420,7 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-// Function to log notification interactions
+// Function to log notification interactions - SECURE VERSION
 async function logNotificationInteraction(pushId, action, category, notificationData) {
   try {
     const interactionData = {
@@ -434,24 +434,18 @@ async function logNotificationInteraction(pushId, action, category, notification
       }
     };
 
-    console.log(`[SW] Logging notification interaction (${pushId}):`, interactionData);
+    console.log(`[SW] Scheduling secure interaction logging (${pushId}):`, interactionData);
 
-    // Send to edge function for logging
-    const response = await fetch('https://kgwmplptoctmoaefnpfg.supabase.co/functions/v1/log-notification-interaction', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(interactionData)
-    });
-
-    if (!response.ok) {
-      console.error(`[SW] Failed to log interaction (${pushId}):`, response.status);
-    } else {
-      console.log(`[SW] Interaction logged successfully (${pushId})`);
+    // Send message to app for secure logging instead of direct API call
+    const clients = await self.clients.matchAll({ type: 'window' });
+    if (clients.length > 0) {
+      clients[0].postMessage({
+        type: 'LOG_NOTIFICATION_INTERACTION',
+        data: interactionData
+      });
     }
   } catch (error) {
-    console.error(`[SW] Error logging interaction (${pushId}):`, error);
+    console.error(`[SW] Error scheduling interaction logging (${pushId}):`, error);
   }
 }
 
@@ -468,7 +462,7 @@ self.addEventListener('sync', (event) => {
 
 async function syncOfflineSessions() {
   try {
-    console.log('[SW] Starting offline session sync...');
+    console.log('[SW] Starting secure offline session sync...');
     
     // Get offline sessions from localStorage
     const offlineSessionsData = await getFromStorage('offline_workout_sessions');
@@ -485,40 +479,24 @@ async function syncOfflineSessions() {
       return;
     }
 
-    console.log(`[SW] Syncing ${unsynced.length} offline sessions...`);
+    console.log(`[SW] Scheduling secure sync for ${unsynced.length} offline sessions...`);
     
-    let syncedCount = 0;
-    let failedCount = 0;
-
-    for (const session of unsynced) {
-      try {
-        const response = await fetch('https://kgwmplptoctmoaefnpfg.supabase.co/rest/v1/user_sessions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtnd21wbHB0b2N0bW9hZWZucGZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIwODgyMjMsImV4cCI6MjA2NzY2NDIyM30.vlPPhkFrPL-pEM974VB9h4KC9XebvmvWQa80Cl6Uidw'
-          },
-          body: JSON.stringify({
-            user_id: session.user_id,
-            exercise_id: session.exercise_id,
-            duration_seconds: session.duration_seconds,
-            completed_at: session.completed_at
-          })
+    // Send message to app for secure session sync instead of direct API calls
+    const clients = await self.clients.matchAll({ type: 'window' });
+    if (clients.length > 0) {
+      for (const session of unsynced) {
+        clients[0].postMessage({
+          type: 'SAVE_OFFLINE_SESSION',
+          data: session
         });
-
-        if (response.ok) {
-          session.synced = true;
-          syncedCount++;
-          console.log('[SW] Synced session:', session.id);
-        } else {
-          failedCount++;
-          console.error('[SW] Failed to sync session:', session.id, response.status);
-        }
-      } catch (error) {
-        failedCount++;
-        console.error('[SW] Error syncing session:', session.id, error);
       }
+    } else {
+      console.log('[SW] No active clients found for secure session sync');
     }
+  } catch (error) {
+    console.error('[SW] Error in secure session sync:', error);
+  }
+}
 
     // Update localStorage with sync status
     await setToStorage('offline_workout_sessions', JSON.stringify(sessions));

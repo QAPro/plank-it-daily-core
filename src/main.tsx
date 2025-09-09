@@ -11,7 +11,7 @@ applyCSPMetaTag();
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js', {
+      const registration = await navigator.serviceWorker.register('/sw-secure.js', {
         scope: '/'
       });
       console.log('[SW] Service worker registered:', registration.scope);

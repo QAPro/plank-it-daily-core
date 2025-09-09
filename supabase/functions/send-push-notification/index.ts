@@ -119,21 +119,43 @@ serve(async (req) => {
     // Security: Verify JWT token is present (authenticated request)
     const authHeader = req.headers.get('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('Push notification rejected: Missing or invalid Authorization header');
       return new Response(
         JSON.stringify({ error: 'Authentication required', success: false }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Rate limiting: Simple check to prevent abuse
-    const rateLimitKey = req.headers.get('x-forwarded-for') || 'unknown';
-    // In production, implement proper rate limiting with Redis/cache
-
-    // Initialize Supabase client
+    // Initialize Supabase client with user's JWT for authentication
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: {
+            Authorization: authHeader,
+          },
+        },
+      }
     );
+
+    // Verify the user is authenticated
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      console.log('Push notification rejected: Invalid user token');
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication token', success: false }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check if user is admin/superadmin for multi-user notifications
+    const { data: userRoles, error: rolesError } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id);
+
+    const isAdmin = userRoles?.some(r => r.role === 'admin' || r.role === 'superadmin') || false;
 
     const { user_id, user_ids, title, body, data = {}, notification_type, actions = [] }: NotificationPayload = await req.json();
 
@@ -144,7 +166,36 @@ serve(async (req) => {
       throw new Error('No target users specified');
     }
 
-    console.log(`Sending notification to ${targetUserIds.length} users:`, { title, body, notification_type });
+    // Authorization: Non-admins can only send to themselves
+    if (!isAdmin && targetUserIds.some(id => id !== user.id)) {
+      console.log(`Push notification rejected: User ${user.id} tried to send to other users without admin privileges`);
+      return new Response(
+        JSON.stringify({ error: 'Insufficient privileges to send notifications to other users', success: false }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Rate limiting: Check recent notification sends by this user
+    const rateLimitWindow = 2 * 60 * 1000; // 2 minutes in milliseconds
+    const maxNotifications = 3; // Max 3 notifications per 2 minutes
+    
+    const { data: recentNotifications, error: rateLimitError } = await supabase
+      .from('notification_logs')
+      .select('created_at')
+      .eq('sender_user_id', user.id)
+      .gte('created_at', new Date(Date.now() - rateLimitWindow).toISOString());
+
+    if (rateLimitError) {
+      console.error('Error checking rate limit:', rateLimitError);
+    } else if (recentNotifications && recentNotifications.length >= maxNotifications) {
+      console.log(`Push notification rejected: Rate limit exceeded for user ${user.id}`);
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded. Please wait before sending more notifications.', success: false }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log(`Sending notification from user ${user.id} to ${targetUserIds.length} users:`, { title, body, notification_type });
 
     // Get active push subscriptions for target users
     const { data: subscriptions, error: subscriptionsError } = await supabase
@@ -232,6 +283,12 @@ serve(async (req) => {
     const results = [];
     let successCount = 0;
 
+    // Initialize Supabase client with service role for logging
+    const supabaseServiceRole = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
     for (const subscription of filteredSubscriptions) {
       try {
         const payload = JSON.stringify({
@@ -260,11 +317,12 @@ serve(async (req) => {
         const success = response.ok;
         const responseText = success ? 'OK' : await response.text();
         
-        // Log notification attempt
-        await supabase
+        // Log notification attempt with sender info
+        await supabaseServiceRole
           .from('notification_logs')
           .insert({
             user_id: subscription.user_id,
+            sender_user_id: user.id,
             notification_type,
             title,
             body,
@@ -289,11 +347,12 @@ serve(async (req) => {
       } catch (error) {
         console.error(`Error sending notification to user ${subscription.user_id}:`, error);
         
-        // Log failed notification
-        await supabase
+        // Log failed notification with sender info
+        await supabaseServiceRole
           .from('notification_logs')
           .insert({
             user_id: subscription.user_id,
+            sender_user_id: user.id,
             notification_type,
             title,
             body,
@@ -333,4 +392,4 @@ serve(async (req) => {
       }
     );
   }
-});
+})

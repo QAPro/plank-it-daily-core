@@ -50,83 +50,133 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress }: Circular
   };
 
   const colors = getStateColor();
-  const radius = 120;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDasharray = circumference;
-  // Invert progress calculation for counter-clockwise countdown
-  // progress represents elapsed time (0-100%), we want remaining time for visual
+  
+  // Responsive SVG configuration
+  const svgConfig = {
+    mobile: { 
+      size: 200, 
+      radius: 80, 
+      strokeWidth: 6,
+      center: 100 
+    },
+    desktop: { 
+      size: 280, 
+      radius: 120, 
+      strokeWidth: 8,
+      center: 140 
+    }
+  };
+
+  // Calculate progress for both sizes
+  const mobileCircumference = 2 * Math.PI * svgConfig.mobile.radius;
+  const desktopCircumference = 2 * Math.PI * svgConfig.desktop.radius;
   const remainingProgress = 100 - progress;
-  const strokeDashoffset = circumference * (remainingProgress / 100);
 
   return (
-    <Card className={`bg-gradient-to-br ${colors.bg} text-white border-0 shadow-lg`}>
-      <CardContent className="p-4 sm:p-8 text-center relative">
-        {/* Circular Progress Ring */}
-        <div className="relative inline-flex items-center justify-center mb-6">
-          <svg width="280" height="280" className="w-[200px] h-[200px] sm:w-[280px] sm:h-[280px] transform rotate-90 scale-x-[-1]">
-            {/* Background Circle */}
-            <circle
-              cx="140"
-              cy="140"
-              r={radius}
-              stroke="rgba(255, 255, 255, 0.2)"
-              strokeWidth="8"
-              fill="none"
-            />
-            {/* Progress Circle */}
-            <motion.circle
-              cx="140"
-              cy="140"
-              r={radius}
-              stroke="white"
-              strokeWidth="8"
-              fill="none"
-              strokeDasharray={strokeDasharray}
-              strokeDashoffset={strokeDashoffset}
-              strokeLinecap="round"
-              initial={{ strokeDashoffset: circumference }}
-              animate={{ strokeDashoffset }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
-            />
-          </svg>
-          
-          {/* Timer Display */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <motion.div
-              key={timeLeft}
-              initial={{ scale: 1.1 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.2 }}
-              className="text-3xl sm:text-5xl font-bold mb-2"
-            >
-              {formatTime(timeLeft)}
-            </motion.div>
-          </div>
-        </div>
-
-        {/* State Message */}
-        <motion.div
-          key={state}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.2 }}
-          className="text-lg font-semibold"
+    <Card className={`bg-gradient-to-br ${colors.bg} text-white border-0 shadow-lg w-[200px] h-[200px] sm:w-[280px] sm:h-[280px] flex items-center justify-center`}>
+      <div className="relative">
+        {/* Mobile SVG */}
+        <svg 
+          width={svgConfig.mobile.size} 
+          height={svgConfig.mobile.size} 
+          className="sm:hidden transform rotate-90 scale-x-[-1]"
+          viewBox={`0 0 ${svgConfig.mobile.size} ${svgConfig.mobile.size}`}
         >
-          {getStateMessage()}
-        </motion.div>
+          {/* Background Circle */}
+          <circle
+            cx={svgConfig.mobile.center}
+            cy={svgConfig.mobile.center}
+            r={svgConfig.mobile.radius}
+            stroke="rgba(255, 255, 255, 0.2)"
+            strokeWidth={svgConfig.mobile.strokeWidth}
+            fill="none"
+          />
+          {/* Progress Circle */}
+          <motion.circle
+            cx={svgConfig.mobile.center}
+            cy={svgConfig.mobile.center}
+            r={svgConfig.mobile.radius}
+            stroke="white"
+            strokeWidth={svgConfig.mobile.strokeWidth}
+            fill="none"
+            strokeDasharray={mobileCircumference}
+            strokeDashoffset={mobileCircumference * (remainingProgress / 100)}
+            strokeLinecap="round"
+            initial={{ strokeDashoffset: mobileCircumference }}
+            animate={{ strokeDashoffset: mobileCircumference * (remainingProgress / 100) }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+          />
+        </svg>
 
-        {/* Warning for low time */}
-        {state === 'running' && timeLeft <= 10 && (
+        {/* Desktop SVG */}
+        <svg 
+          width={svgConfig.desktop.size} 
+          height={svgConfig.desktop.size} 
+          className="hidden sm:block transform rotate-90 scale-x-[-1]"
+          viewBox={`0 0 ${svgConfig.desktop.size} ${svgConfig.desktop.size}`}
+        >
+          {/* Background Circle */}
+          <circle
+            cx={svgConfig.desktop.center}
+            cy={svgConfig.desktop.center}
+            r={svgConfig.desktop.radius}
+            stroke="rgba(255, 255, 255, 0.2)"
+            strokeWidth={svgConfig.desktop.strokeWidth}
+            fill="none"
+          />
+          {/* Progress Circle */}
+          <motion.circle
+            cx={svgConfig.desktop.center}
+            cy={svgConfig.desktop.center}
+            r={svgConfig.desktop.radius}
+            stroke="white"
+            strokeWidth={svgConfig.desktop.strokeWidth}
+            fill="none"
+            strokeDasharray={desktopCircumference}
+            strokeDashoffset={desktopCircumference * (remainingProgress / 100)}
+            strokeLinecap="round"
+            initial={{ strokeDashoffset: desktopCircumference }}
+            animate={{ strokeDashoffset: desktopCircumference * (remainingProgress / 100) }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+          />
+        </svg>
+        
+        {/* Timer Display - Absolutely centered */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
           <motion.div
-            initial={{ scale: 0 }}
+            key={timeLeft}
+            initial={{ scale: 1.1 }}
             animate={{ scale: 1 }}
-            className="mt-2 text-sm font-medium"
+            transition={{ duration: 0.2 }}
+            className="text-2xl sm:text-4xl font-bold"
           >
-            🔥 Final countdown!
+            {formatTime(timeLeft)}
           </motion.div>
-        )}
-      </CardContent>
+          
+          {/* State Message */}
+          <motion.div
+            key={state}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="text-sm sm:text-base font-semibold mt-2"
+          >
+            {getStateMessage()}
+          </motion.div>
+
+          {/* Warning for low time */}
+          {state === 'running' && timeLeft <= 10 && (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="mt-1 text-xs sm:text-sm font-medium"
+            >
+              🔥 Final countdown!
+            </motion.div>
+          )}
+        </div>
+      </div>
     </Card>
   );
 };

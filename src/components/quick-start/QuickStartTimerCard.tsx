@@ -87,10 +87,10 @@ const QuickStartTimerCard = ({ onStartWorkout }: QuickStartTimerCardProps) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="space-y-4 px-4 sm:px-0"
+      className="space-y-6 px-4 sm:px-0"
     >
       {/* Timer with Corner Badges */}
-      <div className="relative mx-2 sm:mx-0">
+      <div className="relative mx-auto w-fit">
         {/* Corner Badges */}
         <div className="absolute top-3 left-3 z-10">
           <UserLevelBadge />
@@ -98,11 +98,10 @@ const QuickStartTimerCard = ({ onStartWorkout }: QuickStartTimerCardProps) => {
         <div className="absolute top-3 right-3 z-10">
           <CompactStreakBadge />
         </div>
-        {/* Side badges positioned at middle for mobile */}
-        <div className="absolute top-1/2 -translate-y-1/2 left-1 z-10">
+        <div className="absolute bottom-3 left-3 z-10">
           <PersonalBestBadge exerciseId={selectedExerciseId} />
         </div>
-        <div className="absolute top-1/2 -translate-y-1/2 right-1 z-10">
+        <div className="absolute bottom-3 right-3 z-10">
           <TrendBadge exerciseId={selectedExerciseId} />
         </div>
 
@@ -112,14 +111,14 @@ const QuickStartTimerCard = ({ onStartWorkout }: QuickStartTimerCardProps) => {
           state="setup"
           progress={0}
         />
-        
-        {/* Duration Controls overlay at bottom center of timer */}
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20 bg-background/90 backdrop-blur-sm rounded-lg p-2 sm:p-3 shadow-lg max-w-[85%] sm:max-w-[90%]">
-          <DurationIncrementControls
-            duration={currentDuration}
-            onDurationChange={handleDurationChange}
-          />
-        </div>
+      </div>
+
+      {/* Duration Controls - now outside the timer */}
+      <div className="flex justify-center">
+        <DurationIncrementControls
+          duration={currentDuration}
+          onDurationChange={handleDurationChange}
+        />
       </div>
 
       {/* Exercise Selection */}

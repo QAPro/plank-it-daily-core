@@ -40,7 +40,7 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress }: Circular
 
   const getStateMessage = () => {
     switch (state) {
-      case 'setup': return 'Set Your Timer';
+      case 'setup': return '';
       case 'ready': return 'Ready to Start';
       case 'running': return timeLeft <= 10 ? 'Almost There!' : 'Keep Going!';
       case 'paused': return 'Paused';

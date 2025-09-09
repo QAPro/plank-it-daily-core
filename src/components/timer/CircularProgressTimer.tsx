@@ -63,7 +63,7 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress }: Circular
       <CardContent className="p-4 sm:p-8 text-center relative">
         {/* Circular Progress Ring */}
         <div className="relative inline-flex items-center justify-center mb-6">
-          <svg width="280" height="280" className="w-[240px] h-[240px] sm:w-[280px] sm:h-[280px] transform rotate-90 scale-x-[-1]">
+          <svg width="280" height="280" className="w-[200px] h-[200px] sm:w-[280px] sm:h-[280px] transform rotate-90 scale-x-[-1]">
             {/* Background Circle */}
             <circle
               cx="140"

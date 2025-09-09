@@ -37,10 +37,17 @@ const Dashboard = () => {
     setActiveTab('profile');
   };
 
+  const handleStartWorkout = (exerciseId: string, duration: number) => {
+    // Switch to workout tab and pass the exercise/duration data
+    setActiveTab('workout');
+    // We could store this data in state and pass it to WorkoutTab if needed
+    // For now, the workout tab will handle it through user preferences
+  };
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'home':
-        return <HomeTab onTabChange={handleTabChange} onUpgradeClick={handleUpgradeNavigation} />;
+        return <HomeTab onTabChange={handleTabChange} onUpgradeClick={handleUpgradeNavigation} onStartWorkout={handleStartWorkout} />;
       case 'workout':
         return <WorkoutTab />;
       case 'stats':
@@ -62,7 +69,7 @@ const Dashboard = () => {
       case 'profile':
         return <ProfileTab initialView={profileView} onOpenVapidManager={() => setShowVapidManager(true)} />;
       default:
-        return <HomeTab onTabChange={handleTabChange} onUpgradeClick={handleUpgradeNavigation} />;
+        return <HomeTab onTabChange={handleTabChange} onUpgradeClick={handleUpgradeNavigation} onStartWorkout={handleStartWorkout} />;
     }
   };
 

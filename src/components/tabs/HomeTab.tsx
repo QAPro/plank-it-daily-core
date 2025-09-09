@@ -1,13 +1,15 @@
 
 import { motion } from "framer-motion";
-import { Calendar, Trophy } from "lucide-react";
+import { Calendar, Trophy, Users, TrendingUp, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useState } from "react";
 import { useSessionStats } from "@/hooks/useSessionHistory";
 import { useAuth } from "@/contexts/AuthContext";
-import StreakDisplay from "@/components/StreakDisplay";
+import QuickStartTimerCard from "@/components/quick-start/QuickStartTimerCard";
+import CompactProgressBar from "@/components/quick-start/CompactProgressBar";
 import GatedRecommendationsDashboard from "@/components/recommendations/GatedRecommendationsDashboard";
-import LevelProgressBar from "@/components/level/LevelProgressBar";
-import SubscriptionStatusCard from "@/components/subscription/SubscriptionStatusCard";
 import CommunityStatsWidget from "@/components/social/CommunityStatsWidget";
 import UserRankingDisplay from "@/components/social/UserRankingDisplay";
 import XPMultiplierNotification from "@/components/xp/XPMultiplierNotification";
@@ -18,13 +20,15 @@ interface HomeTabProps {
   onExerciseSelect?: (exerciseId: string) => void;
   onTabChange?: (tab: string) => void;
   onUpgradeClick?: () => void;
+  onStartWorkout?: (exerciseId: string, duration: number) => void;
 }
 
-const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick }: HomeTabProps) => {
+const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout }: HomeTabProps) => {
   const { data: stats } = useSessionStats();
   const { user } = useAuth();
   const { userLevel, loading: levelLoading } = useLevelProgression();
   const rewardTiming = useRewardTiming();
+  const [communityExpanded, setCommunityExpanded] = useState(false);
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -91,6 +95,15 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick }: HomeTabProps
     return '';
   };
 
+  const handleStartWorkout = (exerciseId: string, duration: number) => {
+    if (onStartWorkout) {
+      onStartWorkout(exerciseId, duration);
+    } else if (onTabChange) {
+      // Fallback to workout tab if no direct handler
+      onTabChange('workout');
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -101,112 +114,128 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick }: HomeTabProps
       {/* XP Multiplier Notification */}
       <XPMultiplierNotification />
 
-      {/* Header */}
-      <div className="text-center pt-4">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">
+      {/* Welcome Header - Simplified */}
+      <div className="text-center">
+        <h2 className="text-xl font-bold text-foreground mb-1">
           Welcome Back{getUserDisplayName()}!
         </h2>
-        <p className="text-gray-600">Ready for today's plank challenge?</p>
       </div>
 
-      {/* Level Progress Bar */}
+      {/* Hero Section - Quick Start Timer */}
+      <QuickStartTimerCard onStartWorkout={handleStartWorkout} />
+
+      {/* Compact Progress Bar */}
       {!levelLoading && userLevel && (
         <motion.div
-          initial={{ y: 30, opacity: 0 }}
+          initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.1, duration: 0.6 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
         >
-          <LevelProgressBar userLevel={userLevel} />
+          <CompactProgressBar userLevel={userLevel} />
         </motion.div>
       )}
 
-      {/* Subscription Status */}
+      {/* Quick Stats Row - Condensed */}
       <motion.div
-        initial={{ y: 30, opacity: 0 }}
+        initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.15, duration: 0.6 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+        className="grid grid-cols-2 gap-3"
       >
-        <SubscriptionStatusCard 
-          onManageClick={handleManageSubscription}
-          onUpgradeClick={handleUpgrade}
-        />
-      </motion.div>
-
-      {/* Community & Personal Stats Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <CommunityStatsWidget />
-        <UserRankingDisplay />
-      </div>
-
-      {/* Streak Display */}
-      <StreakDisplay />
-
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 gap-3">
         {displayStats.map((stat, index) => (
-          <motion.div
-            key={stat.label}
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2 + index * 0.1, duration: 0.4 }}
-          >
-            <Card className="bg-white/80 backdrop-blur-sm border-orange-100">
-              <CardContent className="p-4 text-center">
-                <stat.icon className={`w-6 h-6 mx-auto mb-2 ${stat.color}`} />
-                <p className="text-lg font-bold text-gray-800">{stat.value}</p>
-                <p className="text-xs text-gray-600">{stat.label}</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Smart Recommendations Dashboard - Now Gated */}
-      <motion.div
-        initial={{ y: 30, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.4, duration: 0.6 }}
-      >
-        <GatedRecommendationsDashboard onExerciseSelect={onExerciseSelect} />
-      </motion.div>
-
-      {/* Progress Summary */}
-      {stats && stats.totalSessions > 0 ? (
-        <motion.div
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.8, duration: 0.6 }}
-        >
-          <h3 className="text-lg font-semibold text-gray-800 mb-3">Your Progress</h3>
-          <Card className="bg-white/80 backdrop-blur-sm border-orange-100">
-            <CardContent className="p-6">
-              <div className="grid grid-cols-2 gap-4 text-center">
-                <div>
-                  <p className="text-2xl font-bold text-gray-800">{stats.totalSessions}</p>
-                  <p className="text-sm text-gray-600">Total Sessions</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-800">{formatTime(stats.totalTimeSpent)}</p>
-                  <p className="text-sm text-gray-600">Time Spent</p>
-                </div>
-              </div>
+          <Card key={stat.label} className="bg-white/60 backdrop-blur-sm border-orange-100">
+            <CardContent className="p-3 text-center">
+              <stat.icon className={`w-4 h-4 mx-auto mb-1 ${stat.color}`} />
+              <p className="text-sm font-bold text-foreground">{stat.value}</p>
+              <p className="text-xs text-muted-foreground">{stat.label}</p>
             </CardContent>
           </Card>
-        </motion.div>
-      ) : (
-        <motion.div
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.8, duration: 0.6 }}
+        ))}
+      </motion.div>
+
+      {/* Minimized Recommendations */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.4, duration: 0.5 }}
+      >
+        <Button
+          variant="ghost"
+          onClick={() => onTabChange?.('workout')}
+          className="w-full justify-between p-4 h-auto bg-white/40 hover:bg-white/60 border border-orange-100"
         >
-          <h3 className="text-lg font-semibold text-gray-800 mb-3">Recent Activity</h3>
-          <Card className="bg-white/80 backdrop-blur-sm border-orange-100">
-            <CardContent className="p-6 text-center">
-              <div className="text-gray-400 mb-2">
-                <Calendar className="w-12 h-12 mx-auto" />
+          <div className="flex items-center space-x-3">
+            <div className="text-lg">💡</div>
+            <div className="text-left">
+              <p className="font-medium text-foreground">Suggested Workouts</p>
+              <p className="text-sm text-muted-foreground">Explore personalized recommendations</p>
+            </div>
+          </div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </Button>
+      </motion.div>
+
+      {/* Community Section - Collapsible */}
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.5, duration: 0.5 }}
+      >
+        <Collapsible open={communityExpanded} onOpenChange={setCommunityExpanded}>
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="ghost"
+              className="w-full justify-between p-4 h-auto bg-white/40 hover:bg-white/60 border border-orange-100"
+            >
+              <div className="flex items-center space-x-3">
+                <Users className="h-4 w-4 text-blue-500" />
+                <div className="text-left">
+                  <p className="font-medium text-foreground">Community Pulse</p>
+                  <p className="text-sm text-muted-foreground">See rankings and stats</p>
+                </div>
               </div>
-              <p className="text-gray-600">No workouts yet</p>
-              <p className="text-sm text-gray-500">Complete your first plank to see your progress here</p>
+              <motion.div
+                animate={{ rotate: communityExpanded ? 90 : 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </motion.div>
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-4 mt-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <CommunityStatsWidget />
+              <UserRankingDisplay />
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </motion.div>
+
+      {/* Progress Summary - Compact */}
+      {stats && stats.totalSessions > 0 && (
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
+        >
+          <Card className="bg-white/40 backdrop-blur-sm border-orange-100">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <TrendingUp className="h-4 w-4 text-green-500" />
+                  <span className="font-medium text-foreground">Progress</span>
+                </div>
+                <div className="flex items-center space-x-4 text-sm">
+                  <div className="text-center">
+                    <p className="font-bold text-foreground">{stats.totalSessions}</p>
+                    <p className="text-xs text-muted-foreground">Sessions</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="font-bold text-foreground">{formatTime(stats.totalTimeSpent)}</p>
+                    <p className="text-xs text-muted-foreground">Total Time</p>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </motion.div>

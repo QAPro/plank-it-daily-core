@@ -17,9 +17,25 @@ type Exercise = Tables<'plank_exercises'>;
 
 interface QuickStartTimerCardProps {
   onStartWorkout: (exerciseId: string, duration: number) => void;
+  timerState?: 'ready' | 'running' | 'paused' | 'completed';
+  timeLeft?: number;
+  duration?: number;
+  onTimerControl?: {
+    start: () => void;
+    pause: () => void;
+    resume: () => void;
+    stop: () => void;
+    reset: () => void;
+  };
 }
 
-const QuickStartTimerCard = ({ onStartWorkout }: QuickStartTimerCardProps) => {
+const QuickStartTimerCard = ({ 
+  onStartWorkout, 
+  timerState = 'ready', 
+  timeLeft, 
+  duration, 
+  onTimerControl 
+}: QuickStartTimerCardProps) => {
   const { data: exercises, isLoading: exercisesLoading } = useExercises();
   const { preferences, updatePreferences } = useUserPreferences();
   const { toast } = useToast();
@@ -107,24 +123,80 @@ const QuickStartTimerCard = ({ onStartWorkout }: QuickStartTimerCardProps) => {
             <TrendBadge exerciseId={selectedExerciseId} />
           </div>
 
-          <CircularProgressTimer
-            timeLeft={currentDuration}
-            duration={currentDuration}
-            state="setup"
-            progress={0}
-          />
+              <CircularProgressTimer
+                timeLeft={timeLeft || currentDuration}
+                duration={duration || currentDuration}
+                state={timerState}
+                progress={duration ? ((duration - (timeLeft || 0)) / duration) * 100 : 0}
+              />
         </div>
 
-        {/* Start Button - Directly under timer */}
-        <div className="flex justify-center">
-          <Button
-            onClick={handleStartWorkout}
-            size="lg"
-            className="w-[200px]"
-          >
-            <Play className="mr-2 h-4 w-4" />
-            Start
-          </Button>
+        {/* Timer Controls - Directly under timer */}
+        <div className="flex justify-center gap-2 flex-wrap">
+          {timerState === 'ready' && (
+            <Button
+              onClick={handleStartWorkout}
+              size="lg"
+              className="w-[200px] bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
+            >
+              <Play className="mr-2 h-4 w-4" />
+              Start
+            </Button>
+          )}
+          
+          {timerState === 'running' && onTimerControl && (
+            <>
+              <Button 
+                onClick={onTimerControl.pause}
+                size="lg"
+                variant="outline"
+                className="w-24"
+              >
+                Pause
+              </Button>
+              <Button 
+                onClick={onTimerControl.stop}
+                size="lg"
+                variant="destructive"
+                className="w-24"
+              >
+                Stop
+              </Button>
+            </>
+          )}
+          
+          {timerState === 'paused' && onTimerControl && (
+            <>
+              <Button 
+                onClick={onTimerControl.resume}
+                size="lg"
+                className="w-28 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
+              >
+                Resume
+              </Button>
+              <Button 
+                onClick={onTimerControl.stop}
+                size="lg"
+                variant="destructive"
+                className="w-24"
+              >
+                Stop
+              </Button>
+            </>
+          )}
+          
+          {timerState === 'completed' && onTimerControl && (
+            <Button 
+              onClick={() => {
+                onTimerControl.reset();
+                handleStartWorkout();
+              }}
+              size="lg"
+              className="w-[200px] bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white"
+            >
+              Do Again
+            </Button>
+          )}
         </div>
 
         {/* Duration Controls */}
@@ -175,23 +247,79 @@ const QuickStartTimerCard = ({ onStartWorkout }: QuickStartTimerCardProps) => {
             </div>
 
             <CircularProgressTimer
-              timeLeft={currentDuration}
-              duration={currentDuration}
-              state="setup"
-              progress={0}
+              timeLeft={timeLeft || currentDuration}
+              duration={duration || currentDuration}
+              state={timerState}
+              progress={duration ? ((duration - (timeLeft || 0)) / duration) * 100 : 0}
             />
           </div>
 
-          {/* Start Button - Directly under timer */}
-          <div className="flex justify-center">
-            <Button
-              onClick={handleStartWorkout}
-              size="lg"
-              className="w-[280px]"
-            >
-              <Play className="mr-2 h-4 w-4" />
-              Start
-            </Button>
+          {/* Timer Controls - Directly under timer */}
+          <div className="flex justify-center gap-3 flex-wrap">
+            {timerState === 'ready' && (
+              <Button
+                onClick={handleStartWorkout}
+                size="lg"
+                className="w-[280px] bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
+              >
+                <Play className="mr-2 h-4 w-4" />
+                Start
+              </Button>
+            )}
+            
+            {timerState === 'running' && onTimerControl && (
+              <>
+                <Button 
+                  onClick={onTimerControl.pause}
+                  size="lg"
+                  variant="outline"
+                  className="w-32"
+                >
+                  Pause
+                </Button>
+                <Button 
+                  onClick={onTimerControl.stop}
+                  size="lg"
+                  variant="destructive"
+                  className="w-32"
+                >
+                  Stop
+                </Button>
+              </>
+            )}
+            
+            {timerState === 'paused' && onTimerControl && (
+              <>
+                <Button 
+                  onClick={onTimerControl.resume}
+                  size="lg"
+                  className="w-36 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
+                >
+                  Resume
+                </Button>
+                <Button 
+                  onClick={onTimerControl.stop}
+                  size="lg"
+                  variant="destructive"
+                  className="w-32"
+                >
+                  Stop
+                </Button>
+              </>
+            )}
+            
+            {timerState === 'completed' && onTimerControl && (
+              <Button 
+                onClick={() => {
+                  onTimerControl.reset();
+                  handleStartWorkout();
+                }}
+                size="lg"
+                className="w-[280px] bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white"
+              >
+                Do Again
+              </Button>
+            )}
           </div>
 
           {/* Duration Controls */}
@@ -268,22 +396,80 @@ const QuickStartTimerCard = ({ onStartWorkout }: QuickStartTimerCardProps) => {
               </div>
 
               <CircularProgressTimer
-                timeLeft={currentDuration}
-                duration={currentDuration}
-                state="setup"
-                progress={0}
+                timeLeft={timeLeft || currentDuration}
+                duration={duration || currentDuration}
+                state={timerState}
+                progress={duration ? ((duration - (timeLeft || 0)) / duration) * 100 : 0}
               />
             </div>
 
-            {/* Start Button - Centered under timer */}
-            <Button
-              onClick={handleStartWorkout}
-              size="lg"
-              className="w-[320px]"
-            >
-              <Play className="mr-2 h-4 w-4" />
-              Start
-            </Button>
+            {/* Timer Controls - Centered under timer */}
+            <div className="flex justify-center gap-4 flex-wrap">
+              {timerState === 'ready' && (
+                <Button
+                  onClick={handleStartWorkout}
+                  size="lg"
+                  className="w-[320px] bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
+                >
+                  <Play className="mr-2 h-4 w-4" />
+                  Start
+                </Button>
+              )}
+              
+              {timerState === 'running' && onTimerControl && (
+                <>
+                  <Button 
+                    onClick={onTimerControl.pause}
+                    size="lg"
+                    variant="outline"
+                    className="w-36"
+                  >
+                    Pause
+                  </Button>
+                  <Button 
+                    onClick={onTimerControl.stop}
+                    size="lg"
+                    variant="destructive"
+                    className="w-36"
+                  >
+                    Stop
+                  </Button>
+                </>
+              )}
+              
+              {timerState === 'paused' && onTimerControl && (
+                <>
+                  <Button 
+                    onClick={onTimerControl.resume}
+                    size="lg"
+                    className="w-40 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
+                  >
+                    Resume
+                  </Button>
+                  <Button 
+                    onClick={onTimerControl.stop}
+                    size="lg"
+                    variant="destructive"
+                    className="w-36"
+                  >
+                    Stop
+                  </Button>
+                </>
+              )}
+              
+              {timerState === 'completed' && onTimerControl && (
+                <Button 
+                  onClick={() => {
+                    onTimerControl.reset();
+                    handleStartWorkout();
+                  }}
+                  size="lg"
+                  className="w-[320px] bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white"
+                >
+                  Do Again
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* Right Column - Duration Controls (Compact) */}

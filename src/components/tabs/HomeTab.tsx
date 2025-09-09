@@ -7,6 +7,9 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { useState } from "react";
 import { useSessionStats } from "@/hooks/useSessionHistory";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTimerState } from "@/hooks/useTimerState";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import QuickStartTimerCard from "@/components/quick-start/QuickStartTimerCard";
 import CompactProgressBar from "@/components/quick-start/CompactProgressBar";
 import GatedRecommendationsDashboard from "@/components/recommendations/GatedRecommendationsDashboard";
@@ -29,6 +32,50 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
   const { userLevel, loading: levelLoading } = useLevelProgression();
   const rewardTiming = useRewardTiming();
   const [communityExpanded, setCommunityExpanded] = useState(false);
+  const [selectedExercise, setSelectedExercise] = useState<string>('');
+  const [selectedDuration, setSelectedDuration] = useState<number>(60);
+  const { toast } = useToast();
+
+  // Timer state management
+  const timerState = useTimerState({
+    duration: selectedDuration,
+    onComplete: handleTimerComplete,
+    onPlayCompletionSound: () => {
+      // Play completion sound
+      const audio = new Audio('/notification.mp3');
+      audio.play().catch(() => {
+        // Fallback if audio fails
+        console.log('Timer completed!');
+      });
+    }
+  });
+
+  async function handleTimerComplete(timeElapsed: number) {
+    if (!user) return;
+    
+    try {
+      // Save workout session
+      await supabase.from('user_sessions').insert({
+        user_id: user.id,
+        duration_seconds: timeElapsed,
+        exercise_id: selectedExercise,
+        notes: 'Quick start workout from home',
+        user_agent: navigator.userAgent,
+        completed_at: new Date().toISOString(),
+      });
+
+      toast({
+        title: "Workout Complete!",
+        description: `Great job! You completed ${Math.floor(timeElapsed / 60)}:${(timeElapsed % 60).toString().padStart(2, '0')} of exercise.`,
+      });
+    } catch (error) {
+      console.error('Error saving workout session:', error);
+      toast({
+        title: "Workout Complete!",
+        description: "Great job! Your workout has been completed.",
+      });
+    }
+  }
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -96,12 +143,9 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
   };
 
   const handleStartWorkout = (exerciseId: string, duration: number) => {
-    if (onStartWorkout) {
-      onStartWorkout(exerciseId, duration);
-    } else if (onTabChange) {
-      // Fallback to workout tab if no direct handler
-      onTabChange('workout');
-    }
+    setSelectedExercise(exerciseId);
+    setSelectedDuration(duration);
+    timerState.handleStart();
   };
 
   return (
@@ -122,7 +166,19 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
       </div>
 
       {/* Hero Section - Quick Start Timer */}
-      <QuickStartTimerCard onStartWorkout={handleStartWorkout} />
+      <QuickStartTimerCard 
+        onStartWorkout={handleStartWorkout}
+        timerState={timerState.state}
+        timeLeft={timerState.timeLeft}
+        duration={selectedDuration}
+        onTimerControl={{
+          start: timerState.handleStart,
+          pause: timerState.handlePause,
+          resume: timerState.handleResume,
+          stop: timerState.handleStop,
+          reset: timerState.handleReset
+        }}
+      />
 
       {/* Compact Progress Bar */}
       {!levelLoading && userLevel && (

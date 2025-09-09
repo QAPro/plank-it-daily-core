@@ -38,10 +38,8 @@ const Dashboard = () => {
   };
 
   const handleStartWorkout = (exerciseId: string, duration: number) => {
-    // Switch to workout tab and pass the exercise/duration data
-    setActiveTab('workout');
-    // We could store this data in state and pass it to WorkoutTab if needed
-    // For now, the workout tab will handle it through user preferences
+    // Don't switch tabs - let HomeTab handle timer functionality directly
+    // The timer will be managed within the HomeTab component
   };
 
   const renderTabContent = () => {

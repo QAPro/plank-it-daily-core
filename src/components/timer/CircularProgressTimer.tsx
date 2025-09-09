@@ -60,10 +60,10 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress }: Circular
 
   return (
     <Card className={`bg-gradient-to-br ${colors.bg} text-white border-0 shadow-lg`}>
-      <CardContent className="p-8 text-center relative">
+      <CardContent className="p-4 sm:p-8 text-center relative">
         {/* Circular Progress Ring */}
         <div className="relative inline-flex items-center justify-center mb-6">
-          <svg width="280" height="280" className="transform rotate-90 scale-x-[-1]">
+          <svg width="280" height="280" className="w-[240px] h-[240px] sm:w-[280px] sm:h-[280px] transform rotate-90 scale-x-[-1]">
             {/* Background Circle */}
             <circle
               cx="140"
@@ -97,7 +97,7 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress }: Circular
               initial={{ scale: 1.1 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.2 }}
-              className="text-5xl font-bold mb-2"
+              className="text-3xl sm:text-5xl font-bold mb-2"
             >
               {formatTime(timeLeft)}
             </motion.div>

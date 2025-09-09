@@ -87,7 +87,7 @@ const QuickStartTimerCard = ({ onStartWorkout }: QuickStartTimerCardProps) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="space-y-4"
+      className="space-y-4 px-2 sm:px-0"
     >
       {/* Timer with Corner Badges */}
       <div className="relative">
@@ -98,10 +98,10 @@ const QuickStartTimerCard = ({ onStartWorkout }: QuickStartTimerCardProps) => {
         <div className="absolute top-3 right-3 z-10">
           <CompactStreakBadge />
         </div>
-        <div className="absolute bottom-3 left-3 z-10">
+        <div className="absolute bottom-20 left-3 z-10">
           <PersonalBestBadge exerciseId={selectedExerciseId} />
         </div>
-        <div className="absolute bottom-3 right-3 z-10">
+        <div className="absolute bottom-20 right-3 z-10">
           <TrendBadge exerciseId={selectedExerciseId} />
         </div>
 
@@ -113,7 +113,7 @@ const QuickStartTimerCard = ({ onStartWorkout }: QuickStartTimerCardProps) => {
         />
         
         {/* Duration Controls overlay at bottom center of timer */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex items-center gap-4 bg-background/80 backdrop-blur-sm rounded-lg p-3 shadow-lg">
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 bg-background/80 backdrop-blur-sm rounded-lg p-2 sm:p-3 shadow-lg">
           <DurationIncrementControls
             duration={currentDuration}
             onDurationChange={handleDurationChange}

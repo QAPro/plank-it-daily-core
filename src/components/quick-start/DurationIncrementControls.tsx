@@ -31,27 +31,27 @@ const DurationIncrementControls = ({
   };
 
   return (
-    <div className="flex items-center space-x-4">
+    <div className="flex items-center space-x-2 sm:space-x-4">
       {/* 5-second controls */}
-      <div className="flex items-center space-x-1">
+      <div className="flex items-center space-x-0.5 sm:space-x-1">
         <Button
           variant="outline"
           size="sm"
           onClick={() => handleDecrement(5)}
           disabled={disabled || duration <= minDuration}
-          className="h-8 w-8 p-0 border-orange-200 hover:bg-orange-100"
+          className="h-7 w-7 sm:h-8 sm:w-8 p-0 border-orange-200 hover:bg-orange-100"
         >
-          <Minus className="h-3 w-3" />
+          <Minus className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
         </Button>
-        <span className="text-xs text-muted-foreground min-w-[24px] text-center">5s</span>
+        <span className="text-xs text-muted-foreground min-w-[20px] sm:min-w-[24px] text-center">5s</span>
         <Button
           variant="outline"
           size="sm"
           onClick={() => handleIncrement(5)}
           disabled={disabled || duration >= maxDuration}
-          className="h-8 w-8 p-0 border-orange-200 hover:bg-orange-100"
+          className="h-7 w-7 sm:h-8 sm:w-8 p-0 border-orange-200 hover:bg-orange-100"
         >
-          <Plus className="h-3 w-3" />
+          <Plus className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
         </Button>
       </div>
 
@@ -59,25 +59,25 @@ const DurationIncrementControls = ({
       <div className="w-px h-6 bg-border"></div>
 
       {/* 1-minute controls */}
-      <div className="flex items-center space-x-1">
+      <div className="flex items-center space-x-0.5 sm:space-x-1">
         <Button
           variant="outline"
           size="sm"
           onClick={() => handleDecrement(60)}
           disabled={disabled || duration <= minDuration}
-          className="h-8 w-8 p-0 border-orange-200 hover:bg-orange-100"
+          className="h-7 w-7 sm:h-8 sm:w-8 p-0 border-orange-200 hover:bg-orange-100"
         >
-          <Minus className="h-3 w-3" />
+          <Minus className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
         </Button>
-        <span className="text-xs text-muted-foreground min-w-[24px] text-center">1m</span>
+        <span className="text-xs text-muted-foreground min-w-[20px] sm:min-w-[24px] text-center">1m</span>
         <Button
           variant="outline"
           size="sm"
           onClick={() => handleIncrement(60)}
           disabled={disabled || duration >= maxDuration}
-          className="h-8 w-8 p-0 border-orange-200 hover:bg-orange-100"
+          className="h-7 w-7 sm:h-8 sm:w-8 p-0 border-orange-200 hover:bg-orange-100"
         >
-          <Plus className="h-3 w-3" />
+          <Plus className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
         </Button>
       </div>
     </div>

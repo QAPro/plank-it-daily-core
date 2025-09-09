@@ -73,8 +73,11 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress }: Circular
   const remainingProgress = 100 - progress;
 
   return (
-    <Card className={`bg-gradient-to-br ${colors.bg} text-white border-0 shadow-lg w-[200px] h-[200px] sm:w-[280px] sm:h-[280px] flex items-center justify-center`}>
-      <div className="relative">
+    <div className="relative w-[200px] h-[200px] sm:w-[320px] sm:h-[320px] flex items-center justify-center">
+      {/* Background Circle with Gradient */}
+      <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${colors.bg} shadow-lg`} />
+      
+      <div className="relative z-10">
         {/* Mobile SVG */}
         <svg 
           width={svgConfig.mobile.size} 
@@ -110,45 +113,45 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress }: Circular
 
         {/* Desktop SVG */}
         <svg 
-          width={svgConfig.desktop.size} 
-          height={svgConfig.desktop.size} 
+          width={320} 
+          height={320} 
           className="hidden sm:block transform rotate-90 scale-x-[-1]"
-          viewBox={`0 0 ${svgConfig.desktop.size} ${svgConfig.desktop.size}`}
+          viewBox="0 0 320 320"
         >
           {/* Background Circle */}
           <circle
-            cx={svgConfig.desktop.center}
-            cy={svgConfig.desktop.center}
-            r={svgConfig.desktop.radius}
+            cx="160"
+            cy="160"
+            r="140"
             stroke="rgba(255, 255, 255, 0.2)"
-            strokeWidth={svgConfig.desktop.strokeWidth}
+            strokeWidth="8"
             fill="none"
           />
           {/* Progress Circle */}
           <motion.circle
-            cx={svgConfig.desktop.center}
-            cy={svgConfig.desktop.center}
-            r={svgConfig.desktop.radius}
+            cx="160"
+            cy="160"
+            r="140"
             stroke="white"
-            strokeWidth={svgConfig.desktop.strokeWidth}
+            strokeWidth="8"
             fill="none"
-            strokeDasharray={desktopCircumference}
-            strokeDashoffset={desktopCircumference * (remainingProgress / 100)}
+            strokeDasharray={2 * Math.PI * 140}
+            strokeDashoffset={2 * Math.PI * 140 * (remainingProgress / 100)}
             strokeLinecap="round"
-            initial={{ strokeDashoffset: desktopCircumference }}
-            animate={{ strokeDashoffset: desktopCircumference * (remainingProgress / 100) }}
+            initial={{ strokeDashoffset: 2 * Math.PI * 140 }}
+            animate={{ strokeDashoffset: 2 * Math.PI * 140 * (remainingProgress / 100) }}
             transition={{ duration: 0.5, ease: "easeInOut" }}
           />
         </svg>
         
         {/* Timer Display - Absolutely centered */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
           <motion.div
             key={timeLeft}
             initial={{ scale: 1.1 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.2 }}
-            className="text-2xl sm:text-4xl font-bold"
+            className="text-2xl sm:text-5xl font-bold"
           >
             {formatTime(timeLeft)}
           </motion.div>
@@ -160,7 +163,7 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress }: Circular
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="text-sm sm:text-base font-semibold mt-2"
+            className="text-sm sm:text-lg font-semibold mt-2"
           >
             {getStateMessage()}
           </motion.div>
@@ -170,14 +173,14 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress }: Circular
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              className="mt-1 text-xs sm:text-sm font-medium"
+              className="mt-1 text-xs sm:text-base font-medium"
             >
               🔥 Final countdown!
             </motion.div>
           )}
         </div>
       </div>
-    </Card>
+    </div>
   );
 };
 

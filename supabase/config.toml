@@ -1,16 +1,22 @@
 project_id = "kgwmplptoctmoaefnpfg"
 
 [functions.notification-events]
-verify_jwt = false
+verify_jwt = true
 
 [functions.get-vapid-public-key]
 verify_jwt = false
 
 [functions.send-push-notification]
-verify_jwt = false
+verify_jwt = true
 
 [functions.validate-vapid-keys]
 verify_jwt = false
+
+[functions.log-notification-interaction]
+verify_jwt = true
+
+[functions.secure-session-save]
+verify_jwt = true
 
 [functions.reward-timing-decide]
 verify_jwt = true

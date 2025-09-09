@@ -1,13 +1,15 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
+import { useSecureServiceWorker } from '@/hooks/useSecureServiceWorker';
 
 export const ServiceWorkerMessageHandler = () => {
   const navigate = useNavigate();
+  const { handleServiceWorkerMessage } = useSecureServiceWorker();
 
   useEffect(() => {
     // Handle messages from service worker (sanitized)
-    const handleMessage = (event: MessageEvent) => {
+    const handleMessage = async (event: MessageEvent) => {
       try {
         console.log('[App] Received message from service worker:', event.data);
         if (!event || !event.data || typeof event.data !== 'object') return;
@@ -82,6 +84,13 @@ export const ServiceWorkerMessageHandler = () => {
             if (key && allowedKeys.has(key) && typeof value === 'string') {
               localStorage.setItem(key, value);
             }
+            break;
+          }
+
+          case 'LOG_NOTIFICATION_INTERACTION':
+          case 'SAVE_OFFLINE_SESSION': {
+            // Handle secure operations via authenticated hook
+            await handleServiceWorkerMessage({ type, data });
             break;
           }
 

@@ -6,6 +6,7 @@ export const generateCSPHeader = (): string => {
     "default-src 'self'",
     "base-uri 'self'",
     "object-src 'none'",
+    "frame-src 'none'",
     "frame-ancestors 'none'",
     "script-src 'self'",
     "script-src-attr 'none'",

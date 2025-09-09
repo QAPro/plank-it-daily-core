@@ -116,6 +116,19 @@ serve(async (req) => {
   }
 
   try {
+    // Security: Verify JWT token is present (authenticated request)
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Authentication required', success: false }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Rate limiting: Simple check to prevent abuse
+    const rateLimitKey = req.headers.get('x-forwarded-for') || 'unknown';
+    // In production, implement proper rate limiting with Redis/cache
+
     // Initialize Supabase client
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',

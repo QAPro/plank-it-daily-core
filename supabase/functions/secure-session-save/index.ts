@@ -33,9 +33,9 @@ serve(async (req) => {
       }
     );
 
-    const { notification_type, category, action, data = {} } = await req.json();
+    const sessionData = await req.json();
 
-    console.log('Logging notification interaction:', { notification_type, category, action });
+    console.log('Saving secure session:', { sessionData });
 
     // Get authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -47,31 +47,35 @@ serve(async (req) => {
       );
     }
 
-    // Insert interaction record with authenticated user ID
-    const { error } = await supabase
-      .from('notification_interactions')
+    // Insert session with authenticated user ID
+    const { data, error } = await supabase
+      .from('user_sessions')
       .insert({
+        ...sessionData,
         user_id: user.id,
-        notification_type,
-        category,
-        action,
-        data: data
-      });
+        completed_at: sessionData.completed_at || new Date().toISOString()
+      })
+      .select()
+      .single();
 
     if (error) {
-      console.error('Error logging notification interaction:', error);
+      console.error('Error saving session:', error);
       throw error;
     }
 
-    console.log('Notification interaction logged successfully');
+    console.log('Session saved successfully:', data.id);
 
     return new Response(
-      JSON.stringify({ success: true, message: 'Interaction logged' }),
+      JSON.stringify({ 
+        success: true, 
+        message: 'Session saved',
+        session_id: data.id
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('Error in log-notification-interaction function:', error);
+    console.error('Error in secure-session-save function:', error);
     return new Response(
       JSON.stringify({ 
         error: error.message,

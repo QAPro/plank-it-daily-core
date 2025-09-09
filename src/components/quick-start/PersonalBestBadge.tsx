@@ -26,7 +26,7 @@ const PersonalBestBadge = ({ exerciseId }: PersonalBestBadgeProps) => {
   if (isLoading) {
     return (
       <div className="animate-pulse">
-        <div className="h-6 w-16 bg-muted rounded-full"></div>
+        <div className="h-10 w-20 bg-muted rounded-full"></div>
       </div>
     );
   }
@@ -46,10 +46,15 @@ const PersonalBestBadge = ({ exerciseId }: PersonalBestBadgeProps) => {
         >
           <Badge 
             variant="outline" 
-            className="bg-background/80 backdrop-blur-sm border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-200 text-xs"
+            className="bg-background/80 backdrop-blur-sm border-yellow-500/20 hover:border-yellow-500/40 transition-all duration-200 text-xs py-2 px-3"
           >
-            <Trophy className="w-3 h-3 mr-1 text-yellow-600" />
-            PB {formatTime(personalBest)}
+            <div className="flex flex-col items-center gap-0.5 min-w-0">
+              <div className="flex items-center gap-1">
+                <Trophy className="w-3 h-3 text-yellow-600" />
+                <span className="whitespace-nowrap">Best Time</span>
+              </div>
+              <div className="font-semibold text-yellow-600">{formatTime(personalBest)}</div>
+            </div>
           </Badge>
         </motion.div>
       </DialogTrigger>

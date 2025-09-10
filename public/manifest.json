@@ -4,18 +4,54 @@
   "description": "Transform your core strength with personalized plank workouts, achievement tracking, and social challenges.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#hsl(var(--background))",
-  "theme_color": "#hsl(var(--primary))",
+  "background_color": "#ffffff",
+  "theme_color": "#f97316",
   "orientation": "portrait-primary",
   "categories": ["fitness", "health", "sports"],
   "lang": "en",
   "dir": "ltr",
   "icons": [
     {
-      "src": "/favicon.ico",
+      "src": "/lovable-uploads/797e6e3a-56ab-4c3d-ae9e-861bbb31aae8.png",
+      "sizes": "16x16",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/lovable-uploads/81db6fcb-0b88-43da-ae28-2472a7f714dc.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/lovable-uploads/53f34b7e-b999-4a13-a391-d43179a4042d.png",
       "sizes": "48x48",
-      "type": "image/x-icon",
-      "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/lovable-uploads/bc11bad7-6bca-4fee-a98c-14da5ae4d494.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/lovable-uploads/46120acb-2d20-4c94-addc-c7265870b930.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/lovable-uploads/7f24389a-41be-42f8-952d-0e7137c380af.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/lovable-uploads/647aa3fd-71eb-405e-bb46-31db76eb66e1.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "screenshots": [

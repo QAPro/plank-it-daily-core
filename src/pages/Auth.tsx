@@ -33,6 +33,19 @@ const Auth = () => {
   // Track if email was prefilled due to existing account
   const [emailPrefilled, setEmailPrefilled] = useState(false);
   
+  // Field-specific error states
+  const [fieldErrors, setFieldErrors] = useState<{
+    email: string | null;
+    password: string | null;
+    username: string | null;
+    fullName: string | null;
+  }>({
+    email: null,
+    password: null,
+    username: null,
+    fullName: null
+  });
+  
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -118,9 +131,13 @@ const Auth = () => {
       } else {
         // Sign up mode - validate input first
         
+        // Clear previous field errors
+        setFieldErrors({ email: null, password: null, username: null, fullName: null });
+        
         // Validate username
         const usernameValidation = validateUsernameFormat(formData.username.trim());
         if (!usernameValidation.isValid) {
+          setFieldErrors(prev => ({ ...prev, username: usernameValidation.error || "Please choose a different username." }));
           toast({
             title: "Invalid username",
             description: usernameValidation.error || "Please choose a different username.",
@@ -133,6 +150,7 @@ const Auth = () => {
         if (formData.fullName.trim()) {
           const nameError = validateDisplayName(formData.fullName.trim());
           if (nameError) {
+            setFieldErrors(prev => ({ ...prev, fullName: nameError }));
             toast({
               title: "Invalid full name",
               description: nameError,
@@ -163,6 +181,10 @@ const Auth = () => {
               errorMessage.includes('email already registered') ||
               errorMessage.includes('already been registered') ||
               error.status === 422) {
+            
+            // Set field-specific error
+            setFieldErrors(prev => ({ ...prev, email: "An account with this email already exists. Please sign in instead." }));
+            
             toast({
               title: "Account already exists",
               description: "An account with this email already exists. Please sign in instead.",
@@ -181,6 +203,7 @@ const Auth = () => {
             });
           } else if (errorMessage.includes('password should be at least') ||
                      errorMessage.includes('password') && errorMessage.includes('6')) {
+            setFieldErrors(prev => ({ ...prev, password: "Password should be at least 6 characters long." }));
             toast({
               title: "Weak password",
               description: "Password should be at least 6 characters long.",
@@ -188,6 +211,7 @@ const Auth = () => {
             });
           } else if (errorMessage.includes('username already exists') ||
                      errorMessage.includes('username') && errorMessage.includes('taken')) {
+            setFieldErrors(prev => ({ ...prev, username: "This username is already taken. Please choose a different one." }));
             toast({
               title: "Username taken",
               description: "This username is already taken. Please choose a different one.",
@@ -195,6 +219,7 @@ const Auth = () => {
             });
           } else if (errorMessage.includes('invalid email') ||
                      errorMessage.includes('email') && errorMessage.includes('invalid')) {
+            setFieldErrors(prev => ({ ...prev, email: "Please enter a valid email address." }));
             toast({
               title: "Invalid email",
               description: "Please enter a valid email address.",
@@ -248,10 +273,17 @@ const Auth = () => {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fieldName = e.target.name as keyof typeof fieldErrors;
+    
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [fieldName]: e.target.value
     });
+    
+    // Clear field-specific error when user starts typing
+    if (fieldErrors[fieldName]) {
+      setFieldErrors(prev => ({ ...prev, [fieldName]: null }));
+    }
     
     // Clear prefill indicator when user starts typing in email
     if (e.target.name === 'email' && emailPrefilled) {
@@ -314,9 +346,15 @@ const Auth = () => {
                       placeholder="Enter your full name (optional)"
                       value={formData.fullName}
                       onChange={handleInputChange}
-                      className="pl-10"
+                      className={`pl-10 ${fieldErrors.fullName ? 'border-red-300 focus:border-red-500' : ''}`}
                     />
                   </div>
+                  {fieldErrors.fullName && (
+                    <div className="flex items-center gap-2 text-sm text-red-600">
+                      <XCircle className="h-4 w-4" />
+                      <span>{fieldErrors.fullName}</span>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -333,7 +371,7 @@ const Auth = () => {
                       placeholder="Choose a unique username"
                       value={formData.username}
                       onChange={handleInputChange}
-                      className="pl-10"
+                      className={`pl-10 ${fieldErrors.username ? 'border-red-300 focus:border-red-500' : ''}`}
                       required={!isLogin}
                       minLength={3}
                       maxLength={20}
@@ -341,9 +379,16 @@ const Auth = () => {
                       title="Username must be 3-20 characters long and contain only letters, numbers, and underscores"
                     />
                   </div>
-                  <p className="text-xs text-gray-500">
-                    3-20 characters, letters, numbers, and underscores only
-                  </p>
+                  {fieldErrors.username ? (
+                    <div className="flex items-center gap-2 text-sm text-red-600">
+                      <XCircle className="h-4 w-4" />
+                      <span>{fieldErrors.username}</span>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-gray-500">
+                      3-20 characters, letters, numbers, and underscores only
+                    </p>
+                  )}
                 </div>
               )}
               
@@ -359,11 +404,17 @@ const Auth = () => {
                     placeholder={isLogin ? 'Enter your email or username' : 'Enter your email'}
                     value={formData.email}
                     onChange={handleInputChange}
-                    className={`pl-10 ${emailPrefilled ? 'bg-blue-50 border-blue-200' : ''}`}
+                    className={`pl-10 ${emailPrefilled ? 'bg-blue-50 border-blue-200' : ''} ${fieldErrors.email ? 'border-red-300 focus:border-red-500' : ''}`}
                     required
                   />
                 </div>
-                {emailPrefilled && (
+                {fieldErrors.email && (
+                  <div className="flex items-center gap-2 text-sm text-red-600">
+                    <XCircle className="h-4 w-4" />
+                    <span>{fieldErrors.email}</span>
+                  </div>
+                )}
+                {emailPrefilled && !fieldErrors.email && (
                   <div className="flex items-center gap-2 text-xs text-blue-600">
                     <Info className="h-3 w-3" />
                     <span>Email prefilled from your signup attempt</span>
@@ -383,7 +434,7 @@ const Auth = () => {
                     placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="pl-10 pr-10"
+                    className={`pl-10 pr-10 ${fieldErrors.password ? 'border-red-300 focus:border-red-500' : ''}`}
                     required
                     minLength={6}
                   />
@@ -395,6 +446,12 @@ const Auth = () => {
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
+                {fieldErrors.password && (
+                  <div className="flex items-center gap-2 text-sm text-red-600">
+                    <XCircle className="h-4 w-4" />
+                    <span>{fieldErrors.password}</span>
+                  </div>
+                )}
               </div>
 
               <Button
@@ -435,8 +492,9 @@ const Auth = () => {
               <button
                 onClick={() => {
                   setIsLogin(!isLogin);
-                  // Clear messages and prefill status when switching modes
+                  // Clear messages, field errors, and prefill status when switching modes
                   setInlineMessage({ type: null, content: '', visible: false });
+                  setFieldErrors({ email: null, password: null, username: null, fullName: null });
                   setEmailPrefilled(false);
                 }}
                 className="text-orange-600 hover:text-orange-700 text-sm font-medium"

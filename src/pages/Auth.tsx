@@ -9,6 +9,8 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { handleAuthSignIn } from '@/utils/authCleanup';
+import { validateUsernameFormat } from '@/utils/usernameValidation';
+import { validateDisplayName } from '@/utils/inputValidation';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -51,7 +53,7 @@ const Auth = () => {
             } else if (error.message.includes('Invalid login credentials')) {
               toast({
                 title: "Invalid credentials",
-                description: "Please check your email and password and try again.",
+                description: "The email or password you entered is incorrect.",
                 variant: "destructive",
               });
             } else {
@@ -60,31 +62,38 @@ const Auth = () => {
             return;
           }
         } else {
-          console.log('Attempting username sign in...');
-          // Find user by username first
-          const { data: userData, error: userError } = await supabase
-            .rpc('find_user_by_username_or_email', { identifier: formData.email });
+          // Username-based sign in - need to find the associated email first
+          console.log('Looking up email for username:', formData.email);
+          
+          const { data: userData, error: lookupError } = await supabase
+            .from('users')
+            .select('email')
+            .eq('username', formData.email.toLowerCase())
+            .single();
 
-          if (userError || !userData || userData.length === 0) {
+          if (lookupError || !userData) {
+            console.error('Username lookup failed:', lookupError);
             toast({
-              title: "Username not found",
-              description: "Please check your username or try signing in with your email instead.",
+              title: "Login failed",
+              description: "Invalid username or password.",
               variant: "destructive",
             });
             return;
           }
 
-          // Sign in with the found email using the robust helper
+          // Now sign in with the found email
+          console.log('Attempting email sign in with found email...');
           const { error } = await handleAuthSignIn({
-            email: userData[0].email,
+            email: userData.email,
             password: formData.password
           });
 
           if (error) {
+            console.error('Sign in error:', error);
             if (error.message.includes('Invalid login credentials')) {
               toast({
                 title: "Invalid credentials",
-                description: "Please check your password and try again.",
+                description: "The username or password you entered is incorrect.",
                 variant: "destructive",
               });
             } else {
@@ -94,29 +103,35 @@ const Auth = () => {
           }
         }
 
-        toast({
-          title: "Welcome back!",
-          description: "You've been successfully logged in.",
-        });
-        
-        // The handleAuthSignIn will handle the redirect
+        console.log('Sign in successful, redirecting...');
+        navigate('/dashboard');
       } else {
-        console.log('Attempting sign up...');
+        // Sign up mode - validate input first
         
-        // Validate required fields for signup
-        if (!formData.username.trim()) {
+        // Validate username
+        const usernameValidation = validateUsernameFormat(formData.username.trim());
+        if (!usernameValidation.isValid) {
           toast({
-            title: "Username required",
-            description: "Please enter a username to create your account.",
+            title: "Invalid username",
+            description: usernameValidation.error || "Please choose a different username.",
             variant: "destructive",
           });
           return;
         }
+        
+        // Validate full name if provided (it's optional)
+        if (formData.fullName.trim()) {
+          const nameError = validateDisplayName(formData.fullName.trim());
+          if (nameError) {
+            toast({
+              title: "Invalid full name",
+              description: nameError,
+              variant: "destructive",
+            });
+            return;
+          }
+        }
 
-        // Store email for potential verification resend
-        localStorage.setItem('pendingVerificationEmail', formData.email);
-
-        // Sign up with proper email redirect configuration and user metadata
         const { error } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,

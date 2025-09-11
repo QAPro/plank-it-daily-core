@@ -1,4 +1,6 @@
 
+import { checkUsernameContentSafety } from './contentFilter';
+
 // Reserved usernames that cannot be used
 const RESERVED_USERNAMES = [
   'admin', 'administrator', 'support', 'help', 'api', 'www', 'mail', 'email',
@@ -85,6 +87,16 @@ export const validateUsernameFormat = (username: string): UsernameValidationResu
         `${trimmedUsername}_2024`,
         `my_${trimmedUsername}`
       ]
+    };
+  }
+
+  // Check content safety (profanity filter)
+  const contentSafety = checkUsernameContentSafety(trimmedUsername);
+  if (!contentSafety.isAllowed) {
+    return {
+      isValid: false,
+      error: contentSafety.reason || 'Username contains inappropriate content',
+      suggestions: contentSafety.suggestions || generateUsernameSuggestions(trimmedUsername)
     };
   }
 

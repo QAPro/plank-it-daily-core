@@ -1,4 +1,5 @@
 import { sanitizeInput, sanitizeHtml } from './security';
+import { checkDisplayNameContentSafety } from './contentFilter';
 
 // Enhanced input validation for forms
 export const validateAndSanitizeForm = <T extends Record<string, any>>(
@@ -96,6 +97,13 @@ export const validateDisplayName = (name: string): string | null => {
   if (/<|>|javascript|script/i.test(name)) {
     return 'Display name contains invalid characters';
   }
+  
+  // Check content safety (profanity filter)
+  const contentSafety = checkDisplayNameContentSafety(name.trim());
+  if (!contentSafety.isAllowed) {
+    return contentSafety.reason || 'Display name contains inappropriate content';
+  }
+  
   return null;
 };
 

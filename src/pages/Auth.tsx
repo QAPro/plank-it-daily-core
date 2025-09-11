@@ -146,27 +146,55 @@ const Auth = () => {
 
         if (error) {
           console.error('Sign up error:', error);
-          if (error.message.includes('User already registered')) {
+          // Enhanced error detection for various Supabase error types
+          const errorMessage = error.message?.toLowerCase() || '';
+          
+          if (errorMessage.includes('user already registered') || 
+              errorMessage.includes('email already registered') ||
+              errorMessage.includes('already been registered') ||
+              error.status === 422) {
             toast({
               title: "Account already exists",
               description: "An account with this email already exists. Please sign in instead.",
               variant: "destructive",
             });
             setIsLogin(true);
-          } else if (error.message.includes('Password should be at least')) {
+          } else if (errorMessage.includes('password should be at least') ||
+                     errorMessage.includes('password') && errorMessage.includes('6')) {
             toast({
               title: "Weak password",
               description: "Password should be at least 6 characters long.",
               variant: "destructive",
             });
-          } else if (error.message.includes('Username already exists')) {
+          } else if (errorMessage.includes('username already exists') ||
+                     errorMessage.includes('username') && errorMessage.includes('taken')) {
             toast({
               title: "Username taken",
               description: "This username is already taken. Please choose a different one.",
               variant: "destructive",
             });
+          } else if (errorMessage.includes('invalid email') ||
+                     errorMessage.includes('email') && errorMessage.includes('invalid')) {
+            toast({
+              title: "Invalid email",
+              description: "Please enter a valid email address.",
+              variant: "destructive",
+            });
+          } else if (errorMessage.includes('rate limit') ||
+                     errorMessage.includes('too many')) {
+            toast({
+              title: "Too many attempts",
+              description: "Please wait a moment before trying again.",
+              variant: "destructive",
+            });
           } else {
-            throw error;
+            // Catch-all for unknown errors
+            toast({
+              title: "Signup failed",
+              description: error.message || "Unable to create account. Please try again or contact support if the problem persists.",
+              variant: "destructive",
+            });
+            console.error('Unhandled signup error:', error);
           }
           return;
         }

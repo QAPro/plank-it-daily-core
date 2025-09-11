@@ -1,13 +1,14 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Settings, CreditCard, LogOut, Trophy } from 'lucide-react';
+import { User, Settings, CreditCard, LogOut, Trophy, File, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 import ProfileHeader from '@/components/profile/ProfileHeader';
 import AccountStats from '@/components/profile/AccountStats';
 import PreferencesSettings from '@/components/profile/PreferencesSettings';
@@ -27,6 +28,7 @@ interface ProfileTabProps {
 const ProfileTab = ({ initialView = 'overview', onOpenVapidManager }: ProfileTabProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
 
   // Set initial tab based on prop
@@ -133,6 +135,34 @@ const ProfileTab = ({ initialView = 'overview', onOpenVapidManager }: ProfileTab
             <RichNotificationTester />
           )}
           <NotificationPreferences />
+          
+          {/* Legal Documents Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="w-5 h-5" />
+                Legal Documents
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={() => navigate('/privacy-policy')}
+              >
+                <File className="w-4 h-4 mr-2" />
+                Privacy Policy
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={() => navigate('/terms-of-service')}
+              >
+                <File className="w-4 h-4 mr-2" />
+                Terms of Service
+              </Button>
+            </CardContent>
+          </Card>
           
           {/* Sign Out Section */}
           <Card>

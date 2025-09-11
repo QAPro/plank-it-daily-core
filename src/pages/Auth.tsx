@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, CheckCircle, AlertCircle, XCircle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,6 +22,16 @@ const Auth = () => {
     fullName: '',
     username: ''
   });
+  
+  // Inline message state for persistent UI feedback
+  const [inlineMessage, setInlineMessage] = useState<{
+    type: 'success' | 'error' | 'warning' | 'info' | null;
+    content: string;
+    visible: boolean;
+  }>({ type: null, content: '', visible: false });
+  
+  // Track if email was prefilled due to existing account
+  const [emailPrefilled, setEmailPrefilled] = useState(false);
   
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -158,7 +168,17 @@ const Auth = () => {
               description: "An account with this email already exists. Please sign in instead.",
               variant: "destructive",
             });
+            
+            // Enhanced UX: preserve email and show inline message
+            const currentEmail = formData.email;
             setIsLogin(true);
+            setFormData(prev => ({ ...prev, email: currentEmail, password: '', fullName: '', username: '' }));
+            setEmailPrefilled(true);
+            setInlineMessage({
+              type: 'info',
+              content: 'Switched to sign in - we found an existing account with this email address.',
+              visible: true
+            });
           } else if (errorMessage.includes('password should be at least') ||
                      errorMessage.includes('password') && errorMessage.includes('6')) {
             toast({
@@ -205,9 +225,15 @@ const Auth = () => {
           description: "Please check your email to verify your account before signing in. The verification link will redirect you back to this app.",
         });
 
-        // Clear form and switch to login
+        // Show persistent inline success message
+        setInlineMessage({
+          type: 'success',
+          content: 'Account created successfully! Check your email (including spam folder) to verify your account before signing in.',
+          visible: true
+        });
+
+        // Clear form but keep the success message visible
         setFormData({ email: '', password: '', fullName: '', username: '' });
-        setIsLogin(true);
       }
     } catch (error: any) {
       console.error('Auth error:', error);
@@ -226,6 +252,32 @@ const Auth = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
+    
+    // Clear prefill indicator when user starts typing in email
+    if (e.target.name === 'email' && emailPrefilled) {
+      setEmailPrefilled(false);
+    }
+  };
+
+  // Helper function to get inline message icon and styling
+  const getMessageIcon = (type: string) => {
+    switch (type) {
+      case 'success': return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'error': return <XCircle className="h-4 w-4 text-red-500" />;
+      case 'warning': return <AlertCircle className="h-4 w-4 text-yellow-500" />;
+      case 'info': return <Info className="h-4 w-4 text-blue-500" />;
+      default: return null;
+    }
+  };
+
+  const getMessageStyling = (type: string) => {
+    switch (type) {
+      case 'success': return 'bg-green-50 border-green-200 text-green-700';
+      case 'error': return 'bg-red-50 border-red-200 text-red-700';
+      case 'warning': return 'bg-yellow-50 border-yellow-200 text-yellow-700';
+      case 'info': return 'bg-blue-50 border-blue-200 text-blue-700';
+      default: return '';
+    }
   };
 
   return (
@@ -307,10 +359,16 @@ const Auth = () => {
                     placeholder={isLogin ? 'Enter your email or username' : 'Enter your email'}
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="pl-10"
+                    className={`pl-10 ${emailPrefilled ? 'bg-blue-50 border-blue-200' : ''}`}
                     required
                   />
                 </div>
+                {emailPrefilled && (
+                  <div className="flex items-center gap-2 text-xs text-blue-600">
+                    <Info className="h-3 w-3" />
+                    <span>Email prefilled from your signup attempt</span>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -348,9 +406,39 @@ const Auth = () => {
               </Button>
             </form>
 
+            {/* Inline Message Display */}
+            {inlineMessage.visible && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`mt-4 p-3 rounded-md border flex items-start gap-3 ${getMessageStyling(inlineMessage.type || 'info')}`}
+              >
+                {getMessageIcon(inlineMessage.type || 'info')}
+                <div className="flex-1">
+                  <p className="text-sm font-medium">{inlineMessage.content}</p>
+                  {inlineMessage.type === 'success' && (
+                    <p className="text-xs mt-1 opacity-80">
+                      Didn't receive an email? Check your spam folder or try signing up again.
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={() => setInlineMessage(prev => ({ ...prev, visible: false }))}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <XCircle className="h-4 w-4" />
+                </button>
+              </motion.div>
+            )}
+
             <div className="mt-6 text-center">
               <button
-                onClick={() => setIsLogin(!isLogin)}
+                onClick={() => {
+                  setIsLogin(!isLogin);
+                  // Clear messages and prefill status when switching modes
+                  setInlineMessage({ type: null, content: '', visible: false });
+                  setEmailPrefilled(false);
+                }}
                 className="text-orange-600 hover:text-orange-700 text-sm font-medium"
                 disabled={loading}
               >

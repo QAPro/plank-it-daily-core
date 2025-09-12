@@ -14,6 +14,7 @@ import { validateDisplayName } from '@/utils/inputValidation';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -54,7 +55,39 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      if (isLogin) {
+      if (isForgotPassword) {
+        // Handle password reset request
+        const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
+          redirectTo: `${window.location.origin}/auth/reset-password`,
+        });
+
+        if (error) {
+          console.error('Password reset error:', error);
+          toast({
+            title: "Error",
+            description: error.message || "Unable to send reset email. Please try again.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        toast({
+          title: "Reset email sent",
+          description: "Please check your email for password reset instructions.",
+        });
+
+        setInlineMessage({
+          type: 'success',
+          content: 'Password reset email sent! Check your inbox (and spam folder) for reset instructions.',
+          visible: true
+        });
+
+        // Clear form and switch back to login
+        setFormData(prev => ({ ...prev, password: '' }));
+        setIsForgotPassword(false);
+        setIsLogin(true);
+        return;
+      } else if (isLogin) {
         // Check if the identifier is an email or username
         const isEmail = formData.email.includes('@');
         
@@ -322,10 +355,12 @@ const Auth = () => {
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold text-orange-600">
-              {isLogin ? 'Welcome Back' : 'Join PlankCoach'}
+              {isForgotPassword ? 'Reset Password' : isLogin ? 'Welcome Back' : 'Join PlankCoach'}
             </CardTitle>
             <CardDescription>
-              {isLogin 
+              {isForgotPassword
+                ? 'Enter your email to receive password reset instructions'
+                : isLogin 
                 ? 'Sign in to continue your plank journey' 
                 : 'Start your daily plank routine today'
               }
@@ -333,7 +368,7 @@ const Auth = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {!isLogin && (
+              {!isLogin && !isForgotPassword && (
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">
                     Full Name <span className="text-gray-400">(optional)</span>
@@ -358,7 +393,7 @@ const Auth = () => {
                 </div>
               )}
 
-              {!isLogin && (
+              {!isLogin && !isForgotPassword && (
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">
                     Username <span className="text-red-500">*</span>
@@ -394,14 +429,14 @@ const Auth = () => {
               
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">
-                  {isLogin ? 'Email or Username' : 'Email'}
+                  {isForgotPassword ? 'Email' : isLogin ? 'Email or Username' : 'Email'}
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
-                    type={isLogin ? 'text' : 'email'}
+                    type={isForgotPassword ? 'email' : isLogin ? 'text' : 'email'}
                     name="email"
-                    placeholder={isLogin ? 'Enter your email or username' : 'Enter your email'}
+                    placeholder={isForgotPassword ? 'Enter your email address' : isLogin ? 'Enter your email or username' : 'Enter your email'}
                     value={formData.email}
                     onChange={handleInputChange}
                     className={`pl-10 ${emailPrefilled ? 'bg-blue-50 border-blue-200' : ''} ${fieldErrors.email ? 'border-red-300 focus:border-red-500' : ''}`}
@@ -422,44 +457,65 @@ const Auth = () => {
                 )}
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    type={showPassword ? 'text' : 'password'}
-                    name="password"
-                    placeholder="Enter your password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    className={`pl-10 pr-10 ${fieldErrors.password ? 'border-red-300 focus:border-red-500' : ''}`}
-                    required
-                    minLength={6}
-                  />
+              {!isForgotPassword && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      type={showPassword ? 'text' : 'password'}
+                      name="password"
+                      placeholder="Enter your password"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      className={`pl-10 pr-10 ${fieldErrors.password ? 'border-red-300 focus:border-red-500' : ''}`}
+                      required
+                      minLength={6}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  {fieldErrors.password && (
+                    <div className="flex items-center gap-2 text-sm text-red-600">
+                      <XCircle className="h-4 w-4" />
+                      <span>{fieldErrors.password}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {isLogin && !isForgotPassword && (
+                <div className="text-right">
                   <button
                     type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                    onClick={() => {
+                      setIsForgotPassword(true);
+                      setIsLogin(false);
+                      setFormData(prev => ({ ...prev, password: '' }));
+                      setInlineMessage({ type: null, content: '', visible: false });
+                      setFieldErrors({ email: null, password: null, username: null, fullName: null });
+                    }}
+                    className="text-sm text-orange-600 hover:text-orange-700 font-medium"
+                    disabled={loading}
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    Forgot your password?
                   </button>
                 </div>
-                {fieldErrors.password && (
-                  <div className="flex items-center gap-2 text-sm text-red-600">
-                    <XCircle className="h-4 w-4" />
-                    <span>{fieldErrors.password}</span>
-                  </div>
-                )}
-              </div>
+              )}
 
               <Button
                 type="submit"
                 className="w-full bg-orange-500 hover:bg-orange-600 text-white"
                 disabled={loading}
               >
-                {loading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Create Account')}
+                {loading ? 'Please wait...' : isForgotPassword ? 'Send Reset Email' : isLogin ? 'Sign In' : 'Create Account'}
               </Button>
             </form>
 
@@ -489,22 +545,38 @@ const Auth = () => {
             )}
 
             <div className="mt-6 text-center">
-              <button
-                onClick={() => {
-                  setIsLogin(!isLogin);
-                  // Clear messages, field errors, and prefill status when switching modes
-                  setInlineMessage({ type: null, content: '', visible: false });
-                  setFieldErrors({ email: null, password: null, username: null, fullName: null });
-                  setEmailPrefilled(false);
-                }}
-                className="text-orange-600 hover:text-orange-700 text-sm font-medium"
-                disabled={loading}
-              >
-                {isLogin 
-                  ? "Don't have an account? Sign up" 
-                  : "Already have an account? Sign in"
-                }
-              </button>
+              {isForgotPassword ? (
+                <button
+                  onClick={() => {
+                    setIsForgotPassword(false);
+                    setIsLogin(true);
+                    setInlineMessage({ type: null, content: '', visible: false });
+                    setFieldErrors({ email: null, password: null, username: null, fullName: null });
+                  }}
+                  className="text-orange-600 hover:text-orange-700 text-sm font-medium"
+                  disabled={loading}
+                >
+                  Back to sign in
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    setIsLogin(!isLogin);
+                    setIsForgotPassword(false);
+                    // Clear messages, field errors, and prefill status when switching modes
+                    setInlineMessage({ type: null, content: '', visible: false });
+                    setFieldErrors({ email: null, password: null, username: null, fullName: null });
+                    setEmailPrefilled(false);
+                  }}
+                  className="text-orange-600 hover:text-orange-700 text-sm font-medium"
+                  disabled={loading}
+                >
+                  {isLogin 
+                    ? "Don't have an account? Sign up" 
+                    : "Already have an account? Sign in"
+                  }
+                </button>
+              )}
             </div>
           </CardContent>
         </Card>

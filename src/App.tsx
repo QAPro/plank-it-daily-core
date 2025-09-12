@@ -8,6 +8,7 @@ import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import Index from "@/pages/Index";
 import Auth from "@/pages/Auth";
+import PasswordReset from "@/pages/PasswordReset";
 import EmailVerify from "@/pages/EmailVerify";
 import ProductionCheck from "@/pages/ProductionCheck";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
@@ -61,6 +62,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/auth/reset-password" element={<PasswordReset />} />
               <Route path="/auth/verify" element={<EmailVerify />} />
               <Route path="/verify-email" element={<EmailVerify />} />
               <Route path="/production-check" element={<ProductionCheck />} />

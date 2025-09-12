@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Lock, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,6 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 const PasswordReset = () => {
-  const [searchParams] = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -30,11 +29,21 @@ const PasswordReset = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if we have the required parameters
-    const accessToken = searchParams.get('access_token');
-    const refreshToken = searchParams.get('refresh_token');
+    // Parse tokens from URL fragment (after #)
+    const parseFragmentParams = () => {
+      const fragment = window.location.hash.substring(1);
+      const params = new URLSearchParams(fragment);
+      return {
+        access_token: params.get('access_token'),
+        refresh_token: params.get('refresh_token'),
+        type: params.get('type')
+      };
+    };
+
+    const { access_token, refresh_token, type } = parseFragmentParams();
     
-    if (!accessToken || !refreshToken) {
+    // Check if this is a password recovery link and we have the required tokens
+    if (type !== 'recovery' || !access_token || !refresh_token) {
       toast({
         title: "Invalid reset link",
         description: "This password reset link is invalid or has expired. Please request a new one.",
@@ -44,12 +53,12 @@ const PasswordReset = () => {
       return;
     }
 
-    // Set the session using the tokens from the URL
+    // Set the session using the tokens from the URL fragment
     supabase.auth.setSession({
-      access_token: accessToken,
-      refresh_token: refreshToken
+      access_token,
+      refresh_token
     });
-  }, [searchParams, toast, navigate]);
+  }, [toast, navigate]);
 
   const validatePasswords = () => {
     const errors = { password: null, confirmPassword: null };
@@ -97,8 +106,8 @@ const PasswordReset = () => {
         description: "Your password has been updated. You can now sign in with your new password.",
       });
 
-      // Redirect to dashboard since user is now authenticated
-      navigate('/dashboard');
+      // Redirect to home page since user is now authenticated
+      navigate('/');
     } catch (error: any) {
       console.error('Password reset error:', error);
       toast({

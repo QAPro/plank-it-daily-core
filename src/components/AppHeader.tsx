@@ -1,5 +1,5 @@
 import React from 'react';
-import { LogOut, User } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { handleAuthSignOut } from '@/utils/authCleanup';
@@ -29,12 +29,7 @@ const AppHeader = () => {
   if (!user) return null;
 
   return (
-    <header className="flex items-center justify-between p-4 bg-white/80 backdrop-blur-sm border-b border-orange-100">
-      <div className="flex items-center gap-2 text-orange-800">
-        <User className="h-5 w-5" />
-        <span className="font-medium">{user.email}</span>
-      </div>
-      
+    <header className="flex items-center justify-end p-4 bg-gradient-to-br from-orange-50 to-red-50">
       <Button
         variant="outline"
         size="sm"

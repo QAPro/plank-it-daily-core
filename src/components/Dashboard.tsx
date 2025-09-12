@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import TabNavigation from './TabNavigation';
+import AppHeader from './AppHeader';
 import HomeTab from './tabs/HomeTab';
 import WorkoutTab from './tabs/WorkoutTab';
 import StatsTab from './tabs/StatsTab';
@@ -83,6 +84,9 @@ const Dashboard = () => {
       )}
       
       <div className="flex flex-col h-screen">
+        {/* Header */}
+        <AppHeader />
+        
         {/* Main Content */}
         <div className="flex-1 overflow-y-auto">
           <AnimatePresence mode="wait">

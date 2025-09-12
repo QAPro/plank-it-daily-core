@@ -190,7 +190,7 @@ const ExerciseFilters = ({
               {availableCategories.length > 0 && (
                 <>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Categories</Label>
+                    <Label className="text-sm font-medium">Exercise Type</Label>
                     <div className="space-y-2 max-h-32 overflow-y-auto">
                       {availableCategories.map((category) => (
                         <div key={category} className="flex items-center space-x-2">
@@ -200,7 +200,7 @@ const ExerciseFilters = ({
                             onCheckedChange={(checked) => handleCategoryChange(category, !!checked)}
                           />
                           <Label htmlFor={`category-${category}`} className="text-sm capitalize">
-                            {category.replace('_', ' ')}
+                            {category.replace(/_/g, ' ')}
                           </Label>
                         </div>
                       ))}
@@ -263,7 +263,7 @@ const ExerciseFilters = ({
           ))}
           {filters.categories.map((category) => (
             <Badge key={category} variant="secondary" className="gap-1 capitalize">
-              {category.replace('_', ' ')}
+              {category.replace(/_/g, ' ')}
               <X 
                 className="w-3 h-3 cursor-pointer" 
                 onClick={() => handleCategoryChange(category, false)} 

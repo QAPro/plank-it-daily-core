@@ -12,43 +12,55 @@
   "dir": "ltr",
   "icons": [
     {
-      "src": "/lovable-uploads/428532d8-c68d-46c6-a8b1-767b3b4cae49.png",
+      "src": "/favicon-16x16.png",
       "sizes": "16x16",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/lovable-uploads/a01b3f11-a1fb-4bc9-9317-85de7712ae55.png",
+      "src": "/favicon-32x32.png",
       "sizes": "32x32",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/lovable-uploads/db299301-ae33-4c96-a44b-9c9b67d5ea89.png",
+      "src": "/favicon-48x48.png",
       "sizes": "48x48",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/lovable-uploads/810fe3e7-2b33-4871-827d-2d95ed5340ed.png",
+      "src": "/favicon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/lovable-uploads/63069a84-ec84-4506-a39f-ac1d95af886d.png",
+      "src": "/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/lovable-uploads/9c94d7a8-d35d-42ad-95ca-24f8d46c8b95.png",
+      "src": "/icon-192x192-maskable.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/lovable-uploads/12bd67a0-d536-42e4-890d-dba235a4ce6a.png",
+      "src": "/icon-512x512-maskable.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

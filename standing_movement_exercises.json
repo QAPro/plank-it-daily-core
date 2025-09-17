@@ -1,0 +1,226 @@
+{
+  "category": "flexibility",
+  "exercises": [
+    {
+      "name": "Arm Circles",
+      "description": "Make large circles with both arms",
+      "difficulty_level": 1,
+      "instructions": [
+        "Stand with feet hip-width apart",
+        "Extend arms out to sides at shoulder height",
+        "Make slow, controlled circles forward",
+        "Gradually increase circle size",
+        "Reverse direction after 8-10 circles"
+      ],
+      "estimated_calories_per_minute": 2.5,
+      "primary_muscles": ["shoulders", "arms"],
+      "equipment_needed": [],
+      "is_beginner_friendly": true,
+      "tags": ["flexibility", "mobility", "shoulders", "beginner", "warm-up"]
+    },
+    {
+      "name": "Calf Raises",
+      "description": "Rising up on toes",
+      "difficulty_level": 1,
+      "instructions": [
+        "Stand tall with feet hip-width apart",
+        "Rise up onto balls of feet by lifting heels",
+        "Hold briefly at top position",
+        "Lower heels slowly with control",
+        "Use wall or chair for balance if needed"
+      ],
+      "estimated_calories_per_minute": 3.0,
+      "primary_muscles": ["calves"],
+      "equipment_needed": [],
+      "is_beginner_friendly": true,
+      "tags": ["strength", "calves", "beginner", "balance"]
+    },
+    {
+      "name": "Gentle Marching in Place",
+      "description": "Light marching movement",
+      "difficulty_level": 1,
+      "instructions": [
+        "Stand with feet hip-width apart",
+        "Lift one knee up toward chest, then lower",
+        "Alternate legs in gentle marching motion",
+        "Keep core engaged and posture upright",
+        "Move at comfortable, controlled pace"
+      ],
+      "estimated_calories_per_minute": 3.5,
+      "primary_muscles": ["legs", "core"],
+      "equipment_needed": [],
+      "is_beginner_friendly": true,
+      "tags": ["cardio", "low-impact", "beginner", "stationary"]
+    },
+    {
+      "name": "Standing Side Bends",
+      "description": "Lateral torso stretches",
+      "difficulty_level": 1,
+      "instructions": [
+        "Stand with feet hip-width apart, hands on hips",
+        "Slowly bend to one side, keeping hips facing forward",
+        "Return to center, then bend to opposite side",
+        "Keep movement controlled and avoid bouncing",
+        "Feel gentle stretch along side of torso"
+      ],
+      "estimated_calories_per_minute": 2.0,
+      "primary_muscles": ["core", "obliques"],
+      "equipment_needed": [],
+      "is_beginner_friendly": true,
+      "tags": ["flexibility", "core", "beginner", "stretch", "obliques"]
+    },
+    {
+      "name": "Standing Hip Circles",
+      "description": "Gentle hip mobility movement, good for warm-up and joint health",
+      "difficulty_level": 1,
+      "instructions": [
+        "Stand with feet hip-width apart, hands on hips",
+        "Make slow circles with hips in one direction",
+        "Keep upper body stable and core engaged",
+        "Complete 5-8 circles, then reverse direction",
+        "Focus on smooth, controlled movement"
+      ],
+      "estimated_calories_per_minute": 2.5,
+      "primary_muscles": ["hips", "core"],
+      "equipment_needed": [],
+      "is_beginner_friendly": true,
+      "tags": ["flexibility", "mobility", "hips", "beginner", "warm-up"]
+    },
+    {
+      "name": "Standing Heel-to-Butt",
+      "description": "Hamstring activation",
+      "difficulty_level": 2,
+      "instructions": [
+        "Stand tall with feet hip-width apart",
+        "Bend one knee, bringing heel toward buttocks",
+        "Hold briefly, then lower foot to ground",
+        "Alternate legs in controlled motion",
+        "Use wall or chair for balance if needed"
+      ],
+      "estimated_calories_per_minute": 4.0,
+      "primary_muscles": ["hamstrings", "glutes"],
+      "equipment_needed": [],
+      "is_beginner_friendly": true,
+      "tags": ["flexibility", "hamstrings", "dynamic-stretch", "balance"]
+    },
+    {
+      "name": "Standing Knee Lifts",
+      "description": "Alternating knee raises",
+      "difficulty_level": 2,
+      "instructions": [
+        "Stand with feet hip-width apart",
+        "Lift one knee up toward chest to hip level",
+        "Lower with control, then lift opposite knee",
+        "Keep core engaged and maintain good posture",
+        "Pump arms in opposition for added coordination"
+      ],
+      "estimated_calories_per_minute": 4.5,
+      "primary_muscles": ["legs", "core", "hip flexors"],
+      "equipment_needed": [],
+      "is_beginner_friendly": true,
+      "tags": ["cardio", "coordination", "hip-flexors", "balance"]
+    },
+    {
+      "name": "Standing Leg Swings",
+      "description": "Dynamic leg swinging",
+      "difficulty_level": 2,
+      "instructions": [
+        "Stand next to wall or chair for support",
+        "Swing one leg forward and backward",
+        "Keep leg straight and movement controlled",
+        "Perform front-to-back, then side-to-side",
+        "Complete 8-12 swings per direction per leg"
+      ],
+      "estimated_calories_per_minute": 3.5,
+      "primary_muscles": ["legs", "hips"],
+      "equipment_needed": ["wall", "chair"],
+      "is_beginner_friendly": true,
+      "tags": ["flexibility", "dynamic-stretch", "legs", "hips", "mobility"]
+    },
+    {
+      "name": "Standing Torso Twists",
+      "description": "Rotational core movements",
+      "difficulty_level": 2,
+      "instructions": [
+        "Stand with feet hip-width apart",
+        "Cross arms over chest or place hands on shoulders",
+        "Rotate upper body left and right",
+        "Keep hips facing forward throughout movement",
+        "Perform 10-15 controlled twists per side"
+      ],
+      "estimated_calories_per_minute": 3.0,
+      "primary_muscles": ["core", "obliques"],
+      "equipment_needed": [],
+      "is_beginner_friendly": true,
+      "tags": ["flexibility", "core", "rotation", "obliques", "mobility"]
+    },
+    {
+      "name": "Standing Figure-4 Stretch",
+      "description": "Hip flexibility in standing",
+      "difficulty_level": 2,
+      "instructions": [
+        "Stand near wall or chair for support",
+        "Place ankle of one leg on opposite knee",
+        "Gently sit back to deepen hip stretch",
+        "Keep standing leg slightly bent",
+        "Hold 15-30 seconds per side"
+      ],
+      "estimated_calories_per_minute": 2.0,
+      "primary_muscles": ["hips", "glutes"],
+      "equipment_needed": ["wall", "chair"],
+      "is_beginner_friendly": true,
+      "tags": ["flexibility", "stretch", "hips", "glutes", "balance"]
+    },
+    {
+      "name": "Single Leg Balance",
+      "description": "Balance challenge on one leg",
+      "difficulty_level": 3,
+      "instructions": [
+        "Stand on one leg with other leg lifted",
+        "Keep lifted leg bent at knee or extended",
+        "Maintain balance without support",
+        "Engage core and focus on stable standing leg",
+        "Build up to 30-60 seconds per leg"
+      ],
+      "estimated_calories_per_minute": 4.0,
+      "primary_muscles": ["legs", "core", "stabilizers"],
+      "equipment_needed": [],
+      "is_beginner_friendly": false,
+      "tags": ["balance", "stability", "core", "proprioception", "unilateral"]
+    },
+    {
+      "name": "Dynamic Standing Movements",
+      "description": "Multi-planar movement patterns",
+      "difficulty_level": 3,
+      "instructions": [
+        "Combine multiple standing exercises in sequence",
+        "Flow between arm circles, leg swings, and twists",
+        "Maintain good form throughout transitions",
+        "Incorporate multi-planar movements",
+        "Perform 60-90 second flowing sequences"
+      ],
+      "estimated_calories_per_minute": 6.0,
+      "primary_muscles": ["full body"],
+      "equipment_needed": [],
+      "is_beginner_friendly": false,
+      "tags": ["cardio", "coordination", "dynamic", "flow", "full-body"]
+    },
+    {
+      "name": "Standing Balance with Eyes Closed",
+      "description": "Advanced balance challenge",
+      "difficulty_level": 4,
+      "instructions": [
+        "Start in single leg balance position",
+        "Close eyes while maintaining balance",
+        "Focus on proprioception and core stability",
+        "Keep near wall or support for safety",
+        "Build up to 20-45 seconds per leg"
+      ],
+      "estimated_calories_per_minute": 4.5,
+      "primary_muscles": ["legs", "core", "stabilizers"],
+      "equipment_needed": [],
+      "is_beginner_friendly": false,
+      "tags": ["balance", "proprioception", "advanced", "stability", "core"]
+    }
+  ]
+}

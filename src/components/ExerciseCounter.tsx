@@ -28,9 +28,6 @@ export const ExerciseCounter = ({
     >
       <div className="flex items-center gap-3">
         <div>
-          <h3 className="text-lg font-semibold text-foreground">
-            {totalExercises} Plank Variations Available
-          </h3>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             {isFiltered ? (
               <>

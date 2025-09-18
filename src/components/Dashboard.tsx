@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import TabNavigation from './TabNavigation';
+import MobileBottomNav from './MobileBottomNav';
+import { useIsMobile } from '@/hooks/use-mobile';
 import AppHeader from './AppHeader';
 import HomeTab from './tabs/HomeTab';
 import WorkoutTab from './tabs/WorkoutTab';
@@ -24,6 +26,7 @@ const Dashboard = () => {
   const [profileView, setProfileView] = useState<'overview' | 'subscription-plans'>('overview');
   const [showVapidManager, setShowVapidManager] = useState(false);
   const { user } = useAuth();
+  const isMobile = useIsMobile();
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -88,17 +91,26 @@ const Dashboard = () => {
         <AppHeader />
         
         {/* Main Content */}
-        <div className="flex-1 overflow-y-auto">
-          <AnimatePresence mode="wait">
-            {renderTabContent()}
-          </AnimatePresence>
+        <div className={`flex-1 overflow-y-auto ${isMobile ? 'pb-20' : ''}`}>
+          <div className="h-full">
+            <AnimatePresence mode="wait">
+              {renderTabContent()}
+            </AnimatePresence>
+          </div>
         </div>
 
-        {/* Bottom Navigation */}
-        <TabNavigation 
-          activeTab={activeTab} 
-          onTabChange={handleTabChange} 
-        />
+        {/* Navigation */}
+        {isMobile ? (
+          <MobileBottomNav 
+            activeTab={activeTab} 
+            onTabChange={handleTabChange} 
+          />
+        ) : (
+          <TabNavigation 
+            activeTab={activeTab} 
+            onTabChange={handleTabChange} 
+          />
+        )}
       </div>
     </div>
   );

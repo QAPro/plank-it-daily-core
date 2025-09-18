@@ -37,26 +37,26 @@ const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.5 }}
-      className="min-h-screen flex flex-col items-center justify-center p-6 text-center"
+      className="min-h-screen flex flex-col items-center justify-start sm:justify-center p-4 sm:p-6 text-center pt-8 sm:pt-0"
     >
       {/* Logo and Title */}
       <motion.div
         initial={{ y: -30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.6 }}
-        className="mb-8"
+        className="mb-6 sm:mb-8"
       >
-        <div className="w-24 h-24 bg-gradient-to-br from-orange-400 to-amber-500 rounded-3xl flex items-center justify-center mb-4 mx-auto shadow-2xl">
+        <div className="w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-orange-400 to-amber-500 rounded-3xl flex items-center justify-center mb-3 sm:mb-4 mx-auto shadow-2xl">
           <motion.div
             animate={{ rotate: [0, 5, -5, 0] }}
             transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-            className="text-white text-4xl font-bold"
+            className="text-white text-2xl sm:text-4xl font-bold"
           >
             P
           </motion.div>
         </div>
-        <h1 className="text-4xl font-bold text-gray-800 mb-2">PlankCoach</h1>
-        <p className="text-lg text-gray-600">Build Your Core, Build Your Strength</p>
+        <h1 className="text-2xl sm:text-4xl font-bold text-gray-800 mb-2">PlankCoach</h1>
+        <p className="text-base sm:text-lg text-gray-600">Build Your Core, Build Your Strength</p>
       </motion.div>
 
       {/* Features Grid */}
@@ -64,7 +64,7 @@ const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.4, duration: 0.6 }}
-        className="grid grid-cols-2 gap-4 mb-12 max-w-sm w-full"
+        className="grid grid-cols-2 gap-3 sm:gap-4 mb-8 sm:mb-12 max-w-sm w-full"
       >
         {features.map((feature, index) => (
           <motion.div
@@ -72,10 +72,10 @@ const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.6 + index * 0.1, duration: 0.4 }}
-            className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-orange-100"
+            className="bg-white/80 backdrop-blur-sm rounded-2xl p-3 sm:p-4 shadow-lg border border-orange-100"
           >
-            <feature.icon className="w-8 h-8 text-orange-500 mb-2 mx-auto" />
-            <h3 className="font-semibold text-gray-800 text-sm mb-1">{feature.title}</h3>
+            <feature.icon className="w-6 h-6 sm:w-8 sm:h-8 text-orange-500 mb-2 mx-auto" />
+            <h3 className="font-semibold text-gray-800 text-xs sm:text-sm mb-1">{feature.title}</h3>
             <p className="text-xs text-gray-600 leading-relaxed">{feature.description}</p>
           </motion.div>
         ))}
@@ -90,11 +90,11 @@ const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
       >
         <Button
           onClick={onGetStarted}
-          className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold py-4 rounded-2xl text-lg shadow-xl transform transition-all duration-200 hover:scale-105"
+          className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold py-3 sm:py-4 rounded-2xl text-base sm:text-lg shadow-xl transform transition-all duration-200 hover:scale-105"
         >
           Start Your Journey
         </Button>
-        <p className="text-sm text-gray-500 mt-4">
+        <p className="text-sm text-gray-500 mt-3 sm:mt-4">
           Join other motivated users building stronger cores
         </p>
       </motion.div>

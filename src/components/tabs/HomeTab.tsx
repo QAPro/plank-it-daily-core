@@ -148,6 +148,10 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     timerState.handleStart();
   };
 
+  const handleDurationChange = (duration: number) => {
+    setSelectedDuration(duration);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -171,6 +175,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         timerState={timerState.state}
         timeLeft={timerState.timeLeft}
         duration={selectedDuration}
+        onDurationChange={handleDurationChange}
         onTimerControl={{
           start: timerState.handleStart,
           pause: timerState.handlePause,

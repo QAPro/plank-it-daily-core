@@ -20,6 +20,7 @@ interface QuickStartTimerCardProps {
   timerState?: 'ready' | 'running' | 'paused' | 'completed';
   timeLeft?: number;
   duration?: number;
+  onDurationChange?: (duration: number) => void;
   onTimerControl?: {
     start: () => void;
     pause: () => void;
@@ -34,6 +35,7 @@ const QuickStartTimerCard = ({
   timerState = 'ready', 
   timeLeft, 
   duration, 
+  onDurationChange,
   onTimerControl 
 }: QuickStartTimerCardProps) => {
   const { data: exercises, isLoading: exercisesLoading } = useExercises();
@@ -55,6 +57,9 @@ const QuickStartTimerCard = ({
       last_duration: newDuration,
       last_workout_timestamp: new Date().toISOString()
     });
+    
+    // Notify parent component about duration change
+    onDurationChange?.(newDuration);
   };
 
   const handleExerciseChange = async (exerciseId: string) => {

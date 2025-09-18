@@ -290,24 +290,6 @@ const WorkoutTab = ({ onStartWorkout }: WorkoutTabProps) => {
             </p>
           </motion.div>
 
-          {/* Quick Start Section */}
-          {quickStartData && !quickStartLoading && (
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="mb-6"
-            >
-              <QuickStartButton
-                quickStartData={quickStartData}
-                onQuickStart={() => {
-                  const ex = exercises?.find(e => e.id === quickStartData.exerciseId);
-                  if (ex) handleExerciseSelect(ex as any, { quickStartDuration: quickStartData.duration });
-                }}
-              />
-            </motion.div>
-          )}
-
           {/* Background Music Player */}
           {preferences?.background_music && (
             <motion.div

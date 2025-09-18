@@ -47,16 +47,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
+        console.log('Auth state changed:', event, { 
+          email: session?.user?.email,
+          emailConfirmed: session?.user?.email_confirmed_at,
+          url: window.location.href 
+        });
         
-        // Update session and user state
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-
-        // Handle different auth events
+        // Check if we're on the email verification page
+        const isVerificationPage = window.location.pathname.includes('/email-verify');
+        
+        // Update session and user state - but be careful about verification scenarios
         if (event === 'SIGNED_IN' && session?.user) {
+          // If we're on the verification page and the user's email isn't confirmed,
+          // don't automatically set them as signed in - let the verification handler manage this
+          if (isVerificationPage && !session.user.email_confirmed_at) {
+            console.log('Delaying sign-in state update - awaiting email verification completion');
+            setLoading(false);
+            return;
+          }
+          
           console.log('User signed in successfully');
+          setSession(session);
+          setUser(session.user);
+          
           // Clean up pending verification email on successful login
           localStorage.removeItem('pendingVerificationEmail');
           
@@ -66,16 +79,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }, 100);
         } else if (event === 'SIGNED_OUT') {
           console.log('User signed out');
+          setSession(null);
+          setUser(null);
           // Ensure clean state on sign out
           cleanupAuthState();
         } else if (event === 'TOKEN_REFRESHED' && session?.user) {
           console.log('Token refreshed successfully');
+          setSession(session);
+          setUser(session.user);
           // Refresh subscription status on token refresh
           setTimeout(() => {
             refreshSubscriptionStatus(session.user);
           }, 100);
         } else if (event === 'USER_UPDATED' && session?.user) {
           console.log('User updated:', session.user.email);
+          setSession(session);
+          setUser(session.user);
           
           // Check if this is an email change completion
           const pendingEmailChange = localStorage.getItem('pendingEmailChange');
@@ -101,7 +120,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 });
             }, 100);
           }
+        } else {
+          // For other events, just update the basic state
+          setSession(session);
+          setUser(session?.user ?? null);
         }
+        
+        setLoading(false);
       }
     );
 

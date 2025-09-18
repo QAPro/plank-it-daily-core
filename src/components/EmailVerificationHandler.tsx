@@ -17,9 +17,16 @@ const EmailVerificationHandler = () => {
   useEffect(() => {
     const handleEmailVerification = async () => {
       const token = searchParams.get('token');
+      const tokenHash = searchParams.get('token_hash');
       const type = searchParams.get('type');
       
-      if (!token || !type) {
+      console.log('Email verification params:', { token, tokenHash, type, url: window.location.href });
+      
+      // Check if we have either token or token_hash
+      const verificationToken = tokenHash || token;
+      
+      if (!verificationToken || !type) {
+        console.error('Missing verification parameters:', { token, tokenHash, type });
         setStatus('error');
         setMessage('Invalid verification link. Please check your email and try again.');
         toast({
@@ -33,8 +40,10 @@ const EmailVerificationHandler = () => {
       try {
         // Handle the verification based on type
         if (type === 'signup' || type === 'email_change') {
+          console.log('Attempting verification with:', { type, tokenType: tokenHash ? 'token_hash' : 'token' });
+          
           const { data, error } = await supabase.auth.verifyOtp({
-            token_hash: token,
+            token_hash: verificationToken,
             type: type as 'signup' | 'email_change'
           });
 
@@ -67,7 +76,10 @@ const EmailVerificationHandler = () => {
             return;
           }
 
+          console.log('Verification response:', { data, error });
+
           if (data.user) {
+            console.log('Email verification successful for user:', data.user.email);
             setStatus('success');
             
             if (type === 'signup') {
@@ -88,10 +100,30 @@ const EmailVerificationHandler = () => {
               });
             }
 
-            // Redirect to main app after a short delay
-            setTimeout(() => {
-              navigate('/', { replace: true });
-            }, 3000);
+            // Force a session refresh to ensure the user is properly signed in
+            // after successful verification
+            setTimeout(async () => {
+              try {
+                const { data: refreshedSession } = await supabase.auth.getSession();
+                console.log('Refreshed session after verification:', refreshedSession.session?.user?.email);
+                
+                // Redirect to main app after verification and session refresh
+                navigate('/', { replace: true });
+              } catch (refreshError) {
+                console.error('Error refreshing session after verification:', refreshError);
+                // Still redirect even if refresh fails
+                navigate('/', { replace: true });
+              }
+            }, 2000);
+          } else {
+            console.error('Verification succeeded but no user data returned');
+            setStatus('error');
+            setMessage('Verification completed, but there was an issue with your session. Please try signing in again.');
+            toast({
+              title: "Verification incomplete",
+              description: "Please try signing in to your account.",
+              variant: "destructive",
+            });
           }
         } else {
           setStatus('error');

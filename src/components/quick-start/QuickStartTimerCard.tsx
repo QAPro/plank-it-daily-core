@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useExercises } from "@/hooks/useExercises";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { useToast } from "@/hooks/use-toast";
@@ -60,15 +59,6 @@ const QuickStartTimerCard = ({
     
     // Notify parent component about duration change
     onDurationChange?.(newDuration);
-  };
-
-  const handleExerciseChange = async (exerciseId: string) => {
-    if (!preferences) return;
-    
-    await updatePreferences({
-      last_exercise_id: exerciseId,
-      last_workout_timestamp: new Date().toISOString()
-    });
   };
 
   const handleStartWorkout = () => {
@@ -212,24 +202,16 @@ const QuickStartTimerCard = ({
           />
         </div>
 
-        {/* Exercise Selection */}
-        <Select value={selectedExerciseId} onValueChange={handleExerciseChange}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select exercise" />
-          </SelectTrigger>
-          <SelectContent>
-            {exercises?.map((exercise) => (
-              <SelectItem key={exercise.id} value={exercise.id}>
-                <div className="flex items-center justify-between w-full">
-                  <span>{exercise.name}</span>
-                  <span className="text-xs text-muted-foreground ml-2">
-                    Level {exercise.difficulty_level}
-                  </span>
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {/* Exercise Display */}
+        <div className="text-center">
+          <div className="text-sm text-muted-foreground mb-1">Exercise</div>
+          <div className="text-base font-medium">
+            {selectedExercise?.name || 'Basic Plank'} 
+            <span className="text-xs text-muted-foreground ml-2">
+              Level {selectedExercise?.difficulty_level || 1}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Tablet Layout - Stacked but wider (768px - 1024px) */}
@@ -335,56 +317,24 @@ const QuickStartTimerCard = ({
             />
           </div>
 
-          {/* Exercise Selection - Wider but contained */}
-          <div className="max-w-md mx-auto">
-            <Select value={selectedExerciseId} onValueChange={handleExerciseChange}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select exercise" />
-              </SelectTrigger>
-              <SelectContent>
-                {exercises?.map((exercise) => (
-                  <SelectItem key={exercise.id} value={exercise.id}>
-                    <div className="flex items-center justify-between w-full">
-                      <span>{exercise.name}</span>
-                      <span className="text-xs text-muted-foreground ml-2">
-                        Level {exercise.difficulty_level}
-                      </span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          {/* Exercise Display - Wider but contained */}
+          <div className="max-w-md mx-auto text-center">
+            <div className="text-sm text-muted-foreground mb-2">Exercise</div>
+            <div className="text-lg font-medium">
+              {selectedExercise?.name || 'Basic Plank'} 
+              <span className="text-sm text-muted-foreground ml-2">
+                Level {selectedExercise?.difficulty_level || 1}
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Desktop Layout - Three Columns Optimized (> 1024px) */}
+      {/* Desktop Layout - Centered Timer with Duration Controls (> 1024px) */}
       <div className="hidden lg:block">
-        <div className="flex items-start justify-between gap-16 max-w-7xl mx-auto px-8">
-          {/* Left Column - Exercise Selection (Narrower) */}
-          <div className="w-64 flex-shrink-0 pt-20">
-            <h3 className="text-lg font-semibold mb-4">Exercise</h3>
-            <Select value={selectedExerciseId} onValueChange={handleExerciseChange}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select exercise" />
-              </SelectTrigger>
-              <SelectContent>
-                {exercises?.map((exercise) => (
-                  <SelectItem key={exercise.id} value={exercise.id}>
-                    <div className="flex items-center justify-between w-full">
-                      <span>{exercise.name}</span>
-                      <span className="text-xs text-muted-foreground ml-2">
-                        Level {exercise.difficulty_level}
-                      </span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
+        <div className="flex items-start justify-center gap-16 max-w-5xl mx-auto px-8">
           {/* Center Column - Timer (Flexible) */}
-          <div className="flex-1 flex flex-col items-center space-y-6 min-w-0">
+          <div className="flex-1 flex flex-col items-center space-y-6 min-w-0 max-w-lg">
             <div className="relative">
               {/* Corner Badges - Further from circle */}
               <div className="absolute -top-4 -left-4 z-10">
@@ -477,13 +427,25 @@ const QuickStartTimerCard = ({
             </div>
           </div>
 
-          {/* Right Column - Duration Controls (Compact) */}
-          <div className="w-56 flex-shrink-0 pt-20">
-            <h3 className="text-lg font-semibold mb-4">Duration</h3>
-            <DurationIncrementControls
-              duration={currentDuration}
-              onDurationChange={handleDurationChange}
-            />
+          {/* Right Column - Duration Controls & Exercise Display (Compact) */}
+          <div className="w-64 flex-shrink-0 pt-20 space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Duration</h3>
+              <DurationIncrementControls
+                duration={currentDuration}
+                onDurationChange={handleDurationChange}
+              />
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Exercise</h3>
+              <div className="text-base font-medium">
+                {selectedExercise?.name || 'Basic Plank'}
+              </div>
+              <div className="text-sm text-muted-foreground mt-1">
+                Level {selectedExercise?.difficulty_level || 1}
+              </div>
+            </div>
           </div>
         </div>
       </div>

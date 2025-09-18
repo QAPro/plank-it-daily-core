@@ -14,6 +14,7 @@ import { useExercises } from "@/hooks/useExercises";
 import { useExerciseRecommendations } from "@/hooks/useExerciseRecommendations";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { useScrollDetection } from "@/hooks/useScrollDetection";
+import { useSubscription } from "@/hooks/useSubscription";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Tables } from "@/integrations/supabase/types";
 import FeatureGuard from "@/components/access/FeatureGuard";
@@ -59,6 +60,7 @@ const WorkoutTab = ({ onStartWorkout }: WorkoutTabProps) => {
   const { preferences, updatePreferences } = useUserPreferences();
   const { quickStartData, isLoading: quickStartLoading } = useQuickStart();
   const { deepLinkData, clearDeepLinkData } = useWorkoutDeepLinking();
+  const { plans, upgrade } = useSubscription();
 
   // Handle deep link data when available
   React.useEffect(() => {
@@ -216,6 +218,13 @@ const WorkoutTab = ({ onStartWorkout }: WorkoutTabProps) => {
     await updatePreferences({ favorite_exercises: updatedFavorites });
   };
 
+  const handleUpgradeClick = () => {
+    const premiumPlan = plans?.find(plan => plan.name.toLowerCase().includes('premium'));
+    if (premiumPlan) {
+      upgrade(premiumPlan);
+    }
+  };
+
   const availableCategories = useMemo(() => {
     if (!exercises) return [];
     const categories = new Set(exercises.map(ex => ex.category).filter(Boolean));
@@ -262,32 +271,17 @@ const WorkoutTab = ({ onStartWorkout }: WorkoutTabProps) => {
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }}
         >
-          {/* Header with Smart Recommendations */}
+          {/* Smart Workout Selection */}
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.5 }}
-            className="text-center mb-6"
+            transition={{ duration: 0.3 }}
+            className="mb-6 p-6 rounded-lg bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/20 cursor-pointer hover:bg-primary/15 transition-colors"
+            onClick={handleUpgradeClick}
           >
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <h2 className="text-2xl font-bold text-gray-800">Smart Workout Selection</h2>
-              <Button
-                onClick={handleRefreshRecommendations}
-                disabled={isGenerating}
-                size="sm"
-                variant="outline"
-                className="ml-2"
-              >
-                {isGenerating ? (
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                ) : (
-                  <RefreshCw className="w-4 h-4" />
-                )}
-              </Button>
-            </div>
-            <p className="text-gray-600">
-              Personalized exercises tailored to your progress and preferences
-            </p>
+            <h3 className="text-lg font-semibold text-primary hover:underline">
+              Smart Workout Selection (Premium)
+            </h3>
           </motion.div>
 
           {/* Background Music Player */}
@@ -305,34 +299,20 @@ const WorkoutTab = ({ onStartWorkout }: WorkoutTabProps) => {
             </motion.div>
           )}
 
-          {/* Pro-Gated Custom Workout Manager */}
+          {/* Custom Workouts */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
+            className="mb-6 p-6 rounded-lg bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/20 cursor-pointer hover:bg-primary/15 transition-colors"
+            onClick={handleUpgradeClick}
           >
-            <FeatureGuard
-              feature="custom_workouts"
-              fallback={
-                <Card className="border-dashed">
-                  <CardHeader>
-                    <CardTitle>Custom Workouts (Pro)</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-sm text-muted-foreground">
-                    Create, edit, and save your own workouts with Pro. Upgrade to unlock this feature.
-                  </CardContent>
-                </Card>
-              }
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle>Custom Workouts (Pro)</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CustomWorkoutManager />
-                </CardContent>
-              </Card>
-            </FeatureGuard>
+            <h3 className="text-lg font-semibold text-primary hover:underline mb-2">
+              Custom Workouts (Premium)
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Create, edit, and save your own workouts
+            </p>
           </motion.div>
 
           {/* Exercise Counter and View Toggle */}

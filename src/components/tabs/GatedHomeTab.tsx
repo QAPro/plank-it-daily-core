@@ -65,7 +65,7 @@ const GatedHomeTab: React.FC<GatedHomeTabProps> = ({
         className="text-center mb-8"
       >
         <h1 className="text-3xl font-bold text-gray-800 mb-2">
-          Welcome back{user?.user_metadata?.full_name ? `, ${user.user_metadata.full_name}` : ''}!
+          {user?.user_metadata?.full_name ? `Hello, ${user.user_metadata.full_name}!` : 'Hello!'}
         </h1>
         <p className="text-gray-600">Ready to strengthen your core today?</p>
       </motion.div>

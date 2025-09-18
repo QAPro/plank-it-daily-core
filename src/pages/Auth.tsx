@@ -355,7 +355,7 @@ const Auth = () => {
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold text-orange-600">
-              {isForgotPassword ? 'Reset Password' : isLogin ? 'Welcome Back' : 'Join PlankCoach'}
+              {isForgotPassword ? 'Reset Password' : isLogin ? 'Sign In' : 'Join PlankCoach'}
             </CardTitle>
             <CardDescription>
               {isForgotPassword

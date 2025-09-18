@@ -161,7 +161,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
       {/* Welcome Header - Simplified */}
       <div className="text-center">
         <h2 className="text-xl font-bold text-foreground mb-1">
-          Welcome Back{getUserDisplayName()}!
+          Hello{getUserDisplayName()}!
         </h2>
       </div>
 

@@ -4,7 +4,7 @@ import { AnimatePresence } from 'framer-motion';
 import TabNavigation from './TabNavigation';
 import MobileBottomNav from './MobileBottomNav';
 import { useIsMobile } from '@/hooks/use-mobile';
-import AppHeader from './AppHeader';
+
 import HomeTab from './tabs/HomeTab';
 import WorkoutTab from './tabs/WorkoutTab';
 import StatsTab from './tabs/StatsTab';
@@ -86,10 +86,7 @@ const Dashboard = () => {
         <VapidKeyManager onClose={() => setShowVapidManager(false)} />
       )}
       
-      <div className="flex flex-col h-screen">
-        {/* Header */}
-        <AppHeader />
-        
+      <div className="flex flex-col h-screen">        
         {/* Main Content */}
         <div className={`flex-1 overflow-y-auto ${isMobile ? 'pb-20' : ''}`}>
           <div className="h-full">

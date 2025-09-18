@@ -12,11 +12,14 @@ import {
   Settings,
   TrendingUp,
   MoreHorizontal,
-  X
+  X,
+  LogOut
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
 import { isSocialEnabled } from '@/constants/featureGating';
+import { handleAuthSignOut } from '@/utils/authCleanup';
+import { useToast } from '@/hooks/use-toast';
 
 interface MobileBottomNavProps {
   activeTab: string;
@@ -28,6 +31,7 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ activeTab, onTabChang
   const { user } = useAuth();
   const { isAdmin } = useAdmin();
   const socialEnabled = isSocialEnabled();
+  const { toast } = useToast();
 
   const allTabs = [
     { id: 'home', label: 'Home', icon: Home },
@@ -56,6 +60,24 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ activeTab, onTabChang
   const handleTabClick = (tabId: string) => {
     onTabChange(tabId);
     setShowMoreMenu(false);
+  };
+
+  const onSignOut = async () => {
+    try {
+      toast({
+        title: "Signing out...",
+        description: "Please wait while we sign you out."
+      });
+      
+      await handleAuthSignOut();
+    } catch (error) {
+      console.error('Sign out error:', error);
+      toast({
+        title: "Sign out failed",
+        description: "There was an error signing you out. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const NavButton = ({ tab, isCompact = false }: { tab: any; isCompact?: boolean }) => {
@@ -127,6 +149,14 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ activeTab, onTabChang
               {moreTabs.map((tab) => (
                 <NavButton key={tab.id} tab={tab} isCompact />
               ))}
+              {/* Sign Out Button */}
+              <button
+                onClick={onSignOut}
+                className="flex flex-col items-center justify-center py-3 px-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              >
+                <LogOut size={20} />
+                <span className="text-xs mt-1 font-medium">Sign Out</span>
+              </button>
             </div>
           </motion.div>
         )}

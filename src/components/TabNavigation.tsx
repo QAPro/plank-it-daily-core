@@ -11,11 +11,14 @@ import {
   Calendar,
   Zap,
   Settings,
-  TrendingUp
+  TrendingUp,
+  LogOut
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
 import { isSocialEnabled } from '@/constants/featureGating';
+import { handleAuthSignOut } from '@/utils/authCleanup';
+import { useToast } from '@/hooks/use-toast';
 
 interface TabNavigationProps {
   activeTab: string;
@@ -26,6 +29,25 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, onTabChange })
   const { user } = useAuth();
   const { isAdmin } = useAdmin();
   const socialEnabled = isSocialEnabled();
+  const { toast } = useToast();
+
+  const onSignOut = async () => {
+    try {
+      toast({
+        title: "Signing out...",
+        description: "Please wait while we sign you out."
+      });
+      
+      await handleAuthSignOut();
+    } catch (error) {
+      console.error('Sign out error:', error);
+      toast({
+        title: "Sign out failed",
+        description: "There was an error signing you out. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
 
   const allTabs = [
     { id: 'home', label: 'Home', icon: Home },
@@ -79,6 +101,21 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, onTabChange })
             </button>
           );
         })}
+        
+        {/* Sign Out Button */}
+        <button
+          onClick={onSignOut}
+          className="flex flex-col items-center space-y-1 px-2 py-1 rounded-lg transition-colors text-red-500 hover:text-red-700 hover:bg-red-50"
+        >
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="p-2 rounded-lg hover:bg-red-100"
+          >
+            <LogOut size={20} />
+          </motion.div>
+          <span className="text-xs font-medium">Sign Out</span>
+        </button>
       </div>
     </div>
   );

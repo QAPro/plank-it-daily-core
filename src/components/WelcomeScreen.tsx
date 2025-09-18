@@ -95,7 +95,7 @@ const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
           Start Your Journey
         </Button>
         <p className="text-sm text-gray-500 mt-4">
-          Join 50,000+ users building stronger cores
+          Join other motivated users building stronger cores
         </p>
       </motion.div>
     </motion.div>

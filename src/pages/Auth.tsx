@@ -159,8 +159,7 @@ const Auth = () => {
           }
         }
 
-        console.log('Sign in successful, redirecting...');
-        navigate('/dashboard');
+        console.log('Sign in successful, redirect handled by auth cleanup...');
       } else {
         // Sign up mode - validate input first
         

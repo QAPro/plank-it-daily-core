@@ -25,6 +25,7 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('home');
   const [profileView, setProfileView] = useState<'overview' | 'subscription-plans'>('overview');
   const [showVapidManager, setShowVapidManager] = useState(false);
+  const [selectedWorkout, setSelectedWorkout] = useState<{exerciseId: string, duration: number} | null>(null);
   const { user } = useAuth();
   const isMobile = useIsMobile();
 
@@ -34,6 +35,10 @@ const Dashboard = () => {
     if (tab !== 'profile') {
       setProfileView('overview');
     }
+    // Clear selected workout when navigating away from home
+    if (tab !== 'home') {
+      setSelectedWorkout(null);
+    }
   };
 
   const handleUpgradeNavigation = () => {
@@ -42,16 +47,22 @@ const Dashboard = () => {
   };
 
   const handleStartWorkout = (exerciseId: string, duration: number) => {
-    // Don't switch tabs - let HomeTab handle timer functionality directly
-    // The timer will be managed within the HomeTab component
+    // Navigate to home tab with selected exercise and duration
+    setSelectedWorkout({ exerciseId, duration });
+    setActiveTab('home');
+  };
+
+  const handleWorkoutStarted = () => {
+    // Clear the selected workout after it's been processed
+    setSelectedWorkout(null);
   };
 
   const renderTabContent = () => {
     switch (activeTab) {
       case 'home':
-        return <HomeTab onTabChange={handleTabChange} onUpgradeClick={handleUpgradeNavigation} onStartWorkout={handleStartWorkout} />;
+        return <HomeTab onTabChange={handleTabChange} onUpgradeClick={handleUpgradeNavigation} onStartWorkout={handleStartWorkout} selectedWorkout={selectedWorkout} onWorkoutStarted={handleWorkoutStarted} />;
       case 'workout':
-        return <WorkoutTab />;
+        return <WorkoutTab onStartWorkout={handleStartWorkout} />;
       case 'stats':
         return <StatsTab />;
       case 'analytics':
@@ -71,7 +82,7 @@ const Dashboard = () => {
       case 'profile':
         return <ProfileTab initialView={profileView} onOpenVapidManager={() => setShowVapidManager(true)} />;
       default:
-        return <HomeTab onTabChange={handleTabChange} onUpgradeClick={handleUpgradeNavigation} onStartWorkout={handleStartWorkout} />;
+        return <HomeTab onTabChange={handleTabChange} onUpgradeClick={handleUpgradeNavigation} onStartWorkout={handleStartWorkout} selectedWorkout={selectedWorkout} onWorkoutStarted={handleWorkoutStarted} />;
     }
   };
 

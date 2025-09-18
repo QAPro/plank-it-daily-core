@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { motion } from "framer-motion";
 import { Calendar, Trophy, Users, TrendingUp, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,9 +25,11 @@ interface HomeTabProps {
   onTabChange?: (tab: string) => void;
   onUpgradeClick?: () => void;
   onStartWorkout?: (exerciseId: string, duration: number) => void;
+  selectedWorkout?: {exerciseId: string, duration: number} | null;
+  onWorkoutStarted?: () => void;
 }
 
-const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout }: HomeTabProps) => {
+const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout, selectedWorkout, onWorkoutStarted }: HomeTabProps) => {
   const { data: stats } = useSessionStats();
   const { user } = useAuth();
   const { userLevel, loading: levelLoading } = useLevelProgression();
@@ -148,6 +151,14 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     timerState.handleStart();
   };
 
+  // Handle external workout selection from WorkoutTab
+  React.useEffect(() => {
+    if (selectedWorkout) {
+      handleStartWorkout(selectedWorkout.exerciseId, selectedWorkout.duration);
+      onWorkoutStarted?.(); // Notify parent that workout has been processed
+    }
+  }, [selectedWorkout, onWorkoutStarted]);
+
   const handleDurationChange = (duration: number) => {
     setSelectedDuration(duration);
   };
@@ -183,6 +194,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
           stop: timerState.handleStop,
           reset: timerState.handleReset
         }}
+        selectedWorkout={selectedWorkout}
       />
 
       {/* Compact Progress Bar */}

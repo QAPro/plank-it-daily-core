@@ -29,7 +29,11 @@ import { BackgroundMusicPlayer } from '@/components/audio/BackgroundMusicPlayer'
 
 type Exercise = Tables<'plank_exercises'>;
 
-const WorkoutTab = () => {
+interface WorkoutTabProps {
+  onStartWorkout?: (exerciseId: string, duration: number) => void;
+}
+
+const WorkoutTab = ({ onStartWorkout }: WorkoutTabProps) => {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [showTimer, setShowTimer] = useState(false);
   const [selectedDetailsExercise, setSelectedDetailsExercise] = useState<Exercise | null>(null);
@@ -147,13 +151,22 @@ const WorkoutTab = () => {
   }, [recommendations, exercises]);
 
   const handleExerciseSelect = (exercise: Exercise, opts?: { quickStartDuration?: number }) => {
-    setSelectedExercise(exercise);
-    if (opts?.quickStartDuration) {
-      quickStartDurationRef.current = opts.quickStartDuration;
+    // Get duration from options, user preferences, or default to 60 seconds
+    const duration = opts?.quickStartDuration || preferences?.last_duration || 60;
+    
+    // Navigate to Home tab with selected exercise and duration
+    if (onStartWorkout) {
+      onStartWorkout(exercise.id, duration);
     } else {
-      quickStartDurationRef.current = null;
+      // Fallback to local timer if no onStartWorkout provided
+      setSelectedExercise(exercise);
+      if (opts?.quickStartDuration) {
+        quickStartDurationRef.current = opts.quickStartDuration;
+      } else {
+        quickStartDurationRef.current = null;
+      }
+      setShowTimer(true);
     }
-    setShowTimer(true);
   };
 
   const handleViewDetails = (exercise: Exercise) => {

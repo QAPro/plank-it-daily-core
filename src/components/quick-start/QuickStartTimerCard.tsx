@@ -27,6 +27,7 @@ interface QuickStartTimerCardProps {
     stop: () => void;
     reset: () => void;
   };
+  selectedWorkout?: {exerciseId: string, duration: number} | null;
 }
 
 const QuickStartTimerCard = ({ 
@@ -35,7 +36,8 @@ const QuickStartTimerCard = ({
   timeLeft, 
   duration, 
   onDurationChange,
-  onTimerControl 
+  onTimerControl,
+  selectedWorkout 
 }: QuickStartTimerCardProps) => {
   const { data: exercises, isLoading: exercisesLoading } = useExercises();
   const { preferences, updatePreferences } = useUserPreferences();
@@ -44,10 +46,10 @@ const QuickStartTimerCard = ({
   // Default to Basic Plank if no history
   const defaultExercise = exercises?.find(ex => ex.name === 'Basic Plank') || exercises?.[0];
   
-  // Use last workout data or defaults
-  const selectedExerciseId = preferences?.last_exercise_id || defaultExercise?.id || '';
+  // Use selected workout data if provided, otherwise use last workout data or defaults
+  const selectedExerciseId = selectedWorkout?.exerciseId || preferences?.last_exercise_id || defaultExercise?.id || '';
   const selectedExercise = exercises?.find(ex => ex.id === selectedExerciseId) || defaultExercise;
-  const currentDuration = preferences?.last_duration || 60; // Default 1 minute
+  const currentDuration = selectedWorkout?.duration || duration || preferences?.last_duration || 60;
 
   const handleDurationChange = async (newDuration: number) => {
     if (!preferences) return;

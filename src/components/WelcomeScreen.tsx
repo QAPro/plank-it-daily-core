@@ -46,15 +46,13 @@ const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
         transition={{ delay: 0.2, duration: 0.6 }}
         className="mb-6 sm:mb-8"
       >
-        <div className="w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-orange-400 to-amber-500 rounded-3xl flex items-center justify-center mb-3 sm:mb-4 mx-auto shadow-2xl">
-          <motion.img
-            src="/icon-512x512.png"
-            alt="PlankCoach Logo"
-            animate={{ rotate: [0, 5, -5, 0] }}
-            transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-            className="w-12 h-12 sm:w-16 sm:h-16 object-contain"
-          />
-        </div>
+        <motion.img
+          src="/icon-512x512.png"
+          alt="PlankCoach Logo"
+          animate={{ rotate: [0, 5, -5, 0] }}
+          transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+          className="w-16 h-16 sm:w-24 sm:h-24 object-contain rounded-3xl mb-3 sm:mb-4 mx-auto shadow-2xl"
+        />
         <h1 className="text-2xl sm:text-4xl font-bold text-gray-800 mb-2">PlankCoach</h1>
         <p className="text-base sm:text-lg text-gray-600">Just 5 minutes a day, just for you</p>
       </motion.div>
@@ -95,7 +93,7 @@ const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
           Start Your Journey
         </Button>
         <p className="text-sm text-gray-500 mt-3 sm:mt-4">
-          Join other motivated users like you getting healthier every day
+          Join other motivated users getting healthier every day
         </p>
       </motion.div>
     </motion.div>

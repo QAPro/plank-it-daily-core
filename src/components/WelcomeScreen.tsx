@@ -12,7 +12,7 @@ const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
     {
       icon: Play,
       title: "Guided Sessions",
-      description: "5-minute daily plank workouts designed for all levels"
+      description: "5-minute daily workouts designed for all levels"
     },
     {
       icon: Target,
@@ -27,7 +27,7 @@ const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
     {
       icon: Users,
       title: "Community",
-      description: "Join thousands building core strength together"
+      description: "Join a community getting healthier together"
     }
   ];
 
@@ -53,7 +53,7 @@ const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
           transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
           className="w-16 h-16 sm:w-24 sm:h-24 object-contain rounded-3xl mb-3 sm:mb-4 mx-auto shadow-2xl"
         />
-        <h1 className="text-2xl sm:text-4xl font-bold text-gray-800 mb-2">PlankCoach</h1>
+        <h1 className="text-2xl sm:text-4xl font-bold text-gray-800 mb-2">App Name Here</h1>
         <p className="text-base sm:text-lg text-gray-600">Just 5 minutes a day, just for you</p>
       </motion.div>
 

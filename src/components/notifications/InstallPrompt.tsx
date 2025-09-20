@@ -85,7 +85,7 @@ export const InstallPrompt = () => {
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">
             <Smartphone className="h-5 w-5 text-primary" />
-            <CardTitle className="text-lg">Install Plank Coach</CardTitle>
+            <CardTitle className="text-lg">Install App Name Here</CardTitle>
           </div>
           <Button
             variant="ghost"
@@ -97,15 +97,14 @@ export const InstallPrompt = () => {
           </Button>
         </div>
         <CardDescription>
-          Get the full app experience with offline access and push notifications
+          Get the full app experience with offline access
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-0">
         <div className="flex flex-col gap-3">
           <div className="text-sm text-muted-foreground space-y-1">
-            <p>✨ Work out offline without internet</p>
-            <p>🔔 Get workout reminders and achievement alerts</p>
-            <p>⚡ Faster loading and app-like experience</p>
+            <p>• Work out offline without internet</p>
+            <p>• Get workout reminders</p>
           </div>
           <div className="flex gap-2">
             <Button onClick={handleInstall} className="flex-1">

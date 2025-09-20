@@ -163,7 +163,7 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ activeTab, onTabChang
       </AnimatePresence>
 
       {/* Bottom navigation bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-30">
+      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-30 pb-safe">
         <div className="flex items-center justify-around px-2 py-1 max-w-screen-xl mx-auto">
           {mainTabs.map((tab) => (
             <NavButton key={tab.id} tab={tab} />

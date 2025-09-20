@@ -99,7 +99,7 @@ const Dashboard = () => {
       
       <div className="flex flex-col h-screen">        
         {/* Main Content */}
-        <div className={`flex-1 overflow-y-auto ${isMobile ? 'pb-20' : ''}`}>
+        <div className={`flex-1 overflow-y-auto ${isMobile ? 'pb-28' : ''}`}>
           <div className="h-full">
             <AnimatePresence mode="wait">
               {renderTabContent()}

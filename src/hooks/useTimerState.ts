@@ -14,6 +14,13 @@ export const useTimerState = ({ duration, onComplete, onPlayCompletionSound }: U
   const [state, setState] = useState<TimerState>('ready');
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Update timeLeft when duration changes (only in ready state)
+  useEffect(() => {
+    if (state === 'ready') {
+      setTimeLeft(duration);
+    }
+  }, [duration, state]);
+
   useEffect(() => {
     if (state === 'running' && timeLeft > 0) {
       intervalRef.current = setInterval(() => {

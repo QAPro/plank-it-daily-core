@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dumbbell, Plus, Clock, Target } from "lucide-react";
 import PlankTimer from "@/components/PlankTimer";
 import ExerciseDetailsModal from "@/components/ExerciseDetailsModal";
-import ExerciseFamilyList from "@/components/exercises/ExerciseFamilyList";
+import ExerciseFamilyList from "@/components/exercise-families/ExerciseFamilyList";
 import GatedCustomWorkoutManager from "@/components/custom-workouts/GatedCustomWorkoutManager";
 import EnhancedFeatureGuard from "@/components/access/EnhancedFeatureGuard";
 import type { Tables } from '@/integrations/supabase/types';
@@ -70,7 +70,7 @@ const EnhancedWorkoutTab = () => {
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="text-2xl font-bold text-gray-800 mb-2"
+          className="text-2xl font-bold text-foreground mb-2"
         >
           Workout Hub
         </motion.h2>
@@ -78,7 +78,7 @@ const EnhancedWorkoutTab = () => {
           initial={{ y: -10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="text-gray-600"
+          className="text-muted-foreground"
         >
           Train, track, and transform your fitness
         </motion.p>
@@ -134,11 +134,11 @@ const EnhancedWorkoutTab = () => {
             previewHeight={300}
             loadingSkeleton={
               <div className="space-y-4">
-                <div className="h-8 bg-gray-100 animate-pulse rounded" />
-                <div className="h-4 bg-gray-100 animate-pulse rounded w-2/3" />
+                <div className="h-8 bg-muted animate-pulse rounded" />
+                <div className="h-4 bg-muted animate-pulse rounded w-2/3" />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="h-32 bg-gray-100 animate-pulse rounded-lg" />
+                    <div key={i} className="h-32 bg-muted animate-pulse rounded-lg" />
                   ))}
                 </div>
               </div>

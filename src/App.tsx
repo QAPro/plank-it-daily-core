@@ -1,7 +1,6 @@
 
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
@@ -22,23 +21,13 @@ import { DevToolsNotifications } from "@/components/DevToolsNotifications";
 import ServiceWorkerMessageHandler from "@/components/notifications/ServiceWorkerMessageHandler";
 import { Settings } from "lucide-react";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    },
-  },
-});
-
 function App() {
   const [showDevTools, setShowDevTools] = useState(false);
   console.log('App: Rendering with authentication provider');
   
   return (
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
+      <AuthProvider>
           <Router>
             <ServiceWorkerMessageHandler />
             <InstallPrompt />
@@ -76,7 +65,6 @@ function App() {
             <SonnerToaster />
           </Router>
         </AuthProvider>
-      </QueryClientProvider>
     </ErrorBoundary>
   );
 }

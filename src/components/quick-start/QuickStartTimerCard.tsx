@@ -28,6 +28,7 @@ interface QuickStartTimerCardProps {
     reset: () => void;
   };
   selectedWorkout?: {exerciseId: string, duration: number} | null;
+  userDisplayName?: string;
 }
 
 const QuickStartTimerCard = ({ 
@@ -37,7 +38,8 @@ const QuickStartTimerCard = ({
   duration, 
   onDurationChange,
   onTimerControl,
-  selectedWorkout 
+  selectedWorkout,
+  userDisplayName 
 }: QuickStartTimerCardProps) => {
   const { data: exercises, isLoading: exercisesLoading } = useExercises();
   const { preferences, updatePreferences } = useUserPreferences();
@@ -206,7 +208,6 @@ const QuickStartTimerCard = ({
 
         {/* Exercise Display */}
         <div className="text-center">
-          <div className="text-sm text-muted-foreground mb-1">Exercise</div>
           <div className="text-base font-medium">
             {selectedExercise?.name || 'Basic Plank'} 
             <span className="text-xs text-muted-foreground ml-2">
@@ -321,7 +322,6 @@ const QuickStartTimerCard = ({
 
           {/* Exercise Display - Wider but contained */}
           <div className="max-w-md mx-auto text-center">
-            <div className="text-sm text-muted-foreground mb-2">Exercise</div>
             <div className="text-lg font-medium">
               {selectedExercise?.name || 'Basic Plank'} 
               <span className="text-sm text-muted-foreground ml-2">
@@ -332,121 +332,126 @@ const QuickStartTimerCard = ({
         </div>
       </div>
 
-      {/* Desktop Layout - Centered Timer with Duration Controls (> 1024px) */}
+      {/* Desktop Layout - Centered Vertical Layout (> 1024px) */}
       <div className="hidden lg:block">
-        <div className="flex items-start justify-center gap-16 max-w-5xl mx-auto px-8">
-          {/* Center Column - Timer (Flexible) */}
-          <div className="flex-1 flex flex-col items-center space-y-6 min-w-0 max-w-lg">
-            <div className="relative">
-              {/* Corner Badges - Further from circle */}
-              <div className="absolute -top-4 -left-4 z-10">
-                <UserLevelBadge />
-              </div>
-              <div className="absolute -top-4 -right-4 z-10">
-                <CompactStreakBadge />
-              </div>
-              <div className="absolute -bottom-4 -left-4 z-10">
-                <PersonalBestBadge exerciseId={selectedExerciseId} />
-              </div>
-              <div className="absolute -bottom-4 -right-4 z-10">
-                <TrendBadge exerciseId={selectedExerciseId} />
-              </div>
+        <div className="max-w-2xl mx-auto space-y-8">
+          {/* Welcome Header - Centered above timer */}
+          {userDisplayName && (
+            <div className="text-center">
+              <h2 className="text-xl font-bold text-foreground">
+                Hello{userDisplayName}!
+              </h2>
+            </div>
+          )}
 
-              <CircularProgressTimer
-                timeLeft={timeLeft || currentDuration}
-                duration={duration || currentDuration}
-                state={timerState}
-                progress={duration ? ((duration - (timeLeft || 0)) / duration) * 100 : 0}
-              />
+          {/* Timer with Side Badges */}
+          <div className="relative mx-auto w-fit">
+            {/* Side Badges - Equidistant from center */}
+            <div className="absolute top-1/2 -translate-y-1/2 -left-20 z-10">
+              <UserLevelBadge />
+            </div>
+            <div className="absolute top-1/2 -translate-y-1/2 -right-20 z-10">
+              <CompactStreakBadge />
+            </div>
+            {/* Corner Badges */}
+            <div className="absolute -bottom-4 -left-4 z-10">
+              <PersonalBestBadge exerciseId={selectedExerciseId} />
+            </div>
+            <div className="absolute -bottom-4 -right-4 z-10">
+              <TrendBadge exerciseId={selectedExerciseId} />
             </div>
 
-            {/* Timer Controls - Centered under timer */}
-            <div className="flex justify-center gap-4 flex-wrap">
-              {timerState === 'ready' && (
-                <Button
-                  onClick={handleStartWorkout}
-                  size="lg"
-                  className="w-[320px] bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
-                >
-                  <Play className="mr-2 h-4 w-4" />
-                  Start
-                </Button>
-              )}
-              
-              {timerState === 'running' && onTimerControl && (
-                <>
-                  <Button 
-                    onClick={onTimerControl.pause}
-                    size="lg"
-                    variant="outline"
-                    className="w-36"
-                  >
-                    Pause
-                  </Button>
-                  <Button 
-                    onClick={onTimerControl.stop}
-                    size="lg"
-                    variant="destructive"
-                    className="w-36"
-                  >
-                    Stop
-                  </Button>
-                </>
-              )}
-              
-              {timerState === 'paused' && onTimerControl && (
-                <>
-                  <Button 
-                    onClick={onTimerControl.resume}
-                    size="lg"
-                    className="w-40 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
-                  >
-                    Resume
-                  </Button>
-                  <Button 
-                    onClick={onTimerControl.stop}
-                    size="lg"
-                    variant="destructive"
-                    className="w-36"
-                  >
-                    Stop
-                  </Button>
-                </>
-              )}
-              
-              {timerState === 'completed' && onTimerControl && (
-                <Button 
-                  onClick={() => {
-                    onTimerControl.reset();
-                    handleStartWorkout();
-                  }}
-                  size="lg"
-                  className="w-[320px] bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white"
-                >
-                  Do Again
-                </Button>
-              )}
-            </div>
+            <CircularProgressTimer
+              timeLeft={timeLeft || currentDuration}
+              duration={duration || currentDuration}
+              state={timerState}
+              progress={duration ? ((duration - (timeLeft || 0)) / duration) * 100 : 0}
+            />
           </div>
 
-          {/* Right Column - Duration Controls & Exercise Display (Compact) */}
-          <div className="w-64 flex-shrink-0 pt-20 space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Duration</h3>
-              <DurationIncrementControls
-                duration={currentDuration}
-                onDurationChange={handleDurationChange}
-              />
-            </div>
+          {/* Timer Controls - Centered under timer */}
+          <div className="flex justify-center gap-4 flex-wrap">
+            {timerState === 'ready' && (
+              <Button
+                onClick={handleStartWorkout}
+                size="lg"
+                className="w-[320px] bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
+              >
+                <Play className="mr-2 h-4 w-4" />
+                Start
+              </Button>
+            )}
             
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Exercise</h3>
-              <div className="text-base font-medium">
-                {selectedExercise?.name || 'Basic Plank'}
-              </div>
-              <div className="text-sm text-muted-foreground mt-1">
-                Level {selectedExercise?.difficulty_level || 1}
-              </div>
+            {timerState === 'running' && onTimerControl && (
+              <>
+                <Button 
+                  onClick={onTimerControl.pause}
+                  size="lg"
+                  variant="outline"
+                  className="w-36"
+                >
+                  Pause
+                </Button>
+                <Button 
+                  onClick={onTimerControl.stop}
+                  size="lg"
+                  variant="destructive"
+                  className="w-36"
+                >
+                  Stop
+                </Button>
+              </>
+            )}
+            
+            {timerState === 'paused' && onTimerControl && (
+              <>
+                <Button 
+                  onClick={onTimerControl.resume}
+                  size="lg"
+                  className="w-40 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
+                >
+                  Resume
+                </Button>
+                <Button 
+                  onClick={onTimerControl.stop}
+                  size="lg"
+                  variant="destructive"
+                  className="w-36"
+                >
+                  Stop
+                </Button>
+              </>
+            )}
+            
+            {timerState === 'completed' && onTimerControl && (
+              <Button 
+                onClick={() => {
+                  onTimerControl.reset();
+                  handleStartWorkout();
+                }}
+                size="lg"
+                className="w-[320px] bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white"
+              >
+                Do Again
+              </Button>
+            )}
+          </div>
+
+          {/* Duration Controls - Centered below start button */}
+          <div className="flex justify-center">
+            <DurationIncrementControls
+              duration={currentDuration}
+              onDurationChange={handleDurationChange}
+            />
+          </div>
+
+          {/* Exercise Display - Centered below duration controls */}
+          <div className="text-center">
+            <div className="text-lg font-medium">
+              {selectedExercise?.name || 'Basic Plank'}
+            </div>
+            <div className="text-sm text-muted-foreground mt-1">
+              Level {selectedExercise?.difficulty_level || 1}
             </div>
           </div>
         </div>

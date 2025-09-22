@@ -173,12 +173,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
       {/* XP Multiplier Notification */}
       <XPMultiplierNotification />
 
-      {/* Welcome Header - Simplified */}
-      <div className="text-center">
-        <h2 className="text-xl font-bold text-foreground mb-1">
-          Hello{getUserDisplayName()}!
-        </h2>
-      </div>
+      {/* Welcome Header removed - moved to timer card for desktop */}
 
       {/* Hero Section - Quick Start Timer */}
       <QuickStartTimerCard 

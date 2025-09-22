@@ -38,11 +38,10 @@ export function useUsernameAvailability(username: string, currentUsername?: stri
         // Fallback to direct table query if RPC doesn't exist
         console.warn('RPC does_username_exist not available, falling back to direct query:', rpcError);
         
+        // Use secure function for username availability check
         const { data: userData, error: queryError } = await supabase
-          .from('users')
-          .select('username')
-          .eq('username', usernameToCheck)
-          .single();
+          .rpc('find_user_by_username_or_email', { identifier: usernameToCheck })
+          .maybeSingle();
 
         if (queryError && queryError.code !== 'PGRST116') {
           throw queryError;

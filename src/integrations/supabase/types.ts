@@ -2783,6 +2783,36 @@ export type Database = {
           },
         ]
       }
+      user_data_access_log: {
+        Row: {
+          access_reason: string | null
+          access_type: string
+          accessed_fields: string[]
+          accessing_user_id: string
+          created_at: string | null
+          id: string
+          target_user_id: string
+        }
+        Insert: {
+          access_reason?: string | null
+          access_type: string
+          accessed_fields: string[]
+          accessing_user_id: string
+          created_at?: string | null
+          id?: string
+          target_user_id: string
+        }
+        Update: {
+          access_reason?: string | null
+          access_type?: string
+          accessed_fields?: string[]
+          accessing_user_id?: string
+          created_at?: string | null
+          id?: string
+          target_user_id?: string
+        }
+        Relationships: []
+      }
       user_exclusive_access: {
         Row: {
           access_level: string
@@ -4286,8 +4316,6 @@ export type Database = {
       find_user_by_username_or_email: {
         Args: { identifier: string }
         Returns: {
-          email: string
-          full_name: string
           user_id: string
           username: string
         }[]
@@ -4306,6 +4334,17 @@ export type Database = {
           action_count: number
           action_type: string
           last_action_at: string
+        }[]
+      }
+      get_admin_user_summary: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          current_level: number
+          subscription_tier: string
+          total_xp: number
+          user_id: string
+          username: string
         }[]
       }
       get_all_user_roles: {
@@ -4380,6 +4419,15 @@ export type Database = {
           status: string
           stripe_payment_intent_id: string
           transaction_id: string
+        }[]
+      }
+      get_user_display_info: {
+        Args: { target_user_id: string }
+        Returns: {
+          avatar_url: string
+          current_level: number
+          user_id: string
+          username: string
         }[]
       }
       get_user_engagement_metrics: {

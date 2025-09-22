@@ -100,40 +100,56 @@ export class FriendSystemManager {
   async searchUsers(query: string, currentUserId: string): Promise<FriendProfile[]> {
     if (query.length < 2) return [];
 
-    try {
-      const { data: users } = await supabase
-        .from('users')
-        .select('id, username, full_name, avatar_url, current_level')
-        .or(`username.ilike.%${query}%,full_name.ilike.%${query}%,email.ilike.%${query}%`)
-        .neq('id', currentUserId)
-        .limit(10);
+      // Use secure user search with OR pattern
+      const searchTerms = query.split(' ').filter(term => term.length > 0).slice(0, 3); // Limit search terms
+      let users: any[] = [];
+      
+      // Try searching by username first
+      try {
+        for (const term of searchTerms) {
+          const { data: usernameResults } = await supabase
+            .rpc('find_user_by_username_or_email', { identifier: term });
+          if (usernameResults) {
+            users.push(...usernameResults);
+          }
+        }
+        
+        // Remove duplicates and current user
+        const uniqueUsers = users.filter((user, index, self) => 
+          index === self.findIndex(u => u.user_id === user.user_id) &&
+          user.user_id !== currentUserId
+        ).slice(0, 10);
 
-      if (!users) return [];
+        // Get display info for each user
+        const userProfiles = await Promise.all(
+          uniqueUsers.map(async (user) => {
+            const { data: displayInfo } = await supabase
+              .rpc('get_user_display_info', { target_user_id: user.user_id })
+              .single();
+              
+            const stats = await this.getUserStats(user.user_id);
+            return {
+              id: user.user_id,
+              username: displayInfo?.username || user.username || '',
+              full_name: '', // Not included in secure function for privacy
+              avatar_url: displayInfo?.avatar_url || '',
+              current_level: displayInfo?.current_level || 1,
+              ...stats,
+              is_online: false,
+              privacy_settings: {
+                show_workouts: true,
+                show_achievements: true,
+                show_streak: true
+              }
+            };
+          })
+        );
 
-      // Get additional stats for each user
-      const userProfiles = await Promise.all(
-        users.map(async (user) => {
-          const stats = await this.getUserStats(user.id);
-          return {
-            ...user,
-            username: user.username || '',
-            full_name: user.full_name || '',
-            ...stats,
-            is_online: false,
-            privacy_settings: {
-              show_workouts: true,
-              show_achievements: true,
-              show_streak: true
-            }
-          };
-        })
-      );
-
-      return userProfiles;
-    } catch (error) {
-      console.error('Error searching users:', error);
-      return [];
-    }
+        return userProfiles;
+      } catch (error) {
+        console.error('Error in secure user search:', error);
+        return [];
+      }
   }
 
   async sendFriendRequest(userId: string, targetUserId: string): Promise<boolean> {
@@ -156,11 +172,9 @@ export class FriendSystemManager {
         throw new Error('Friendship already exists or request pending');
       }
 
-      // Get requester profile
+      // Use secure function for user lookup
       const { data: requester } = await supabase
-        .from('users')
-        .select('id, username, full_name, avatar_url')
-        .eq('id', userId)
+        .rpc('get_user_display_info', { target_user_id: userId })
         .single();
 
       if (!requester) throw new Error('User not found');
@@ -172,9 +186,9 @@ export class FriendSystemManager {
         target_id: targetUserId,
         created_at: new Date().toISOString(),
         requester: {
-          id: requester.id,
+          id: requester.user_id,
           username: requester.username || '',
-          full_name: requester.full_name || '',
+          full_name: '', // Full name not included in secure function for privacy
           avatar_url: requester.avatar_url
         }
       };

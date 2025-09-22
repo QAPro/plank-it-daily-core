@@ -467,18 +467,28 @@ async function bulkRevokeLifetime(userIds: string[], reason?: string): Promise<n
 
 async function getUserSummary(userId: string): Promise<AdminUserSummary | null> {
   console.log("[adminUserService] getUserSummary", userId);
-  const { data, error } = await supabase
-    .from("users")
-    .select("id, email, username, full_name")
-    .eq("id", userId)
-    .single();
+  
+  try {
+    // Use the secure admin user summary function to get single user info
+    const { data: users } = await supabase
+      .rpc('get_admin_user_summary');
 
-  if (error) {
+    if (!users) return null;
+
+    // Find the specific user in the results
+    const user = users.find(u => u.user_id === userId);
+    if (!user) return null;
+
+    return {
+      id: user.user_id,
+      email: '', // Email not included in secure function for privacy
+      username: user.username || '',
+      full_name: '', // Full name not included in secure function for privacy
+    };
+  } catch (error) {
     console.error("[adminUserService] getUserSummary error", error);
     return null;
   }
-
-  return (data as AdminUserSummary) || null;
 }
 
 async function getSubscriptionSummary(): Promise<{
@@ -490,11 +500,11 @@ async function getSubscriptionSummary(): Promise<{
   console.log("[adminUserService] getSubscriptionSummary");
   
   try {
-    // Get counts from users table
+    // Get counts from users table - admin RLS policy will allow this
     const [premiumResult, freeResult, activeSubsResult] = await Promise.all([
-      supabase.from("users").select("id", { count: "exact" }).eq("subscription_tier", "premium"),
-      supabase.from("users").select("id", { count: "exact" }).eq("subscription_tier", "free"),
-      supabase.from("subscriptions").select("id", { count: "exact" }).eq("status", "active"),
+      supabase.from("users").select("id", { count: "exact", head: true }).eq("subscription_tier", "premium"),
+      supabase.from("users").select("id", { count: "exact", head: true }).eq("subscription_tier", "free"),
+      supabase.from("subscriptions").select("id", { count: "exact", head: true }).eq("status", "active"),
     ]);
 
     return {

@@ -2783,6 +2783,42 @@ export type Database = {
           },
         ]
       }
+      user_data_access_audit: {
+        Row: {
+          access_reason: string | null
+          access_type: string
+          accessed_fields: string[]
+          accessing_user_id: string
+          created_at: string | null
+          id: string
+          ip_address: unknown | null
+          target_user_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          access_reason?: string | null
+          access_type: string
+          accessed_fields: string[]
+          accessing_user_id: string
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          target_user_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          access_reason?: string | null
+          access_type?: string
+          accessed_fields?: string[]
+          accessing_user_id?: string
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          target_user_id?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       user_data_access_log: {
         Row: {
           access_reason: string | null
@@ -4248,6 +4284,18 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_get_user_summary: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          current_level: number
+          last_active: string
+          subscription_tier: string
+          total_xp: number
+          user_id: string
+          username: string
+        }[]
+      }
       admin_grant_lifetime_access: {
         Args: {
           _expires_at?: string
@@ -4320,6 +4368,14 @@ export type Database = {
           username: string
         }[]
       }
+      find_user_by_username_secure: {
+        Args: { search_username: string }
+        Returns: {
+          avatar_url: string
+          user_id: string
+          username: string
+        }[]
+      }
       get_active_users_metrics: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -4357,6 +4413,10 @@ export type Database = {
           role_name: string
           role_type: string
         }[]
+      }
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       get_device_platform_analytics: {
         Args: { days_back?: number }
@@ -4554,6 +4614,10 @@ export type Database = {
       }
       is_superadmin: {
         Args: { _user_id?: string }
+        Returns: boolean
+      }
+      is_user_admin: {
+        Args: Record<PropertyKey, never>
         Returns: boolean
       }
       notify_via_edge_function: {

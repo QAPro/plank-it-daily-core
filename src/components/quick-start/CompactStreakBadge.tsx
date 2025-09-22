@@ -33,10 +33,15 @@ const CompactStreakBadge = () => {
         >
           <Badge 
             variant="secondary" 
-            className="bg-gradient-to-r from-orange-500 to-red-500 text-white border-0 hover:from-orange-600 hover:to-red-600 transition-all duration-200"
+            className="bg-gradient-to-r from-orange-500 to-red-500 text-white border-0 hover:from-orange-600 hover:to-red-600 transition-all duration-200 py-2 px-3"
           >
-            <Flame className="w-3 h-3 mr-1" />
-            {currentStreak}
+            <div className="flex flex-col items-center gap-0.5 min-w-0">
+              <div className="flex items-center gap-1">
+                <Flame className="w-3 h-3" />
+                <span className="whitespace-nowrap text-xs">Streak</span>
+              </div>
+              <div className="font-semibold">{currentStreak}</div>
+            </div>
           </Badge>
         </motion.div>
       </DialogTrigger>

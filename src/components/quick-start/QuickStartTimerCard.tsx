@@ -10,6 +10,7 @@ import UserLevelBadge from "./UserLevelBadge";
 import CompactStreakBadge from "./CompactStreakBadge";
 import PersonalBestBadge from "./PersonalBestBadge";
 import TrendBadge from "./TrendBadge";
+import WeeklyProgressBadge from "./WeeklyProgressBadge";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Exercise = Tables<'plank_exercises'>;
@@ -106,20 +107,23 @@ const QuickStartTimerCard = ({
     >
       {/* Mobile Layout - Stacked (< 768px) */}
       <div className="space-y-6 md:hidden">
-        {/* Timer with Corner Badges */}
+        {/* Timer with Quadrant Badges */}
         <div className="relative mx-auto w-fit">
-          {/* Corner Badges - Further from circle */}
-          <div className="absolute -top-2 -left-2 z-10">
+          {/* Upper Left Quadrant - Level Badge */}
+          <div className="absolute top-4 left-4 z-10">
             <UserLevelBadge />
           </div>
-          <div className="absolute -top-2 -right-2 z-10">
+          {/* Upper Right Quadrant - Streak Badge */}
+          <div className="absolute top-4 right-4 z-10">
             <CompactStreakBadge />
           </div>
-          <div className="absolute -bottom-2 -left-2 z-10">
-            <PersonalBestBadge exerciseId={selectedExerciseId} />
+          {/* Lower Left Quadrant - Progress Badge */}
+          <div className="absolute bottom-4 left-4 z-10">
+            <WeeklyProgressBadge />
           </div>
-          <div className="absolute -bottom-2 -right-2 z-10">
-            <TrendBadge exerciseId={selectedExerciseId} />
+          {/* Lower Right Quadrant - Personal Best Badge */}
+          <div className="absolute bottom-4 right-4 z-10">
+            <PersonalBestBadge exerciseId={selectedExerciseId} />
           </div>
 
               <CircularProgressTimer
@@ -220,20 +224,23 @@ const QuickStartTimerCard = ({
       {/* Tablet Layout - Stacked but wider (768px - 1024px) */}
       <div className="hidden md:block lg:hidden">
         <div className="max-w-2xl mx-auto space-y-8">
-          {/* Timer with Corner Badges */}
+          {/* Timer with Quadrant Badges */}
           <div className="relative mx-auto w-fit">
-            {/* Corner Badges - Further from circle */}
-            <div className="absolute -top-3 -left-3 z-10">
+            {/* Upper Left Quadrant - Level Badge */}
+            <div className="absolute top-6 left-6 z-10">
               <UserLevelBadge />
             </div>
-            <div className="absolute -top-3 -right-3 z-10">
+            {/* Upper Right Quadrant - Streak Badge */}
+            <div className="absolute top-6 right-6 z-10">
               <CompactStreakBadge />
             </div>
-            <div className="absolute -bottom-3 -left-3 z-10">
-              <PersonalBestBadge exerciseId={selectedExerciseId} />
+            {/* Lower Left Quadrant - Progress Badge */}
+            <div className="absolute bottom-6 left-6 z-10">
+              <WeeklyProgressBadge />
             </div>
-            <div className="absolute -bottom-3 -right-3 z-10">
-              <TrendBadge exerciseId={selectedExerciseId} />
+            {/* Lower Right Quadrant - Personal Best Badge */}
+            <div className="absolute bottom-6 right-6 z-10">
+              <PersonalBestBadge exerciseId={selectedExerciseId} />
             </div>
 
             <CircularProgressTimer
@@ -344,21 +351,23 @@ const QuickStartTimerCard = ({
             </div>
           )}
 
-          {/* Timer with Side Badges */}
+          {/* Timer with Quadrant Badges */}
           <div className="relative mx-auto w-fit">
-            {/* Side Badges - Equidistant from center */}
-            <div className="absolute top-1/2 -translate-y-1/2 -left-20 z-10">
+            {/* Upper Left Quadrant - Level Badge */}
+            <div className="absolute top-8 left-8 z-10">
               <UserLevelBadge />
             </div>
-            <div className="absolute top-1/2 -translate-y-1/2 -right-20 z-10">
+            {/* Upper Right Quadrant - Streak Badge */}
+            <div className="absolute top-8 right-8 z-10">
               <CompactStreakBadge />
             </div>
-            {/* Corner Badges */}
-            <div className="absolute -bottom-4 -left-4 z-10">
-              <PersonalBestBadge exerciseId={selectedExerciseId} />
+            {/* Lower Left Quadrant - Progress Badge */}
+            <div className="absolute bottom-8 left-8 z-10">
+              <WeeklyProgressBadge />
             </div>
-            <div className="absolute -bottom-4 -right-4 z-10">
-              <TrendBadge exerciseId={selectedExerciseId} />
+            {/* Lower Right Quadrant - Personal Best Badge */}
+            <div className="absolute bottom-8 right-8 z-10">
+              <PersonalBestBadge exerciseId={selectedExerciseId} />
             </div>
 
             <CircularProgressTimer

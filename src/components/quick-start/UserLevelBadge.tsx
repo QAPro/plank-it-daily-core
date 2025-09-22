@@ -33,10 +33,15 @@ const UserLevelBadge = () => {
         >
           <Badge 
             variant="outline" 
-            className="bg-background/80 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-200 text-xs"
+            className="bg-background/80 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-200 text-xs py-2 px-3"
           >
-            <Crown className="w-3 h-3 mr-1 text-primary" />
-            Lv {userLevel.current_level} • {userLevel.level_title}
+            <div className="flex flex-col items-center gap-0.5 min-w-0">
+              <div className="flex items-center gap-1">
+                <Crown className="w-3 h-3 text-primary" />
+                <span className="whitespace-nowrap text-xs">Level</span>
+              </div>
+              <div className="font-semibold text-primary">{userLevel.current_level}</div>
+            </div>
           </Badge>
         </motion.div>
       </DialogTrigger>

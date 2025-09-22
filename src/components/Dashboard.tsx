@@ -6,7 +6,7 @@ import MobileBottomNav from './MobileBottomNav';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 import HomeTab from './tabs/HomeTab';
-import WorkoutTab from './tabs/WorkoutTab';
+import EnhancedWorkoutTab from './tabs/EnhancedWorkoutTab';
 import StatsTab from './tabs/StatsTab';
 import AnalyticsTab from './tabs/AnalyticsTab';
 import AchievementsTab from './tabs/AchievementsTab';
@@ -62,7 +62,7 @@ const Dashboard = () => {
       case 'home':
         return <HomeTab onTabChange={handleTabChange} onUpgradeClick={handleUpgradeNavigation} onStartWorkout={handleStartWorkout} selectedWorkout={selectedWorkout} onWorkoutStarted={handleWorkoutStarted} />;
       case 'workout':
-        return <WorkoutTab onStartWorkout={handleStartWorkout} />;
+        return <EnhancedWorkoutTab />;
       case 'stats':
         return <StatsTab />;
       case 'analytics':

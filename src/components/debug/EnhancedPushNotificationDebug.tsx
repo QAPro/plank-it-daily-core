@@ -14,8 +14,10 @@ interface DatabaseSubscription {
   id: string;
   user_id: string;
   endpoint: string;
-  p256dh_key: string;
-  auth_key: string;
+  // Removed sensitive keys for security
+  // p256dh_key: string;
+  // auth_key: string;
+  user_agent?: string;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -46,10 +48,10 @@ export const EnhancedPushNotificationDebug: React.FC = () => {
     if (!user) return;
     
     try {
+      // Use the secure view instead of direct table access
       const { data, error } = await supabase
-        .from('push_subscriptions')
+        .from('user_push_subscription_status')
         .select('*')
-        .eq('user_id', user.id)
         .eq('is_active', true);
       
       if (error) {
@@ -58,6 +60,7 @@ export const EnhancedPushNotificationDebug: React.FC = () => {
       }
       
       setDbSubscriptions(data || []);
+      setLastSync(new Date().toLocaleTimeString());
     } catch (error) {
       console.error('Error fetching DB subscriptions:', error);
     }

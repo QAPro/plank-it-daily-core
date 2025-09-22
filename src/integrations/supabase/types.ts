@@ -4160,7 +4160,36 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      user_push_subscription_status: {
+        Row: {
+          created_at: string | null
+          endpoint: string | null
+          id: string | null
+          is_active: boolean | null
+          updated_at: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          endpoint?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          updated_at?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          endpoint?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          updated_at?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       admin_bulk_change_tier: {
@@ -4406,6 +4435,10 @@ export type Database = {
           updated_at: string
           user_id: string
         }[]
+      }
+      get_user_push_subscription_count: {
+        Args: Record<PropertyKey, never>
+        Returns: number
       }
       get_user_registration_trends: {
         Args: { days_back?: number }

@@ -33,9 +33,25 @@ const UserLevelBadge = () => {
         >
           <Badge 
             variant="outline" 
-            className="bg-background/80 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-200 text-xs py-2 px-3"
+            className="bg-background/80 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-200 text-xs py-2 px-3 md:py-2 md:px-3 lg:py-2 lg:px-3"
           >
-            <div className="flex flex-col items-center gap-0.5 min-w-0">
+            {/* Mobile: Circular with icon + value only */}
+            <div className="flex items-center justify-center md:hidden">
+              <Crown className="w-3 h-3 text-primary mr-1" />
+              <span className="font-semibold text-primary text-xs">{userLevel.current_level}</span>
+            </div>
+            
+            {/* Tablet: Medium with short label */}
+            <div className="hidden md:flex lg:hidden flex-col items-center gap-0.5 min-w-0">
+              <div className="flex items-center gap-1">
+                <Crown className="w-3 h-3 text-primary" />
+                <span className="whitespace-nowrap text-xs">Lvl</span>
+              </div>
+              <div className="font-semibold text-primary">{userLevel.current_level}</div>
+            </div>
+            
+            {/* Desktop: Full label */}
+            <div className="hidden lg:flex flex-col items-center gap-0.5 min-w-0">
               <div className="flex items-center gap-1">
                 <Crown className="w-3 h-3 text-primary" />
                 <span className="whitespace-nowrap text-xs">Level</span>

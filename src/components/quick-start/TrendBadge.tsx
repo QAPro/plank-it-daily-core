@@ -67,9 +67,25 @@ const TrendBadge = ({ exerciseId }: TrendBadgeProps) => {
         >
           <Badge 
             variant="outline" 
-            className={`bg-background/80 backdrop-blur-sm ${getTrendColor()} transition-all duration-200 text-xs py-2 px-3`}
+            className={`bg-background/80 backdrop-blur-sm ${getTrendColor()} transition-all duration-200 text-xs py-2 px-3 md:py-2 md:px-3 lg:py-2 lg:px-3`}
           >
-            <div className="flex flex-col items-center gap-0.5 min-w-0">
+            {/* Mobile: Circular with icon + value only */}
+            <div className="flex items-center justify-center md:hidden">
+              {getTrendIcon()}
+              <span className="font-semibold text-xs ml-1">{getTrendText()}</span>
+            </div>
+            
+            {/* Tablet: Medium with short label */}
+            <div className="hidden md:flex lg:hidden flex-col items-center gap-0.5 min-w-0">
+              <div className="flex items-center gap-1">
+                {getTrendIcon()}
+                <span className="whitespace-nowrap text-xs">Trend</span>
+              </div>
+              <div className="font-semibold">{getTrendText()}</div>
+            </div>
+            
+            {/* Desktop: Full label */}
+            <div className="hidden lg:flex flex-col items-center gap-0.5 min-w-0">
               <div className="flex items-center gap-1">
                 {getTrendIcon()}
                 <span className="whitespace-nowrap text-xs">Trend</span>

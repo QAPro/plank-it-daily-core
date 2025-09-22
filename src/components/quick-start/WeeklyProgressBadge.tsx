@@ -34,9 +34,25 @@ const WeeklyProgressBadge = () => {
         >
           <Badge 
             variant="outline" 
-            className="bg-background/80 backdrop-blur-sm border-blue-500/20 hover:border-blue-500/40 transition-all duration-200 text-xs py-2 px-3"
+            className="bg-background/80 backdrop-blur-sm border-blue-500/20 hover:border-blue-500/40 transition-all duration-200 text-xs py-2 px-3 md:py-2 md:px-3 lg:py-2 lg:px-3"
           >
-            <div className="flex flex-col items-center gap-0.5 min-w-0">
+            {/* Mobile: Circular with icon + value only */}
+            <div className="flex items-center justify-center md:hidden">
+              <Calendar className="w-3 h-3 text-blue-600 mr-1" />
+              <span className="font-semibold text-blue-600 text-xs">{weeklyProgress}/{weeklyGoal}</span>
+            </div>
+            
+            {/* Tablet: Medium with short label */}
+            <div className="hidden md:flex lg:hidden flex-col items-center gap-0.5 min-w-0">
+              <div className="flex items-center gap-1">
+                <Calendar className="w-3 h-3 text-blue-600" />
+                <span className="whitespace-nowrap text-xs">Week</span>
+              </div>
+              <div className="font-semibold text-blue-600">{weeklyProgress}/{weeklyGoal}</div>
+            </div>
+            
+            {/* Desktop: Full label */}
+            <div className="hidden lg:flex flex-col items-center gap-0.5 min-w-0">
               <div className="flex items-center gap-1">
                 <Calendar className="w-3 h-3 text-blue-600" />
                 <span className="whitespace-nowrap">Progress</span>

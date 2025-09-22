@@ -33,9 +33,25 @@ const CompactStreakBadge = () => {
         >
           <Badge 
             variant="secondary" 
-            className="bg-gradient-to-r from-orange-500 to-red-500 text-white border-0 hover:from-orange-600 hover:to-red-600 transition-all duration-200 py-2 px-3"
+            className="bg-gradient-to-r from-orange-500 to-red-500 text-white border-0 hover:from-orange-600 hover:to-red-600 transition-all duration-200 py-2 px-3 md:py-2 md:px-3 lg:py-2 lg:px-3"
           >
-            <div className="flex flex-col items-center gap-0.5 min-w-0">
+            {/* Mobile: Circular with icon + value only */}
+            <div className="flex items-center justify-center md:hidden">
+              <Flame className="w-3 h-3 mr-1" />
+              <span className="font-semibold text-xs">{currentStreak}</span>
+            </div>
+            
+            {/* Tablet: Medium with short label */}
+            <div className="hidden md:flex lg:hidden flex-col items-center gap-0.5 min-w-0">
+              <div className="flex items-center gap-1">
+                <Flame className="w-3 h-3" />
+                <span className="whitespace-nowrap text-xs">Streak</span>
+              </div>
+              <div className="font-semibold">{currentStreak}</div>
+            </div>
+            
+            {/* Desktop: Full label */}
+            <div className="hidden lg:flex flex-col items-center gap-0.5 min-w-0">
               <div className="flex items-center gap-1">
                 <Flame className="w-3 h-3" />
                 <span className="whitespace-nowrap text-xs">Streak</span>

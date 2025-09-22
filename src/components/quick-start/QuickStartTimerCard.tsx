@@ -69,7 +69,7 @@ const QuickStartTimerCard = ({
     await updatePreferences({
       last_duration: newDuration,
       last_workout_timestamp: new Date().toISOString()
-    });
+    }, false);
     
     // Notify parent component about duration change
     onDurationChange?.(newDuration);

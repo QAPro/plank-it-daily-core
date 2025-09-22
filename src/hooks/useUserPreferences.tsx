@@ -113,7 +113,7 @@ export const useUserPreferences = () => {
     }
   };
 
-  const updatePreferences = async (updates: Partial<UserPreferences>) => {
+  const updatePreferences = async (updates: Partial<UserPreferences>, showToast: boolean = true) => {
     if (!user) return;
 
     try {
@@ -126,10 +126,12 @@ export const useUserPreferences = () => {
 
       setPreferences(prev => prev ? { ...prev, ...updates } : null);
       
-      toast({
-        title: "Preferences updated",
-        description: "Your preferences have been saved successfully.",
-      });
+      if (showToast) {
+        toast({
+          title: "Preferences updated",
+          description: "Your preferences have been saved successfully.",
+        });
+      }
     } catch (error: any) {
       toast({
         title: "Error updating preferences",

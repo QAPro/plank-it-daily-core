@@ -106,6 +106,15 @@ const QuickStartTimerCard = ({
     >
       {/* Mobile Layout - Side Badges (< 768px) */}
       <div className="md:hidden">
+        {/* Welcome Header - Above timer */}
+        {userDisplayName && (
+          <div className="text-center mb-6">
+            <h2 className="text-lg font-bold text-foreground">
+              Hello{userDisplayName}!
+            </h2>
+          </div>
+        )}
+
         {/* Timer with Side Badges using CSS Grid */}
         <div className="grid grid-cols-3 items-center gap-12 mx-auto w-fit">
           {/* Left Column - Badges */}
@@ -139,8 +148,8 @@ const QuickStartTimerCard = ({
           </div>
         </div>
 
-        {/* Timer Controls - Directly under timer */}
-        <div className="flex justify-center gap-2 flex-wrap">
+        {/* Timer Controls - With proper spacing */}
+        <div className="flex justify-center gap-2 flex-wrap mt-6">
           {timerState === 'ready' && (
             <Button
               onClick={handleStartWorkout}
@@ -229,6 +238,15 @@ const QuickStartTimerCard = ({
       {/* Tablet Layout - Side Badges (768px - 1024px) */}
       <div className="hidden md:block lg:hidden">
         <div className="max-w-4xl mx-auto">
+          {/* Welcome Header - Above timer */}
+          {userDisplayName && (
+            <div className="text-center mb-8">
+              <h2 className="text-xl font-bold text-foreground">
+                Hello{userDisplayName}!
+              </h2>
+            </div>
+          )}
+
           {/* Timer with Side Badges using CSS Grid */}
           <div className="grid grid-cols-3 items-center gap-18 mx-auto w-fit">
             {/* Left Column - Badges */}
@@ -254,8 +272,8 @@ const QuickStartTimerCard = ({
             </div>
           </div>
 
-          {/* Timer Controls - Directly under timer */}
-          <div className="flex justify-center gap-3 flex-wrap">
+          {/* Timer Controls - With proper spacing */}
+          <div className="flex justify-center gap-3 flex-wrap mt-8">
             {timerState === 'ready' && (
               <Button
                 onClick={handleStartWorkout}

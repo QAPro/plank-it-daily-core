@@ -189,6 +189,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
           reset: timerState.handleReset
         }}
         selectedWorkout={selectedWorkout}
+        userDisplayName={getUserDisplayName()}
       />
 
       {/* Compact Progress Bar */}

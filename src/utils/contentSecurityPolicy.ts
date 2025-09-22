@@ -1,13 +1,17 @@
 // Content Security Policy configuration for enhanced security
+import { isInLovablePreview } from './iframe';
+
 export const generateCSPHeader = (): string => {
   const SUPABASE_ORIGIN = "https://kgwmplptoctmoaefnpfg.supabase.co";
+  const isLovablePreview = isInLovablePreview();
   
   const cspDirectives = [
     "default-src 'self'",
     "base-uri 'self'",
     "object-src 'none'",
     "frame-src 'none'",
-    "frame-ancestors 'none'",
+    // Allow frame-ancestors for Lovable preview, strict security in production
+    isLovablePreview ? "frame-ancestors *.lovable.app *.lovable.dev" : "frame-ancestors 'none'",
     "script-src 'self'",
     "script-src-attr 'none'",
     "style-src 'self' 'unsafe-inline'", // unsafe-inline needed for dynamic styles

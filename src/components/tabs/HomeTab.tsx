@@ -18,6 +18,7 @@ import UserRankingDisplay from "@/components/social/UserRankingDisplay";
 import XPMultiplierNotification from "@/components/xp/XPMultiplierNotification";
 import { useLevelProgression } from "@/hooks/useLevelProgression";
 import { useRewardTiming } from "@/hooks/useRewardTiming";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 
 interface HomeTabProps {
   onExerciseSelect?: (exerciseId: string) => void;
@@ -33,6 +34,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
   const { user } = useAuth();
   const { userLevel, loading: levelLoading } = useLevelProgression();
   const rewardTiming = useRewardTiming();
+  const { preferences, loading: preferencesLoading, updatePreferences } = useUserPreferences();
   const [communityExpanded, setCommunityExpanded] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState<string>('');
   const [selectedDuration, setSelectedDuration] = useState<number>(60);
@@ -65,6 +67,15 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         user_agent: navigator.userAgent,
         completed_at: new Date().toISOString(),
       });
+
+      // Save preferences for next time
+      if (selectedExercise && selectedDuration) {
+        await updatePreferences({
+          last_exercise_id: selectedExercise,
+          last_duration: selectedDuration,
+          last_workout_timestamp: new Date().toISOString()
+        }, false);
+      }
 
       toast({
         title: "Workout Complete!",
@@ -144,9 +155,19 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     return '';
   };
 
-  const handleStartWorkout = (exerciseId: string, duration: number) => {
+  const handleStartWorkout = async (exerciseId: string, duration: number) => {
     setSelectedExercise(exerciseId);
     setSelectedDuration(duration);
+    
+    // Save preferences for next time
+    if (exerciseId && duration) {
+      await updatePreferences({
+        last_exercise_id: exerciseId,
+        last_duration: duration,
+        last_workout_timestamp: new Date().toISOString()
+      }, false);
+    }
+    
     timerState.handleStart();
   };
 
@@ -155,6 +176,18 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     setSelectedDuration(duration);
     // Don't start the timer - just prepare it
   };
+
+  // Initialize from user preferences when component loads
+  React.useEffect(() => {
+    if (!preferencesLoading && preferences && selectedExercise === '' && selectedDuration === 60) {
+      if (preferences.last_exercise_id) {
+        setSelectedExercise(preferences.last_exercise_id);
+      }
+      if (preferences.last_duration) {
+        setSelectedDuration(preferences.last_duration);
+      }
+    }
+  }, [preferences, preferencesLoading, selectedExercise, selectedDuration]);
 
   // Handle external workout selection from WorkoutTab
   React.useEffect(() => {

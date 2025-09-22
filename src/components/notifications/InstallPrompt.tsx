@@ -80,7 +80,8 @@ export const InstallPrompt = () => {
   }
 
   return (
-    <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-primary/10">
+    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md px-4 sm:px-0">
+      <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-primary/10">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">
@@ -118,5 +119,6 @@ export const InstallPrompt = () => {
         </div>
       </CardContent>
     </Card>
+    </div>
   );
 };

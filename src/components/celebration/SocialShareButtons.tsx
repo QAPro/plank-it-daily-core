@@ -1,10 +1,9 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Share2, Twitter, Facebook, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SocialSharingService, type ShareData } from "@/services/socialSharingService";
-import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 interface SocialShareButtonsProps {

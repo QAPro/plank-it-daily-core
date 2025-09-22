@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { RewardTimingService, RewardTimingContext, RewardDecision } from '@/services/rewardTimingService';
 import { useDebounce } from '@/hooks/useDebounce';

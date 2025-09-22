@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Gift } from 'lucide-react';
 import { EnhancedXPService } from '@/services/enhancedXPService';

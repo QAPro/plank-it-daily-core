@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { 
   Share2, Twitter, Facebook, Copy, Check, Instagram, 
@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { enhancedSocialSharingService } from "@/services/enhancedSocialSharingService";
-import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import type { EnhancedShareData, ShareTemplate } from "@/types/socialSharing";
 

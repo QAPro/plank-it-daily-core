@@ -1,5 +1,5 @@
 
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { isAIEnabled } from '@/constants/featureGating';
 

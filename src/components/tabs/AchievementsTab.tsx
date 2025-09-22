@@ -1,6 +1,6 @@
 
 import { motion } from "framer-motion";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import OptimizedAchievementsGallery from "@/components/achievements/OptimizedAchievementsGallery";
 import SkillTreeDisplay from "@/components/achievements/SkillTreeDisplay";

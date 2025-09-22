@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Flame } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useStreakTracking } from "@/hooks/useStreakTracking";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import StreakDisplay from "@/components/StreakDisplay";
 

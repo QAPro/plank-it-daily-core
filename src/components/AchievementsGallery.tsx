@@ -1,5 +1,5 @@
 
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Trophy, Target, Calendar, TrendingUp, Star, Award } from "lucide-react";
 import { useUserAchievements } from "@/hooks/useUserAchievements";

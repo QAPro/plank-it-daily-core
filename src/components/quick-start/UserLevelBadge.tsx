@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Crown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useLevelProgression } from "@/hooks/useLevelProgression";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 

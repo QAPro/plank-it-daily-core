@@ -4,9 +4,8 @@ import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dumbbell, Plus, Clock, Target } from "lucide-react";
 import PlankTimer from "@/components/PlankTimer";
-import ExerciseCard from "@/components/ExerciseCard";
 import ExerciseDetailsModal from "@/components/ExerciseDetailsModal";
-import { useExercises } from "@/hooks/useExercises";
+import ExerciseFamilyList from "@/components/exercises/ExerciseFamilyList";
 import GatedCustomWorkoutManager from "@/components/custom-workouts/GatedCustomWorkoutManager";
 import EnhancedFeatureGuard from "@/components/access/EnhancedFeatureGuard";
 import type { Tables } from '@/integrations/supabase/types';
@@ -18,7 +17,6 @@ const EnhancedWorkoutTab = () => {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [detailsExercise, setDetailsExercise] = useState<Exercise | null>(null);
-  const { data: exercises, isLoading } = useExercises();
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -121,29 +119,11 @@ const EnhancedWorkoutTab = () => {
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
           >
-            {isLoading ? (
-              // Loading skeletons
-              Array.from({ length: 6 }).map((_, i) => (
-                <motion.div
-                  key={i}
-                  variants={itemVariants}
-                  className="h-48 bg-gray-100 animate-pulse rounded-lg"
-                />
-              ))
-            ) : (
-              exercises?.map((exercise, index) => (
-                <motion.div key={exercise.id} variants={itemVariants}>
-                  <ExerciseCard 
-                    exercise={exercise}
-                    index={index}
-                    onStart={handleExerciseStart}
-                    onViewDetails={handleExerciseDetails}
-                  />
-                </motion.div>
-              ))
-            )}
+            <ExerciseFamilyList
+              onExerciseStart={handleExerciseStart}
+              onExerciseDetails={handleExerciseDetails}
+            />
           </motion.div>
         </TabsContent>
 

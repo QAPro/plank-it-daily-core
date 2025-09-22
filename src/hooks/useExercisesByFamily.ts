@@ -10,7 +10,7 @@ interface ExercisesByFamily {
 
 export const useExercisesByFamily = () => {
   return useQuery({
-    queryKey: ['exercises-by-family'],
+    queryKey: ['exercises-by-family', 'v2'],
     queryFn: async () => {
       const { data: exercises, error } = await supabase
         .from('plank_exercises')

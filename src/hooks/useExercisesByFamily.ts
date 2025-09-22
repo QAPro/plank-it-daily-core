@@ -31,10 +31,8 @@ export const useExercisesByFamily = () => {
         // Apply the same logic as the database function
         if (exercise.category === 'planking') {
           familyKey = exercise.difficulty_level <= 2 ? 'basic_planking' : 'advanced_planking';
-        } else if (exercise.category === 'core') {
-          familyKey = 'core';
         } else if (exercise.category === 'leg_lift') {
-          familyKey = 'leg_lift';
+          familyKey = exercise.difficulty_level <= 2 ? 'basic_leg_lifts' : 'advanced_leg_lifts';
         } else if (exercise.category === 'seated_exercise') {
           familyKey = 'seated_exercise';
         } else if (exercise.category === 'standing_movement') {

@@ -29,6 +29,7 @@ interface QuickStartTimerCardProps {
     reset: () => void;
   };
   selectedWorkout?: {exerciseId: string, duration: number} | null;
+  selectedExercise?: string;
   userDisplayName?: string;
 }
 
@@ -40,6 +41,7 @@ const QuickStartTimerCard = ({
   onDurationChange,
   onTimerControl,
   selectedWorkout,
+  selectedExercise,
   userDisplayName 
 }: QuickStartTimerCardProps) => {
   const { data: exercises, isLoading: exercisesLoading } = useExercises();
@@ -49,9 +51,9 @@ const QuickStartTimerCard = ({
   // Default to Basic Plank if no history
   const defaultExercise = exercises?.find(ex => ex.name === 'Basic Plank') || exercises?.[0];
   
-  // Use selected workout data if provided, otherwise use last workout data or defaults
-  const selectedExerciseId = selectedWorkout?.exerciseId || preferences?.last_exercise_id || defaultExercise?.id || '';
-  const selectedExercise = exercises?.find(ex => ex.id === selectedExerciseId) || defaultExercise;
+  // Use selected exercise prop first, then workout data, then preferences or defaults
+  const selectedExerciseId = selectedExercise || selectedWorkout?.exerciseId || preferences?.last_exercise_id || defaultExercise?.id || '';
+  const selectedExerciseObj = exercises?.find(ex => ex.id === selectedExerciseId) || defaultExercise;
   const currentDuration = selectedWorkout?.duration || duration || preferences?.last_duration || 60;
 
   // Force component to recognize selectedWorkout changes
@@ -74,7 +76,7 @@ const QuickStartTimerCard = ({
   };
 
   const handleStartWorkout = () => {
-    if (!selectedExercise) {
+    if (!selectedExerciseObj) {
       toast({
         title: "No exercise selected",
         description: "Please select an exercise first.",
@@ -83,7 +85,7 @@ const QuickStartTimerCard = ({
       return;
     }
 
-    onStartWorkout(selectedExercise.id, currentDuration);
+    onStartWorkout(selectedExerciseObj.id, currentDuration);
   };
 
   const formatTime = (seconds: number) => {
@@ -235,9 +237,9 @@ const QuickStartTimerCard = ({
         {/* Exercise Display */}
         <div className="text-center">
           <div className="text-base font-medium">
-            {selectedExercise?.name || 'Basic Plank'} 
+            {selectedExerciseObj?.name || 'Basic Plank'} 
             <span className="text-xs text-muted-foreground ml-2">
-              Level {selectedExercise?.difficulty_level || 1}
+              Level {selectedExerciseObj?.difficulty_level || 1}
             </span>
           </div>
         </div>
@@ -359,9 +361,9 @@ const QuickStartTimerCard = ({
           {/* Exercise Display - Wider but contained */}
           <div className="max-w-md mx-auto text-center">
             <div className="text-lg font-medium">
-              {selectedExercise?.name || 'Basic Plank'} 
+              {selectedExerciseObj?.name || 'Basic Plank'} 
               <span className="text-sm text-muted-foreground ml-2">
-                Level {selectedExercise?.difficulty_level || 1}
+                Level {selectedExerciseObj?.difficulty_level || 1}
               </span>
             </div>
           </div>
@@ -484,10 +486,10 @@ const QuickStartTimerCard = ({
           {/* Exercise Display - Centered below duration controls */}
           <div className="text-center">
             <div className="text-lg font-medium">
-              {selectedExercise?.name || 'Basic Plank'}
+              {selectedExerciseObj?.name || 'Basic Plank'}
             </div>
             <div className="text-sm text-muted-foreground mt-1">
-              Level {selectedExercise?.difficulty_level || 1}
+              Level {selectedExerciseObj?.difficulty_level || 1}
             </div>
           </div>
         </div>

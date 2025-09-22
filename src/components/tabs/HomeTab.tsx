@@ -195,6 +195,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
           reset: timerState.handleReset
         }}
         selectedWorkout={selectedWorkout}
+        selectedExercise={selectedExercise}
         userDisplayName={getUserDisplayName()}
       />
 

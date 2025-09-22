@@ -8,7 +8,6 @@ import DurationIncrementControls from "./DurationIncrementControls";
 import CircularProgressTimer from "../timer/CircularProgressTimer";
 import UserLevelBadge from "./UserLevelBadge";
 import CompactStreakBadge from "./CompactStreakBadge";
-import PersonalBestBadge from "./PersonalBestBadge";
 import TrendBadge from "./TrendBadge";
 import WeeklyProgressBadge from "./WeeklyProgressBadge";
 import type { Tables } from "@/integrations/supabase/types";
@@ -105,33 +104,39 @@ const QuickStartTimerCard = ({
       transition={{ duration: 0.5 }}
       className="px-4 sm:px-0"
     >
-      {/* Mobile Layout - Stacked (< 768px) */}
-      <div className="space-y-6 md:hidden">
-        {/* Timer with Quadrant Badges */}
-        <div className="relative mx-auto w-fit">
-          {/* Upper Left Quadrant - Level Badge */}
-          <div className="absolute top-4 left-4 z-10">
-            <UserLevelBadge />
+      {/* Mobile Layout - Side Badges (< 768px) */}
+      <div className="md:hidden">
+        {/* Timer with Side Badges using CSS Grid */}
+        <div className="grid grid-cols-3 items-center gap-12 mx-auto w-fit">
+          {/* Left Column - Badges */}
+          <div className="flex flex-col gap-8 items-center">
+            <div className="transform scale-90">
+              <UserLevelBadge />
+            </div>
+            <div className="transform scale-90">
+              <WeeklyProgressBadge />
+            </div>
           </div>
-          {/* Upper Right Quadrant - Streak Badge */}
-          <div className="absolute top-4 right-4 z-10">
-            <CompactStreakBadge />
+          
+          {/* Center Column - Timer */}
+          <div className="flex justify-center">
+            <CircularProgressTimer
+              timeLeft={timeLeft || currentDuration}
+              duration={duration || currentDuration}
+              state={timerState}
+              progress={duration ? ((duration - (timeLeft || 0)) / duration) * 100 : 0}
+            />
           </div>
-          {/* Lower Left Quadrant - Progress Badge */}
-          <div className="absolute bottom-4 left-4 z-10">
-            <WeeklyProgressBadge />
+          
+          {/* Right Column - Badges */}
+          <div className="flex flex-col gap-8 items-center">
+            <div className="transform scale-90">
+              <CompactStreakBadge />
+            </div>
+            <div className="transform scale-90">
+              <TrendBadge exerciseId={selectedExerciseId} />
+            </div>
           </div>
-          {/* Lower Right Quadrant - Personal Best Badge */}
-          <div className="absolute bottom-4 right-4 z-10">
-            <PersonalBestBadge exerciseId={selectedExerciseId} />
-          </div>
-
-              <CircularProgressTimer
-                timeLeft={timeLeft || currentDuration}
-                duration={duration || currentDuration}
-                state={timerState}
-                progress={duration ? ((duration - (timeLeft || 0)) / duration) * 100 : 0}
-              />
         </div>
 
         {/* Timer Controls - Directly under timer */}
@@ -221,34 +226,32 @@ const QuickStartTimerCard = ({
         </div>
       </div>
 
-      {/* Tablet Layout - Stacked but wider (768px - 1024px) */}
+      {/* Tablet Layout - Side Badges (768px - 1024px) */}
       <div className="hidden md:block lg:hidden">
-        <div className="max-w-2xl mx-auto space-y-8">
-          {/* Timer with Quadrant Badges */}
-          <div className="relative mx-auto w-fit">
-            {/* Upper Left Quadrant - Level Badge */}
-            <div className="absolute top-6 left-6 z-10">
+        <div className="max-w-4xl mx-auto">
+          {/* Timer with Side Badges using CSS Grid */}
+          <div className="grid grid-cols-3 items-center gap-18 mx-auto w-fit">
+            {/* Left Column - Badges */}
+            <div className="flex flex-col gap-12 items-center">
               <UserLevelBadge />
-            </div>
-            {/* Upper Right Quadrant - Streak Badge */}
-            <div className="absolute top-6 right-6 z-10">
-              <CompactStreakBadge />
-            </div>
-            {/* Lower Left Quadrant - Progress Badge */}
-            <div className="absolute bottom-6 left-6 z-10">
               <WeeklyProgressBadge />
             </div>
-            {/* Lower Right Quadrant - Personal Best Badge */}
-            <div className="absolute bottom-6 right-6 z-10">
-              <PersonalBestBadge exerciseId={selectedExerciseId} />
+            
+            {/* Center Column - Timer */}
+            <div className="flex justify-center">
+              <CircularProgressTimer
+                timeLeft={timeLeft || currentDuration}
+                duration={duration || currentDuration}
+                state={timerState}
+                progress={duration ? ((duration - (timeLeft || 0)) / duration) * 100 : 0}
+              />
             </div>
-
-            <CircularProgressTimer
-              timeLeft={timeLeft || currentDuration}
-              duration={duration || currentDuration}
-              state={timerState}
-              progress={duration ? ((duration - (timeLeft || 0)) / duration) * 100 : 0}
-            />
+            
+            {/* Right Column - Badges */}
+            <div className="flex flex-col gap-12 items-center">
+              <CompactStreakBadge />
+              <TrendBadge exerciseId={selectedExerciseId} />
+            </div>
           </div>
 
           {/* Timer Controls - Directly under timer */}
@@ -351,31 +354,29 @@ const QuickStartTimerCard = ({
             </div>
           )}
 
-          {/* Timer with Quadrant Badges */}
-          <div className="relative mx-auto w-fit">
-            {/* Upper Left Quadrant - Level Badge */}
-            <div className="absolute top-8 left-8 z-10">
+          {/* Timer with Side Badges using CSS Grid */}
+          <div className="grid grid-cols-3 items-center gap-24 mx-auto w-fit">
+            {/* Left Column - Badges */}
+            <div className="flex flex-col gap-16 items-center">
               <UserLevelBadge />
-            </div>
-            {/* Upper Right Quadrant - Streak Badge */}
-            <div className="absolute top-8 right-8 z-10">
-              <CompactStreakBadge />
-            </div>
-            {/* Lower Left Quadrant - Progress Badge */}
-            <div className="absolute bottom-8 left-8 z-10">
               <WeeklyProgressBadge />
             </div>
-            {/* Lower Right Quadrant - Personal Best Badge */}
-            <div className="absolute bottom-8 right-8 z-10">
-              <PersonalBestBadge exerciseId={selectedExerciseId} />
+            
+            {/* Center Column - Timer */}
+            <div className="flex justify-center">
+              <CircularProgressTimer
+                timeLeft={timeLeft || currentDuration}
+                duration={duration || currentDuration}
+                state={timerState}
+                progress={duration ? ((duration - (timeLeft || 0)) / duration) * 100 : 0}
+              />
             </div>
-
-            <CircularProgressTimer
-              timeLeft={timeLeft || currentDuration}
-              duration={duration || currentDuration}
-              state={timerState}
-              progress={duration ? ((duration - (timeLeft || 0)) / duration) * 100 : 0}
-            />
+            
+            {/* Right Column - Badges */}
+            <div className="flex flex-col gap-16 items-center">
+              <CompactStreakBadge />
+              <TrendBadge exerciseId={selectedExerciseId} />
+            </div>
           </div>
 
           {/* Timer Controls - Centered under timer */}

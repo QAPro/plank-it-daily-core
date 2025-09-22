@@ -18,6 +18,9 @@ export default {
 			}
 		},
 		extend: {
+			spacing: {
+				'18': '4.5rem', // 72px / 0.75 inch for tablet spacing
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',

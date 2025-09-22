@@ -38,6 +38,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
   const [communityExpanded, setCommunityExpanded] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState<string>('');
   const [selectedDuration, setSelectedDuration] = useState<number>(60);
+  const [initializedFromPreferences, setInitializedFromPreferences] = useState(false);
   const { toast } = useToast();
 
   // Timer state management
@@ -179,15 +180,17 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
 
   // Initialize from user preferences when component loads
   React.useEffect(() => {
-    if (!preferencesLoading && preferences && selectedExercise === '' && selectedDuration === 60) {
+    // Only initialize once when preferences first load
+    if (!preferencesLoading && preferences && !initializedFromPreferences) {
       if (preferences.last_exercise_id) {
         setSelectedExercise(preferences.last_exercise_id);
       }
-      if (preferences.last_duration) {
+      if (preferences.last_duration && preferences.last_duration !== selectedDuration) {
         setSelectedDuration(preferences.last_duration);
       }
+      setInitializedFromPreferences(true);
     }
-  }, [preferences, preferencesLoading, selectedExercise, selectedDuration]);
+  }, [preferences, preferencesLoading, initializedFromPreferences, selectedDuration]);
 
   // Handle external workout selection from WorkoutTab
   React.useEffect(() => {
@@ -197,8 +200,16 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     }
   }, [selectedWorkout, onWorkoutStarted]);
 
-  const handleDurationChange = (duration: number) => {
+  const handleDurationChange = async (duration: number) => {
     setSelectedDuration(duration);
+    
+    // Only save to preferences when user manually changes duration (not during initialization)
+    if (initializedFromPreferences && selectedExercise) {
+      await updatePreferences({
+        last_duration: duration,
+        last_workout_timestamp: new Date().toISOString()
+      }, false);
+    }
   };
 
   return (

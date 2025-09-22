@@ -51,10 +51,10 @@ const QuickStartTimerCard = ({
   // Default to Basic Plank if no history
   const defaultExercise = exercises?.find(ex => ex.name === 'Basic Plank') || exercises?.[0];
   
-  // Use selected exercise prop first, then workout data, then preferences or defaults
+  // Use props as single source of truth, with fallbacks only for missing data
   const selectedExerciseId = selectedExercise || selectedWorkout?.exerciseId || preferences?.last_exercise_id || defaultExercise?.id || '';
   const selectedExerciseObj = exercises?.find(ex => ex.id === selectedExerciseId) || defaultExercise;
-  const currentDuration = selectedWorkout?.duration || duration || preferences?.last_duration || 60;
+  const currentDuration = duration || selectedWorkout?.duration || 60;
 
   // Force component to recognize selectedWorkout changes
   React.useEffect(() => {
@@ -63,15 +63,8 @@ const QuickStartTimerCard = ({
     }
   }, [selectedWorkout]);
 
-  const handleDurationChange = async (newDuration: number) => {
-    if (!preferences) return;
-    
-    await updatePreferences({
-      last_duration: newDuration,
-      last_workout_timestamp: new Date().toISOString()
-    }, false);
-    
-    // Notify parent component about duration change
+  const handleDurationChange = (newDuration: number) => {
+    // Let parent component handle duration change and preference saving
     onDurationChange?.(newDuration);
   };
 

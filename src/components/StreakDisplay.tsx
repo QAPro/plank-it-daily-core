@@ -1,12 +1,11 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Flame, Trophy, Target, Calendar } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useStreakTracking } from "@/hooks/useStreakTracking";
-import { useEffect } from "react";
 
 interface StreakDisplayProps {
   variant?: "compact" | "detailed";

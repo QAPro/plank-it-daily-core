@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useStatusTracks } from '@/hooks/useStatusTracks';
 import { TrackName } from '@/services/statusTrackService';

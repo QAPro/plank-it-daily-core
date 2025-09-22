@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactNode } from 'react';
 
 // Create a client with optimized settings for achievement caching
 const queryClient = new QueryClient({

@@ -8,7 +8,11 @@ import type { Tables } from '@/integrations/supabase/types';
 
 type Exercise = Tables<'plank_exercises'>;
 
-const EnhancedWorkoutTab = () => {
+interface EnhancedWorkoutTabProps {
+  onStartWorkout: (exerciseId: string, duration: number) => void;
+}
+
+const EnhancedWorkoutTab = ({ onStartWorkout }: EnhancedWorkoutTabProps) => {
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [detailsExercise, setDetailsExercise] = useState<Exercise | null>(null);
 
@@ -23,8 +27,8 @@ const EnhancedWorkoutTab = () => {
   };
 
   const handleExerciseStart = (exercise: Exercise) => {
-    // This will be handled by the exercise list - could navigate to timer or integrate with existing workout flow
-    console.log('Starting exercise:', exercise);
+    // Start workout with 1 minute default duration
+    onStartWorkout(exercise.id, 60);
   };
 
   const handleExerciseDetails = (exercise: Exercise) => {

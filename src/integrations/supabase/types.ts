@@ -862,6 +862,36 @@ export type Database = {
         }
         Relationships: []
       }
+      exercise_families: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          display_order: number
+          family_key: string
+          family_name: string
+          icon_name: string | null
+          id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          display_order?: number
+          family_key: string
+          family_name: string
+          icon_name?: string | null
+          id?: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          display_order?: number
+          family_key?: string
+          family_name?: string
+          icon_name?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
       exercise_masteries: {
         Row: {
           best_performance: Json | null
@@ -4428,6 +4458,10 @@ export type Database = {
           session_count: number
           user_count: number
         }[]
+      }
+      get_exercise_family: {
+        Args: { difficulty_level: number; exercise_category: string }
+        Returns: string
       }
       get_feature_flag_analytics: {
         Args: Record<PropertyKey, never>

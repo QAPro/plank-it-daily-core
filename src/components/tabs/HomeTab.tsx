@@ -150,10 +150,16 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     timerState.handleStart();
   };
 
+  const prepareWorkout = (exerciseId: string, duration: number) => {
+    setSelectedExercise(exerciseId);
+    setSelectedDuration(duration);
+    // Don't start the timer - just prepare it
+  };
+
   // Handle external workout selection from WorkoutTab
   React.useEffect(() => {
     if (selectedWorkout) {
-      handleStartWorkout(selectedWorkout.exerciseId, selectedWorkout.duration);
+      prepareWorkout(selectedWorkout.exerciseId, selectedWorkout.duration);
       onWorkoutStarted?.(); // Notify parent that workout has been processed
     }
   }, [selectedWorkout, onWorkoutStarted]);

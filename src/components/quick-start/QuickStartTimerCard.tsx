@@ -1,3 +1,4 @@
+import React from "react";
 import { motion } from "framer-motion";
 import { Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -52,6 +53,13 @@ const QuickStartTimerCard = ({
   const selectedExerciseId = selectedWorkout?.exerciseId || preferences?.last_exercise_id || defaultExercise?.id || '';
   const selectedExercise = exercises?.find(ex => ex.id === selectedExerciseId) || defaultExercise;
   const currentDuration = selectedWorkout?.duration || duration || preferences?.last_duration || 60;
+
+  // Force component to recognize selectedWorkout changes
+  React.useEffect(() => {
+    if (selectedWorkout?.exerciseId) {
+      console.log('Selected workout changed:', selectedWorkout);
+    }
+  }, [selectedWorkout]);
 
   const handleDurationChange = async (newDuration: number) => {
     if (!preferences) return;

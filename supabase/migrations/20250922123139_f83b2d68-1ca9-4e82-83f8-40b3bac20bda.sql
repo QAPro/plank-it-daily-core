@@ -1,0 +1,247 @@
+-- Security Fix: Secure the users table properly
+-- Remove potentially vulnerable public role policies and implement secure access patterns
+
+-- First, drop all existing policies on the users table
+DROP POLICY IF EXISTS "Users can only view own profile" ON public.users;
+DROP POLICY IF EXISTS "Users can only update own profile" ON public.users;
+DROP POLICY IF EXISTS "Users can insert own profile" ON public.users;
+DROP POLICY IF EXISTS "Users can view own profile" ON public.users;
+DROP POLICY IF EXISTS "Users can update own profile" ON public.users;
+DROP POLICY IF EXISTS "Admins can view all users" ON public.users;
+DROP POLICY IF EXISTS "Admins can update all users" ON public.users;
+
+-- Create secure RLS policies for authenticated users only
+-- Users can only view their own profile data
+CREATE POLICY "Authenticated users can view own profile"
+ON public.users
+FOR SELECT
+TO authenticated
+USING (auth.uid() = id);
+
+-- Users can only update their own profile data
+CREATE POLICY "Authenticated users can update own profile"
+ON public.users
+FOR UPDATE
+TO authenticated
+USING (auth.uid() = id)
+WITH CHECK (auth.uid() = id);
+
+-- Users can insert their own profile (for registration)
+CREATE POLICY "Authenticated users can insert own profile"
+ON public.users
+FOR INSERT
+TO authenticated
+WITH CHECK (auth.uid() = id);
+
+-- Prevent users from deleting their own profiles
+-- (Profile deletion should be handled through proper account deletion flows)
+CREATE POLICY "Prevent profile deletion"
+ON public.users
+FOR DELETE
+TO authenticated
+USING (false);
+
+-- Admins can view user information for administrative purposes
+-- But should use secure functions for sensitive operations
+CREATE POLICY "Admins can view user data"
+ON public.users
+FOR SELECT
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM user_roles 
+    WHERE user_id = auth.uid() 
+    AND role = 'admin'::app_role
+  )
+);
+
+-- Admins can update user data for administrative purposes
+-- But we recommend using secure functions for sensitive operations
+CREATE POLICY "Admins can update user data"
+ON public.users
+FOR UPDATE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM user_roles 
+    WHERE user_id = auth.uid() 
+    AND role = 'admin'::app_role
+  )
+)
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM user_roles 
+    WHERE user_id = auth.uid() 
+    AND role = 'admin'::app_role
+  )
+);
+
+-- Create a security definer function for safe user lookups
+-- This allows controlled access to user data for specific operations
+CREATE OR REPLACE FUNCTION public.get_user_display_info(target_user_id uuid)
+RETURNS TABLE(
+  user_id uuid,
+  username text,
+  avatar_url text,
+  current_level integer
+) 
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  -- Only return non-sensitive display information
+  -- Never return email, full_name, or other personal data
+  RETURN QUERY
+  SELECT 
+    u.id,
+    u.username,
+    u.avatar_url,
+    u.current_level
+  FROM users u
+  WHERE u.id = target_user_id;
+END;
+$$;
+
+-- Create a security definer function for admin user management
+-- Limits what admins can see to essential management data only
+CREATE OR REPLACE FUNCTION public.get_admin_user_summary()
+RETURNS TABLE(
+  user_id uuid,
+  username text,
+  subscription_tier text,
+  current_level integer,
+  created_at timestamp with time zone,
+  total_xp integer
+) 
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  -- Only allow admins to call this function
+  IF NOT EXISTS (
+    SELECT 1 FROM user_roles 
+    WHERE user_id = auth.uid() 
+    AND role = 'admin'::app_role
+  ) THEN
+    RAISE EXCEPTION 'Access denied. Admin privileges required.';
+  END IF;
+
+  -- Return only non-sensitive management data
+  -- Never return email, full_name, or other personal data
+  RETURN QUERY
+  SELECT 
+    u.id,
+    u.username,
+    u.subscription_tier,
+    u.current_level,
+    u.created_at,
+    u.total_xp
+  FROM users u
+  ORDER BY u.created_at DESC;
+END;
+$$;
+
+-- Create a security definer function for secure admin operations
+-- Allows admins to update only specific non-sensitive fields
+CREATE OR REPLACE FUNCTION public.admin_update_user_tier(
+  target_user_id uuid,
+  new_tier text,
+  reason text DEFAULT NULL
+)
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  -- Only allow admins to call this function
+  IF NOT EXISTS (
+    SELECT 1 FROM user_roles 
+    WHERE user_id = auth.uid() 
+    AND role = 'admin'::app_role
+  ) THEN
+    RAISE EXCEPTION 'Access denied. Admin privileges required.';
+  END IF;
+
+  -- Update only the subscription tier, not personal information
+  UPDATE users 
+  SET subscription_tier = new_tier, 
+      updated_at = now()
+  WHERE id = target_user_id;
+
+  -- Log the admin action
+  INSERT INTO user_data_access_log (
+    accessing_user_id,
+    target_user_id,
+    access_type,
+    accessed_fields,
+    access_reason
+  ) VALUES (
+    auth.uid(),
+    target_user_id,
+    'admin_update_tier',
+    ARRAY['subscription_tier'],
+    COALESCE(reason, 'Administrative tier update')
+  );
+
+  RETURN FOUND;
+END;
+$$;
+
+-- Update the existing find_user_by_username_or_email function to be more secure
+-- Ensure it only returns necessary data and requires authentication
+CREATE OR REPLACE FUNCTION public.find_user_by_username_or_email(identifier text)
+RETURNS TABLE(user_id uuid, username text)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  -- Only authenticated users can search for other users
+  IF auth.uid() IS NULL THEN
+    RAISE EXCEPTION 'Authentication required to search for users';
+  END IF;
+
+  -- Return only safe, non-sensitive data for user lookup
+  RETURN QUERY
+  SELECT u.id, u.username
+  FROM public.users u
+  WHERE u.username = identifier OR u.email = identifier;
+END;
+$$;
+
+-- Create audit logging table for sensitive operations
+CREATE TABLE IF NOT EXISTS public.user_data_access_log (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  accessing_user_id uuid NOT NULL,
+  target_user_id uuid NOT NULL,
+  access_type text NOT NULL,
+  accessed_fields text[] NOT NULL,
+  access_reason text,
+  created_at timestamp with time zone DEFAULT now()
+);
+
+-- Enable RLS on the audit log
+ALTER TABLE public.user_data_access_log ENABLE ROW LEVEL SECURITY;
+
+-- Only admins can view audit logs
+CREATE POLICY "Admins can view access logs"
+ON public.user_data_access_log
+FOR SELECT
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM user_roles 
+    WHERE user_id = auth.uid() 
+    AND role = 'admin'::app_role
+  )
+);
+
+-- System can insert access logs
+CREATE POLICY "System can insert access logs"
+ON public.user_data_access_log
+FOR INSERT
+TO authenticated
+WITH CHECK (auth.uid() = accessing_user_id);

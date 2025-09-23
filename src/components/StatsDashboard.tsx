@@ -1,10 +1,12 @@
 
 import { motion } from "framer-motion";
-import { BarChart, Clock, Calendar, Trophy, Target } from "lucide-react";
+import { BarChart, Clock, Calendar, Trophy, Target, Settings } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { useSessionStats } from "@/hooks/useSessionHistory";
+import WeeklyGoalSettings from "@/components/WeeklyGoalSettings";
 
 const StatsDashboard = () => {
   const { data: stats, isLoading, error } = useSessionStats();
@@ -139,11 +141,18 @@ const StatsDashboard = () => {
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center">
                 <Target className="w-5 h-5 mr-2 text-orange-500" />
-                Weekly Goal
+                Weekly Goal: {stats.weeklyGoal} {stats.weeklyGoal === 1 ? 'day' : 'days'}
               </span>
-              <span className="text-sm text-gray-600">
-                {stats.thisWeekSessions}/{stats.weeklyGoal}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">
+                  {stats.thisWeekSessions}/{stats.weeklyGoal}
+                </span>
+                <WeeklyGoalSettings>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <Settings className="w-4 h-4" />
+                  </Button>
+                </WeeklyGoalSettings>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -184,7 +193,7 @@ const StatsDashboard = () => {
                     }}
                   />
                   <div className="mt-2 text-center">
-                    <p className="text-xs font-medium text-gray-600">{day.day}</p>
+                    <p className="text-xs font-medium text-gray-600">{day.day} {day.date}</p>
                     <p className="text-xs text-gray-500">{day.sessions}</p>
                   </div>
                 </div>

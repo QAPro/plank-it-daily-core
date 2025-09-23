@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
+import { useUserPreferences } from '@/hooks/useUserPreferences';
 
 type SessionWithExercise = Tables<'user_sessions'> & {
   plank_exercises: Tables<'plank_exercises'> | null;
@@ -43,9 +44,10 @@ export const useSessionHistory = (limit = 10) => {
 
 export const useSessionStats = () => {
   const { user } = useAuth();
+  const { preferences } = useUserPreferences();
 
   return useQuery({
-    queryKey: ['session-stats', user?.id],
+    queryKey: ['session-stats', user?.id, preferences?.weekly_goal],
     queryFn: async () => {
       if (!user) return null;
 
@@ -60,13 +62,15 @@ export const useSessionStats = () => {
         throw error;
       }
 
+      const weeklyGoal = preferences?.weekly_goal ?? 7;
+
       if (!sessions || sessions.length === 0) {
         return {
           totalSessions: 0,
           totalTimeSpent: 0,
           averageDuration: 0,
           thisWeekSessions: 0,
-          weeklyGoal: 7,
+          weeklyGoal,
           weeklyProgress: [],
         };
       }
@@ -97,6 +101,7 @@ export const useSessionStats = () => {
         nextDay.setDate(nextDay.getDate() + 1);
         
         const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+        const dayNumber = date.getDate();
         const sessionsCount = sessions.filter(session => {
           const sessionDate = new Date(session.completed_at || '');
           return sessionDate >= date && sessionDate < nextDay;
@@ -104,6 +109,7 @@ export const useSessionStats = () => {
 
         weeklyProgress.push({
           day: dayName,
+          date: dayNumber,
           sessions: sessionsCount,
           completed: sessionsCount > 0,
         });
@@ -114,7 +120,7 @@ export const useSessionStats = () => {
         totalTimeSpent,
         averageDuration,
         thisWeekSessions,
-        weeklyGoal: 7,
+        weeklyGoal,
         weeklyProgress,
       };
     },

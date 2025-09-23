@@ -3351,6 +3351,7 @@ export type Database = {
           updated_at: string | null
           user_id: string
           vibration_intensity: number | null
+          weekly_goal: number
           workout_reminders: boolean | null
         }
         Insert: {
@@ -3388,6 +3389,7 @@ export type Database = {
           updated_at?: string | null
           user_id: string
           vibration_intensity?: number | null
+          weekly_goal?: number
           workout_reminders?: boolean | null
         }
         Update: {
@@ -3425,6 +3427,7 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
           vibration_intensity?: number | null
+          weekly_goal?: number
           workout_reminders?: boolean | null
         }
         Relationships: []

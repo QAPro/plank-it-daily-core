@@ -7,6 +7,7 @@ import ProgressCelebrationDashboard from '@/components/progress/ProgressCelebrat
 import DataPortabilityHelper from '@/components/data/DataPortabilityHelper';
 import CommunityValueDashboard from '@/components/community/CommunityValueDashboard';
 import SeasonalRewards from '@/components/seasonal/SeasonalRewards';
+import StatsDashboard from '@/components/StatsDashboard';
 
 const ProgressTab: React.FC = () => {
   const [activeTab, setActiveTab] = useState('celebration');
@@ -56,9 +57,9 @@ const ProgressTab: React.FC = () => {
             <ProgressCelebrationDashboard />
           </TabsContent>
 
-          <TabsContent value="overview" className="space-y-6">
-            <ProgressDashboard />
-          </TabsContent>
+        <TabsContent value="overview" className="space-y-6">
+          <StatsDashboard />
+        </TabsContent>
 
           <TabsContent value="community" className="space-y-6">
             <CommunityValueDashboard />

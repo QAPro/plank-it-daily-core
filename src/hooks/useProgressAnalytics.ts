@@ -29,14 +29,19 @@ export interface ProgressMetrics {
 
 export const useProgressAnalytics = () => {
   const { user } = useAuth();
-  const { data: sessionStats } = useSessionStats();
-  const { streak } = useStreakTracking();
-  const { achievements } = useUserAchievements();
+  const { data: sessionStats, error: sessionStatsError } = useSessionStats();
+  const { streak, error: streakError } = useStreakTracking();
+  const { achievements, loading: achievementsLoading } = useUserAchievements();
 
   return useQuery({
     queryKey: ['progress-analytics', user?.id],
     queryFn: async (): Promise<ProgressMetrics | null> => {
       if (!user) return null;
+
+      // Log any dependency errors for debugging
+      if (sessionStatsError) console.warn('Session stats error:', sessionStatsError);
+      if (streakError) console.warn('Streak error:', streakError);
+      if (achievementsLoading) console.log('Achievements still loading...');
 
       // Get user's total XP
       const { data: userData } = await supabase
@@ -61,7 +66,7 @@ export const useProgressAnalytics = () => {
 
       const totalTimeDedicated = sessionStats?.totalTimeSpent || 0;
       const totalTimeDedicatedHours = totalTimeDedicated / 3600;
-      const achievementsEarned = achievements.length;
+      const achievementsEarned = achievements?.length || 0;
       const xpGained = userData?.total_xp || 0;
       const currentStreak = streak?.current_streak || 0;
       const longestStreak = streak?.longest_streak || 0;
@@ -138,6 +143,10 @@ export const useProgressAnalytics = () => {
         portfolioBreakdown,
       };
     },
-    enabled: !!user && !!sessionStats,
+    enabled: !!user,
+    retry: (failureCount, error) => {
+      console.warn(`Progress analytics retry attempt ${failureCount}:`, error);
+      return failureCount < 2;
+    },
   });
 };

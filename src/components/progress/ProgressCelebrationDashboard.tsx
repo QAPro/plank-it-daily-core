@@ -7,7 +7,7 @@ import { Trophy, Star, TrendingUp, Heart, Sparkles, Target } from 'lucide-react'
 import { useProgressAnalytics } from '@/hooks/useProgressAnalytics';
 
 const ProgressCelebrationDashboard: React.FC = () => {
-  const { data: analytics, isLoading } = useProgressAnalytics();
+  const { data: analytics, isLoading, error } = useProgressAnalytics();
 
   if (isLoading) {
     return (
@@ -18,6 +18,20 @@ const ProgressCelebrationDashboard: React.FC = () => {
           </Card>
         ))}
       </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center py-12">
+          <Target className="w-16 h-16 text-destructive mb-4" />
+          <h3 className="text-lg font-semibold mb-2">Unable to Load Progress</h3>
+          <p className="text-muted-foreground text-center">
+            We're having trouble loading your progress data. Please try refreshing the page.
+          </p>
+        </CardContent>
+      </Card>
     );
   }
 

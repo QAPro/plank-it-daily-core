@@ -29,12 +29,14 @@ export const useUserAchievements = () => {
 
       if (error) {
         console.error('Error fetching achievements:', error);
+        setAchievements([]); // Set empty array instead of returning early
         return;
       }
 
       setAchievements(data || []);
     } catch (error) {
       console.error('Error fetching achievements:', error);
+      setAchievements([]); // Set empty array on error
     } finally {
       setLoading(false);
     }

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useStatusTracks } from '@/hooks/useStatusTracks';
-import { useReputation } from '@/hooks/useReputation';
+import { useRoles } from '@/hooks/useRoles';
 
 export type LeadershipRole = 'moderator' | 'community_leader' | 'expert' | null;
 
@@ -15,18 +14,19 @@ interface LeadershipPerks {
 
 export const useLeadershipRoles = () => {
   const { user } = useAuth();
-  const { statusTracks, getTrackByName } = useStatusTracks();
-  const { getTotalKarma } = useReputation(user?.id);
+  const { hasRole } = useRoles();
   const [role, setRole] = useState<LeadershipRole>(null);
   const [perks, setPerks] = useState<LeadershipPerks | null>(null);
 
   useEffect(() => {
-    if (!statusTracks.length) return;
+    if (!user) {
+      setRole(null);
+      setPerks(null);
+      return;
+    }
 
-    const highestLevel = Math.max(...statusTracks.map(t => t.track_level));
-    const communityTrack = getTrackByName('community_leader')?.track_level || 0;
-    const totalKarma = getTotalKarma();
-
+    // Only check assigned roles from user_roles table
+    // No automatic role assignment based on achievements
     let currentRole: LeadershipRole = null;
     let currentPerks: LeadershipPerks = {
       canModerate: false,
@@ -36,8 +36,9 @@ export const useLeadershipRoles = () => {
       specialPrivileges: []
     };
 
-    // Expert (highest tier)
-    if (highestLevel >= 15 && totalKarma >= 1000) {
+    // Check assigned roles only
+    if (hasRole('admin')) {
+      // Admins get expert-level perks
       currentRole = 'expert';
       currentPerks = {
         canModerate: true,
@@ -45,6 +46,7 @@ export const useLeadershipRoles = () => {
         postLimits: -1, // Unlimited
         badgeColor: 'platinum',
         specialPrivileges: [
+          'Admin privileges',
           'Create exclusive challenges',
           'Access beta features',
           'Special expert badge',
@@ -52,25 +54,7 @@ export const useLeadershipRoles = () => {
           'Custom themes'
         ]
       };
-    }
-    // Community Leader (mid-high tier)
-    else if (highestLevel >= 10 && totalKarma >= 500 && communityTrack >= 5) {
-      currentRole = 'community_leader';
-      currentPerks = {
-        canModerate: true,
-        exclusiveThemes: ['gold', 'emerald'],
-        postLimits: 100,
-        badgeColor: 'gold',
-        specialPrivileges: [
-          'Feature content',
-          'Host community events',
-          'Leader badge',
-          'Advanced analytics'
-        ]
-      };
-    }
-    // Moderator (entry leadership tier)
-    else if (highestLevel >= 7 && totalKarma >= 200 && communityTrack >= 3) {
+    } else if (hasRole('moderator')) {
       currentRole = 'moderator';
       currentPerks = {
         canModerate: true,
@@ -84,12 +68,13 @@ export const useLeadershipRoles = () => {
         ]
       };
     }
+    // Note: community_leader role would go here if added to app_role enum
 
     setRole(currentRole);
     setPerks(currentPerks);
-  }, [statusTracks, getTotalKarma]);
+  }, [user, hasRole]);
 
-  const hasRole = (requiredRole: LeadershipRole): boolean => {
+  const hasLeadershipRole = (requiredRole: LeadershipRole): boolean => {
     if (!requiredRole) return true;
     if (!role) return false;
     
@@ -120,7 +105,7 @@ export const useLeadershipRoles = () => {
   return {
     role,
     perks,
-    hasRole,
+    hasRole: hasLeadershipRole,
     getPostLimit,
     canModerate,
     getExclusiveThemes,

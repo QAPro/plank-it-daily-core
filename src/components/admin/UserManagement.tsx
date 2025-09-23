@@ -8,6 +8,7 @@ import AdminSubscriptionOverview from "./users/AdminSubscriptionOverview";
 import BulkSubscriptionManager from "./users/BulkSubscriptionManager";
 import CustomerSupportTools from "./users/CustomerSupportTools";
 import UserSegmentManager from "./users/UserSegmentManager";
+import LeadershipCandidates from "./leadership/LeadershipCandidates";
 
 const UserManagement: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<AdminUserSummary | null>(null);
@@ -27,6 +28,9 @@ const UserManagement: React.FC = () => {
 
       {/* Segmentation */}
       <UserSegmentManager />
+
+      {/* Leadership Candidates */}
+      <LeadershipCandidates />
 
       {/* Search and per-user tools */}
       <UserSearch onSelect={setSelectedUser} />

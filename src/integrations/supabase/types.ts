@@ -1349,6 +1349,48 @@ export type Database = {
         }
         Relationships: []
       }
+      leadership_candidates: {
+        Row: {
+          candidate_type: string
+          created_at: string
+          id: string
+          qualification_data: Json
+          qualification_date: string
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          candidate_type: string
+          created_at?: string
+          id?: string
+          qualification_data?: Json
+          qualification_date?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          candidate_type?: string
+          created_at?: string
+          id?: string
+          qualification_data?: Json
+          qualification_date?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       league_divisions: {
         Row: {
           current_participants: number | null
@@ -4386,6 +4428,10 @@ export type Database = {
         Args: { _admin_id: string; _target_user_id: string }
         Returns: boolean
       }
+      detect_leadership_candidates: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       does_username_exist: {
         Args: { target_username: string }
         Returns: boolean
@@ -4660,6 +4706,10 @@ export type Database = {
       notify_via_edge_function: {
         Args: { p_payload: Json }
         Returns: undefined
+      }
+      promote_leadership_candidate: {
+        Args: { _admin_id: string; _candidate_id: string; _notes?: string }
+        Returns: boolean
       }
       refresh_user_cohort_memberships: {
         Args: { _user_id: string }

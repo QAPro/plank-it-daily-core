@@ -34,7 +34,7 @@ const PasswordReset = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const validateResetTokens = async () => {
+    const parseResetTokens = () => {
       // Parse tokens from URL fragment (after #)
       const parseFragmentParams = () => {
         const fragment = window.location.hash.substring(1);
@@ -52,51 +52,19 @@ const PasswordReset = () => {
       if (type !== 'recovery' || !access_token || !refresh_token) {
         toast({
           title: "Invalid reset link",
-          description: "This password reset link is invalid or has expired. Please request a new one.",
+          description: "This password reset link is invalid or missing required parameters. Please request a new one.",
           variant: "destructive",
         });
         navigate('/auth');
         return;
       }
 
-      try {
-        // Validate tokens without setting the session by attempting to decode them
-        // We'll create a temporary session just to check if tokens are valid
-        const { data, error } = await supabase.auth.setSession({
-          access_token,
-          refresh_token
-        });
-
-        if (error) {
-          console.error('Token validation error:', error);
-          toast({
-            title: "Invalid or expired reset link",
-            description: "This password reset link has expired. Please request a new one.",
-            variant: "destructive",
-          });
-          navigate('/auth');
-          return;
-        }
-
-        // If tokens are valid, immediately sign out but store the tokens for later use
-        await supabase.auth.signOut();
-        
-        // Store the validated tokens for use when updating password
-        setResetTokens({ access_token, refresh_token });
-        setTokensValidated(true);
-
-      } catch (error) {
-        console.error('Token validation failed:', error);
-        toast({
-          title: "Invalid reset link",
-          description: "Unable to validate the reset link. Please request a new one.",
-          variant: "destructive",
-        });
-        navigate('/auth');
-      }
+      // Store the tokens without validating them yet - validation happens on form submit
+      setResetTokens({ access_token, refresh_token });
+      setTokensValidated(true);
     };
 
-    validateResetTokens();
+    parseResetTokens();
   }, [toast, navigate]);
 
   const validatePasswords = () => {

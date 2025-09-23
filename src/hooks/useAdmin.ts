@@ -15,7 +15,7 @@ export const useAdmin = () => {
     staleTime: 60_000,
   });
 
-  // Enhanced to detect superadmin as well
+  // Enhanced to detect admin roles
   const { data: roleData } = useQuery({
     queryKey: ["user-roles", user?.id],
     queryFn: async () => {
@@ -32,12 +32,10 @@ export const useAdmin = () => {
   });
 
   const roles = roleData || [];
-  const isSuperadmin = roles.includes("superadmin");
-  const isAdmin = !!data || roles.includes("admin") || isSuperadmin;
+  const isAdmin = !!data || roles.includes("admin");
 
   return {
     isAdmin,
-    isSuperadmin,
     roles,
     loading: !!user?.id ? isLoading : false,
     error,

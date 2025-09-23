@@ -24,8 +24,7 @@ export const useRoles = (userId?: string) => {
   const hasAnyRole = (roles: AppRole[]) => roles.some(role => roleNames.includes(role));
 
   // Administrative levels
-  const isSuperadmin = hasRole("superadmin");
-  const isAdmin = hasRole("admin") || isSuperadmin;
+  const isAdmin = hasRole("admin");
   const isModerator = hasRole("moderator") || isAdmin;
 
   // Special roles
@@ -36,15 +35,14 @@ export const useRoles = (userId?: string) => {
   // Subscription roles
   const isSubscriber = hasRole("subscriber");
 
-  // Role level (hierarchy)
-  const roleLevel = isSuperadmin ? 5 : isAdmin ? 4 : isModerator ? 3 : isSubscriber ? 2 : 1;
+  // Role level (hierarchy) - Admin is now the highest level (4)
+  const roleLevel = isAdmin ? 4 : isModerator ? 3 : isSubscriber ? 2 : 1;
 
   return {
     allRoles,
     roleNames,
     hasRole,
     hasAnyRole,
-    isSuperadmin,
     isAdmin,
     isModerator,
     isBetaTester,
@@ -60,16 +58,15 @@ export const useRoles = (userId?: string) => {
 
 export const useAdminLevel = () => {
   const { user } = useAuth();
-  const { roleLevel, isSuperadmin, isAdmin, loading } = useRoles();
+  const { roleLevel, isAdmin, loading } = useRoles();
 
-  const canModifyRoles = roleLevel >= 4; // Admin or higher
-  const canManageAdmins = isSuperadmin;
+  const canModifyRoles = roleLevel >= 4; // Admin level
+  const canManageAdmins = isAdmin; // Admins can manage other admins
 
   return {
     roleLevel,
     canModifyRoles,
     canManageAdmins,
-    isSuperadmin,
     isAdmin,
     loading,
   };
@@ -81,8 +78,7 @@ export const useCanModifyRoles = (targetUserId?: string) => {
   const targetUserRoles = useRoles(targetUserId);
 
   const canModify = 
-    currentUserRoles.roleLevel >= 4 && // Must be admin+
-    (currentUserRoles.isSuperadmin || currentUserRoles.roleLevel > targetUserRoles.roleLevel);
+    currentUserRoles.roleLevel >= 4; // Must be admin (admins can modify anyone)
 
   return {
     canModify,

@@ -1,6 +1,6 @@
 
 import { motion } from "framer-motion";
-import { Clock, Calendar, Trophy, ChevronRight } from "lucide-react";
+import { Clock, Calendar, Trophy } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -138,7 +138,7 @@ const SessionHistory = () => {
                       Level {session.plank_exercises.difficulty_level}
                     </span>
                   )}
-                  <ChevronRight className="w-4 h-4 text-gray-400" />
+                  
                 </div>
               </motion.div>
             ))}

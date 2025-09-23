@@ -220,7 +220,7 @@ const QuickStartTimerCard = ({
         </div>
 
         {/* Duration Controls */}
-        <div className="flex justify-center">
+        <div className="flex justify-center mt-8">
           <DurationIncrementControls
             duration={currentDuration}
             onDurationChange={handleDurationChange}
@@ -344,7 +344,7 @@ const QuickStartTimerCard = ({
           </div>
 
           {/* Duration Controls */}
-          <div className="flex justify-center">
+          <div className="flex justify-center mt-10">
             <DurationIncrementControls
               duration={currentDuration}
               onDurationChange={handleDurationChange}

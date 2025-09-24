@@ -4695,6 +4695,10 @@ export type Database = {
         Args: { _user_id?: string }
         Returns: boolean
       }
+      is_admin_with_audit: {
+        Args: { _user_id?: string }
+        Returns: boolean
+      }
       is_superadmin: {
         Args: { _user_id?: string }
         Returns: boolean
@@ -4730,6 +4734,14 @@ export type Database = {
           _target_user_id: string
         }
         Returns: boolean
+      }
+      safe_user_lookup: {
+        Args: { search_term: string }
+        Returns: {
+          avatar_url: string
+          user_id: string
+          username: string
+        }[]
       }
       set_user_feature_override: {
         Args: {

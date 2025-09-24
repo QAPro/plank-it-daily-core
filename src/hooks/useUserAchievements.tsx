@@ -18,7 +18,10 @@ export const useUserAchievements = () => {
   const [loading, setLoading] = useState(true);
 
   const fetchAchievements = async () => {
-    if (!user) return;
+    if (!user?.id) {
+      setLoading(false);
+      return;
+    }
 
     try {
       const { data, error } = await supabase
@@ -44,7 +47,7 @@ export const useUserAchievements = () => {
 
   useEffect(() => {
     fetchAchievements();
-  }, [user]);
+  }, [user?.id]); // Use user?.id instead of user object to prevent reference changes
 
   return {
     achievements,

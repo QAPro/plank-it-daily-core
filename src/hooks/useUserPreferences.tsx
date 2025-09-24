@@ -53,7 +53,10 @@ export const useUserPreferences = () => {
   const [loading, setLoading] = useState(true);
 
   const fetchPreferences = async () => {
-    if (!user) return;
+    if (!user?.id) {
+      setLoading(false);
+      return;
+    }
 
     try {
       const { data, error } = await supabase
@@ -147,7 +150,7 @@ export const useUserPreferences = () => {
 
   useEffect(() => {
     fetchPreferences();
-  }, [user]);
+  }, [user?.id]); // Use user?.id instead of user object to prevent reference changes
 
   return {
     preferences,

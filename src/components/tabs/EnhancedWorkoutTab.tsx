@@ -45,8 +45,6 @@ const EnhancedWorkoutTab = ({ onStartWorkout, selectedWorkout }: EnhancedWorkout
 
   const handleExerciseSelect = (exercise: Exercise) => {
     setSelectedExerciseId(exercise.id);
-    // Update home screen immediately
-    onStartWorkout(exercise.id, 60);
   };
 
   const handleExerciseDetails = (exercise: Exercise) => {

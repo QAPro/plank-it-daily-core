@@ -253,6 +253,42 @@ export type Database = {
         }
         Relationships: []
       }
+      billing_data_access_audit: {
+        Row: {
+          access_reason: string | null
+          access_type: string
+          accessed_fields: string[] | null
+          accessing_user_id: string | null
+          created_at: string
+          id: string
+          ip_address: unknown | null
+          target_user_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          access_reason?: string | null
+          access_type: string
+          accessed_fields?: string[] | null
+          accessing_user_id?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          target_user_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          access_reason?: string | null
+          access_type?: string
+          accessed_fields?: string[] | null
+          accessing_user_id?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          target_user_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       billing_transactions: {
         Row: {
           amount_cents: number
@@ -4531,6 +4567,22 @@ export type Database = {
           drop_off_rate: number
           step_name: string
           total_users: number
+        }[]
+      }
+      get_secure_billing_history: {
+        Args: {
+          access_reason?: string
+          limit_count?: number
+          target_user_id: string
+        }
+        Returns: {
+          amount_cents: number
+          created_at: string
+          currency: string
+          description: string
+          masked_payment_intent: string
+          status: string
+          transaction_id: string
         }[]
       }
       get_subscription_health_score: {

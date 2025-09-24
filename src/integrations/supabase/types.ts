@@ -3402,6 +3402,7 @@ export type Database = {
           breathing_guidance: boolean | null
           coaching_voice: string | null
           created_at: string | null
+          daily_sessions: number | null
           difficulty_preference: string | null
           favorite_exercises: string[] | null
           form_reminders: boolean | null
@@ -3440,6 +3441,7 @@ export type Database = {
           breathing_guidance?: boolean | null
           coaching_voice?: string | null
           created_at?: string | null
+          daily_sessions?: number | null
           difficulty_preference?: string | null
           favorite_exercises?: string[] | null
           form_reminders?: boolean | null
@@ -3478,6 +3480,7 @@ export type Database = {
           breathing_guidance?: boolean | null
           coaching_voice?: string | null
           created_at?: string | null
+          daily_sessions?: number | null
           difficulty_preference?: string | null
           favorite_exercises?: string[] | null
           form_reminders?: boolean | null

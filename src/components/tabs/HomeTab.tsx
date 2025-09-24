@@ -170,6 +170,9 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     }
     
     timerState.handleStart();
+    
+    // Notify parent that workout has been started (not just prepared)
+    onWorkoutStarted?.();
   };
 
   const prepareWorkout = (exerciseId: string, duration: number) => {
@@ -183,7 +186,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     if (selectedWorkout) {
       console.log('HomeTab: External workout selected:', selectedWorkout);
       prepareWorkout(selectedWorkout.exerciseId, selectedWorkout.duration);
-      onWorkoutStarted?.(); // Notify parent that workout has been processed
+      // Don't call onWorkoutStarted here - only call it when user actually starts the workout
     }
   }, [selectedWorkout, onWorkoutStarted]);
 

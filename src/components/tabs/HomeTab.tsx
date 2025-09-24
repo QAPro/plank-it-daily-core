@@ -178,10 +178,24 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     // Don't start the timer - just prepare it
   };
 
-  // Initialize from user preferences when component loads
+  // Handle external workout selection from WorkoutTab (priority over preferences)
   React.useEffect(() => {
-    // Only initialize once when preferences first load
-    if (!preferencesLoading && preferences && !initializedFromPreferences) {
+    if (selectedWorkout) {
+      console.log('HomeTab: External workout selected:', selectedWorkout);
+      prepareWorkout(selectedWorkout.exerciseId, selectedWorkout.duration);
+      onWorkoutStarted?.(); // Notify parent that workout has been processed
+    }
+  }, [selectedWorkout, onWorkoutStarted]);
+
+  // Initialize from user preferences when component loads (only if no external workout)
+  React.useEffect(() => {
+    // Only initialize once when preferences first load, and only if no external workout is selected
+    if (!preferencesLoading && preferences && !initializedFromPreferences && !selectedWorkout) {
+      console.log('HomeTab: Initializing from preferences:', {
+        last_exercise_id: preferences.last_exercise_id,
+        last_duration: preferences.last_duration
+      });
+      
       if (preferences.last_exercise_id) {
         setSelectedExercise(preferences.last_exercise_id);
       }
@@ -190,15 +204,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
       }
       setInitializedFromPreferences(true);
     }
-  }, [preferences, preferencesLoading, initializedFromPreferences, selectedDuration]);
-
-  // Handle external workout selection from WorkoutTab
-  React.useEffect(() => {
-    if (selectedWorkout) {
-      prepareWorkout(selectedWorkout.exerciseId, selectedWorkout.duration);
-      onWorkoutStarted?.(); // Notify parent that workout has been processed
-    }
-  }, [selectedWorkout, onWorkoutStarted]);
+  }, [preferences, preferencesLoading, initializedFromPreferences, selectedDuration, selectedWorkout]);
 
   const handleDurationChange = async (duration: number) => {
     setSelectedDuration(duration);

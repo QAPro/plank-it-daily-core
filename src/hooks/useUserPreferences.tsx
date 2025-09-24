@@ -17,6 +17,7 @@ export interface UserPreferences {
   auto_progression: boolean;
   progression_sensitivity: number;
   weekly_goal: number;
+  daily_sessions: number;
   // Enhanced timer V2 fields:
   timer_theme: string;
   timer_sound_pack: string;
@@ -80,6 +81,7 @@ export const useUserPreferences = () => {
           auto_progression: data.auto_progression,
           progression_sensitivity: data.progression_sensitivity,
           weekly_goal: data.weekly_goal ?? 7,
+          daily_sessions: data.daily_sessions ?? 1,
           // Enhanced timer V2 fields with defaults if missing
           timer_theme: data.timer_theme ?? 'default',
           timer_sound_pack: data.timer_sound_pack ?? 'classic',

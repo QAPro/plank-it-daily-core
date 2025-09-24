@@ -25,10 +25,24 @@ interface SeasonalReward {
 
 const SeasonalRewards: React.FC = () => {
   const { user } = useAuth();
-  const { statusTracks, getTrackByName } = useStatusTracks();
-  const { getTotalKarma } = useReputation(user?.id);
+  const { statusTracks, getTrackByName, loading: statusTracksLoading } = useStatusTracks();
+  const { getTotalKarma, loading: reputationLoading } = useReputation();
   const [currentSeason, setCurrentSeason] = useState<string>('Winter Challenge 2024');
   const [timeRemaining, setTimeRemaining] = useState<string>('');
+
+  // Early return if user is not authenticated or data is still loading
+  if (!user || statusTracksLoading || reputationLoading) {
+    return (
+      <div className="space-y-6">
+        <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30">
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mb-4" />
+            <p className="text-muted-foreground">Loading seasonal rewards...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   // Mock seasonal rewards - in production, these would come from the database
   const seasonalRewards: SeasonalReward[] = [

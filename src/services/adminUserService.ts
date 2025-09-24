@@ -6,6 +6,16 @@ export type AdminUserSummary = {
   email: string | null;
   username: string | null;
   full_name: string | null;
+  subscription_tier: "free" | "premium" | null;
+  created_at: string;
+  lifetime_access_status: "active" | "expired" | "none";
+  lifetime_access_data?: {
+    custom_price?: number;
+    expires_at?: string | null;
+    granted_by?: string;
+    granted_at?: string;
+    reason?: string;
+  };
 };
 
 export type AppRole =
@@ -104,6 +114,9 @@ async function searchUsersRaw(identifier: string): Promise<AdminUserSummary[]> {
     email: r.email ?? null,
     username: r.username ?? null,
     full_name: r.full_name ?? null,
+    subscription_tier: "free" as const, // Default for search results
+    created_at: new Date().toISOString(), // Placeholder for search results
+    lifetime_access_status: "none" as const, // Default for search results
   }));
 }
 
@@ -484,6 +497,9 @@ async function getUserSummary(userId: string): Promise<AdminUserSummary | null> 
       email: '', // Email not included in secure function for privacy
       username: user.username || '',
       full_name: '', // Full name not included in secure function for privacy
+      subscription_tier: (user.subscription_tier === "premium" ? "premium" : "free") as "free" | "premium",
+      created_at: user.created_at || new Date().toISOString(),
+      lifetime_access_status: "none" as const, // Would need separate query for lifetime status
     };
   } catch (error) {
     console.error("[adminUserService] getUserSummary error", error);
@@ -557,7 +573,24 @@ async function findUsersBySegment(args: {
 
   let query = supabase
     .from("users")
-    .select("id, email, username, full_name")
+    .select(`
+      id, 
+      email, 
+      username, 
+      full_name, 
+      subscription_tier, 
+      created_at,
+      user_overrides!left(
+        id,
+        override_type,
+        override_data,
+        expires_at,
+        is_active,
+        granted_by,
+        created_at,
+        reason
+      )
+    `)
     .order("created_at", { ascending: false })
     .limit(500);
 
@@ -577,12 +610,39 @@ async function findUsersBySegment(args: {
     throw error;
   }
 
-  return ((data as any[]) || []).map((u) => ({
-    id: u.id,
-    email: u.email ?? null,
-    username: u.username ?? null,
-    full_name: u.full_name ?? null,
-  }));
+  return ((data as any[]) || []).map((u) => {
+    // Process lifetime access overrides
+    const lifetimeOverrides = (u.user_overrides || []).filter(
+      (override: any) => override.override_type === 'lifetime_access' && override.is_active
+    );
+    
+    const activeLifetime = lifetimeOverrides.find((override: any) => 
+      !override.expires_at || new Date(override.expires_at) > new Date()
+    );
+    
+    const lifetimeStatus = activeLifetime 
+      ? 'active' 
+      : lifetimeOverrides.length > 0 
+        ? 'expired' 
+        : 'none';
+
+    return {
+      id: u.id,
+      email: u.email ?? null,
+      username: u.username ?? null,
+      full_name: u.full_name ?? null,
+      subscription_tier: u.subscription_tier ?? 'free',
+      created_at: u.created_at,
+      lifetime_access_status: lifetimeStatus,
+      lifetime_access_data: activeLifetime ? {
+        custom_price: activeLifetime.override_data?.custom_price,
+        expires_at: activeLifetime.expires_at,
+        granted_by: activeLifetime.granted_by,
+        granted_at: activeLifetime.created_at,
+        reason: activeLifetime.reason
+      } : undefined
+    };
+  });
 }
 
 // Use admin RPC for bulk tier changes (RLS-safe)

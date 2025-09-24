@@ -5,7 +5,7 @@ import UserDetailsCard from "./users/UserDetailsCard";
 import FeatureOverridesManager from "./users/FeatureOverridesManager";
 import { AdminUserSummary } from "@/services/adminUserService";
 import AdminSubscriptionOverview from "./users/AdminSubscriptionOverview";
-import BulkSubscriptionManager from "./users/BulkSubscriptionManager";
+import EnhancedBulkSubscriptionManager from "./users/EnhancedBulkSubscriptionManager";
 import CustomerSupportTools from "./users/CustomerSupportTools";
 import UserSegmentManager from "./users/UserSegmentManager";
 import LeadershipCandidates from "./leadership/LeadershipCandidates";
@@ -23,8 +23,8 @@ const UserManagement: React.FC = () => {
       {/* Subscription status overview */}
       <AdminSubscriptionOverview />
 
-      {/* Bulk operations */}
-      <BulkSubscriptionManager />
+      {/* Enhanced bulk operations */}
+      <EnhancedBulkSubscriptionManager />
 
       {/* Segmentation */}
       <UserSegmentManager />

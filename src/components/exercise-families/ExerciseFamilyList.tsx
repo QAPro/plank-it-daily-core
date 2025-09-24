@@ -11,15 +11,39 @@ type Exercise = Tables<'plank_exercises'>;
 interface ExerciseFamilyListProps {
   onExerciseStart: (exercise: Exercise) => void;
   onExerciseDetails: (exercise: Exercise) => void;
+  onExerciseSelect?: (exercise: Exercise) => void;
+  selectedExerciseId?: string | null;
 }
 
 const ExerciseFamilyList: React.FC<ExerciseFamilyListProps> = ({
   onExerciseStart,
   onExerciseDetails,
+  onExerciseSelect,
+  selectedExerciseId,
 }) => {
   const { data: families, isLoading: familiesLoading } = useExerciseFamilies();
   const { data: exercisesByFamily, isLoading: exercisesLoading } = useExercisesByFamily();
   const [expandedFamilies, setExpandedFamilies] = useState<Set<string>>(new Set());
+
+  // Auto-expand families that contain the selected exercise
+  React.useEffect(() => {
+    if (selectedExerciseId && exercisesByFamily && families) {
+      const newExpanded = new Set(expandedFamilies);
+      let found = false;
+      
+      families.forEach(family => {
+        const exercises = exercisesByFamily[family.family_key] || [];
+        if (exercises.some(ex => ex.id === selectedExerciseId)) {
+          newExpanded.add(family.family_key);
+          found = true;
+        }
+      });
+      
+      if (found && newExpanded.size !== expandedFamilies.size) {
+        setExpandedFamilies(newExpanded);
+      }
+    }
+  }, [selectedExerciseId, exercisesByFamily, families]);
 
   const toggleFamily = (familyKey: string) => {
     const newExpanded = new Set(expandedFamilies);
@@ -116,6 +140,8 @@ const ExerciseFamilyList: React.FC<ExerciseFamilyListProps> = ({
                             exercise={exercise}
                             onStart={onExerciseStart}
                             onViewDetails={onExerciseDetails}
+                            onSelect={onExerciseSelect}
+                            isSelected={selectedExerciseId === exercise.id}
                           />
                         ))}
                       </div>

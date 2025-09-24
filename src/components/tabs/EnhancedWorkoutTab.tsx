@@ -10,11 +10,22 @@ type Exercise = Tables<'plank_exercises'>;
 
 interface EnhancedWorkoutTabProps {
   onStartWorkout: (exerciseId: string, duration: number) => void;
+  selectedWorkout?: {exerciseId: string, duration: number} | null;
 }
 
-const EnhancedWorkoutTab = ({ onStartWorkout }: EnhancedWorkoutTabProps) => {
+const EnhancedWorkoutTab = ({ onStartWorkout, selectedWorkout }: EnhancedWorkoutTabProps) => {
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [detailsExercise, setDetailsExercise] = useState<Exercise | null>(null);
+  const [selectedExerciseId, setSelectedExerciseId] = useState<string | null>(
+    selectedWorkout?.exerciseId || null
+  );
+
+  // Update selected exercise when selectedWorkout prop changes
+  React.useEffect(() => {
+    if (selectedWorkout?.exerciseId) {
+      setSelectedExerciseId(selectedWorkout.exerciseId);
+    }
+  }, [selectedWorkout]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -28,6 +39,13 @@ const EnhancedWorkoutTab = ({ onStartWorkout }: EnhancedWorkoutTabProps) => {
 
   const handleExerciseStart = (exercise: Exercise) => {
     // Start workout with 1 minute default duration
+    setSelectedExerciseId(exercise.id);
+    onStartWorkout(exercise.id, 60);
+  };
+
+  const handleExerciseSelect = (exercise: Exercise) => {
+    setSelectedExerciseId(exercise.id);
+    // Update home screen immediately
     onStartWorkout(exercise.id, 60);
   };
 
@@ -84,6 +102,8 @@ const EnhancedWorkoutTab = ({ onStartWorkout }: EnhancedWorkoutTabProps) => {
         <ExerciseFamilyList
           onExerciseStart={handleExerciseStart}
           onExerciseDetails={handleExerciseDetails}
+          onExerciseSelect={handleExerciseSelect}
+          selectedExerciseId={selectedExerciseId}
         />
       </motion.div>
 

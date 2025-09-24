@@ -62,7 +62,7 @@ const Dashboard = () => {
       case 'home':
         return <HomeTab onTabChange={handleTabChange} onUpgradeClick={handleUpgradeNavigation} onStartWorkout={handleStartWorkout} selectedWorkout={selectedWorkout} onWorkoutStarted={handleWorkoutStarted} />;
       case 'workout':
-        return <EnhancedWorkoutTab onStartWorkout={handleStartWorkout} />;
+        return <EnhancedWorkoutTab onStartWorkout={handleStartWorkout} selectedWorkout={selectedWorkout} />;
       case 'stats':
         return <StatsTab />;
       case 'analytics':

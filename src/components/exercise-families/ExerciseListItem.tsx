@@ -10,12 +10,16 @@ interface ExerciseListItemProps {
   exercise: Exercise;
   onStart: (exercise: Exercise) => void;
   onViewDetails: (exercise: Exercise) => void;
+  onSelect?: (exercise: Exercise) => void;
+  isSelected?: boolean;
 }
 
 const ExerciseListItem: React.FC<ExerciseListItemProps> = ({
   exercise,
   onStart,
   onViewDetails,
+  onSelect,
+  isSelected = false,
 }) => {
   const getDifficultyStars = (level: number) => {
     return Array.from({ length: 5 }, (_, i) => (
@@ -30,16 +34,31 @@ const ExerciseListItem: React.FC<ExerciseListItemProps> = ({
     ));
   };
 
+  const handleRowClick = () => {
+    if (onSelect) {
+      onSelect(exercise);
+    }
+  };
+
   return (
     <motion.div
       whileHover={{ scale: 1.01 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
-      className="p-3 rounded-lg border border-border/50 hover:border-primary/20 hover:bg-muted/30 transition-all group"
+      onClick={handleRowClick}
+      className={`p-3 rounded-lg border cursor-pointer transition-all group ${
+        isSelected 
+          ? "border-primary bg-primary/5 shadow-sm" 
+          : "border-border/50 hover:border-primary/20 hover:bg-muted/30"
+      }`}
     >
       <div className="flex items-center justify-between">
         <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-2 mb-1">
-            <h4 className="font-medium text-foreground truncate group-hover:text-primary transition-colors">
+            <h4 className={`font-medium truncate transition-colors ${
+              isSelected 
+                ? "text-primary font-semibold" 
+                : "text-foreground group-hover:text-primary"
+            }`}>
               {exercise.name}
             </h4>
             <div className="flex items-center space-x-0.5 flex-shrink-0">

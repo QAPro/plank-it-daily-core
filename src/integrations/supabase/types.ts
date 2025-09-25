@@ -4434,6 +4434,18 @@ export type Database = {
         Args: { _override_id: string; _reason?: string }
         Returns: boolean
       }
+      admin_secure_user_lookup: {
+        Args: { _access_reason?: string; _user_id: string }
+        Returns: {
+          created_at: string
+          current_level: number
+          last_active: string
+          subscription_tier: string
+          total_xp: number
+          user_id: string
+          username: string
+        }[]
+      }
       assign_role: {
         Args: {
           _reason?: string

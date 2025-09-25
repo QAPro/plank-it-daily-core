@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,20 +8,23 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Edit, RefreshCw, Users, Globe, Target, Flag, ChevronDown, ChevronRight } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Plus, Edit, RefreshCw, Users, Globe, Target, Flag, ChevronDown, ChevronRight, AlertTriangle, Info } from 'lucide-react';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import AdvancedFlagControls, { AdvancedFlagState } from '@/components/admin/flags/AdvancedFlagControls';
 import FeatureSelector from '@/components/admin/flags/FeatureSelector';
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { getFeatureByName, type FeatureCatalogItem } from '@/constants/featureCatalog';
-import { FEATURE_UI_IMPACTS, getUIImpactIcon, getUIImpactColor } from '@/constants/featureUIImpacts';
+import { FEATURE_UI_IMPACTS, getUIImpactIcon, getUIImpactColor, UIImpact } from '@/constants/featureUIImpacts';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const FeatureFlagsManager = () => {
   const { flags, loading, toggle, upsert, refetch } = useFeatureFlags();
   const { toast } = useToast();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [pendingToggle, setPendingToggle] = useState<{flagName: string, currentEnabled: boolean} | null>(null);
   const [expandedImpacts, setExpandedImpacts] = useState<Record<string, boolean>>({});
   const [newFlag, setNewFlag] = useState({
     feature_name: '',
@@ -39,7 +42,21 @@ const FeatureFlagsManager = () => {
   });
 
   const handleToggle = async (flagName: string, currentEnabled: boolean) => {
-    await toggle(flagName, !currentEnabled);
+    const impacts = getUIImpacts(flagName);
+    if (impacts.length > 0) {
+      setPendingToggle({flagName, currentEnabled});
+      setShowConfirmDialog(true);
+    } else {
+      await toggle(flagName, !currentEnabled);
+    }
+  };
+
+  const confirmToggle = async () => {
+    if (pendingToggle) {
+      await toggle(pendingToggle.flagName, !pendingToggle.currentEnabled);
+      setPendingToggle(null);
+      setShowConfirmDialog(false);
+    }
   };
 
   const handleFeatureSelect = (feature: FeatureCatalogItem) => {
@@ -162,6 +179,35 @@ const FeatureFlagsManager = () => {
     return FEATURE_UI_IMPACTS[flagName] || [];
   };
 
+  // Auto-suggest UI impacts for new feature names
+  const suggestedImpacts = useMemo(() => {
+    if (!newFlag.feature_name) return [];
+    
+    // Direct match
+    if (FEATURE_UI_IMPACTS[newFlag.feature_name]) {
+      return FEATURE_UI_IMPACTS[newFlag.feature_name];
+    }
+    
+    // Partial match based on keywords
+    const keywords = newFlag.feature_name.toLowerCase();
+    const suggestions: UIImpact[] = [];
+    
+    if (keywords.includes('social') || keywords.includes('friend')) {
+      suggestions.push(...(FEATURE_UI_IMPACTS.social_features || []));
+    }
+    if (keywords.includes('compete') || keywords.includes('challenge')) {
+      suggestions.push(...(FEATURE_UI_IMPACTS.social_challenges || []));
+    }
+    if (keywords.includes('event')) {
+      suggestions.push(...(FEATURE_UI_IMPACTS.events || []));
+    }
+    if (keywords.includes('analytic')) {
+      suggestions.push(...(FEATURE_UI_IMPACTS.analytics_dashboard || []));
+    }
+    
+    return suggestions;
+  }, [newFlag.feature_name]);
+
   const toggleImpactExpansion = (flagName: string) => {
     setExpandedImpacts(prev => ({
       ...prev,
@@ -216,6 +262,33 @@ const FeatureFlagsManager = () => {
                   onChange={(value) => setNewFlag({ ...newFlag, feature_name: value })}
                   onFeatureSelect={handleFeatureSelect}
                 />
+                
+                {/* Auto-suggested UI Impacts */}
+                {suggestedImpacts.length > 0 && (
+                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Info className="w-4 h-4 text-blue-600" />
+                      <span className="text-sm font-medium text-blue-900">
+                        Suggested UI Impact ({suggestedImpacts.length} element{suggestedImpacts.length !== 1 ? 's' : ''})
+                      </span>
+                    </div>
+                    <div className="space-y-1">
+                      {suggestedImpacts.slice(0, 3).map((impact, index) => (
+                        <div key={index} className="flex items-center gap-2 text-sm text-blue-700">
+                          <impact.icon className="w-3 h-3" />
+                          <span className="font-medium">{impact.element}</span>
+                          <span className="text-blue-600">-</span>
+                          <span>{impact.description}</span>
+                        </div>
+                      ))}
+                      {suggestedImpacts.length > 3 && (
+                        <div className="text-xs text-blue-600">
+                          +{suggestedImpacts.length - 3} more elements will be affected
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
                 
                 <div>
                   <Label htmlFor="description">Description</Label>
@@ -276,6 +349,50 @@ const FeatureFlagsManager = () => {
         </div>
       </div>
 
+      {/* Impact Preview Confirmation Dialog */}
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-orange-500" />
+              Confirm Feature Toggle
+            </DialogTitle>
+            <DialogDescription>
+              This action will affect multiple UI elements. Please review the impact below.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {pendingToggle && (
+            <div className="space-y-4">
+              <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                <div className="font-medium text-orange-900 mb-2">
+                  {pendingToggle.currentEnabled ? 'Disabling' : 'Enabling'} "{pendingToggle.flagName}" will affect:
+                </div>
+                <div className="space-y-2">
+                  {getUIImpacts(pendingToggle.flagName).map((impact, index) => (
+                    <div key={index} className="flex items-center gap-2 text-sm text-orange-800">
+                      <impact.icon className="w-4 h-4" />
+                      <span className="font-medium">{impact.element}</span>
+                      <span>-</span>
+                      <span>{impact.description}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="flex justify-end gap-3">
+                <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={confirmToggle} variant={pendingToggle.currentEnabled ? "destructive" : "default"}>
+                  {pendingToggle.currentEnabled ? 'Disable Feature' : 'Enable Feature'}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <div className="grid gap-4">
         {flags.map((flag) => {
           const AudienceIcon = getAudienceIcon(flag.target_audience || 'all');
@@ -304,10 +421,30 @@ const FeatureFlagsManager = () => {
                     </Badge>
                   </div>
                   
-                  <Switch
-                    checked={flag.is_enabled}
-                    onCheckedChange={() => handleToggle(flag.feature_name, flag.is_enabled)}
-                  />
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div>
+                          <Switch
+                            checked={flag.is_enabled}
+                            onCheckedChange={() => handleToggle(flag.feature_name, flag.is_enabled)}
+                          />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="left">
+                        <div className="text-center">
+                          <div className="font-medium">
+                            {flag.is_enabled ? 'Disable' : 'Enable'} {featureInfo.displayName}
+                          </div>
+                          {uiImpacts.length > 0 && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              Affects {uiImpacts.length} UI element{uiImpacts.length !== 1 ? 's' : ''}
+                            </div>
+                          )}
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
                 
                 {flag.description && (
@@ -358,20 +495,32 @@ const FeatureFlagsManager = () => {
                           {uiImpacts.map((impact, index) => {
                             const IconComponent = impact.icon;
                             const colorClasses = getUIImpactColor(impact.type);
+                            const isActive = flag.is_enabled;
                             
                             return (
-                              <div key={index} className="flex items-start gap-3 p-2 rounded-md bg-gray-50">
-                                <div className={`p-1 rounded ${colorClasses}`}>
+                              <div key={index} className={`flex items-start gap-3 p-2 rounded-md transition-all ${
+                                isActive ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200'
+                              }`}>
+                                <div className={`p-1 rounded ${colorClasses} ${!isActive ? 'opacity-50' : ''}`}>
                                   <IconComponent className="w-3 h-3" />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2">
-                                    <span className="text-sm font-medium text-gray-900">{impact.element}</span>
+                                    <span className={`text-sm font-medium ${
+                                      isActive ? 'text-gray-900' : 'text-gray-500'
+                                    }`}>{impact.element}</span>
                                     <Badge variant="outline" className="text-xs capitalize">
                                       {impact.type.replace('_', ' ')}
                                     </Badge>
+                                    {isActive && (
+                                      <Badge className="text-xs bg-green-100 text-green-700 border-green-200">
+                                        Active
+                                      </Badge>
+                                    )}
                                   </div>
-                                  <p className="text-xs text-gray-600 mt-0.5">{impact.description}</p>
+                                  <p className={`text-xs mt-0.5 ${
+                                    isActive ? 'text-gray-600' : 'text-gray-400'
+                                  }`}>{impact.description}</p>
                                 </div>
                               </div>
                             );

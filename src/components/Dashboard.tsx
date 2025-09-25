@@ -35,10 +35,7 @@ const Dashboard = () => {
     if (tab !== 'profile') {
       setProfileView('overview');
     }
-    // Clear selected workout when navigating away from home
-    if (tab !== 'home') {
-      setSelectedWorkout(null);
-    }
+    // Keep selectedWorkout state for persistence - don't clear when navigating
   };
 
   const handleUpgradeNavigation = () => {

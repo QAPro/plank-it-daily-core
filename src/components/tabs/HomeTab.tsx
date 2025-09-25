@@ -190,24 +190,34 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     }
   }, [selectedWorkout, onWorkoutStarted]);
 
-  // Initialize from user preferences when component loads (only if no external workout)
+  // Initialize from user preferences when component loads (priority: selectedWorkout > existing state > preferences)
   React.useEffect(() => {
-    // Only initialize once when preferences first load, and only if no external workout is selected
-    if (!preferencesLoading && preferences && !initializedFromPreferences && !selectedWorkout) {
+    // If we have an external workout selection, prioritize that and skip preferences
+    if (selectedWorkout) {
+      return;
+    }
+
+    // Initialize from preferences if they're loaded and we haven't set values yet
+    if (!preferencesLoading && preferences) {
       console.log('HomeTab: Initializing from preferences:', {
         last_exercise_id: preferences.last_exercise_id,
         last_duration: preferences.last_duration
       });
       
-      if (preferences.last_exercise_id) {
+      // Set exercise from preferences if we don't have one already
+      if (preferences.last_exercise_id && !selectedExercise) {
         setSelectedExercise(preferences.last_exercise_id);
       }
-      if (preferences.last_duration && preferences.last_duration !== selectedDuration) {
-        setSelectedDuration(preferences.last_duration);
+      
+      // Set duration from preferences (default to 60 if no preference)
+      const preferredDuration = preferences.last_duration || 60;
+      if (preferredDuration !== selectedDuration) {
+        setSelectedDuration(preferredDuration);
       }
+      
       setInitializedFromPreferences(true);
     }
-  }, [preferences, preferencesLoading, initializedFromPreferences, selectedDuration, selectedWorkout]);
+  }, [preferences, preferencesLoading, selectedWorkout, selectedExercise, selectedDuration]);
 
   const handleDurationChange = async (duration: number) => {
     setSelectedDuration(duration);

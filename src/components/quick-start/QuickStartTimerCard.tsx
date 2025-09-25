@@ -48,13 +48,22 @@ const QuickStartTimerCard = ({
   const { preferences, updatePreferences } = useUserPreferences();
   const { toast } = useToast();
 
-  // Default to Basic Plank if no history
-  const defaultExercise = exercises?.find(ex => ex.name === 'Basic Plank') || exercises?.[0];
+  // Robust exercise selection with proper fallbacks
+  const getDefaultExercise = () => {
+    if (!exercises || exercises.length === 0) return null;
+    // Try to find Basic Plank first, then Gentle Marching in Place, then any exercise
+    return exercises.find(ex => ex.name === 'Basic Plank') || 
+           exercises.find(ex => ex.name === 'Gentle Marching in Place') || 
+           exercises[0];
+  };
   
-  // Use props as single source of truth, with fallbacks only for missing data
+  const defaultExercise = getDefaultExercise();
+  
+  // Use props as single source of truth, with proper fallback hierarchy
   const selectedExerciseId = selectedExercise || selectedWorkout?.exerciseId || preferences?.last_exercise_id || defaultExercise?.id || '';
   const selectedExerciseObj = exercises?.find(ex => ex.id === selectedExerciseId) || defaultExercise;
-  const currentDuration = duration || selectedWorkout?.duration || 60;
+  // Default to user's last duration or 60 seconds (not 45)
+  const currentDuration = duration || selectedWorkout?.duration || preferences?.last_duration || 60;
 
   // Force component to recognize selectedWorkout changes
   React.useEffect(() => {

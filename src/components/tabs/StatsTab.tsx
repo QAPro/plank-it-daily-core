@@ -9,7 +9,7 @@ import AIFeatureGuard from "@/components/access/AIFeatureGuard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Crown, TrendingUp } from "lucide-react";
+import { Crown, TrendingUp, BarChart3, Activity, Eye } from "lucide-react";
 
 const PremiumUpgradePrompt = () => (
   <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
@@ -21,21 +21,21 @@ const PremiumUpgradePrompt = () => (
       <p className="text-gray-600 mb-4">
         Get detailed insights, progress predictions, and personalized recommendations with Premium.
       </p>
-      <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
+      <div className="grid grid-cols-2 gap-4 mb-6 text-sm justify-items-center">
         <div className="flex items-center gap-2">
           <TrendingUp className="w-4 h-4 text-orange-500" />
           <span>Progress predictions</span>
         </div>
         <div className="flex items-center gap-2">
-          <TrendingUp className="w-4 h-4 text-orange-500" />
+          <BarChart3 className="w-4 h-4 text-orange-500" />
           <span>Comparative benchmarks</span>
         </div>
         <div className="flex items-center gap-2">
-          <TrendingUp className="w-4 h-4 text-orange-500" />
+          <Activity className="w-4 h-4 text-orange-500" />
           <span>Advanced visualizations</span>
         </div>
         <div className="flex items-center gap-2">
-          <TrendingUp className="w-4 h-4 text-orange-500" />
+          <Eye className="w-4 h-4 text-orange-500" />
           <span>Personalized insights</span>
         </div>
       </div>

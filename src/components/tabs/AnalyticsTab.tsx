@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Crown, BarChart3, Target, Brain, TrendingUp } from 'lucide-react';
+import { Crown, BarChart3, Target, Activity, TrendingUp } from 'lucide-react';
 import UserAnalyticsDashboard from '@/components/analytics/UserAnalyticsDashboard';
 import BasicPerformanceDashboard from '@/components/analytics/BasicPerformanceDashboard';
 import CondensedPerformanceDashboard from '@/components/analytics/CondensedPerformanceDashboard';
@@ -21,12 +21,12 @@ const PremiumUpgradePrompt = () => (
         Unlock Premium Analytics
       </h3>
       <p className="text-gray-600 mb-4">
-        Get AI-powered insights, detailed performance tracking, and advanced goal setting.
+        Get insights, detailed performance tracking, and advanced goal setting.
       </p>
-      <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
+      <div className="grid grid-cols-2 gap-2 mb-6 text-sm">
         <div className="flex items-center gap-2">
-          <Brain className="w-4 h-4 text-orange-500" />
-          <span>AI recommendations</span>
+          <Activity className="w-4 h-4 text-orange-500" />
+          <span>Workout insights</span>
         </div>
         <div className="flex items-center gap-2">
           <BarChart3 className="w-4 h-4 text-orange-500" />
@@ -38,7 +38,7 @@ const PremiumUpgradePrompt = () => (
         </div>
         <div className="flex items-center gap-2">
           <TrendingUp className="w-4 h-4 text-orange-500" />
-          <span>Performance insights</span>
+          <span>Performance Metrics</span>
         </div>
       </div>
       <Button className="bg-orange-500 hover:bg-orange-600 text-white">

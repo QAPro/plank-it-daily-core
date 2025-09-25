@@ -102,28 +102,20 @@ const OptimizedAchievementsGallery = () => {
     return filtered;
   }, [achievementProgress, selectedCategory, searchQuery]);
 
-  // Sort achievements: earned first, then by progress, then by rarity
+  // Sort achievements: earned only, by rarity and points
   const sortedProgress = useMemo(() => {
     const rarityOrder = { legendary: 5, epic: 4, rare: 3, uncommon: 2, common: 1 };
     
-    return [...filteredProgress].sort((a, b) => {
-      // Earned achievements first
-      if (a.isEarned && !b.isEarned) return -1;
-      if (!a.isEarned && b.isEarned) return 1;
-      
-      if (!a.isEarned && !b.isEarned) {
-        // For unearned: higher progress first, then rarity
-        if (Math.abs(b.progressPercentage - a.progressPercentage) > 1) {
-          return b.progressPercentage - a.progressPercentage;
-        }
-      }
-      
-      // Then by rarity
+    // Only show earned achievements
+    const earnedAchievements = filteredProgress.filter(progress => progress.isEarned);
+    
+    return earnedAchievements.sort((a, b) => {
+      // Sort by rarity first
       const rarityDiff = rarityOrder[b.achievement.rarity as keyof typeof rarityOrder] - 
                         rarityOrder[a.achievement.rarity as keyof typeof rarityOrder];
       if (rarityDiff !== 0) return rarityDiff;
       
-      // Finally by points
+      // Then by points
       return b.achievement.points - a.achievement.points;
     });
   }, [filteredProgress]);
@@ -205,22 +197,14 @@ const OptimizedAchievementsGallery = () => {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="grid grid-cols-2 md:grid-cols-4 gap-4"
+        className="grid grid-cols-2 gap-4"
       >
         <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-orange-600 mb-1">
               {earnedCount}
             </div>
-            <div className="text-sm text-orange-700">Unlocked</div>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-blue-600 mb-1">
-              {totalCount}
-            </div>
-            <div className="text-sm text-blue-700">Total</div>
+            <div className="text-sm text-orange-700">Achievements Earned</div>
           </CardContent>
         </Card>
         <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
@@ -228,15 +212,7 @@ const OptimizedAchievementsGallery = () => {
             <div className="text-2xl font-bold text-purple-600 mb-1">
               {totalPoints}
             </div>
-            <div className="text-sm text-purple-700">Points</div>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-green-600 mb-1">
-              {completionPercentage}%
-            </div>
-            <div className="text-sm text-green-700">Complete</div>
+            <div className="text-sm text-purple-700">Total Points</div>
           </CardContent>
         </Card>
       </motion.div>
@@ -294,7 +270,7 @@ const OptimizedAchievementsGallery = () => {
                 <span className="font-semibold">{category.name}</span>
               </div>
               <div className="text-sm opacity-90">
-                {category.earnedCount} / {category.count}
+                {category.earnedCount} earned
               </div>
               {category.earnedCount > 0 && (
                 <Badge className="absolute -top-1 -right-1 bg-white text-gray-800 text-xs h-5 px-1">
@@ -341,10 +317,10 @@ const OptimizedAchievementsGallery = () => {
         >
           <Trophy className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-600 mb-2">
-            {searchQuery ? 'No matching achievements' : 'No achievements yet'}
+            {searchQuery ? 'No matching earned achievements' : 'No achievements earned yet'}
           </h3>
           <p className="text-gray-500">
-            {searchQuery ? 'Try a different search term' : 'Start working out to earn your first achievement!'}
+            {searchQuery ? 'Try a different search term among your earned achievements' : 'Complete workouts to discover and earn achievements!'}
           </p>
         </motion.div>
       )}

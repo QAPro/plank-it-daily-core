@@ -291,27 +291,6 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         ))}
       </motion.div>
 
-      {/* Minimized Recommendations */}
-      <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.4, duration: 0.5 }}
-      >
-        <Button
-          variant="ghost"
-          onClick={() => onTabChange?.('workout')}
-          className="w-full justify-between p-4 h-auto bg-white/40 hover:bg-white/60 border border-orange-100"
-        >
-          <div className="flex items-center space-x-3">
-            <div className="text-lg">💡</div>
-            <div className="text-left">
-              <p className="font-medium text-foreground">Suggested Workouts</p>
-              <p className="text-sm text-muted-foreground">Explore personalized recommendations</p>
-            </div>
-          </div>
-          <ChevronRight className="h-4 w-4 text-muted-foreground" />
-        </Button>
-      </motion.div>
 
       {/* Community Section - Collapsible */}
       <motion.div

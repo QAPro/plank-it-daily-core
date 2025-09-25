@@ -47,15 +47,6 @@ const EnhancedAchievementCelebration = ({
     }
   };
 
-  const getRarityTitle = () => {
-    switch (achievement.rarity) {
-      case 'legendary': return '🌟 LEGENDARY ACHIEVEMENT! 🌟';
-      case 'epic': return '💜 EPIC ACHIEVEMENT! 💜';
-      case 'rare': return '💙 RARE ACHIEVEMENT! 💙';
-      case 'uncommon': return '💚 UNCOMMON ACHIEVEMENT! 💚';
-      default: return '🎉 Achievement Unlocked! 🎉';
-    }
-  };
 
   const getAnimationScale = () => {
     switch (achievement.rarity) {
@@ -170,19 +161,6 @@ const EnhancedAchievementCelebration = ({
 
             <Card className={`${getRarityColors().gradient} ${getRarityColors().glow} text-white border-0 shadow-2xl overflow-hidden`}>
               <CardContent className="p-8 text-center relative">
-                {/* Rarity Badge */}
-                {achievement.rarity !== 'common' && (
-                  <motion.div
-                    initial={{ y: -20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                    className="mb-4"
-                  >
-                    <Badge className="bg-white/20 text-white border-white/30 text-sm font-bold px-3 py-1">
-                      {achievement.rarity.toUpperCase()}
-                    </Badge>
-                  </motion.div>
-                )}
 
                 {/* Title */}
                 <motion.h1
@@ -191,7 +169,7 @@ const EnhancedAchievementCelebration = ({
                   transition={{ delay: 0.2 }}
                   className="text-2xl font-bold mb-4"
                 >
-                  {getRarityTitle()}
+                  🎉 Achievement Unlocked! 🎉
                 </motion.h1>
 
                 {/* Achievement Icon */}

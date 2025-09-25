@@ -45,9 +45,6 @@ const AchievementProgressCard = ({
                 <p className="text-sm text-gray-600 mt-1">{achievement.description}</p>
               </div>
             </div>
-            <Badge className={rarityColor} variant="secondary">
-              {achievement.rarity}
-            </Badge>
           </div>
         </CardHeader>
         

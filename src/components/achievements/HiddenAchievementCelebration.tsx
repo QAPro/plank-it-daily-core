@@ -222,20 +222,6 @@ const HiddenAchievementCelebration = ({
                   <span className="text-white/80 text-sm">XP</span>
                 </motion.div>
 
-                {/* Rarity Badge */}
-                <motion.div
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 1.4 }}
-                  className="mb-6"
-                >
-                  <span className={`
-                    px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider
-                    bg-black/30 border border-white/30 ${colors.text}
-                  `}>
-                    {achievement.rarity} Discovery
-                  </span>
-                </motion.div>
 
                 {/* Share Button */}
                 {onShare && achievement.metadata?.shareMessage && (

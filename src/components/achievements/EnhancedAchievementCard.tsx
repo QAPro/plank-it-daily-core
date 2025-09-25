@@ -32,18 +32,6 @@ const EnhancedAchievementCard = ({ achievementProgress, onClick }: EnhancedAchie
     }
   };
 
-  const getRarityBadge = () => {
-    if (achievement.rarity === 'common') return null;
-    
-    return (
-      <Badge 
-        className={`absolute -top-2 -right-2 text-xs font-bold ${rarityColors} border`}
-        variant="outline"
-      >
-        {achievement.rarity.toUpperCase()}
-      </Badge>
-    );
-  };
 
   return (
     <motion.div
@@ -59,8 +47,6 @@ const EnhancedAchievementCard = ({ achievementProgress, onClick }: EnhancedAchie
         } ${rarityGlow}`}
         onClick={onClick}
       >
-        {getRarityBadge()}
-        
         <CardContent className="p-4">
           {/* Icon and Title */}
           <div className="flex items-start space-x-3 mb-3">

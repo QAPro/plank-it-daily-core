@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
-import { isSocialEnabled } from '@/constants/featureGating';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { handleAuthSignOut } from '@/utils/authCleanup';
 import { useToast } from '@/hooks/use-toast';
 
@@ -28,7 +28,7 @@ interface TabNavigationProps {
 const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, onTabChange }) => {
   const { user } = useAuth();
   const { isAdmin } = useAdmin();
-  const socialEnabled = isSocialEnabled();
+  const { socialFeaturesEnabled, eventsEnabled, competitionEnabled, loading: flagsLoading } = useFeatureFlags();
   const { toast } = useToast();
 
   const onSignOut = async () => {
@@ -56,20 +56,37 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, onTabChange })
     { id: 'analytics', label: 'Analytics', icon: Zap },
     { id: 'achievements', label: 'Achievements', icon: Trophy },
     { id: 'progress', label: 'Progress', icon: TrendingUp },
-    { id: 'compete', label: 'Compete', icon: Users, requiresSocial: true },
+    { id: 'compete', label: 'Compete', icon: Users, requiresCompetition: true },
     { id: 'friends', label: 'Friends', icon: Users, requiresSocial: true },
-    { id: 'events', label: 'Events', icon: Calendar, requiresSocial: true },
+    { id: 'events', label: 'Events', icon: Calendar, requiresEvents: true },
     { id: 'admin', label: 'Admin', icon: Settings, requiresAdmin: true },
     { id: 'profile', label: 'Profile', icon: User },
   ];
 
-  // Filter out social tabs when social features are disabled
-  // Filter out admin tab when user is not admin
+  // Filter tabs based on dynamic feature flags
   const tabs = allTabs.filter(tab => {
-    if (tab.requiresSocial && !socialEnabled) return false;
+    if (tab.requiresCompetition && !competitionEnabled) return false;
+    if (tab.requiresSocial && !socialFeaturesEnabled) return false;
+    if (tab.requiresEvents && !eventsEnabled) return false;
     if (tab.requiresAdmin && !isAdmin) return false;
     return true;
   });
+
+  // Show loading skeleton while flags are loading
+  if (flagsLoading) {
+    return (
+      <div className="bg-white border-t border-gray-200 px-4 py-2">
+        <div className="flex justify-around items-center max-w-screen-xl mx-auto">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="flex flex-col items-center space-y-1 px-2 py-1">
+              <div className="w-10 h-10 bg-gray-200 rounded-lg animate-pulse" />
+              <div className="w-12 h-3 bg-gray-200 rounded animate-pulse" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white border-t border-gray-200 px-4 py-2">

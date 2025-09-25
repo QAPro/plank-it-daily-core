@@ -8,18 +8,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Edit, RefreshCw, Users, Globe, Target, Flag } from 'lucide-react';
+import { Plus, Edit, RefreshCw, Users, Globe, Target, Flag, ChevronDown, ChevronRight } from 'lucide-react';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import AdvancedFlagControls, { AdvancedFlagState } from '@/components/admin/flags/AdvancedFlagControls';
 import FeatureSelector from '@/components/admin/flags/FeatureSelector';
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { getFeatureByName, type FeatureCatalogItem } from '@/constants/featureCatalog';
+import { FEATURE_UI_IMPACTS, getUIImpactIcon, getUIImpactColor } from '@/constants/featureUIImpacts';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const FeatureFlagsManager = () => {
   const { flags, loading, toggle, upsert, refetch } = useFeatureFlags();
   const { toast } = useToast();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [expandedImpacts, setExpandedImpacts] = useState<Record<string, boolean>>({});
   const [newFlag, setNewFlag] = useState({
     feature_name: '',
     description: '',
@@ -155,6 +158,17 @@ const FeatureFlagsManager = () => {
     };
   };
 
+  const getUIImpacts = (flagName: string) => {
+    return FEATURE_UI_IMPACTS[flagName] || [];
+  };
+
+  const toggleImpactExpansion = (flagName: string) => {
+    setExpandedImpacts(prev => ({
+      ...prev,
+      [flagName]: !prev[flagName]
+    }));
+  };
+
   if (loading) {
     return (
       <Card>
@@ -266,6 +280,8 @@ const FeatureFlagsManager = () => {
         {flags.map((flag) => {
           const AudienceIcon = getAudienceIcon(flag.target_audience || 'all');
           const featureInfo = getFeatureDisplayInfo(flag.feature_name);
+          const uiImpacts = getUIImpacts(flag.feature_name);
+          const isExpanded = expandedImpacts[flag.feature_name] || false;
           
           return (
             <Card key={flag.id} className={`transition-all ${flag.is_enabled ? 'border-green-200' : 'border-gray-200'}`}>
@@ -319,6 +335,52 @@ const FeatureFlagsManager = () => {
                     </div>
                   )}
                 </div>
+
+                {/* UI Impact Section */}
+                {uiImpacts.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-gray-100">
+                    <Collapsible open={isExpanded} onOpenChange={() => toggleImpactExpansion(flag.feature_name)}>
+                      <CollapsibleTrigger asChild>
+                        <Button variant="ghost" size="sm" className="w-full justify-between p-0 h-auto text-left">
+                          <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                            <Target className="w-4 h-4" />
+                            UI Impact ({uiImpacts.length} element{uiImpacts.length !== 1 ? 's' : ''})
+                          </div>
+                          {isExpanded ? (
+                            <ChevronDown className="w-4 h-4 text-gray-500" />
+                          ) : (
+                            <ChevronRight className="w-4 h-4 text-gray-500" />
+                          )}
+                        </Button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="mt-2">
+                        <div className="space-y-2">
+                          {uiImpacts.map((impact, index) => {
+                            const IconComponent = impact.icon;
+                            const colorClasses = getUIImpactColor(impact.type);
+                            
+                            return (
+                              <div key={index} className="flex items-start gap-3 p-2 rounded-md bg-gray-50">
+                                <div className={`p-1 rounded ${colorClasses}`}>
+                                  <IconComponent className="w-3 h-3" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm font-medium text-gray-900">{impact.element}</span>
+                                    <Badge variant="outline" className="text-xs capitalize">
+                                      {impact.type.replace('_', ' ')}
+                                    </Badge>
+                                  </div>
+                                  <p className="text-xs text-gray-600 mt-0.5">{impact.description}</p>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  </div>
+                )}
               </CardContent>
             </Card>
           );

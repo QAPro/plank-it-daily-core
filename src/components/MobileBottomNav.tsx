@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
-import { isSocialEnabled } from '@/constants/featureGating';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { handleAuthSignOut } from '@/utils/authCleanup';
 import { useToast } from '@/hooks/use-toast';
 
@@ -30,7 +30,7 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ activeTab, onTabChang
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const { user } = useAuth();
   const { isAdmin } = useAdmin();
-  const socialEnabled = isSocialEnabled();
+  const { socialFeaturesEnabled, eventsEnabled, competitionEnabled, loading: flagsLoading } = useFeatureFlags();
   const { toast } = useToast();
 
   const allTabs = [
@@ -40,22 +40,24 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ activeTab, onTabChang
     { id: 'analytics', label: 'Analytics', icon: Zap },
     { id: 'achievements', label: 'Achievements', icon: Trophy },
     { id: 'progress', label: 'Progress', icon: TrendingUp },
-    { id: 'compete', label: 'Compete', icon: Users, requiresSocial: true },
+    { id: 'compete', label: 'Compete', icon: Users, requiresCompetition: true },
     { id: 'friends', label: 'Friends', icon: Users, requiresSocial: true },
-    { id: 'events', label: 'Events', icon: Calendar, requiresSocial: true },
+    { id: 'events', label: 'Events', icon: Calendar, requiresEvents: true },
     { id: 'admin', label: 'Admin', icon: Settings, requiresAdmin: true },
     { id: 'profile', label: 'Profile', icon: User },
   ];
 
-  const tabs = allTabs.filter(tab => {
-    if (tab.requiresSocial && !socialEnabled) return false;
+  // Filter tabs based on dynamic feature flags
+  const filteredTabs = allTabs.filter(tab => {
+    if (tab.requiresCompetition && !competitionEnabled) return false;
+    if (tab.requiresSocial && !socialFeaturesEnabled) return false;
+    if (tab.requiresEvents && !eventsEnabled) return false;
     if (tab.requiresAdmin && !isAdmin) return false;
     return true;
   });
 
-  // Main navigation tabs (always visible) - limit to 4 plus more button
-  const mainTabs = tabs.slice(0, 4);
-  const moreTabs = tabs.slice(4);
+  const mainTabs = filteredTabs.slice(0, 4);
+  const moreTabs = filteredTabs.slice(4);
 
   const handleTabClick = (tabId: string) => {
     onTabChange(tabId);

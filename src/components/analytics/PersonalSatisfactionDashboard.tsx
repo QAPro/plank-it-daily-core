@@ -62,6 +62,15 @@ const PersonalSatisfactionDashboard: React.FC = () => {
     );
   }
 
+  // Early return if data is not available to prevent hook ordering issues
+  if (!progressMetrics || !user) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-muted-foreground">Unable to load progress data</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header with key metrics */}
@@ -120,95 +129,89 @@ const PersonalSatisfactionDashboard: React.FC = () => {
 
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {progressMetrics && (
-              <>
-                <ImprovementCalculator metrics={progressMetrics} />
-                <ValuePropositionCard metrics={progressMetrics} />
-              </>
-            )}
+            <ImprovementCalculator metrics={progressMetrics} />
+            <ValuePropositionCard metrics={progressMetrics} />
           </div>
           
-          {progressMetrics && <StrengthProgressionChart userId={user!.id} />}
+          <StrengthProgressionChart userId={user.id} />
         </TabsContent>
 
         <TabsContent value="progress" className="space-y-6">
-          {progressMetrics && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5" />
-                    Performance Analytics
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Improvement</p>
-                      <p className="text-2xl font-bold text-green-600">
-                        +{progressMetrics.improvementPercentage}%
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Strength Gain</p>
-                      <p className="text-2xl font-bold text-orange-600">
-                        +{progressMetrics.strengthGainPercentage}%
-                      </p>
-                    </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5" />
+                  Performance Analytics
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Improvement</p>
+                    <p className="text-2xl font-bold text-green-600">
+                      +{progressMetrics.improvementPercentage}%
+                    </p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Consistency Score</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Progress 
-                        value={progressMetrics.healthBenefits.consistencyScore} 
-                        className="flex-1"
-                      />
-                      <span className="text-sm font-medium">
-                        {progressMetrics.healthBenefits.consistencyScore}%
-                      </span>
-                    </div>
+                    <p className="text-sm text-muted-foreground">Strength Gain</p>
+                    <p className="text-2xl font-bold text-orange-600">
+                      +{progressMetrics.strengthGainPercentage}%
+                    </p>
                   </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Target className="w-5 h-5" />
-                    Baseline Comparison
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Initial Duration</span>
-                    <span className="font-medium">{progressMetrics.baseline.initialDuration}s</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Current Average</span>
-                    <span className="font-medium">{progressMetrics.baseline.averageDuration}s</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Journey Started</span>
-                    <span className="font-medium">
-                      {progressMetrics.baseline.firstSessionDate.toLocaleDateString()}
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Consistency Score</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Progress 
+                      value={progressMetrics.healthBenefits.consistencyScore} 
+                      className="flex-1"
+                    />
+                    <span className="text-sm font-medium">
+                      {progressMetrics.healthBenefits.consistencyScore}%
                     </span>
                   </div>
-                  <div className="pt-2 border-t">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">Net Improvement</span>
-                      <span className="font-bold text-primary">
-                        +{progressMetrics.baseline.averageDuration - progressMetrics.baseline.initialDuration}s
-                      </span>
-                    </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="w-5 h-5" />
+                  Baseline Comparison
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Initial Duration</span>
+                  <span className="font-medium">{progressMetrics.baseline.initialDuration}s</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Current Average</span>
+                  <span className="font-medium">{progressMetrics.baseline.averageDuration}s</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Journey Started</span>
+                  <span className="font-medium">
+                    {progressMetrics.baseline.firstSessionDate.toLocaleDateString()}
+                  </span>
+                </div>
+                <div className="pt-2 border-t">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Net Improvement</span>
+                    <span className="font-bold text-primary">
+                      +{progressMetrics.baseline.averageDuration - progressMetrics.baseline.initialDuration}s
+                    </span>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         <TabsContent value="health" className="space-y-6">
-          {progressMetrics && <HealthImpactVisualization metrics={progressMetrics} />}
+          <HealthImpactVisualization metrics={progressMetrics} />
         </TabsContent>
 
         <TabsContent value="habits" className="space-y-6">
@@ -216,67 +219,65 @@ const PersonalSatisfactionDashboard: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="value" className="space-y-6">
-          {progressMetrics && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <DollarSign className="w-5 h-5" />
-                    Financial Impact
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <DollarSign className="w-5 h-5" />
+                  Financial Impact
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="text-center">
+                  <p className="text-3xl font-bold text-green-600">
+                    ${progressMetrics.costSavings}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Total savings vs gym membership
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-green-600">
-                      ${progressMetrics.costSavings}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Total savings vs gym membership
-                    </p>
+                    <p className="text-lg font-bold">${Math.round(progressMetrics.costSavings / 12)}</p>
+                    <p className="text-xs text-muted-foreground">Per month saved</p>
                   </div>
-                  <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                    <div className="text-center">
-                      <p className="text-lg font-bold">${Math.round(progressMetrics.costSavings / 12)}</p>
-                      <p className="text-xs text-muted-foreground">Per month saved</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-lg font-bold">${Math.round(progressMetrics.costSavings * 12)}</p>
-                      <p className="text-xs text-muted-foreground">Annual projection</p>
-                    </div>
+                  <div className="text-center">
+                    <p className="text-lg font-bold">${Math.round(progressMetrics.costSavings * 12)}</p>
+                    <p className="text-xs text-muted-foreground">Annual projection</p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </CardContent>
+            </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Clock className="w-5 h-5" />
-                    Time Dedicated
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="w-5 h-5" />
+                  Time Dedicated
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="text-center">
+                  <p className="text-3xl font-bold text-blue-600">
+                    {progressMetrics.timeDedicated.totalHours}h
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Total time dedicated to your health
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                   <div className="text-center">
-                    <p className="text-3xl font-bold text-blue-600">
-                      {progressMetrics.timeDedicated.totalHours}h
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Total time dedicated to your health
-                    </p>
+                    <p className="text-lg font-bold">{progressMetrics.timeDedicated.dailyAverage}min</p>
+                    <p className="text-xs text-muted-foreground">Daily average</p>
                   </div>
-                  <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                    <div className="text-center">
-                      <p className="text-lg font-bold">{progressMetrics.timeDedicated.dailyAverage}min</p>
-                      <p className="text-xs text-muted-foreground">Daily average</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-lg font-bold">{progressMetrics.timeDedicated.weeklyAverage}min</p>
-                      <p className="text-xs text-muted-foreground">Weekly average</p>
-                    </div>
+                  <div className="text-center">
+                    <p className="text-lg font-bold">{progressMetrics.timeDedicated.weeklyAverage}min</p>
+                    <p className="text-xs text-muted-foreground">Weekly average</p>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

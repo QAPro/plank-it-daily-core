@@ -36,9 +36,17 @@ const ImprovementCalculator: React.FC<ImprovementCalculatorProps> = ({ metrics }
     ],
   };
 
+  // Stabilize message selection to prevent render inconsistencies
+  const selectedMessages = React.useMemo(() => {
+    const messageIndex = Math.abs(metrics.improvementPercentage + metrics.strengthGainPercentage) % 3;
+    return {
+      improvement: motivationalMessages.improvement[messageIndex],
+      strength: motivationalMessages.strength[messageIndex]
+    };
+  }, [metrics.improvementPercentage, metrics.strengthGainPercentage]);
+
   const getRandomMessage = (type: 'improvement' | 'strength') => {
-    const messages = motivationalMessages[type];
-    return messages[Math.floor(Math.random() * messages.length)];
+    return selectedMessages[type];
   };
 
   return (

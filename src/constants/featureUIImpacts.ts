@@ -40,6 +40,18 @@ export const FEATURE_UI_IMPACTS: Record<string, UIImpact[]> = {
     { type: 'page_section', element: 'Tournament View', description: 'Tournament brackets and results', icon: Medal }
   ],
 
+  competitive_leagues: [
+    { type: 'navigation', element: 'Compete Tab', description: 'Main competition interface', icon: Trophy },
+    { type: 'page_section', element: 'League System', description: 'Competitive league participation', icon: Trophy },
+    { type: 'feature', element: 'League Rankings', description: 'View and participate in leagues', icon: BarChart3 }
+  ],
+  
+  tournaments: [
+    { type: 'navigation', element: 'Compete Tab', description: 'Main competition interface', icon: Trophy },
+    { type: 'page_section', element: 'Tournament System', description: 'Tournament participation and brackets', icon: Medal },
+    { type: 'feature', element: 'Tournament Registration', description: 'Join and compete in tournaments', icon: Users }
+  ],
+
   // Friend System
   friend_system: [
     { type: 'navigation', element: 'Friends Tab', description: 'Friend management interface', icon: Users },

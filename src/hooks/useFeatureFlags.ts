@@ -54,7 +54,9 @@ export const useFeatureFlags = () => {
   // Provide convenient boolean properties for common features
   const socialFeaturesEnabled = isFeatureEnabled('social_features') || isFeatureEnabled('friend_system');
   const eventsEnabled = isFeatureEnabled('events') || isFeatureEnabled('seasonal_events');
-  const competitionEnabled = isFeatureEnabled('competition') || isFeatureEnabled('competitions') || isFeatureEnabled('social_challenges');
+  const competitionEnabled = isFeatureEnabled('competition') || isFeatureEnabled('competitions') || 
+                           isFeatureEnabled('social_challenges') || isFeatureEnabled('competitive_leagues') || 
+                           isFeatureEnabled('tournaments');
 
   return {
     flags,

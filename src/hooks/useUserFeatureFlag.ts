@@ -18,6 +18,25 @@ export const useUserFeatureFlag = (featureName: string) => {
     staleTime: 60_000,
     queryFn: async (): Promise<UserFlagResult> => {
       console.log("[useUserFeatureFlag] evaluating", featureName, "for user", user?.id);
+      
+      // First try the enhanced function that considers parent dependencies
+      try {
+        const { data: enhancedData, error: enhancedError } = await supabase.rpc("is_feature_enabled_with_parents", {
+          _feature_name: featureName,
+        });
+
+        if (!enhancedError && enhancedData !== null) {
+          return {
+            enabled: Boolean(enhancedData),
+            variant: 'enabled',
+            source: 'feature_flag',
+          };
+        }
+      } catch (error) {
+        console.warn("[useUserFeatureFlag] enhanced check failed, falling back to original", error);
+      }
+
+      // Fallback to original function
       const { data, error } = await supabase.rpc("get_user_feature_flag", {
         _user_id: user!.id,
         _feature_name: featureName,

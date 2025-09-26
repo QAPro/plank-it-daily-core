@@ -1,6 +1,6 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
-import AIFeatureGuard from '@/components/access/AIFeatureGuard';
+import FlagGuard from '@/components/access/FlagGuard';
 
 interface CoachingOverlayProps {
   message: string | null;
@@ -9,7 +9,7 @@ interface CoachingOverlayProps {
 
 const CoachingOverlay = ({ message, visible }: CoachingOverlayProps) => {
   return (
-    <AIFeatureGuard>
+    <FlagGuard featureName="coaching_overlay">
       <AnimatePresence>
         {visible && message && (
           <motion.div
@@ -23,7 +23,7 @@ const CoachingOverlay = ({ message, visible }: CoachingOverlayProps) => {
           </motion.div>
         )}
       </AnimatePresence>
-    </AIFeatureGuard>
+    </FlagGuard>
   );
 };
 

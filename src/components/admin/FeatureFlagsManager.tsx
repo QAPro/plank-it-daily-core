@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Plus, Edit, RefreshCw, Users, Globe, Target, Flag, ChevronDown, ChevronRight, AlertTriangle, Info } from 'lucide-react';
+import { Plus, Edit, RefreshCw, Users, Globe, Target, Flag, ChevronDown, ChevronRight, AlertTriangle, Info, Folder, FolderOpen } from 'lucide-react';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import AdvancedFlagControls, { AdvancedFlagState } from '@/components/admin/flags/AdvancedFlagControls';
 import FeatureSelector from '@/components/admin/flags/FeatureSelector';
@@ -19,6 +18,22 @@ import { getFeatureByName, type FeatureCatalogItem } from '@/constants/featureCa
 import { FEATURE_UI_IMPACTS, getUIImpactIcon, getUIImpactColor, UIImpact } from '@/constants/featureUIImpacts';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
+type FeatureFlag = {
+  id: string;
+  feature_name: string;
+  is_enabled: boolean;
+  description?: string | null;
+  target_audience?: string | null;
+  rollout_percentage?: number | null;
+  parent_feature_id?: string | null;
+  created_at?: string;
+  updated_at?: string;
+};
+
+type FeatureFlagWithChildren = FeatureFlag & {
+  children: FeatureFlag[];
+};
+
 const FeatureFlagsManager = () => {
   const { flags, loading, toggle, upsert, refetch } = useFeatureFlags();
   const { toast } = useToast();
@@ -26,6 +41,7 @@ const FeatureFlagsManager = () => {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [pendingToggle, setPendingToggle] = useState<{flagName: string, currentEnabled: boolean} | null>(null);
   const [expandedImpacts, setExpandedImpacts] = useState<Record<string, boolean>>({});
+  const [expandedParents, setExpandedParents] = useState<Record<string, boolean>>({});
   const [newFlag, setNewFlag] = useState({
     feature_name: '',
     description: '',
@@ -215,6 +231,41 @@ const FeatureFlagsManager = () => {
     }));
   };
 
+  const toggleParentExpansion = (parentId: string) => {
+    setExpandedParents(prev => ({
+      ...prev,
+      [parentId]: !prev[parentId]
+    }));
+  };
+
+  // Group flags by parent-child relationship
+  const organizedFlags = useMemo(() => {
+    const parentFlags = flags.filter(flag => !flag.parent_feature_id);
+    const childFlags = flags.filter(flag => flag.parent_feature_id);
+    
+    return parentFlags.map(parent => ({
+      ...parent,
+      children: childFlags.filter(child => child.parent_feature_id === parent.id)
+    }));
+  }, [flags]);
+
+  // Handle bulk parent toggle
+  const handleParentToggle = async (parentFlag: FeatureFlagWithChildren, enabled: boolean) => {
+    // Toggle parent
+    await toggle(parentFlag.feature_name, enabled);
+    
+    // If disabling parent, show confirmation for children
+    if (!enabled && parentFlag.children.length > 0) {
+      const enabledChildrenCount = parentFlag.children.filter(child => child.is_enabled).length;
+      if (enabledChildrenCount > 0) {
+        toast({
+          title: "Parent feature disabled",
+          description: `${enabledChildrenCount} child feature${enabledChildrenCount > 1 ? 's' : ''} will be effectively disabled but settings preserved.`,
+        });
+      }
+    }
+  };
+
   if (loading) {
     return (
       <Card>
@@ -394,156 +445,288 @@ const FeatureFlagsManager = () => {
       </Dialog>
 
       <div className="grid gap-4">
-        {flags.map((flag) => {
-          const AudienceIcon = getAudienceIcon(flag.target_audience || 'all');
-          const featureInfo = getFeatureDisplayInfo(flag.feature_name);
-          const uiImpacts = getUIImpacts(flag.feature_name);
-          const isExpanded = expandedImpacts[flag.feature_name] || false;
+        {organizedFlags.map((parentFlag) => {
+          const AudienceIcon = getAudienceIcon(parentFlag.target_audience || 'all');
+          const featureInfo = getFeatureDisplayInfo(parentFlag.feature_name);
+          const uiImpacts = getUIImpacts(parentFlag.feature_name);
+          const isExpanded = expandedImpacts[parentFlag.feature_name] || false;
+          const isParentExpanded = expandedParents[parentFlag.id] || false;
+          const hasChildren = parentFlag.children.length > 0;
+          const enabledChildrenCount = parentFlag.children.filter(child => child.is_enabled).length;
           
           return (
-            <Card key={flag.id} className={`transition-all ${flag.is_enabled ? 'border-green-200' : 'border-gray-200'}`}>
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2">
-                        <CardTitle className="text-lg">{featureInfo.displayName}</CardTitle>
-                        {!featureInfo.isKnownFeature && (
-                          <Badge variant="outline" className="text-xs">Custom</Badge>
-                        )}
-                      </div>
-                      {featureInfo.displayName !== flag.feature_name && (
-                        <code className="text-xs text-muted-foreground">{flag.feature_name}</code>
-                      )}
-                    </div>
-                    <Badge variant={flag.is_enabled ? "default" : "secondary"}>
-                      {flag.is_enabled ? 'Enabled' : 'Disabled'}
-                    </Badge>
-                  </div>
-                  
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div>
-                          <Switch
-                            checked={flag.is_enabled}
-                            onCheckedChange={() => handleToggle(flag.feature_name, flag.is_enabled)}
-                          />
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent side="left">
-                        <div className="text-center">
-                          <div className="font-medium">
-                            {flag.is_enabled ? 'Disable' : 'Enable'} {featureInfo.displayName}
-                          </div>
-                          {uiImpacts.length > 0 && (
-                            <div className="text-xs text-muted-foreground mt-1">
-                              Affects {uiImpacts.length} UI element{uiImpacts.length !== 1 ? 's' : ''}
-                            </div>
-                          )}
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                
-                {flag.description && (
-                  <CardDescription>{flag.description}</CardDescription>
-                )}
-              </CardHeader>
-              
-              <CardContent className="pt-0">
-                <div className="flex items-center gap-4 text-sm text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <AudienceIcon className="w-4 h-4" />
-                    <Badge variant="outline" className={getAudienceBadgeColor(flag.target_audience || 'all')}>
-                      {flag.target_audience || 'all'}
-                    </Badge>
-                  </div>
-                  
-                  <div className="flex items-center gap-1">
-                    <Target className="w-4 h-4" />
-                    <span>{flag.rollout_percentage || 100}% rollout</span>
-                  </div>
-                  
-                  {flag.created_at && (
-                    <div className="text-xs text-gray-500">
-                      Created {new Date(flag.created_at).toLocaleDateString()}
-                    </div>
-                  )}
-                </div>
-
-                {/* UI Impact Section */}
-                {uiImpacts.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-gray-100">
-                    <Collapsible open={isExpanded} onOpenChange={() => toggleImpactExpansion(flag.feature_name)}>
-                      <CollapsibleTrigger asChild>
-                        <Button variant="ghost" size="sm" className="w-full justify-between p-0 h-auto text-left">
-                          <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                            <Target className="w-4 h-4" />
-                            UI Impact ({uiImpacts.length} element{uiImpacts.length !== 1 ? 's' : ''})
-                          </div>
-                          {isExpanded ? (
-                            <ChevronDown className="w-4 h-4 text-gray-500" />
+            <div key={parentFlag.id}>
+              {/* Parent Feature Card */}
+              <Card className={`transition-all ${parentFlag.is_enabled ? 'border-green-200' : 'border-gray-200'} ${hasChildren ? 'border-l-4 border-l-primary' : ''}`}>
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {hasChildren && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleParentExpansion(parentFlag.id)}
+                          className="p-1 h-6 w-6"
+                        >
+                          {isParentExpanded ? (
+                            <FolderOpen className="h-4 w-4" />
                           ) : (
-                            <ChevronRight className="w-4 h-4 text-gray-500" />
+                            <Folder className="h-4 w-4" />
                           )}
                         </Button>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent className="mt-2">
-                        <div className="space-y-2">
-                          {uiImpacts.map((impact, index) => {
-                            const IconComponent = impact.icon;
-                            const colorClasses = getUIImpactColor(impact.type);
-                            const isActive = flag.is_enabled;
-                            
-                            return (
-                              <div key={index} className={`flex items-start gap-3 p-2 rounded-md transition-all ${
-                                isActive ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200'
-                              }`}>
-                                <div className={`p-1 rounded ${colorClasses} ${!isActive ? 'opacity-50' : ''}`}>
-                                  <IconComponent className="w-3 h-3" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2">
-                                    <span className={`text-sm font-medium ${
-                                      isActive ? 'text-gray-900' : 'text-gray-500'
-                                    }`}>{impact.element}</span>
-                                    <Badge variant="outline" className="text-xs capitalize">
-                                      {impact.type.replace('_', ' ')}
-                                    </Badge>
-                                    {isActive && (
-                                      <Badge className="text-xs bg-green-100 text-green-700 border-green-200">
-                                        Active
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  <p className={`text-xs mt-0.5 ${
-                                    isActive ? 'text-gray-600' : 'text-gray-400'
-                                  }`}>{impact.description}</p>
+                      )}
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-2">
+                          <CardTitle className="text-lg">{featureInfo.displayName}</CardTitle>
+                          {!featureInfo.isKnownFeature && (
+                            <Badge variant="outline" className="text-xs">Custom</Badge>
+                          )}
+                          {hasChildren && (
+                            <Badge variant="outline" className="text-xs">
+                              {enabledChildrenCount}/{parentFlag.children.length} enabled
+                            </Badge>
+                          )}
+                        </div>
+                        {featureInfo.displayName !== parentFlag.feature_name && (
+                          <code className="text-xs text-muted-foreground">{parentFlag.feature_name}</code>
+                        )}
+                      </div>
+                      <Badge variant={parentFlag.is_enabled ? "default" : "secondary"}>
+                        {parentFlag.is_enabled ? 'Enabled' : 'Disabled'}
+                      </Badge>
+                    </div>
+
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div>
+                            <Switch
+                              checked={parentFlag.is_enabled}
+                              onCheckedChange={(enabled) => hasChildren ? 
+                                handleParentToggle(parentFlag, enabled) : 
+                                handleToggle(parentFlag.feature_name, parentFlag.is_enabled)
+                              }
+                            />
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent side="left">
+                          <div className="text-center">
+                            <div className="font-medium">
+                              {parentFlag.is_enabled ? 'Disable' : 'Enable'} {featureInfo.displayName}
+                            </div>
+                            {hasChildren && (
+                              <div className="text-xs text-muted-foreground mt-1">
+                                Controls {parentFlag.children.length} child feature{parentFlag.children.length !== 1 ? 's' : ''}
+                              </div>
+                            )}
+                            {uiImpacts.length > 0 && (
+                              <div className="text-xs text-muted-foreground mt-1">
+                                Affects {uiImpacts.length} UI element{uiImpacts.length !== 1 ? 's' : ''}
+                              </div>
+                            )}
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                </CardHeader>
+
+                <CardContent>
+                  <div className="space-y-4">
+                    {/* Feature Description */}
+                    {parentFlag.description && (
+                      <p className="text-sm text-muted-foreground">{parentFlag.description}</p>
+                    )}
+
+                    {/* Feature Meta Information */}
+                    <div className="flex flex-wrap items-center gap-3 text-sm">
+                      <div className="flex items-center gap-1">
+                        <AudienceIcon className="w-4 h-4 text-muted-foreground" />
+                        <Badge className={getAudienceBadgeColor(parentFlag.target_audience || 'all')}>
+                          {parentFlag.target_audience || 'all'}
+                        </Badge>
+                      </div>
+                      
+                      <div className="flex items-center gap-1">
+                        <Target className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-muted-foreground">
+                          {parentFlag.rollout_percentage || 100}% rollout
+                        </span>
+                      </div>
+                      
+                      {parentFlag.created_at && (
+                        <div className="text-xs text-muted-foreground">
+                          Created {new Date(parentFlag.created_at).toLocaleDateString()}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* UI Impacts */}
+                    {uiImpacts.length > 0 && (
+                      <div className="border rounded-lg p-3 bg-muted/30">
+                        <Collapsible
+                          open={isExpanded}
+                          onOpenChange={() => toggleImpactExpansion(parentFlag.feature_name)}
+                        >
+                          <CollapsibleTrigger asChild>
+                            <Button variant="ghost" className="flex items-center gap-2 p-0 h-auto font-medium">
+                              {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                              UI Impact ({uiImpacts.length} element{uiImpacts.length !== 1 ? 's' : ''})
+                            </Button>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="space-y-2 mt-3">
+                            {uiImpacts.map((impact, index) => (
+                              <div key={index} className="flex items-start gap-2 text-sm">
+                                <impact.icon className="w-4 h-4 mt-0.5" />
+                                <div className="flex-1">
+                                  <div className="font-medium">{impact.element}</div>
+                                  <div className="text-muted-foreground text-xs">{impact.description}</div>
                                 </div>
                               </div>
-                            );
-                          })}
-                        </div>
-                      </CollapsibleContent>
-                    </Collapsible>
+                            ))}
+                          </CollapsibleContent>
+                        </Collapsible>
+                      </div>
+                    )}
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+
+              {/* Child Features */}
+              {hasChildren && isParentExpanded && (
+                <div className="ml-8 mt-4 space-y-3 border-l-2 border-muted pl-4">
+                  {parentFlag.children.map((childFlag) => {
+                    const childAudienceIcon = getAudienceIcon(childFlag.target_audience || 'all');
+                    const childFeatureInfo = getFeatureDisplayInfo(childFlag.feature_name);
+                    const childUIImpacts = getUIImpacts(childFlag.feature_name);
+                    const isChildExpanded = expandedImpacts[childFlag.feature_name] || false;
+                    const isParentDisabled = !parentFlag.is_enabled;
+                    
+                    return (
+                      <Card key={childFlag.id} className={`transition-all ${childFlag.is_enabled && !isParentDisabled ? 'border-green-200' : 'border-gray-200'} ${isParentDisabled ? 'opacity-60' : ''}`}>
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="flex flex-col">
+                                <div className="flex items-center gap-2">
+                                  <CardTitle className="text-base">{childFeatureInfo.displayName}</CardTitle>
+                                  {!childFeatureInfo.isKnownFeature && (
+                                    <Badge variant="outline" className="text-xs">Custom</Badge>
+                                  )}
+                                  {isParentDisabled && (
+                                    <Badge variant="secondary" className="text-xs">Parent Disabled</Badge>
+                                  )}
+                                </div>
+                                {childFeatureInfo.displayName !== childFlag.feature_name && (
+                                  <code className="text-xs text-muted-foreground">{childFlag.feature_name}</code>
+                                )}
+                              </div>
+                              <Badge variant={childFlag.is_enabled && !isParentDisabled ? "default" : "secondary"}>
+                                {childFlag.is_enabled ? 'Enabled' : 'Disabled'}
+                              </Badge>
+                            </div>
+                            
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div>
+                                    <Switch
+                                      checked={childFlag.is_enabled}
+                                      onCheckedChange={() => handleToggle(childFlag.feature_name, childFlag.is_enabled)}
+                                      disabled={isParentDisabled}
+                                    />
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent side="left">
+                                  <div className="text-center">
+                                    <div className="font-medium">
+                                      {childFlag.is_enabled ? 'Disable' : 'Enable'} {childFeatureInfo.displayName}
+                                    </div>
+                                    {isParentDisabled && (
+                                      <div className="text-xs text-muted-foreground mt-1">
+                                        Parent feature must be enabled first
+                                      </div>
+                                    )}
+                                  </div>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                        </CardHeader>
+
+                        <CardContent className="pt-0">
+                          <div className="space-y-3">
+                            {/* Child Feature Description */}
+                            {childFlag.description && (
+                              <p className="text-sm text-muted-foreground">{childFlag.description}</p>
+                            )}
+
+                            {/* Child Feature Meta Information */}
+                            <div className="flex flex-wrap items-center gap-3 text-sm">
+                              <div className="flex items-center gap-1">
+                                <Target className="w-4 h-4 text-muted-foreground" />
+                                <Badge className={getAudienceBadgeColor(childFlag.target_audience || 'all')}>
+                                  {childFlag.target_audience || 'all'}
+                                </Badge>
+                              </div>
+                              
+                              <div className="flex items-center gap-1">
+                                <Target className="w-4 h-4 text-muted-foreground" />
+                                <span className="text-muted-foreground">
+                                  {childFlag.rollout_percentage || 100}% rollout
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Child UI Impacts */}
+                            {childUIImpacts.length > 0 && (
+                              <div className="border rounded-lg p-2 bg-muted/20">
+                                <Collapsible
+                                  open={isChildExpanded}
+                                  onOpenChange={() => toggleImpactExpansion(childFlag.feature_name)}
+                                >
+                                  <CollapsibleTrigger asChild>
+                                    <Button variant="ghost" className="flex items-center gap-2 p-0 h-auto font-medium text-sm">
+                                      {isChildExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                                      UI Impact ({childUIImpacts.length})
+                                    </Button>
+                                  </CollapsibleTrigger>
+                                  <CollapsibleContent className="space-y-1 mt-2">
+                                    {childUIImpacts.map((impact, index) => (
+                                      <div key={index} className="flex items-start gap-2 text-xs">
+                                        <impact.icon className="w-3 h-3 mt-0.5" />
+                                        <div className="flex-1">
+                                          <div className="font-medium">{impact.element}</div>
+                                          <div className="text-muted-foreground">{impact.description}</div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </CollapsibleContent>
+                                </Collapsible>
+                              </div>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           );
         })}
-        
+
         {flags.length === 0 && (
           <Card>
             <CardContent className="p-8 text-center">
               <Flag className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">No Feature Flags</h3>
-              <p className="text-gray-600 mb-4">Create your first feature flag to start controlling app features.</p>
+              <h3 className="text-lg font-medium text-gray-800 mb-2">No Feature Flags</h3>
+              <p className="text-gray-600 mb-4">
+                Create your first feature flag to start controlling application features.
+              </p>
               <Button onClick={() => setShowCreateDialog(true)}>
                 <Plus className="w-4 h-4 mr-2" />
-                Create First Flag
+                Create Feature Flag
               </Button>
             </CardContent>
           </Card>

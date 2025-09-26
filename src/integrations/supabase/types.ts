@@ -1022,6 +1022,7 @@ export type Database = {
           feature_name: string
           id: string
           is_enabled: boolean
+          parent_feature_id: string | null
           rollout_end_date: string | null
           rollout_percentage: number | null
           rollout_start_date: string | null
@@ -1038,6 +1039,7 @@ export type Database = {
           feature_name: string
           id?: string
           is_enabled?: boolean
+          parent_feature_id?: string | null
           rollout_end_date?: string | null
           rollout_percentage?: number | null
           rollout_start_date?: string | null
@@ -1054,6 +1056,7 @@ export type Database = {
           feature_name?: string
           id?: string
           is_enabled?: boolean
+          parent_feature_id?: string | null
           rollout_end_date?: string | null
           rollout_percentage?: number | null
           rollout_start_date?: string | null
@@ -1061,7 +1064,15 @@ export type Database = {
           target_audience?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "feature_flags_parent_feature_id_fkey"
+            columns: ["parent_feature_id"]
+            isOneToOne: false
+            referencedRelation: "feature_flags"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       feature_unlocks: {
         Row: {
@@ -4764,6 +4775,10 @@ export type Database = {
       }
       is_admin_with_audit: {
         Args: { _user_id?: string }
+        Returns: boolean
+      }
+      is_feature_enabled_with_parents: {
+        Args: { _feature_name: string }
         Returns: boolean
       }
       is_superadmin: {

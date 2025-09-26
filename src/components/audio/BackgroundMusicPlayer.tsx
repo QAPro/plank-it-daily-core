@@ -5,6 +5,7 @@ import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
+import FlagGuard from '@/components/access/FlagGuard';
 import { cn } from '@/lib/utils';
 
 interface Playlist {
@@ -152,101 +153,103 @@ export const BackgroundMusicPlayer: React.FC<BackgroundMusicPlayerProps> = ({
   }
 
   return (
-    <Card className={cn("w-full max-w-sm", className)}>
-      <CardContent className="p-4">
-        <audio
-          ref={audioRef}
-          onEnded={onAudioEnded}
-          onCanPlay={onAudioCanPlay}
-          preload="metadata"
-        />
-        
-        <div className="space-y-4">
-          {/* Playlist Selection */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Workout Playlist</label>
-            <Select value={currentPlaylist.id} onValueChange={handlePlaylistChange}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {WORKOUT_PLAYLISTS.map((playlist) => (
-                  <SelectItem key={playlist.id} value={playlist.id}>
-                    <div className="flex flex-col items-start">
-                      <span>{playlist.name}</span>
-                      <span className="text-xs text-muted-foreground">{playlist.genre}</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+    <FlagGuard featureName="background_music">
+      <Card className={cn("w-full max-w-sm", className)}>
+        <CardContent className="p-4">
+          <audio
+            ref={audioRef}
+            onEnded={onAudioEnded}
+            onCanPlay={onAudioCanPlay}
+            preload="metadata"
+          />
+          
+          <div className="space-y-4">
+            {/* Playlist Selection */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Workout Playlist</label>
+              <Select value={currentPlaylist.id} onValueChange={handlePlaylistChange}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {WORKOUT_PLAYLISTS.map((playlist) => (
+                    <SelectItem key={playlist.id} value={playlist.id}>
+                      <div className="flex flex-col items-start">
+                        <span>{playlist.name}</span>
+                        <span className="text-xs text-muted-foreground">{playlist.genre}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          {/* Player Controls */}
-          <div className="flex items-center justify-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handlePrevious}
-              disabled={currentPlaylist.tracks.length <= 1}
-            >
-              <SkipBack className="h-4 w-4" />
-            </Button>
-            
-            <Button
-              variant="outline"
-              onClick={isPlaying ? handlePause : handlePlay}
-              disabled={currentPlaylist.tracks.length === 0}
-            >
-              {isPlaying ? (
-                <Pause className="h-4 w-4" />
-              ) : (
-                <Play className="h-4 w-4" />
-              )}
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleNext}
-              disabled={currentPlaylist.tracks.length <= 1}
-            >
-              <SkipForward className="h-4 w-4" />
-            </Button>
-          </div>
-
-          {/* Volume Controls */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Volume</span>
+            {/* Player Controls */}
+            <div className="flex items-center justify-center space-x-2">
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
-                onClick={toggleMute}
+                onClick={handlePrevious}
+                disabled={currentPlaylist.tracks.length <= 1}
               >
-                {isMuted ? (
-                  <VolumeX className="h-4 w-4" />
+                <SkipBack className="h-4 w-4" />
+              </Button>
+              
+              <Button
+                variant="outline"
+                onClick={isPlaying ? handlePause : handlePlay}
+                disabled={currentPlaylist.tracks.length === 0}
+              >
+                {isPlaying ? (
+                  <Pause className="h-4 w-4" />
                 ) : (
-                  <Volume2 className="h-4 w-4" />
+                  <Play className="h-4 w-4" />
                 )}
               </Button>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleNext}
+                disabled={currentPlaylist.tracks.length <= 1}
+              >
+                <SkipForward className="h-4 w-4" />
+              </Button>
             </div>
-            <Slider
-              value={[isMuted ? 0 : volume]}
-              onValueChange={handleVolumeChange}
-              max={1}
-              step={0.1}
-              className="w-full"
-              disabled={isMuted}
-            />
-          </div>
 
-          {/* Current Track Info */}
-          <div className="text-center text-sm text-muted-foreground">
-            Track {currentTrackIndex + 1} of {currentPlaylist.tracks.length}
+            {/* Volume Controls */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Volume</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={toggleMute}
+                >
+                  {isMuted ? (
+                    <VolumeX className="h-4 w-4" />
+                  ) : (
+                    <Volume2 className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+              <Slider
+                value={[isMuted ? 0 : volume]}
+                onValueChange={handleVolumeChange}
+                max={1}
+                step={0.1}
+                className="w-full"
+                disabled={isMuted}
+              />
+            </div>
+
+            {/* Current Track Info */}
+            <div className="text-center text-sm text-muted-foreground">
+              Track {currentTrackIndex + 1} of {currentPlaylist.tracks.length}
+            </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </FlagGuard>
   );
 };

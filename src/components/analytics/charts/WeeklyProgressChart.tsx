@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { Target } from 'lucide-react';
+import FlagGuard from '@/components/access/FlagGuard';
 
 interface WeeklyProgressChartProps {
   data: Array<{ day: string; sessions: number; completed: boolean }>;
@@ -14,7 +15,8 @@ const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({ data, goal = 
   const completionRate = Math.round((completedDays / data.length) * 100);
   
   return (
-    <Card>
+    <FlagGuard featureName="progress_charts">
+      <Card>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           Weekly Progress
@@ -54,6 +56,7 @@ const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({ data, goal = 
         </ResponsiveContainer>
       </CardContent>
     </Card>
+    </FlagGuard>
   );
 };
 

@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import type { TrendDataPoint } from '@/utils/analyticsUtils';
+import FlagGuard from '@/components/access/FlagGuard';
 
 interface PerformanceTrendChartProps {
   data: TrendDataPoint[];
@@ -18,7 +19,8 @@ const PerformanceTrendChart: React.FC<PerformanceTrendChartProps> = ({
   const isImproving = trend > 0;
   
   return (
-    <Card>
+    <FlagGuard featureName="progress_charts">
+      <Card>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           {title}
@@ -77,6 +79,7 @@ const PerformanceTrendChart: React.FC<PerformanceTrendChartProps> = ({
         </ResponsiveContainer>
       </CardContent>
     </Card>
+    </FlagGuard>
   );
 };
 

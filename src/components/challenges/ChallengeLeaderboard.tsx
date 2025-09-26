@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Trophy, Medal, Award } from 'lucide-react';
 import { challengeService, type ChallengeParticipant } from '@/services/challengeService';
+import FlagGuard from '@/components/access/FlagGuard';
 
 interface ChallengeLeaderboardProps {
   challengeId: string;
@@ -55,7 +56,8 @@ const ChallengeLeaderboard = ({ challengeId, challengeType }: ChallengeLeaderboa
 
   if (loading) {
     return (
-      <Card>
+      <FlagGuard featureName="leaderboards">
+        <Card>
         <CardHeader>
           <CardTitle>Leaderboard</CardTitle>
         </CardHeader>
@@ -65,11 +67,13 @@ const ChallengeLeaderboard = ({ challengeId, challengeType }: ChallengeLeaderboa
           </div>
         </CardContent>
       </Card>
+      </FlagGuard>
     );
   }
 
   return (
-    <Card>
+    <FlagGuard featureName="leaderboards">
+      <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Trophy className="w-5 h-5" />
@@ -118,6 +122,7 @@ const ChallengeLeaderboard = ({ challengeId, challengeType }: ChallengeLeaderboa
         </div>
       </CardContent>
     </Card>
+    </FlagGuard>
   );
 };
 

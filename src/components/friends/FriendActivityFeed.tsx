@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import EnhancedActivityCard from './EnhancedActivityCard';
 import ActivityFiltersComponent from './ActivityFilters';
+import FlagGuard from '@/components/access/FlagGuard';
 
 const FriendActivityFeed = () => {
   const { user } = useAuth();
@@ -94,7 +95,8 @@ const FriendActivityFeed = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <FlagGuard featureName="activity_feed">
+      <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-gray-800">Friend Activity</h2>
       </div>
@@ -136,6 +138,7 @@ const FriendActivityFeed = () => {
         </div>
       )}
     </div>
+    </FlagGuard>
   );
 };
 

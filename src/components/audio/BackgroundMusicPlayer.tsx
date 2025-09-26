@@ -153,7 +153,7 @@ export const BackgroundMusicPlayer: React.FC<BackgroundMusicPlayerProps> = ({
   }
 
   return (
-    <FlagGuard featureName="background_music">
+    <FlagGuard featureName="background_music_player">
       <Card className={cn("w-full max-w-sm", className)}>
         <CardContent className="p-4">
           <audio

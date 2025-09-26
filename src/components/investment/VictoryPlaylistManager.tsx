@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Music, Plus, Play, Star, Zap, Heart, Crown } from 'lucide-react';
 import { useVictoryPlaylists } from '@/hooks/useVictoryPlaylists';
 import { motion, AnimatePresence } from 'framer-motion';
+import FlagGuard from '@/components/access/FlagGuard';
 
 const VictoryPlaylistManager: React.FC = () => {
   const { 
@@ -93,7 +94,8 @@ const VictoryPlaylistManager: React.FC = () => {
   }
 
   return (
-    <Card>
+    <FlagGuard featureName="victory_playlists">
+      <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center">
@@ -329,6 +331,7 @@ const VictoryPlaylistManager: React.FC = () => {
         </Dialog>
       </CardContent>
     </Card>
+    </FlagGuard>
   );
 };
 

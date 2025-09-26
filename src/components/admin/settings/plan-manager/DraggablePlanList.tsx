@@ -64,7 +64,7 @@ export const DraggablePlanList: React.FC<DraggablePlanListProps> = ({
   };
 
   const getPlanIcon = (plan: SubscriptionPlan) => {
-    if (plan.name.toLowerCase().includes('pro') || plan.name.toLowerCase().includes('enterprise')) {
+    if (plan.name.toLowerCase().includes('premium') || plan.name.toLowerCase().includes('enterprise')) {
       return <Crown className="w-4 h-4 text-purple-600" />;
     }
     if (plan.is_popular) {

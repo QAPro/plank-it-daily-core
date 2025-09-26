@@ -176,7 +176,7 @@ export const PlanForm: React.FC<PlanFormProps> = ({
                 <Input
                   id="name"
                   {...register("name")}
-                  placeholder="e.g., Premium, Pro, Enterprise"
+                  placeholder="e.g., Premium, Enterprise"
                   className={errors.name ? "border-red-500" : ""}
                 />
                 {errors.name && (

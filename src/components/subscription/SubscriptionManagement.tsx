@@ -379,7 +379,7 @@ const SubscriptionManagement = ({ onBack }: SubscriptionManagementProps) => {
                     </div>
                   </>
                 )}
-                {active.plan_name?.toLowerCase().includes('pro') && (
+                {active.plan_name?.toLowerCase().includes('premium') && (
                   <>
                     <div className="flex items-center text-sm">
                       <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>

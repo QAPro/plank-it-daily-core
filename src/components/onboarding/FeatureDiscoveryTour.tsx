@@ -124,7 +124,7 @@ const FeatureDiscoveryTour: React.FC<FeatureDiscoveryTourProps> = ({ onComplete,
       id: 'custom-workouts',
       title: 'Custom Workout Builder',
       description: 'Create personalized workout routines with our advanced workout builder.',
-      feature: 'Pro',
+      feature: 'Premium',
       icon: Crown,
       color: 'from-purple-500 to-purple-600',
       benefits: [
@@ -169,9 +169,7 @@ const FeatureDiscoveryTour: React.FC<FeatureDiscoveryTourProps> = ({ onComplete,
   };
 
   const handleUpgrade = () => {
-    const targetPlan = currentTourStep.feature === 'Pro' 
-      ? plans.find(plan => plan.name.toLowerCase().includes('pro'))
-      : plans.find(plan => plan.name.toLowerCase().includes('premium'));
+    const targetPlan = plans.find(plan => plan.name.toLowerCase().includes('premium'));
     
     if (targetPlan) {
       upgrade(targetPlan);

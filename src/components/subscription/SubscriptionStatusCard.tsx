@@ -16,13 +16,11 @@ const SubscriptionStatusCard = ({ onManageClick, onUpgradeClick }: SubscriptionS
   const { active, demoMode } = useSubscription();
 
   const getPlanIcon = (planName: string) => {
-    if (planName?.toLowerCase().includes('pro')) return Crown;
     if (planName?.toLowerCase().includes('premium')) return Star;
     return null;
   };
 
   const getPlanColor = (planName: string) => {
-    if (planName?.toLowerCase().includes('pro')) return 'from-purple-500 to-purple-600';
     if (planName?.toLowerCase().includes('premium')) return 'from-blue-500 to-blue-600';
     return 'from-gray-500 to-gray-600';
   };

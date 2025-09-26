@@ -44,8 +44,8 @@ const EnhancedSubscriptionPlansPage = () => {
     },
     {
       name: "Mike T.",
-      text: "Custom workouts and pro analytics are game-changers.",
-      tier: "Pro",
+      text: "Custom workouts and premium analytics are game-changers.",
+      tier: "Premium",
       avatar: "🏋️‍♂️",
       rating: 5
     },
@@ -64,8 +64,8 @@ const EnhancedSubscriptionPlansPage = () => {
       answer: "Yes! You can cancel your subscription at any time. Your access will continue until the end of your billing period."
     },
     {
-      question: "What's the difference between Premium and Pro?",
-      answer: "Premium includes advanced analytics and social features. Pro adds unlimited custom workouts and priority support."
+      question: "What's included in Premium?",
+      answer: "Premium includes advanced analytics, social features, unlimited custom workouts, and priority support."
     },
     {
       question: "Do you offer refunds?",
@@ -78,19 +78,16 @@ const EnhancedSubscriptionPlansPage = () => {
   ];
 
   const getPlanIcon = (planName: string) => {
-    if (planName.toLowerCase().includes('pro')) return Crown;
     if (planName.toLowerCase().includes('premium')) return Star;
     return Zap;
   };
 
   const getPlanColor = (planName: string) => {
-    if (planName.toLowerCase().includes('pro')) return 'border-purple-200 bg-purple-50/50';
     if (planName.toLowerCase().includes('premium')) return 'border-blue-200 bg-blue-50/50';
     return 'border-gray-200 bg-gray-50/50';
   };
 
   const getPlanButtonColor = (planName: string) => {
-    if (planName.toLowerCase().includes('pro')) return 'bg-purple-600 hover:bg-purple-700';
     if (planName.toLowerCase().includes('premium')) return 'bg-blue-600 hover:bg-blue-700';
     return 'bg-gray-600 hover:bg-gray-700';
   };
@@ -101,17 +98,6 @@ const EnhancedSubscriptionPlansPage = () => {
 
   const getEnhancedFeaturesList = (planName: string) => {
     const name = planName.toLowerCase();
-    if (name.includes('pro')) {
-      return [
-        { text: 'All Premium features', icon: Check, highlight: false },
-        { text: 'Custom workout builder', icon: Zap, highlight: true },
-        { text: 'Priority support', icon: Heart, highlight: true },
-        { text: 'Advanced analytics dashboard', icon: TrendingUp, highlight: true },
-        { text: 'Unlimited everything', icon: Crown, highlight: false },
-        { text: 'Export workout data', icon: Check, highlight: false },
-        { text: 'Personal coaching insights', icon: Star, highlight: true }
-      ];
-    }
     if (name.includes('premium')) {
       return [
         { text: 'Advanced statistics & insights', icon: TrendingUp, highlight: true },

@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Search, UserPlus, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useDebounce } from '@/hooks/useDebounce';
+import FlagGuard from '@/components/access/FlagGuard';
 
 const FriendSearch = () => {
   const { user } = useAuth();
@@ -67,7 +68,8 @@ const FriendSearch = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <FlagGuard featureName="friend_search">
+      <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold text-gray-800 mb-4">Find Friends</h2>
         <div className="relative">
@@ -159,8 +161,9 @@ const FriendSearch = () => {
           <h3 className="text-lg font-semibold text-gray-800 mb-2">Search for Friends</h3>
           <p className="text-gray-600">Enter a username, name, or email to find people to connect with</p>
         </div>
-      )}
-    </div>
+        )}
+      </div>
+    </FlagGuard>
   );
 };
 

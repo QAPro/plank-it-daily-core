@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Download, FileText, Share2, CheckCircle, Info, Heart } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import FlagGuard from '@/components/access/FlagGuard';
 
 const DataPortabilityHelper: React.FC = () => {
   const [exportStatus, setExportStatus] = useState<'idle' | 'processing' | 'ready'>('idle');
@@ -60,7 +61,8 @@ const DataPortabilityHelper: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <FlagGuard featureName="export_data">
+      <div className="space-y-6">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -243,6 +245,7 @@ const DataPortabilityHelper: React.FC = () => {
         </Card>
       </motion.div>
     </div>
+    </FlagGuard>
   );
 };
 

@@ -5,6 +5,7 @@ import { Share2, Twitter, Facebook, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SocialSharingService, type ShareData } from "@/services/socialSharingService";
 import { useToast } from "@/hooks/use-toast";
+import FlagGuard from '@/components/access/FlagGuard';
 
 interface SocialShareButtonsProps {
   shareData: ShareData;
@@ -57,7 +58,8 @@ const SocialShareButtons = ({ shareData }: SocialShareButtonsProps) => {
   };
 
   return (
-    <motion.div
+    <FlagGuard featureName="social_sharing">
+      <motion.div
       initial={{ y: 30, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 1.4 }}
@@ -118,6 +120,7 @@ const SocialShareButtons = ({ shareData }: SocialShareButtonsProps) => {
         </Button>
       </div>
     </motion.div>
+    </FlagGuard>
   );
 };
 

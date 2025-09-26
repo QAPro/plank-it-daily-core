@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import CustomWorkoutBuilder, { BuilderItem } from './CustomWorkoutBuilder';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
+import FlagGuard from '@/components/access/FlagGuard';
 
 const CustomWorkoutManager: React.FC = () => {
   const { user, listQuery, createWorkout, updateWorkout, deleteWorkout } = useCustomWorkouts();
@@ -103,7 +104,8 @@ const CustomWorkoutManager: React.FC = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <FlagGuard featureName="custom_workouts">
+      <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-xl font-semibold">Custom Workouts</h3>
@@ -174,6 +176,7 @@ const CustomWorkoutManager: React.FC = () => {
         </DialogContent>
       </Dialog>
     </div>
+    </FlagGuard>
   );
 };
 

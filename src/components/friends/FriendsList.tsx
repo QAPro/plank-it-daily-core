@@ -10,6 +10,7 @@ import { MoreVertical, MessageCircle, UserMinus, Trophy, Flame, Calendar } from 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
+import FlagGuard from '@/components/access/FlagGuard';
 
 const FriendsList = () => {
   const { user } = useAuth();
@@ -88,7 +89,8 @@ const FriendsList = () => {
   }
 
   return (
-    <div className="space-y-4">
+    <FlagGuard featureName="friend_system">
+      <div className="space-y-4">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold text-gray-800">Your Friends ({friends.length})</h2>
       </div>
@@ -158,8 +160,9 @@ const FriendsList = () => {
             </div>
           </CardContent>
         </Card>
-      ))}
-    </div>
+        ))}
+      </div>
+    </FlagGuard>
   );
 };
 

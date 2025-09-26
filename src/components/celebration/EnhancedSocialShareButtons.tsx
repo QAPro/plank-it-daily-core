@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { enhancedSocialSharingService } from "@/services/enhancedSocialSharingService";
 import { useToast } from "@/hooks/use-toast";
 import type { EnhancedShareData, ShareTemplate } from "@/types/socialSharing";
+import FlagGuard from '@/components/access/FlagGuard';
 
 interface EnhancedSocialShareButtonsProps {
   shareData: EnhancedShareData;
@@ -238,7 +239,8 @@ const EnhancedSocialShareButtons = ({
   }
 
   return (
-    <motion.div
+    <FlagGuard featureName="social_sharing">
+      <motion.div
       initial={{ y: 30, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 1.4 }}
@@ -427,6 +429,7 @@ const EnhancedSocialShareButtons = ({
         </Dialog>
       </div>
     </motion.div>
+    </FlagGuard>
   );
 };
 

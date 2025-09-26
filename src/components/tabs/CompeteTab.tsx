@@ -6,6 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Trophy, Star } from 'lucide-react';
 import LeagueOverview from '@/components/leagues/LeagueOverview';
 import TournamentCard from '@/components/tournaments/TournamentCard';
+import FlagGuard from '@/components/access/FlagGuard';
 
 const CompeteTab = () => {
   const { leagues, loading: leaguesLoading, joinLeague } = useLeagues();
@@ -15,7 +16,8 @@ const CompeteTab = () => {
   const activeLeague = leagues.find(league => league.joined);
 
   return (
-    <div className="container mx-auto p-4">
+    <FlagGuard featureName="competition_features">
+      <div className="container mx-auto p-4">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800 mb-2">Competition</h1>
         <p className="text-gray-600">Join leagues and tournaments to compete with other athletes!</p>
@@ -115,6 +117,7 @@ const CompeteTab = () => {
         </TabsContent>
       </Tabs>
     </div>
+    </FlagGuard>
   );
 };
 

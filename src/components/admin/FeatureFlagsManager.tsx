@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Plus, Edit, RefreshCw, Users, Globe, Target, Flag, ChevronDown, ChevronRight, AlertTriangle, Info, Folder, FolderOpen } from 'lucide-react';
+import { Plus, Edit, RefreshCw, Users, Globe, Target, Flag, ChevronDown, ChevronRight, AlertTriangle, Info, Folder, FolderOpen, Search, Filter } from 'lucide-react';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import AdvancedFlagControls, { AdvancedFlagState } from '@/components/admin/flags/AdvancedFlagControls';
 import FeatureSelector from '@/components/admin/flags/FeatureSelector';
@@ -17,6 +17,7 @@ import { z } from "zod";
 import { getFeatureByName, type FeatureCatalogItem } from '@/constants/featureCatalog';
 import { FEATURE_UI_IMPACTS, getUIImpactIcon, getUIImpactColor, UIImpact } from '@/constants/featureUIImpacts';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { GRANULAR_FEATURE_CATALOG, GRANULAR_FEATURE_CATEGORIES, getGranularFeaturesByCategory, type GranularFeatureCatalogItem } from '@/constants/granularFeatureCatalog';
 
 type FeatureFlag = {
   id: string;
@@ -42,6 +43,9 @@ const FeatureFlagsManager = () => {
   const [pendingToggle, setPendingToggle] = useState<{flagName: string, currentEnabled: boolean} | null>(null);
   const [expandedImpacts, setExpandedImpacts] = useState<Record<string, boolean>>({});
   const [expandedParents, setExpandedParents] = useState<Record<string, boolean>>({});
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [showOnlyEnabled, setShowOnlyEnabled] = useState(false);
   const [newFlag, setNewFlag] = useState({
     feature_name: '',
     description: '',
@@ -238,16 +242,49 @@ const FeatureFlagsManager = () => {
     }));
   };
 
-  // Group flags by parent-child relationship
+  // Group flags by parent-child relationship and apply filters
   const organizedFlags = useMemo(() => {
     const parentFlags = flags.filter(flag => !flag.parent_feature_id);
     const childFlags = flags.filter(flag => flag.parent_feature_id);
     
-    return parentFlags.map(parent => ({
+    let filteredParents = parentFlags.map(parent => ({
       ...parent,
       children: childFlags.filter(child => child.parent_feature_id === parent.id)
     }));
-  }, [flags]);
+
+    // Apply search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filteredParents = filteredParents.filter(parent => 
+        parent.feature_name.toLowerCase().includes(query) ||
+        parent.description?.toLowerCase().includes(query) ||
+        parent.children.some(child => 
+          child.feature_name.toLowerCase().includes(query) ||
+          child.description?.toLowerCase().includes(query)
+        )
+      );
+    }
+
+    // Apply category filter
+    if (selectedCategory !== 'all') {
+      const categoryFeatures = getGranularFeaturesByCategory(selectedCategory as any);
+      const categoryFeatureNames = categoryFeatures.map(f => f.name);
+      
+      filteredParents = filteredParents.filter(parent =>
+        categoryFeatureNames.includes(parent.feature_name) ||
+        parent.children.some(child => categoryFeatureNames.includes(child.feature_name))
+      );
+    }
+
+    // Apply enabled filter
+    if (showOnlyEnabled) {
+      filteredParents = filteredParents.filter(parent =>
+        parent.is_enabled || parent.children.some(child => child.is_enabled)
+      );
+    }
+
+    return filteredParents;
+  }, [flags, searchQuery, selectedCategory, showOnlyEnabled]);
 
   // Handle bulk parent toggle
   const handleParentToggle = async (parentFlag: FeatureFlagWithChildren, enabled: boolean) => {
@@ -282,7 +319,7 @@ const FeatureFlagsManager = () => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-800">Feature Flags</h2>
-          <p className="text-gray-600 mt-1">Control which features are available to users</p>
+          <p className="text-gray-600 mt-1">Control which features are available to users - {organizedFlags.length} features</p>
         </div>
         
         <div className="flex items-center gap-3">
@@ -443,6 +480,53 @@ const FeatureFlagsManager = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Search and Filter Controls */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            <div className="flex-1 max-w-sm">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  placeholder="Search features..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            
+            <div className="flex flex-wrap gap-3 items-center">
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-gray-500" />
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="text-sm border rounded px-3 py-1.5 bg-white"
+                >
+                  <option value="all">All Categories</option>
+                  {Object.entries(GRANULAR_FEATURE_CATEGORIES).map(([key, category]) => (
+                    <option key={key} value={key}>
+                      {category.icon} {category.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={showOnlyEnabled}
+                  onChange={(e) => setShowOnlyEnabled(e.target.checked)}
+                  className="rounded"
+                />
+                Enabled only
+              </label>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4">
         {organizedFlags.map((parentFlag) => {

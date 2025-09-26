@@ -10,6 +10,7 @@ export type FeatureFlag = {
   rollout_percentage?: number | null;
   created_at?: string;
   updated_at?: string;
+  parent_feature_id?: string | null;
   // New advanced targeting fields
   cohort_rules?: Record<string, any> | null;
   ab_test_config?: Record<string, any> | null;
@@ -64,6 +65,7 @@ export const featureManagementService = {
         description: flag.description ?? null,
         target_audience: flag.target_audience ?? "all",
         rollout_percentage: flag.rollout_percentage ?? 100,
+        parent_feature_id: flag.parent_feature_id ?? null,
         // Advanced fields
         cohort_rules: flag.cohort_rules ?? {},
         ab_test_config: flag.ab_test_config ?? null,

@@ -51,12 +51,30 @@ export const useFeatureFlags = () => {
     return flag ? flag.is_enabled : false;
   };
 
-  // Provide convenient boolean properties for common features
-  const socialFeaturesEnabled = isFeatureEnabled('social_features') || isFeatureEnabled('friend_system');
-  const eventsEnabled = isFeatureEnabled('events') || isFeatureEnabled('seasonal_events');
-  const competitionEnabled = isFeatureEnabled('competition') || isFeatureEnabled('competitions') || 
-                           isFeatureEnabled('social_challenges') || isFeatureEnabled('competitive_leagues') || 
-                           isFeatureEnabled('tournaments');
+  // Helper functions for hierarchical features
+  const getParentFeatures = () => flags.filter(f => !f.parent_feature_id);
+  const getChildFeatures = (parentId: string) => flags.filter(f => f.parent_feature_id === parentId);
+  const hasChildren = (flagId: string) => flags.some(f => f.parent_feature_id === flagId);
+
+  // Bulk operations for parent/child hierarchies
+  const toggleParentAndChildren = async (parentName: string, enabled: boolean) => {
+    const parentFlag = flags.find(f => f.feature_name === parentName);
+    if (!parentFlag) return;
+    
+    // Toggle parent first
+    await toggleMutation.mutateAsync({ name: parentName, enabled });
+    
+    // Then toggle all children to match parent
+    const children = getChildFeatures(parentFlag.id);
+    for (const child of children) {
+      await toggleMutation.mutateAsync({ name: child.feature_name, enabled });
+    }
+  };
+
+  // Provide convenient boolean properties for common features  
+  const socialFeaturesEnabled = isFeatureEnabled('social_features');
+  const eventsEnabled = isFeatureEnabled('events');
+  const competitionEnabled = isFeatureEnabled('competition');
 
   return {
     flags,
@@ -65,6 +83,11 @@ export const useFeatureFlags = () => {
     refetch,
     toggle: (name: string, enabled: boolean) => toggleMutation.mutate({ name, enabled }),
     upsert: (flag: Partial<FeatureFlag> & { feature_name: string }) => upsertMutation.mutate(flag),
+    // Hierarchical helpers
+    getParentFeatures,
+    getChildFeatures,
+    hasChildren,
+    toggleParentAndChildren,
     // Convenient boolean properties
     socialFeaturesEnabled,
     eventsEnabled,

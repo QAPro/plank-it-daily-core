@@ -17,16 +17,19 @@ export interface GranularFeatureCatalogItem {
   defaultRolloutPercentage: number;
   componentPath?: string;
   dependencies?: string[];
+  uiComponents?: string[];
 }
 
-export const GRANULAR_FEATURE_CATEGORIES: Record<FeatureCategory, { label: string; icon: string }> = {
-  music_features: { label: 'Music & Audio', icon: '🎵' },
-  ai_features: { label: 'AI Features', icon: '🤖' },
-  social_features: { label: 'Social Features', icon: '👥' },
-  analytics_features: { label: 'Analytics Features', icon: '📊' },
-  premium_features: { label: 'Premium Features', icon: '💎' },
-  ui_features: { label: 'UI Features', icon: '🎨' },
-  competition_features: { label: 'Competition Features', icon: '🏆' },
+import { Music, Brain, Users, BarChart3, Crown, Palette, Trophy } from 'lucide-react';
+
+export const GRANULAR_FEATURE_CATEGORIES: Record<FeatureCategory, { label: string; icon: any; color: string }> = {
+  music_features: { label: 'Music & Audio', icon: Music, color: 'text-purple-600' },
+  ai_features: { label: 'AI Features', icon: Brain, color: 'text-blue-600' },
+  social_features: { label: 'Social Features', icon: Users, color: 'text-green-600' },
+  analytics_features: { label: 'Analytics Features', icon: BarChart3, color: 'text-orange-600' },
+  premium_features: { label: 'Premium Features', icon: Crown, color: 'text-yellow-600' },
+  ui_features: { label: 'UI Features', icon: Palette, color: 'text-pink-600' },
+  competition_features: { label: 'Competition Features', icon: Trophy, color: 'text-red-600' },
 };
 
 export const GRANULAR_FEATURE_CATALOG: GranularFeatureCatalogItem[] = [

@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useStreakTracking } from "@/hooks/useStreakTracking";
+import FlagGuard from '@/components/access/FlagGuard';
 
 interface StreakDisplayProps {
   variant?: "compact" | "detailed";
@@ -95,74 +96,76 @@ const StreakDisplay = ({ variant = "detailed" }: StreakDisplayProps) => {
     : 100;
 
   return (
-    <motion.div
-      initial={{ y: 20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6 }}
-    >
-      <Card className={`bg-gradient-to-br ${getStreakColor()} text-white border-0 shadow-xl`}>
-        <CardContent className="p-6">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-3">
-              {getStreakIcon()}
-              <div>
-                <h3 className="text-xl font-bold">
-                  {currentStreak} Day{currentStreak !== 1 ? 's' : ''}
-                </h3>
-                <p className="text-sm opacity-90">Current Streak</p>
+    <FlagGuard featureName="streak_tracking">
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6 }}
+      >
+        <Card className={`bg-gradient-to-br ${getStreakColor()} text-white border-0 shadow-xl`}>
+          <CardContent className="p-6">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                {getStreakIcon()}
+                <div>
+                  <h3 className="text-xl font-bold">
+                    {currentStreak} Day{currentStreak !== 1 ? 's' : ''}
+                  </h3>
+                  <p className="text-sm opacity-90">Current Streak</p>
+                </div>
               </div>
+              {longestStreak > 0 && (
+                <div className="text-right">
+                  <p className="text-2xl font-bold">{longestStreak}</p>
+                  <p className="text-sm opacity-90">Best Ever</p>
+                </div>
+              )}
             </div>
-            {longestStreak > 0 && (
-              <div className="text-right">
-                <p className="text-2xl font-bold">{longestStreak}</p>
-                <p className="text-sm opacity-90">Best Ever</p>
+
+            {/* Status Message */}
+            <motion.p
+              key={motivationalMessage}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center text-lg font-medium mb-4 opacity-95"
+            >
+              {motivationalMessage}
+            </motion.p>
+
+            {/* Current Milestone */}
+            {currentMilestone && (
+              <div className="mb-4">
+                <Badge variant="secondary" className="bg-white/20 text-white border-0">
+                  🏆 {currentMilestone.title}: {currentMilestone.description}
+                </Badge>
               </div>
             )}
-          </div>
 
-          {/* Status Message */}
-          <motion.p
-            key={motivationalMessage}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center text-lg font-medium mb-4 opacity-95"
-          >
-            {motivationalMessage}
-          </motion.p>
-
-          {/* Current Milestone */}
-          {currentMilestone && (
-            <div className="mb-4">
-              <Badge variant="secondary" className="bg-white/20 text-white border-0">
-                🏆 {currentMilestone.title}: {currentMilestone.description}
-              </Badge>
-            </div>
-          )}
-
-          {/* Progress to Next Milestone */}
-          {nextMilestone && (
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm opacity-90">
-                  Next: {nextMilestone.title}
-                </span>
-                <span className="text-sm opacity-90">
-                  {currentStreak}/{nextMilestone.days} days
-                </span>
+            {/* Progress to Next Milestone */}
+            {nextMilestone && (
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm opacity-90">
+                    Next: {nextMilestone.title}
+                  </span>
+                  <span className="text-sm opacity-90">
+                    {currentStreak}/{nextMilestone.days} days
+                  </span>
+                </div>
+                <Progress 
+                  value={progressToNext} 
+                  className="h-2 bg-white/20"
+                />
+                <p className="text-xs opacity-75 text-center">
+                  {nextMilestone.days - currentStreak} more days to unlock!
+                </p>
               </div>
-              <Progress 
-                value={progressToNext} 
-                className="h-2 bg-white/20"
-              />
-              <p className="text-xs opacity-75 text-center">
-                {nextMilestone.days - currentStreak} more days to unlock!
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </motion.div>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+    </FlagGuard>
   );
 };
 

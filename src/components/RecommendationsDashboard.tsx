@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useExerciseRecommendations } from "@/hooks/useExerciseRecommendations";
 import { useSessionStats } from "@/hooks/useSessionHistory";
 import { useAuth } from "@/contexts/AuthContext";
+import FlagGuard from '@/components/access/FlagGuard';
 import type { Tables } from "@/integrations/supabase/types";
 
 interface RecommendationsDashboardProps {
@@ -133,135 +134,137 @@ const RecommendationsDashboard = ({ onExerciseSelect }: RecommendationsDashboard
   }
 
   return (
-    <div className="space-y-6">
-      {/* Daily Suggestion */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Card className="bg-gradient-to-br from-orange-500 to-amber-500 text-white border-0 shadow-xl">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
-                  <DailySuggestionIcon className="w-6 h-6" />
+    <FlagGuard featureName="recommendations_dashboard">
+      <div className="space-y-6">
+        {/* Daily Suggestion */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Card className="bg-gradient-to-br from-orange-500 to-amber-500 text-white border-0 shadow-xl">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                    <DailySuggestionIcon className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold">{dailySuggestion.title}</h3>
+                    <p className="text-orange-100">{dailySuggestion.description}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold">{dailySuggestion.title}</h3>
-                  <p className="text-orange-100">{dailySuggestion.description}</p>
-                </div>
+                <Button
+                  onClick={handleGenerateRecommendations}
+                  disabled={isGenerating}
+                  size="sm"
+                  variant="outline"
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                >
+                  {isGenerating ? (
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-4 h-4" />
+                  )}
+                </Button>
               </div>
-              <Button
-                onClick={handleGenerateRecommendations}
-                disabled={isGenerating}
-                size="sm"
-                variant="outline"
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-              >
-                {isGenerating ? (
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                ) : (
-                  <RefreshCw className="w-4 h-4" />
-                )}
-              </Button>
-            </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Personalized Recommendations */}
+        <Card className="bg-white/80 backdrop-blur-sm border-orange-100">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span className="flex items-center">
+                <Sparkles className="w-5 h-5 mr-2 text-orange-500" />
+                Your Personalized Recommendations
+              </span>
+              {recommendations && recommendations.length > 0 && (
+                <Badge variant="secondary">{recommendations.length} suggestions</Badge>
+              )}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {!recommendations || recommendations.length === 0 ? (
+              <div className="text-center py-8">
+                <Sparkles className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+                <p className="text-gray-500 mb-4">No recommendations available yet</p>
+                <Button onClick={handleGenerateRecommendations} disabled={isGenerating}>
+                  {isGenerating ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Get Recommendations
+                    </>
+                  )}
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {recommendations.slice(0, 5).map((recommendation, index) => {
+                  // Handle the case where plank_exercises might be null or an error
+                  const exercise = recommendation.plank_exercises;
+                  if (!exercise || typeof exercise !== 'object' || !('id' in exercise)) {
+                    console.warn('Invalid exercise data:', exercise);
+                    return null;
+                  }
+                  
+                  const RecommendationIcon = getRecommendationIcon(recommendation.recommendation_type);
+                  
+                  return (
+                    <motion.div
+                      key={recommendation.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="flex items-center justify-between p-4 rounded-lg border border-gray-100 hover:border-orange-200 transition-all cursor-pointer group"
+                      onClick={() => onExerciseSelect?.(exercise.id)}
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className={`w-12 h-12 rounded-lg ${getRecommendationColor(recommendation.recommendation_type)} flex items-center justify-center`}>
+                          <RecommendationIcon className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <h4 className="font-semibold text-gray-800">{exercise.name}</h4>
+                            <Badge variant="outline" className={getDifficultyColor(exercise.difficulty_level)}>
+                              Level {exercise.difficulty_level}
+                            </Badge>
+                            <Badge variant="secondary">
+                              {getRecommendationLabel(recommendation.recommendation_type)}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-1">{exercise.description}</p>
+                          <p className="text-xs text-gray-500">{recommendation.reasoning}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="text-right">
+                          <div className="w-12 h-2 bg-gray-200 rounded-full">
+                            <div 
+                              className="h-2 bg-orange-500 rounded-full transition-all"
+                              style={{ width: `${Math.round(recommendation.confidence_score * 100)}%` }}
+                            />
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {Math.round(recommendation.confidence_score * 100)}% match
+                          </p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
           </CardContent>
         </Card>
-      </motion.div>
-
-      {/* Personalized Recommendations */}
-      <Card className="bg-white/80 backdrop-blur-sm border-orange-100">
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span className="flex items-center">
-              <Sparkles className="w-5 h-5 mr-2 text-orange-500" />
-              Your Personalized Recommendations
-            </span>
-            {recommendations && recommendations.length > 0 && (
-              <Badge variant="secondary">{recommendations.length} suggestions</Badge>
-            )}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {!recommendations || recommendations.length === 0 ? (
-            <div className="text-center py-8">
-              <Sparkles className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-              <p className="text-gray-500 mb-4">No recommendations available yet</p>
-              <Button onClick={handleGenerateRecommendations} disabled={isGenerating}>
-                {isGenerating ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Get Recommendations
-                  </>
-                )}
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {recommendations.slice(0, 5).map((recommendation, index) => {
-                // Handle the case where plank_exercises might be null or an error
-                const exercise = recommendation.plank_exercises;
-                if (!exercise || typeof exercise !== 'object' || !('id' in exercise)) {
-                  console.warn('Invalid exercise data:', exercise);
-                  return null;
-                }
-                
-                const RecommendationIcon = getRecommendationIcon(recommendation.recommendation_type);
-                
-                return (
-                  <motion.div
-                    key={recommendation.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="flex items-center justify-between p-4 rounded-lg border border-gray-100 hover:border-orange-200 transition-all cursor-pointer group"
-                    onClick={() => onExerciseSelect?.(exercise.id)}
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className={`w-12 h-12 rounded-lg ${getRecommendationColor(recommendation.recommendation_type)} flex items-center justify-center`}>
-                        <RecommendationIcon className="w-6 h-6 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <h4 className="font-semibold text-gray-800">{exercise.name}</h4>
-                          <Badge variant="outline" className={getDifficultyColor(exercise.difficulty_level)}>
-                            Level {exercise.difficulty_level}
-                          </Badge>
-                          <Badge variant="secondary">
-                            {getRecommendationLabel(recommendation.recommendation_type)}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-gray-600 mb-1">{exercise.description}</p>
-                        <p className="text-xs text-gray-500">{recommendation.reasoning}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="text-right">
-                        <div className="w-12 h-2 bg-gray-200 rounded-full">
-                          <div 
-                            className="h-2 bg-orange-500 rounded-full transition-all"
-                            style={{ width: `${Math.round(recommendation.confidence_score * 100)}%` }}
-                          />
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {Math.round(recommendation.confidence_score * 100)}% match
-                        </p>
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+      </div>
+    </FlagGuard>
   );
 };
 

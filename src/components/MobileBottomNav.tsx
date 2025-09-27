@@ -20,6 +20,7 @@ import { useAdmin } from '@/hooks/useAdmin';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { handleAuthSignOut } from '@/utils/authCleanup';
 import { useToast } from '@/hooks/use-toast';
+import FlagGuard from '@/components/access/FlagGuard';
 
 interface MobileBottomNavProps {
   activeTab: string;
@@ -114,88 +115,90 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ activeTab, onTabChang
   };
 
   return (
-    <>
-      {/* Overlay for more menu */}
-      <AnimatePresence>
-        {showMoreMenu && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/20 z-40"
-            onClick={() => setShowMoreMenu(false)}
-          />
-        )}
-      </AnimatePresence>
+    <FlagGuard featureName="mobile_navigation">
+      <>
+        {/* Overlay for more menu */}
+        <AnimatePresence>
+          {showMoreMenu && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/20 z-40"
+              onClick={() => setShowMoreMenu(false)}
+            />
+          )}
+        </AnimatePresence>
 
-      {/* More menu */}
-      <AnimatePresence>
-        {showMoreMenu && (
-          <motion.div
-            initial={{ y: "100%", opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: "100%", opacity: 0 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed bottom-20 left-4 right-4 bg-card border border-border rounded-xl shadow-lg z-50 p-4"
-          >
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-semibold text-card-foreground">More Options</h3>
-              <button
-                onClick={() => setShowMoreMenu(false)}
-                className="p-1 hover:bg-muted rounded-lg"
-              >
-                <X size={18} />
-              </button>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {moreTabs.map((tab) => (
-                <NavButton key={tab.id} tab={tab} isCompact />
-              ))}
-              {/* Sign Out Button */}
-              <button
-                onClick={onSignOut}
-                className="flex flex-col items-center justify-center py-3 px-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-              >
-                <LogOut size={20} />
-                <span className="text-xs mt-1 font-medium">Sign Out</span>
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Bottom navigation bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-30 pb-safe">
-        <div className="flex items-center justify-around px-2 py-1 max-w-screen-xl mx-auto">
-          {mainTabs.map((tab) => (
-            <NavButton key={tab.id} tab={tab} />
-          ))}
-          
-          {/* More button */}
-          {moreTabs.length > 0 && (
-            <button
-              onClick={() => setShowMoreMenu(!showMoreMenu)}
-              className={`flex flex-col items-center justify-center py-2 px-1 transition-colors ${
-                showMoreMenu || moreTabs.some(tab => tab.id === activeTab)
-                  ? 'text-primary' 
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
+        {/* More menu */}
+        <AnimatePresence>
+          {showMoreMenu && (
+            <motion.div
+              initial={{ y: "100%", opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: "100%", opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="fixed bottom-20 left-4 right-4 bg-card border border-border rounded-xl shadow-lg z-50 p-4"
             >
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={`p-1 rounded-lg ${
-                  showMoreMenu || moreTabs.some(tab => tab.id === activeTab) ? 'bg-primary/10' : ''
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-semibold text-card-foreground">More Options</h3>
+                <button
+                  onClick={() => setShowMoreMenu(false)}
+                  className="p-1 hover:bg-muted rounded-lg"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {moreTabs.map((tab) => (
+                  <NavButton key={tab.id} tab={tab} isCompact />
+                ))}
+                {/* Sign Out Button */}
+                <button
+                  onClick={onSignOut}
+                  className="flex flex-col items-center justify-center py-3 px-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                >
+                  <LogOut size={20} />
+                  <span className="text-xs mt-1 font-medium">Sign Out</span>
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Bottom navigation bar */}
+        <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-30 pb-safe">
+          <div className="flex items-center justify-around px-2 py-1 max-w-screen-xl mx-auto">
+            {mainTabs.map((tab) => (
+              <NavButton key={tab.id} tab={tab} />
+            ))}
+            
+            {/* More button */}
+            {moreTabs.length > 0 && (
+              <button
+                onClick={() => setShowMoreMenu(!showMoreMenu)}
+                className={`flex flex-col items-center justify-center py-2 px-1 transition-colors ${
+                  showMoreMenu || moreTabs.some(tab => tab.id === activeTab)
+                    ? 'text-primary' 
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                <MoreHorizontal size={20} />
-              </motion.div>
-              <span className="text-xs mt-0.5 font-medium">More</span>
-            </button>
-          )}
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`p-1 rounded-lg ${
+                    showMoreMenu || moreTabs.some(tab => tab.id === activeTab) ? 'bg-primary/10' : ''
+                  }`}
+                >
+                  <MoreHorizontal size={20} />
+                </motion.div>
+                <span className="text-xs mt-0.5 font-medium">More</span>
+              </button>
+            )}
+          </div>
         </div>
-      </div>
-    </>
+      </>
+    </FlagGuard>
   );
 };
 

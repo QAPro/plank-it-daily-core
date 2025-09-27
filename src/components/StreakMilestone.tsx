@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Trophy, Star, Flame, Target } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import FlagGuard from '@/components/access/FlagGuard';
 
 interface StreakMilestoneProps {
   milestone: {
@@ -43,114 +44,116 @@ const StreakMilestone = ({ milestone, onClose, isVisible }: StreakMilestoneProps
   const Icon = getMilestoneIcon(milestone.days);
 
   return (
-    <AnimatePresence>
-      {isVisible && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-6"
-          onClick={onClose}
-        >
+    <FlagGuard featureName="streak_milestones">
+      <AnimatePresence>
+        {isVisible && (
           <motion.div
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
-            exit={{ scale: 0, rotate: 180 }}
-            transition={{ type: "spring", damping: 15, stiffness: 300 }}
-            onClick={(e) => e.stopPropagation()}
-            className="relative"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-6"
+            onClick={onClose}
           >
-            {/* Confetti Effect */}
-            {showConfetti && (
-              <div className="absolute inset-0 pointer-events-none">
-                {[...Array(20)].map((_, i) => (
+            <motion.div
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              exit={{ scale: 0, rotate: 180 }}
+              transition={{ type: "spring", damping: 15, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative"
+            >
+              {/* Confetti Effect */}
+              {showConfetti && (
+                <div className="absolute inset-0 pointer-events-none">
+                  {[...Array(20)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="absolute w-2 h-2 bg-yellow-400 rounded-full"
+                      initial={{
+                        x: 0,
+                        y: 0,
+                        scale: 0,
+                      }}
+                      animate={{
+                        x: (Math.random() - 0.5) * 400,
+                        y: (Math.random() - 0.5) * 400,
+                        scale: [0, 1, 0],
+                        rotate: 360,
+                      }}
+                      transition={{
+                        duration: 2,
+                        delay: i * 0.1,
+                        ease: "easeOut",
+                      }}
+                      style={{
+                        left: '50%',
+                        top: '50%',
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+
+              <Card className={`bg-gradient-to-br ${getMilestoneColor(milestone.days)} text-white border-0 shadow-2xl max-w-md`}>
+                <CardContent className="p-8 text-center">
                   <motion.div
-                    key={i}
-                    className="absolute w-2 h-2 bg-yellow-400 rounded-full"
-                    initial={{
-                      x: 0,
-                      y: 0,
-                      scale: 0,
-                    }}
-                    animate={{
-                      x: (Math.random() - 0.5) * 400,
-                      y: (Math.random() - 0.5) * 400,
-                      scale: [0, 1, 0],
-                      rotate: 360,
-                    }}
-                    transition={{
-                      duration: 2,
-                      delay: i * 0.1,
-                      ease: "easeOut",
-                    }}
-                    style={{
-                      left: '50%',
-                      top: '50%',
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-
-            <Card className={`bg-gradient-to-br ${getMilestoneColor(milestone.days)} text-white border-0 shadow-2xl max-w-md`}>
-              <CardContent className="p-8 text-center">
-                <motion.div
-                  animate={{ rotate: [0, -10, 10, -10, 0] }}
-                  transition={{ duration: 0.5, delay: 0.5 }}
-                  className="mb-6"
-                >
-                  <Icon className="w-16 h-16 mx-auto text-white drop-shadow-lg" />
-                </motion.div>
-
-                <motion.h2
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                  className="text-3xl font-bold mb-2"
-                >
-                  🎉 Milestone Achieved!
-                </motion.h2>
-
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                  className="mb-4"
-                >
-                  <h3 className="text-2xl font-bold mb-2">{milestone.title}</h3>
-                  <p className="text-lg opacity-95">{milestone.description}</p>
-                </motion.div>
-
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.6, type: "spring" }}
-                  className="mb-6"
-                >
-                  <div className="bg-white/20 rounded-full py-3 px-6 inline-block">
-                    <span className="text-4xl font-bold">{milestone.days}</span>
-                    <span className="text-xl ml-2">days strong!</span>
-                  </div>
-                </motion.div>
-
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.8 }}
-                >
-                  <Button
-                    onClick={onClose}
-                    className="bg-white text-gray-800 hover:bg-gray-100 font-semibold px-8 py-3 rounded-xl"
+                    animate={{ rotate: [0, -10, 10, -10, 0] }}
+                    transition={{ duration: 0.5, delay: 0.5 }}
+                    className="mb-6"
                   >
-                    Continue Streak! 🚀
-                  </Button>
-                </motion.div>
-              </CardContent>
-            </Card>
+                    <Icon className="w-16 h-16 mx-auto text-white drop-shadow-lg" />
+                  </motion.div>
+
+                  <motion.h2
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-3xl font-bold mb-2"
+                  >
+                    🎉 Milestone Achieved!
+                  </motion.h2>
+
+                  <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.4 }}
+                    className="mb-4"
+                  >
+                    <h3 className="text-2xl font-bold mb-2">{milestone.title}</h3>
+                    <p className="text-lg opacity-95">{milestone.description}</p>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.6, type: "spring" }}
+                    className="mb-6"
+                  >
+                    <div className="bg-white/20 rounded-full py-3 px-6 inline-block">
+                      <span className="text-4xl font-bold">{milestone.days}</span>
+                      <span className="text-xl ml-2">days strong!</span>
+                    </div>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.8 }}
+                  >
+                    <Button
+                      onClick={onClose}
+                      className="bg-white text-gray-800 hover:bg-gray-100 font-semibold px-8 py-3 rounded-xl"
+                    >
+                      Continue Streak! 🚀
+                    </Button>
+                  </motion.div>
+                </CardContent>
+              </Card>
+            </motion.div>
           </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        )}
+      </AnimatePresence>
+    </FlagGuard>
   );
 };
 

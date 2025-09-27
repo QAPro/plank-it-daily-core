@@ -18,6 +18,19 @@ const EnhancedAchievementCard = ({ achievementProgress, onClick }: EnhancedAchie
   const rarityGlow = ExpandedAchievementEngine.getRarityGlow(achievement.rarity);
 
   const getCategoryIcon = () => {
+    // Check if it's a category-specific achievement
+    if (achievement.category === 'category_specific' && achievement.requirement.conditions?.exercise_categories) {
+      const exerciseCategory = achievement.requirement.conditions.exercise_categories[0];
+      switch (exerciseCategory) {
+        case 'cardio': return '❤️';
+        case 'leg_lift': return '🦵';
+        case 'planking': return '🏋️';
+        case 'seated_exercise': return '🪑';
+        case 'standing_movement': return '🚶';
+        case 'strength': return '💪';
+      }
+    }
+    
     switch (achievement.category) {
       case 'consistency':
         return <Clock className="w-4 h-4" />;
@@ -26,6 +39,10 @@ const EnhancedAchievementCard = ({ achievementProgress, onClick }: EnhancedAchie
       case 'exploration':
         return <Star className="w-4 h-4" />;
       case 'milestone':
+        return <Trophy className="w-4 h-4" />;
+      case 'category_specific':
+        return <Star className="w-4 h-4" />;
+      case 'cross_category':
         return <Trophy className="w-4 h-4" />;
       default:
         return <Star className="w-4 h-4" />;

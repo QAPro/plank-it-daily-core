@@ -1,48 +1,93 @@
 
 import React, { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Trophy, Target, Calendar, TrendingUp, Star, Award } from "lucide-react";
+import { Trophy, Target, Calendar, TrendingUp, Star, Award, Heart, Dumbbell, Activity, Zap, User, Gauge } from "lucide-react";
 import { useUserAchievements } from "@/hooks/useUserAchievements";
-import { useAchievementProgress } from "@/hooks/useAchievementProgress";
-import { EnhancedAchievementService, ACHIEVEMENT_CATEGORIES } from "@/services/enhancedAchievementService";
+import { useExpandedAchievementProgress } from "@/hooks/useExpandedAchievementProgress";
+import { EXPANDED_ACHIEVEMENTS } from "@/services/expandedAchievementService";
 import AchievementCategories, { AchievementCategory } from "@/components/achievements/AchievementCategories";
-import AchievementProgressCard from "@/components/achievements/AchievementProgressCard";
+import EnhancedAchievementCard from "@/components/achievements/EnhancedAchievementCard";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import FlagGuard from '@/components/access/FlagGuard';
 
 const AchievementsGallery = () => {
   const { achievements: earnedAchievements, loading: achievementsLoading } = useUserAchievements();
-  const { achievementProgress, loading: progressLoading } = useAchievementProgress();
+  const { achievementProgress, loading: progressLoading } = useExpandedAchievementProgress();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const categoryIcons = {
-    streak: <Calendar className="w-6 h-6 text-white" />,
-    duration: <Target className="w-6 h-6 text-white" />,
-    consistency: <TrendingUp className="w-6 h-6 text-white" />,
-    progress: <Trophy className="w-6 h-6 text-white" />
+    consistency: <Calendar className="w-6 h-6 text-white" />,
+    performance: <Trophy className="w-6 h-6 text-white" />,
+    exploration: <Star className="w-6 h-6 text-white" />,
+    milestone: <Target className="w-6 h-6 text-white" />,
+    category_specific: <Activity className="w-6 h-6 text-white" />,
+    cross_category: <TrendingUp className="w-6 h-6 text-white" />,
+    // Exercise category icons
+    cardio: <Heart className="w-6 h-6 text-white" />,
+    leg_lift: <Dumbbell className="w-6 h-6 text-white" />,
+    planking: <Activity className="w-6 h-6 text-white" />,
+    seated_exercise: <User className="w-6 h-6 text-white" />,
+    standing_movement: <Zap className="w-6 h-6 text-white" />,
+    strength: <Gauge className="w-6 h-6 text-white" />
   };
 
   const categoryColors = {
-    streak: 'bg-gradient-to-br from-blue-500 to-blue-600',
-    duration: 'bg-gradient-to-br from-green-500 to-green-600',
-    consistency: 'bg-gradient-to-br from-purple-500 to-purple-600',
-    progress: 'bg-gradient-to-br from-orange-500 to-orange-600'
+    consistency: 'bg-gradient-to-br from-orange-500 to-red-600',
+    performance: 'bg-gradient-to-br from-blue-500 to-purple-600',
+    exploration: 'bg-gradient-to-br from-green-500 to-teal-600',
+    milestone: 'bg-gradient-to-br from-purple-500 to-pink-600',
+    category_specific: 'bg-gradient-to-br from-indigo-500 to-blue-600',
+    cross_category: 'bg-gradient-to-br from-yellow-500 to-orange-600',
+    // Exercise category colors
+    cardio: 'bg-gradient-to-br from-red-500 to-pink-600',
+    leg_lift: 'bg-gradient-to-br from-blue-600 to-indigo-700',
+    planking: 'bg-gradient-to-br from-green-600 to-emerald-700',
+    seated_exercise: 'bg-gradient-to-br from-purple-600 to-violet-700',
+    standing_movement: 'bg-gradient-to-br from-yellow-600 to-amber-700',
+    strength: 'bg-gradient-to-br from-gray-600 to-slate-700'
   };
 
   const categories: AchievementCategory[] = useMemo(() => {
     const earnedSet = new Set(earnedAchievements?.map(a => a.achievement_name) || []);
     
-    const categoryData = ACHIEVEMENT_CATEGORIES.map(category => {
-      const categoryAchievements = category.achievements;
+    // Main achievement categories
+    const mainCategories = ['consistency', 'performance', 'exploration', 'milestone', 'category_specific', 'cross_category'];
+    const categoryData = mainCategories.map(categoryId => {
+      const categoryAchievements = EXPANDED_ACHIEVEMENTS.filter(a => a.category === categoryId);
       const earnedCount = categoryAchievements.filter(a => earnedSet.has(a.name)).length;
       
       return {
-        id: category.id,
-        name: category.name,
-        description: category.description,
-        icon: categoryIcons[category.id as keyof typeof categoryIcons] || <Star className="w-6 h-6 text-white" />,
-        color: categoryColors[category.id as keyof typeof categoryColors] || 'bg-gradient-to-br from-gray-500 to-gray-600',
+        id: categoryId,
+        name: categoryId === 'category_specific' ? 'Exercise Specific' : 
+              categoryId === 'cross_category' ? 'Multi-Exercise' :
+              categoryId.charAt(0).toUpperCase() + categoryId.slice(1),
+        description: `View ${categoryId.replace('_', ' ')} achievements`,
+        icon: categoryIcons[categoryId as keyof typeof categoryIcons] || <Star className="w-6 h-6 text-white" />,
+        color: categoryColors[categoryId as keyof typeof categoryColors] || 'bg-gradient-to-br from-gray-500 to-gray-600',
+        count: categoryAchievements.length,
+        earnedCount
+      };
+    });
+
+    // Exercise categories for category_specific achievements
+    const exerciseCategories = ['cardio', 'leg_lift', 'planking', 'seated_exercise', 'standing_movement', 'strength'];
+    const exerciseCategoryData = exerciseCategories.map(categoryId => {
+      const categoryAchievements = EXPANDED_ACHIEVEMENTS.filter(a => 
+        a.category === 'category_specific' && 
+        a.requirement.conditions?.exercise_categories?.includes(categoryId)
+      );
+      const earnedCount = categoryAchievements.filter(a => earnedSet.has(a.name)).length;
+      
+      return {
+        id: categoryId,
+        name: categoryId === 'leg_lift' ? 'Leg Lift' :
+              categoryId === 'seated_exercise' ? 'Seated Exercise' :
+              categoryId === 'standing_movement' ? 'Standing Movement' :
+              categoryId.charAt(0).toUpperCase() + categoryId.slice(1),
+        description: `View ${categoryId.replace('_', ' ')} achievements`,
+        icon: categoryIcons[categoryId as keyof typeof categoryIcons] || <Star className="w-6 h-6 text-white" />,
+        color: categoryColors[categoryId as keyof typeof categoryColors] || 'bg-gradient-to-br from-gray-500 to-gray-600',
         count: categoryAchievements.length,
         earnedCount
       };
@@ -50,7 +95,7 @@ const AchievementsGallery = () => {
 
     // Add "All" category
     const totalEarned = earnedAchievements?.length || 0;
-    const totalAvailable = ACHIEVEMENT_CATEGORIES.reduce((sum, cat) => sum + cat.achievements.length, 0);
+    const totalAvailable = EXPANDED_ACHIEVEMENTS.length;
     
     return [
       {
@@ -62,7 +107,8 @@ const AchievementsGallery = () => {
         count: totalAvailable,
         earnedCount: totalEarned
       },
-      ...categoryData
+      ...categoryData,
+      ...exerciseCategoryData
     ];
   }, [earnedAchievements]);
 
@@ -70,7 +116,16 @@ const AchievementsGallery = () => {
     if (selectedCategory === 'all') {
       return achievementProgress;
     }
-    return achievementProgress.filter(ap => ap.achievement.type === selectedCategory);
+    
+    // Handle exercise categories
+    if (['cardio', 'leg_lift', 'planking', 'seated_exercise', 'standing_movement', 'strength'].includes(selectedCategory)) {
+      return achievementProgress.filter(ap => 
+        ap.achievement.category === 'category_specific' &&
+        ap.achievement.requirement.conditions?.exercise_categories?.includes(selectedCategory)
+      );
+    }
+    
+    return achievementProgress.filter(ap => ap.achievement.category === selectedCategory);
   }, [achievementProgress, selectedCategory]);
 
   // Sort achievements: earned first, then by progress percentage
@@ -150,11 +205,9 @@ const AchievementsGallery = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1, duration: 0.3 }}
             >
-              <AchievementProgressCard
-                achievement={progressItem.achievement}
-                isEarned={progressItem.isEarned}
-                currentProgress={progressItem.currentProgress}
-                showProgress={!progressItem.isEarned}
+              <EnhancedAchievementCard
+                achievementProgress={progressItem}
+                onClick={() => {}}
               />
             </motion.div>
           ))}

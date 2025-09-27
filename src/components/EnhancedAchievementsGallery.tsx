@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Trophy, Clock, Star, Target, Award, Search } from "lucide-react";
+import { Trophy, Clock, Star, Target, Award, Search, Heart, Dumbbell, Activity, Zap, User, Gauge, TrendingUp } from "lucide-react";
 import { useUserAchievements } from "@/hooks/useUserAchievements";
 import { useExpandedAchievementProgress } from "@/hooks/useExpandedAchievementProgress";
 import { ExpandedAchievementEngine, EXPANDED_ACHIEVEMENTS } from "@/services/expandedAchievementService";
@@ -24,7 +24,15 @@ const EnhancedAchievementsGallery = () => {
     performance: <Trophy className="w-5 h-5" />,
     exploration: <Star className="w-5 h-5" />,
     milestone: <Target className="w-5 h-5" />,
-    social: <Award className="w-5 h-5" />
+    category_specific: <Activity className="w-5 h-5" />,
+    cross_category: <TrendingUp className="w-5 h-5" />,
+    // Exercise category icons
+    cardio: <Heart className="w-5 h-5" />,
+    leg_lift: <Dumbbell className="w-5 h-5" />,
+    planking: <Activity className="w-5 h-5" />,
+    seated_exercise: <User className="w-5 h-5" />,
+    standing_movement: <Zap className="w-5 h-5" />,
+    strength: <Gauge className="w-5 h-5" />
   };
 
   const categoryColors = {
@@ -32,19 +40,53 @@ const EnhancedAchievementsGallery = () => {
     performance: 'from-blue-400 to-purple-500',
     exploration: 'from-green-400 to-teal-500',
     milestone: 'from-purple-400 to-pink-500',
-    social: 'from-yellow-400 to-orange-500'
+    category_specific: 'from-indigo-400 to-blue-500',
+    cross_category: 'from-yellow-400 to-orange-500',
+    // Exercise category colors
+    cardio: 'from-red-400 to-pink-500',
+    leg_lift: 'from-blue-500 to-indigo-600',
+    planking: 'from-green-500 to-emerald-600',
+    seated_exercise: 'from-purple-500 to-violet-600',
+    standing_movement: 'from-yellow-500 to-amber-600',
+    strength: 'from-gray-500 to-slate-600'
   };
 
   const categories = useMemo(() => {
     const earnedSet = new Set(earnedAchievements?.map(a => a.achievement_name) || []);
     
-    const categoryData = ['consistency', 'performance', 'exploration', 'milestone'].map(categoryId => {
+    // Main achievement categories
+    const mainCategories = ['consistency', 'performance', 'exploration', 'milestone', 'category_specific', 'cross_category'];
+    const categoryData = mainCategories.map(categoryId => {
       const categoryAchievements = EXPANDED_ACHIEVEMENTS.filter(a => a.category === categoryId);
       const earnedCount = categoryAchievements.filter(a => earnedSet.has(a.name)).length;
       
       return {
         id: categoryId,
-        name: categoryId.charAt(0).toUpperCase() + categoryId.slice(1),
+        name: categoryId === 'category_specific' ? 'Exercise Specific' : 
+              categoryId === 'cross_category' ? 'Multi-Exercise' :
+              categoryId.charAt(0).toUpperCase() + categoryId.slice(1),
+        icon: categoryIcons[categoryId as keyof typeof categoryIcons],
+        color: categoryColors[categoryId as keyof typeof categoryColors],
+        count: categoryAchievements.length,
+        earnedCount
+      };
+    });
+
+    // Exercise categories for category_specific achievements
+    const exerciseCategories = ['cardio', 'leg_lift', 'planking', 'seated_exercise', 'standing_movement', 'strength'];
+    const exerciseCategoryData = exerciseCategories.map(categoryId => {
+      const categoryAchievements = EXPANDED_ACHIEVEMENTS.filter(a => 
+        a.category === 'category_specific' && 
+        a.requirement.conditions?.exercise_categories?.includes(categoryId)
+      );
+      const earnedCount = categoryAchievements.filter(a => earnedSet.has(a.name)).length;
+      
+      return {
+        id: categoryId,
+        name: categoryId === 'leg_lift' ? 'Leg Lift' :
+              categoryId === 'seated_exercise' ? 'Seated Exercise' :
+              categoryId === 'standing_movement' ? 'Standing Movement' :
+              categoryId.charAt(0).toUpperCase() + categoryId.slice(1),
         icon: categoryIcons[categoryId as keyof typeof categoryIcons],
         color: categoryColors[categoryId as keyof typeof categoryColors],
         count: categoryAchievements.length,
@@ -65,14 +107,25 @@ const EnhancedAchievementsGallery = () => {
         count: totalAvailable,
         earnedCount: totalEarned
       },
-      ...categoryData
+      ...categoryData,
+      ...exerciseCategoryData
     ];
   }, [earnedAchievements]);
 
   const filteredProgress = useMemo(() => {
-    let filtered = selectedCategory === 'all' 
-      ? achievementProgress 
-      : achievementProgress.filter(ap => ap.achievement.category === selectedCategory);
+    let filtered;
+    
+    if (selectedCategory === 'all') {
+      filtered = achievementProgress;
+    } else if (['cardio', 'leg_lift', 'planking', 'seated_exercise', 'standing_movement', 'strength'].includes(selectedCategory)) {
+      // Handle exercise categories
+      filtered = achievementProgress.filter(ap => 
+        ap.achievement.category === 'category_specific' &&
+        ap.achievement.requirement.conditions?.exercise_categories?.includes(selectedCategory)
+      );
+    } else {
+      filtered = achievementProgress.filter(ap => ap.achievement.category === selectedCategory);
+    }
 
     // Apply search filter
     if (searchQuery.trim()) {

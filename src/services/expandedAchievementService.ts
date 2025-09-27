@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
 
@@ -8,7 +7,7 @@ export interface ExpandedAchievement {
   id: string;
   name: string;
   description: string;
-  category: 'consistency' | 'performance' | 'exploration' | 'social' | 'milestone';
+  category: 'consistency' | 'performance' | 'exploration' | 'social' | 'milestone' | 'category_specific' | 'cross_category';
   icon: string;
   badge_color: string;
   rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
@@ -19,14 +18,19 @@ export interface ExpandedAchievement {
 }
 
 export interface AchievementRequirement {
-  type: 'streak' | 'duration' | 'count' | 'variety' | 'time_based' | 'social' | 'improvement';
+  type: 'streak' | 'duration' | 'count' | 'variety' | 'time_based' | 'social' | 'improvement' | 'category_specific' | 'cross_category';
   value: number;
   conditions?: {
     exercise_types?: string[];
+    exercise_categories?: string[];
     time_of_day?: 'morning' | 'evening' | 'weekend';
     consecutive?: boolean;
     within_timeframe?: number;
     improvement_threshold?: number;
+    required_categories?: string[];
+    category_combination?: string[];
+    same_day?: boolean;
+    minimum_categories?: number;
   };
 }
 
@@ -382,6 +386,977 @@ export const EXPANDED_ACHIEVEMENTS: ExpandedAchievement[] = [
     requirement: { type: 'time_based', value: 36000 },
     unlock_message: 'TEN HOURS! You are the ultimate endurance champion!',
     share_message: '10 hours of total plank time! Endurance champion! 🌟 #PlankCoach'
+  },
+
+  // CARDIO CATEGORY ACHIEVEMENTS (8 achievements)
+  {
+    id: 'cardio_starter',
+    name: 'Cardio Starter',
+    description: 'Complete your first cardio exercise',
+    category: 'category_specific',
+    icon: '❤️',
+    badge_color: 'from-red-400 to-pink-500',
+    rarity: 'common',
+    points: 25,
+    requirement: { type: 'category_specific', value: 1, conditions: { exercise_categories: ['cardio'] } },
+    unlock_message: 'Your heart is pumping! First cardio exercise completed!',
+    share_message: 'Started my cardio journey! ❤️ #PlankCoach'
+  },
+  {
+    id: 'cardio_streak_7',
+    name: 'Cardio Week',
+    description: '7-day cardio exercise streak',
+    category: 'category_specific',
+    icon: '💓',
+    badge_color: 'from-red-500 to-rose-600',
+    rarity: 'uncommon',
+    points: 75,
+    requirement: { type: 'category_specific', value: 7, conditions: { exercise_categories: ['cardio'], consecutive: true } },
+    unlock_message: 'One week of cardio dedication! Your heart loves you!',
+    share_message: '7-day cardio streak completed! Heart strong! 💓 #PlankCoach'
+  },
+  {
+    id: 'cardio_25_sessions',
+    name: 'Cardio Enthusiast',
+    description: 'Complete 25 cardio sessions',
+    category: 'category_specific',
+    icon: '🏃‍♂️',
+    badge_color: 'from-red-400 to-orange-500',
+    rarity: 'uncommon',
+    points: 100,
+    requirement: { type: 'category_specific', value: 25, conditions: { exercise_categories: ['cardio'] } },
+    unlock_message: 'Twenty-five cardio sessions! You are a cardio enthusiast!',
+    share_message: '25 cardio sessions completed! Enthusiast level! 🏃‍♂️ #PlankCoach'
+  },
+  {
+    id: 'cardio_lifetime_60min',
+    name: 'Cardio Hour',
+    description: 'Accumulate 60 minutes of cardio exercises',
+    category: 'category_specific',
+    icon: '⏰',
+    badge_color: 'from-red-600 to-pink-700',
+    rarity: 'rare',
+    points: 150,
+    requirement: { type: 'category_specific', value: 3600, conditions: { exercise_categories: ['cardio'] } },
+    unlock_message: 'One full hour of cardio! Your endurance is amazing!',
+    share_message: '60 minutes of cardio completed! Endurance champion! ⏰ #PlankCoach'
+  },
+  {
+    id: 'cardio_consistency_21',
+    name: 'Cardio Consistent',
+    description: 'Do cardio exercises for 21 days within a month',
+    category: 'category_specific',
+    icon: '📅',
+    badge_color: 'from-rose-500 to-red-600',
+    rarity: 'rare',
+    points: 200,
+    requirement: { type: 'category_specific', value: 21, conditions: { exercise_categories: ['cardio'], within_timeframe: 30 } },
+    unlock_message: 'Incredible cardio consistency! 21 days in a month!',
+    share_message: '21 cardio days this month! Consistency king! 📅 #PlankCoach'
+  },
+  {
+    id: 'cardio_streak_30',
+    name: 'Cardio Month',
+    description: '30-day cardio exercise streak',
+    category: 'category_specific',
+    icon: '🔥',
+    badge_color: 'from-red-700 to-rose-800',
+    rarity: 'epic',
+    points: 300,
+    requirement: { type: 'category_specific', value: 30, conditions: { exercise_categories: ['cardio'], consecutive: true } },
+    unlock_message: 'THIRTY DAYS of cardio! You are on fire!',
+    share_message: '30-day cardio streak! I am on fire! 🔥 #PlankCoach'
+  },
+  {
+    id: 'cardio_mastery_100',
+    name: 'Cardio Master',
+    description: 'Complete 100 cardio sessions',
+    category: 'category_specific',
+    icon: '👑',
+    badge_color: 'from-red-800 to-pink-900',
+    rarity: 'epic',
+    points: 500,
+    requirement: { type: 'category_specific', value: 100, conditions: { exercise_categories: ['cardio'] } },
+    unlock_message: 'ONE HUNDRED cardio sessions! You are a cardio master!',
+    share_message: '100 cardio sessions! Cardio master achieved! 👑 #PlankCoach'
+  },
+  {
+    id: 'cardio_lifetime_300min',
+    name: 'Cardio Legend',
+    description: 'Accumulate 5 hours (300 minutes) of cardio exercises',
+    category: 'category_specific',
+    icon: '🏆',
+    badge_color: 'from-red-900 to-rose-900',
+    rarity: 'legendary',
+    points: 750,
+    requirement: { type: 'category_specific', value: 18000, conditions: { exercise_categories: ['cardio'] } },
+    unlock_message: 'FIVE HOURS of cardio! You are a cardio legend!',
+    share_message: '5 hours of cardio completed! Cardio legend! 🏆 #PlankCoach'
+  },
+
+  // LEG LIFT CATEGORY ACHIEVEMENTS (8 achievements)
+  {
+    id: 'leg_lift_starter',
+    name: 'Leg Lift Starter',
+    description: 'Complete your first leg lift exercise',
+    category: 'category_specific',
+    icon: '🦵',
+    badge_color: 'from-blue-400 to-cyan-500',
+    rarity: 'common',
+    points: 25,
+    requirement: { type: 'category_specific', value: 1, conditions: { exercise_categories: ['leg_lift'] } },
+    unlock_message: 'Legs up! First leg lift exercise completed!',
+    share_message: 'Started my leg lift journey! 🦵 #PlankCoach'
+  },
+  {
+    id: 'leg_lift_streak_7',
+    name: 'Leg Lift Week',
+    description: '7-day leg lift exercise streak',
+    category: 'category_specific',
+    icon: '🦴',
+    badge_color: 'from-blue-500 to-cyan-600',
+    rarity: 'uncommon',
+    points: 75,
+    requirement: { type: 'category_specific', value: 7, conditions: { exercise_categories: ['leg_lift'], consecutive: true } },
+    unlock_message: 'One week of leg lifts! Your lower body is getting stronger!',
+    share_message: '7-day leg lift streak! Lower body strong! 🦴 #PlankCoach'
+  },
+  {
+    id: 'leg_lift_25_sessions',
+    name: 'Leg Lift Enthusiast',
+    description: 'Complete 25 leg lift sessions',
+    category: 'category_specific',
+    icon: '💪',
+    badge_color: 'from-blue-400 to-indigo-500',
+    rarity: 'uncommon',
+    points: 100,
+    requirement: { type: 'category_specific', value: 25, conditions: { exercise_categories: ['leg_lift'] } },
+    unlock_message: 'Twenty-five leg lift sessions! You are a leg lift enthusiast!',
+    share_message: '25 leg lift sessions completed! Enthusiast level! 💪 #PlankCoach'
+  },
+  {
+    id: 'leg_lift_lifetime_60min',
+    name: 'Leg Lift Hour',
+    description: 'Accumulate 60 minutes of leg lift exercises',
+    category: 'category_specific',
+    icon: '⏱️',
+    badge_color: 'from-blue-600 to-cyan-700',
+    rarity: 'rare',
+    points: 150,
+    requirement: { type: 'category_specific', value: 3600, conditions: { exercise_categories: ['leg_lift'] } },
+    unlock_message: 'One full hour of leg lifts! Your legs are incredibly strong!',
+    share_message: '60 minutes of leg lifts! Leg strength champion! ⏱️ #PlankCoach'
+  },
+  {
+    id: 'leg_lift_consistency_21',
+    name: 'Leg Lift Consistent',
+    description: 'Do leg lift exercises for 21 days within a month',
+    category: 'category_specific',
+    icon: '🗓️',
+    badge_color: 'from-cyan-500 to-blue-600',
+    rarity: 'rare',
+    points: 200,
+    requirement: { type: 'category_specific', value: 21, conditions: { exercise_categories: ['leg_lift'], within_timeframe: 30 } },
+    unlock_message: 'Amazing leg lift consistency! 21 days in a month!',
+    share_message: '21 leg lift days this month! Consistency champion! 🗓️ #PlankCoach'
+  },
+  {
+    id: 'leg_lift_streak_30',
+    name: 'Leg Lift Month',
+    description: '30-day leg lift exercise streak',
+    category: 'category_specific',
+    icon: '🔥',
+    badge_color: 'from-blue-700 to-cyan-800',
+    rarity: 'epic',
+    points: 300,
+    requirement: { type: 'category_specific', value: 30, conditions: { exercise_categories: ['leg_lift'], consecutive: true } },
+    unlock_message: 'THIRTY DAYS of leg lifts! Your dedication is incredible!',
+    share_message: '30-day leg lift streak! Dedication level: epic! 🔥 #PlankCoach'
+  },
+  {
+    id: 'leg_lift_mastery_100',
+    name: 'Leg Lift Master',
+    description: 'Complete 100 leg lift sessions',
+    category: 'category_specific',
+    icon: '🏅',
+    badge_color: 'from-blue-800 to-cyan-900',
+    rarity: 'epic',
+    points: 500,
+    requirement: { type: 'category_specific', value: 100, conditions: { exercise_categories: ['leg_lift'] } },
+    unlock_message: 'ONE HUNDRED leg lift sessions! You are a leg lift master!',
+    share_message: '100 leg lift sessions! Leg lift master achieved! 🏅 #PlankCoach'
+  },
+  {
+    id: 'leg_lift_lifetime_300min',
+    name: 'Leg Lift Legend',
+    description: 'Accumulate 5 hours (300 minutes) of leg lift exercises',
+    category: 'category_specific',
+    icon: '🏆',
+    badge_color: 'from-blue-900 to-cyan-900',
+    rarity: 'legendary',
+    points: 750,
+    requirement: { type: 'category_specific', value: 18000, conditions: { exercise_categories: ['leg_lift'] } },
+    unlock_message: 'FIVE HOURS of leg lifts! You are a leg lift legend!',
+    share_message: '5 hours of leg lifts! Leg lift legend! 🏆 #PlankCoach'
+  },
+
+  // SEATED EXERCISE CATEGORY ACHIEVEMENTS (8 achievements)
+  {
+    id: 'seated_starter',
+    name: 'Seated Starter',
+    description: 'Complete your first seated exercise',
+    category: 'category_specific',
+    icon: '🪑',
+    badge_color: 'from-green-400 to-emerald-500',
+    rarity: 'common',
+    points: 25,
+    requirement: { type: 'category_specific', value: 1, conditions: { exercise_categories: ['seated_exercise'] } },
+    unlock_message: 'Seated and strong! First seated exercise completed!',
+    share_message: 'Started my seated exercise journey! 🪑 #PlankCoach'
+  },
+  {
+    id: 'seated_streak_7',
+    name: 'Seated Week',
+    description: '7-day seated exercise streak',
+    category: 'category_specific',
+    icon: '💺',
+    badge_color: 'from-green-500 to-emerald-600',
+    rarity: 'uncommon',
+    points: 75,
+    requirement: { type: 'category_specific', value: 7, conditions: { exercise_categories: ['seated_exercise'], consecutive: true } },
+    unlock_message: 'One week of seated exercises! Strength from any position!',
+    share_message: '7-day seated exercise streak! Seated strength! 💺 #PlankCoach'
+  },
+  {
+    id: 'seated_25_sessions',
+    name: 'Seated Enthusiast',
+    description: 'Complete 25 seated exercise sessions',
+    category: 'category_specific',
+    icon: '🌱',
+    badge_color: 'from-green-400 to-teal-500',
+    rarity: 'uncommon',
+    points: 100,
+    requirement: { type: 'category_specific', value: 25, conditions: { exercise_categories: ['seated_exercise'] } },
+    unlock_message: 'Twenty-five seated sessions! You are a seated exercise enthusiast!',
+    share_message: '25 seated exercise sessions! Enthusiast level! 🌱 #PlankCoach'
+  },
+  {
+    id: 'seated_lifetime_60min',
+    name: 'Seated Hour',
+    description: 'Accumulate 60 minutes of seated exercises',
+    category: 'category_specific',
+    icon: '⌚',
+    badge_color: 'from-green-600 to-emerald-700',
+    rarity: 'rare',
+    points: 150,
+    requirement: { type: 'category_specific', value: 3600, conditions: { exercise_categories: ['seated_exercise'] } },
+    unlock_message: 'One full hour of seated exercises! Accessibility champion!',
+    share_message: '60 minutes of seated exercises! Accessibility champion! ⌚ #PlankCoach'
+  },
+  {
+    id: 'seated_consistency_21',
+    name: 'Seated Consistent',
+    description: 'Do seated exercises for 21 days within a month',
+    category: 'category_specific',
+    icon: '📆',
+    badge_color: 'from-emerald-500 to-green-600',
+    rarity: 'rare',
+    points: 200,
+    requirement: { type: 'category_specific', value: 21, conditions: { exercise_categories: ['seated_exercise'], within_timeframe: 30 } },
+    unlock_message: 'Outstanding seated exercise consistency! 21 days in a month!',
+    share_message: '21 seated exercise days this month! Consistency master! 📆 #PlankCoach'
+  },
+  {
+    id: 'seated_streak_30',
+    name: 'Seated Month',
+    description: '30-day seated exercise streak',
+    category: 'category_specific',
+    icon: '🔥',
+    badge_color: 'from-green-700 to-emerald-800',
+    rarity: 'epic',
+    points: 300,
+    requirement: { type: 'category_specific', value: 30, conditions: { exercise_categories: ['seated_exercise'], consecutive: true } },
+    unlock_message: 'THIRTY DAYS of seated exercises! Unstoppable dedication!',
+    share_message: '30-day seated exercise streak! Unstoppable! 🔥 #PlankCoach'
+  },
+  {
+    id: 'seated_mastery_100',
+    name: 'Seated Master',
+    description: 'Complete 100 seated exercise sessions',
+    category: 'category_specific',
+    icon: '👑',
+    badge_color: 'from-green-800 to-emerald-900',
+    rarity: 'epic',
+    points: 500,
+    requirement: { type: 'category_specific', value: 100, conditions: { exercise_categories: ['seated_exercise'] } },
+    unlock_message: 'ONE HUNDRED seated sessions! You are a seated exercise master!',
+    share_message: '100 seated exercise sessions! Seated master achieved! 👑 #PlankCoach'
+  },
+  {
+    id: 'seated_lifetime_300min',
+    name: 'Seated Legend',
+    description: 'Accumulate 5 hours (300 minutes) of seated exercises',
+    category: 'category_specific',
+    icon: '🏆',
+    badge_color: 'from-green-900 to-emerald-900',
+    rarity: 'legendary',
+    points: 750,
+    requirement: { type: 'category_specific', value: 18000, conditions: { exercise_categories: ['seated_exercise'] } },
+    unlock_message: 'FIVE HOURS of seated exercises! You are a seated exercise legend!',
+    share_message: '5 hours of seated exercises! Seated legend! 🏆 #PlankCoach'
+  },
+
+  // STANDING MOVEMENT CATEGORY ACHIEVEMENTS (8 achievements)
+  {
+    id: 'standing_starter',
+    name: 'Standing Starter',
+    description: 'Complete your first standing movement exercise',
+    category: 'category_specific',
+    icon: '🚶‍♂️',
+    badge_color: 'from-purple-400 to-violet-500',
+    rarity: 'common',
+    points: 25,
+    requirement: { type: 'category_specific', value: 1, conditions: { exercise_categories: ['standing_movement'] } },
+    unlock_message: 'Standing tall and strong! First standing movement completed!',
+    share_message: 'Started my standing movement journey! 🚶‍♂️ #PlankCoach'
+  },
+  {
+    id: 'standing_streak_7',
+    name: 'Standing Week',
+    description: '7-day standing movement exercise streak',
+    category: 'category_specific',
+    icon: '🏃',
+    badge_color: 'from-purple-500 to-violet-600',
+    rarity: 'uncommon',
+    points: 75,
+    requirement: { type: 'category_specific', value: 7, conditions: { exercise_categories: ['standing_movement'], consecutive: true } },
+    unlock_message: 'One week of standing movements! You are always on the move!',
+    share_message: '7-day standing movement streak! Always moving! 🏃 #PlankCoach'
+  },
+  {
+    id: 'standing_25_sessions',
+    name: 'Standing Enthusiast',
+    description: 'Complete 25 standing movement sessions',
+    category: 'category_specific',
+    icon: '🤸‍♂️',
+    badge_color: 'from-purple-400 to-indigo-500',
+    rarity: 'uncommon',
+    points: 100,
+    requirement: { type: 'category_specific', value: 25, conditions: { exercise_categories: ['standing_movement'] } },
+    unlock_message: 'Twenty-five standing movement sessions! You are a movement enthusiast!',
+    share_message: '25 standing movement sessions! Movement enthusiast! 🤸‍♂️ #PlankCoach'
+  },
+  {
+    id: 'standing_lifetime_60min',
+    name: 'Standing Hour',
+    description: 'Accumulate 60 minutes of standing movement exercises',
+    category: 'category_specific',
+    icon: '⏲️',
+    badge_color: 'from-purple-600 to-violet-700',
+    rarity: 'rare',
+    points: 150,
+    requirement: { type: 'category_specific', value: 3600, conditions: { exercise_categories: ['standing_movement'] } },
+    unlock_message: 'One full hour of standing movements! You never stop moving!',
+    share_message: '60 minutes of standing movements! Movement champion! ⏲️ #PlankCoach'
+  },
+  {
+    id: 'standing_consistency_21',
+    name: 'Standing Consistent',
+    description: 'Do standing movements for 21 days within a month',
+    category: 'category_specific',
+    icon: '📊',
+    badge_color: 'from-violet-500 to-purple-600',
+    rarity: 'rare',
+    points: 200,
+    requirement: { type: 'category_specific', value: 21, conditions: { exercise_categories: ['standing_movement'], within_timeframe: 30 } },
+    unlock_message: 'Incredible standing movement consistency! 21 days in a month!',
+    share_message: '21 standing movement days this month! Movement consistency! 📊 #PlankCoach'
+  },
+  {
+    id: 'standing_streak_30',
+    name: 'Standing Month',
+    description: '30-day standing movement exercise streak',
+    category: 'category_specific',
+    icon: '🔥',
+    badge_color: 'from-purple-700 to-violet-800',
+    rarity: 'epic',
+    points: 300,
+    requirement: { type: 'category_specific', value: 30, conditions: { exercise_categories: ['standing_movement'], consecutive: true } },
+    unlock_message: 'THIRTY DAYS of standing movements! You are always in motion!',
+    share_message: '30-day standing movement streak! Always in motion! 🔥 #PlankCoach'
+  },
+  {
+    id: 'standing_mastery_100',
+    name: 'Standing Master',
+    description: 'Complete 100 standing movement sessions',
+    category: 'category_specific',
+    icon: '🏅',
+    badge_color: 'from-purple-800 to-violet-900',
+    rarity: 'epic',
+    points: 500,
+    requirement: { type: 'category_specific', value: 100, conditions: { exercise_categories: ['standing_movement'] } },
+    unlock_message: 'ONE HUNDRED standing movement sessions! You are a movement master!',
+    share_message: '100 standing movement sessions! Movement master achieved! 🏅 #PlankCoach'
+  },
+  {
+    id: 'standing_lifetime_300min',
+    name: 'Standing Legend',
+    description: 'Accumulate 5 hours (300 minutes) of standing movements',
+    category: 'category_specific',
+    icon: '🏆',
+    badge_color: 'from-purple-900 to-violet-900',
+    rarity: 'legendary',
+    points: 750,
+    requirement: { type: 'category_specific', value: 18000, conditions: { exercise_categories: ['standing_movement'] } },
+    unlock_message: 'FIVE HOURS of standing movements! You are a movement legend!',
+    share_message: '5 hours of standing movements! Movement legend! 🏆 #PlankCoach'
+  },
+
+  // STRENGTH CATEGORY ACHIEVEMENTS (8 achievements)
+  {
+    id: 'strength_starter',
+    name: 'Strength Starter',
+    description: 'Complete your first strength exercise',
+    category: 'category_specific',
+    icon: '💪',
+    badge_color: 'from-orange-400 to-red-500',
+    rarity: 'common',
+    points: 25,
+    requirement: { type: 'category_specific', value: 1, conditions: { exercise_categories: ['strength'] } },
+    unlock_message: 'Building strength! First strength exercise completed!',
+    share_message: 'Started my strength journey! 💪 #PlankCoach'
+  },
+  {
+    id: 'strength_streak_7',
+    name: 'Strength Week',
+    description: '7-day strength exercise streak',
+    category: 'category_specific',
+    icon: '🏋️‍♂️',
+    badge_color: 'from-orange-500 to-red-600',
+    rarity: 'uncommon',
+    points: 75,
+    requirement: { type: 'category_specific', value: 7, conditions: { exercise_categories: ['strength'], consecutive: true } },
+    unlock_message: 'One week of strength training! You are getting stronger every day!',
+    share_message: '7-day strength streak! Getting stronger daily! 🏋️‍♂️ #PlankCoach'
+  },
+  {
+    id: 'strength_25_sessions',
+    name: 'Strength Enthusiast',
+    description: 'Complete 25 strength exercise sessions',
+    category: 'category_specific',
+    icon: '🔨',
+    badge_color: 'from-orange-400 to-amber-500',
+    rarity: 'uncommon',
+    points: 100,
+    requirement: { type: 'category_specific', value: 25, conditions: { exercise_categories: ['strength'] } },
+    unlock_message: 'Twenty-five strength sessions! You are a strength enthusiast!',
+    share_message: '25 strength sessions completed! Strength enthusiast! 🔨 #PlankCoach'
+  },
+  {
+    id: 'strength_lifetime_60min',
+    name: 'Strength Hour',
+    description: 'Accumulate 60 minutes of strength exercises',
+    category: 'category_specific',
+    icon: '⚡',
+    badge_color: 'from-orange-600 to-red-700',
+    rarity: 'rare',
+    points: 150,
+    requirement: { type: 'category_specific', value: 3600, conditions: { exercise_categories: ['strength'] } },
+    unlock_message: 'One full hour of strength training! You are incredibly powerful!',
+    share_message: '60 minutes of strength training! Strength champion! ⚡ #PlankCoach'
+  },
+  {
+    id: 'strength_consistency_21',
+    name: 'Strength Consistent',
+    description: 'Do strength exercises for 21 days within a month',
+    category: 'category_specific',
+    icon: '📈',
+    badge_color: 'from-red-500 to-orange-600',
+    rarity: 'rare',
+    points: 200,
+    requirement: { type: 'category_specific', value: 21, conditions: { exercise_categories: ['strength'], within_timeframe: 30 } },
+    unlock_message: 'Phenomenal strength consistency! 21 days in a month!',
+    share_message: '21 strength days this month! Strength consistency! 📈 #PlankCoach'
+  },
+  {
+    id: 'strength_streak_30',
+    name: 'Strength Month',
+    description: '30-day strength exercise streak',
+    category: 'category_specific',
+    icon: '🔥',
+    badge_color: 'from-orange-700 to-red-800',
+    rarity: 'epic',
+    points: 300,
+    requirement: { type: 'category_specific', value: 30, conditions: { exercise_categories: ['strength'], consecutive: true } },
+    unlock_message: 'THIRTY DAYS of strength training! You are incredibly strong!',
+    share_message: '30-day strength streak! Incredibly strong! 🔥 #PlankCoach'
+  },
+  {
+    id: 'strength_mastery_100',
+    name: 'Strength Master',
+    description: 'Complete 100 strength exercise sessions',
+    category: 'category_specific',
+    icon: '🏆',
+    badge_color: 'from-orange-800 to-red-900',
+    rarity: 'epic',
+    points: 500,
+    requirement: { type: 'category_specific', value: 100, conditions: { exercise_categories: ['strength'] } },
+    unlock_message: 'ONE HUNDRED strength sessions! You are a strength master!',
+    share_message: '100 strength sessions! Strength master achieved! 🏆 #PlankCoach'
+  },
+  {
+    id: 'strength_lifetime_300min',
+    name: 'Strength Legend',
+    description: 'Accumulate 5 hours (300 minutes) of strength exercises',
+    category: 'category_specific',
+    icon: '👑',
+    badge_color: 'from-orange-900 to-red-900',
+    rarity: 'legendary',
+    points: 750,
+    requirement: { type: 'category_specific', value: 18000, conditions: { exercise_categories: ['strength'] } },
+    unlock_message: 'FIVE HOURS of strength training! You are a strength legend!',
+    share_message: '5 hours of strength training! Strength legend! 👑 #PlankCoach'
+  },
+
+  // PLANKING CATEGORY ACHIEVEMENTS (8 achievements)
+  {
+    id: 'planking_starter',
+    name: 'Planking Starter',
+    description: 'Complete your first planking exercise',
+    category: 'category_specific',
+    icon: '🏁',
+    badge_color: 'from-yellow-400 to-amber-500',
+    rarity: 'common',
+    points: 25,
+    requirement: { type: 'category_specific', value: 1, conditions: { exercise_categories: ['planking'] } },
+    unlock_message: 'The plank journey begins! First planking exercise completed!',
+    share_message: 'Started my planking journey! 🏁 #PlankCoach'
+  },
+  {
+    id: 'planking_streak_7',
+    name: 'Planking Week',
+    description: '7-day planking exercise streak',
+    category: 'category_specific',
+    icon: '🔶',
+    badge_color: 'from-yellow-500 to-amber-600',
+    rarity: 'uncommon',
+    points: 75,
+    requirement: { type: 'category_specific', value: 7, conditions: { exercise_categories: ['planking'], consecutive: true } },
+    unlock_message: 'One week of planking! Your core is getting solid!',
+    share_message: '7-day planking streak! Core getting solid! 🔶 #PlankCoach'
+  },
+  {
+    id: 'planking_25_sessions',
+    name: 'Planking Enthusiast',
+    description: 'Complete 25 planking exercise sessions',
+    category: 'category_specific',
+    icon: '🏗️',
+    badge_color: 'from-yellow-400 to-orange-500',
+    rarity: 'uncommon',
+    points: 100,
+    requirement: { type: 'category_specific', value: 25, conditions: { exercise_categories: ['planking'] } },
+    unlock_message: 'Twenty-five planking sessions! You are a planking enthusiast!',
+    share_message: '25 planking sessions completed! Planking enthusiast! 🏗️ #PlankCoach'
+  },
+  {
+    id: 'planking_lifetime_60min',
+    name: 'Planking Hour',
+    description: 'Accumulate 60 minutes of planking exercises',
+    category: 'category_specific',
+    icon: '⏳',
+    badge_color: 'from-yellow-600 to-amber-700',
+    rarity: 'rare',
+    points: 150,
+    requirement: { type: 'category_specific', value: 3600, conditions: { exercise_categories: ['planking'] } },
+    unlock_message: 'One full hour of planking! Your core is rock solid!',
+    share_message: '60 minutes of planking! Core rock solid! ⏳ #PlankCoach'
+  },
+  {
+    id: 'planking_consistency_21',
+    name: 'Planking Consistent',
+    description: 'Do planking exercises for 21 days within a month',
+    category: 'category_specific',
+    icon: '📱',
+    badge_color: 'from-amber-500 to-yellow-600',
+    rarity: 'rare',
+    points: 200,
+    requirement: { type: 'category_specific', value: 21, conditions: { exercise_categories: ['planking'], within_timeframe: 30 } },
+    unlock_message: 'Amazing planking consistency! 21 days in a month!',
+    share_message: '21 planking days this month! Planking consistency! 📱 #PlankCoach'
+  },
+  {
+    id: 'planking_streak_30',
+    name: 'Planking Month',
+    description: '30-day planking exercise streak',
+    category: 'category_specific',
+    icon: '🔥',
+    badge_color: 'from-yellow-700 to-amber-800',
+    rarity: 'epic',
+    points: 300,
+    requirement: { type: 'category_specific', value: 30, conditions: { exercise_categories: ['planking'], consecutive: true } },
+    unlock_message: 'THIRTY DAYS of planking! Your dedication is unbreakable!',
+    share_message: '30-day planking streak! Unbreakable dedication! 🔥 #PlankCoach'
+  },
+  {
+    id: 'planking_mastery_100',
+    name: 'Planking Master',
+    description: 'Complete 100 planking exercise sessions',
+    category: 'category_specific',
+    icon: '🥇',
+    badge_color: 'from-yellow-800 to-amber-900',
+    rarity: 'epic',
+    points: 500,
+    requirement: { type: 'category_specific', value: 100, conditions: { exercise_categories: ['planking'] } },
+    unlock_message: 'ONE HUNDRED planking sessions! You are a planking master!',
+    share_message: '100 planking sessions! Planking master achieved! 🥇 #PlankCoach'
+  },
+  {
+    id: 'planking_lifetime_300min',
+    name: 'Planking Legend',
+    description: 'Accumulate 5 hours (300 minutes) of planking exercises',
+    category: 'category_specific',
+    icon: '🏆',
+    badge_color: 'from-yellow-900 to-amber-900',
+    rarity: 'legendary',
+    points: 750,
+    requirement: { type: 'category_specific', value: 18000, conditions: { exercise_categories: ['planking'] } },
+    unlock_message: 'FIVE HOURS of planking! You are a planking legend!',
+    share_message: '5 hours of planking completed! Planking legend! 🏆 #PlankCoach'
+  },
+
+  // CROSS-CATEGORY ACHIEVEMENTS - Multi-Category Explorer Achievements (5 achievements)
+  {
+    id: 'category_explorer_2',
+    name: 'Category Explorer',
+    description: 'Complete exercises in 2 different categories',
+    category: 'cross_category',
+    icon: '🗺️',
+    badge_color: 'from-teal-400 to-cyan-500',
+    rarity: 'common',
+    points: 50,
+    requirement: { type: 'cross_category', value: 2, conditions: { minimum_categories: 2 } },
+    unlock_message: 'Exploring new territories! You\'ve tried 2 exercise categories!',
+    share_message: 'Explored 2 exercise categories! Territory expanding! 🗺️ #PlankCoach'
+  },
+  {
+    id: 'category_explorer_3',
+    name: 'Multi-Category Adventurer',
+    description: 'Complete exercises in 3 different categories',
+    category: 'cross_category',
+    icon: '🎒',
+    badge_color: 'from-teal-500 to-blue-600',
+    rarity: 'uncommon',
+    points: 100,
+    requirement: { type: 'cross_category', value: 3, conditions: { minimum_categories: 3 } },
+    unlock_message: 'Adventure calls! You\'ve conquered 3 exercise categories!',
+    share_message: 'Adventured through 3 exercise categories! 🎒 #PlankCoach'
+  },
+  {
+    id: 'category_explorer_4',
+    name: 'Fitness Wanderer',
+    description: 'Complete exercises in 4 different categories',
+    category: 'cross_category',
+    icon: '🧭',
+    badge_color: 'from-blue-500 to-indigo-600',
+    rarity: 'rare',
+    points: 200,
+    requirement: { type: 'cross_category', value: 4, conditions: { minimum_categories: 4 } },
+    unlock_message: 'Wandering through fitness! You\'ve mastered 4 exercise categories!',
+    share_message: 'Wandered through 4 exercise categories! 🧭 #PlankCoach'
+  },
+  {
+    id: 'category_explorer_5',
+    name: 'Fitness Explorer',
+    description: 'Complete exercises in 5 different categories',
+    category: 'cross_category',
+    icon: '🏔️',
+    badge_color: 'from-indigo-500 to-purple-600',
+    rarity: 'epic',
+    points: 400,
+    requirement: { type: 'cross_category', value: 5, conditions: { minimum_categories: 5 } },
+    unlock_message: 'Exploring every peak! You\'ve conquered 5 exercise categories!',
+    share_message: 'Explored 5 exercise categories! Peak conqueror! 🏔️ #PlankCoach'
+  },
+  {
+    id: 'category_explorer_all',
+    name: 'Complete Fitness Explorer',
+    description: 'Complete exercises in all 6 categories',
+    category: 'cross_category',
+    icon: '🌍',
+    badge_color: 'from-purple-600 to-pink-700',
+    rarity: 'legendary',
+    points: 800,
+    requirement: { type: 'cross_category', value: 6, conditions: { minimum_categories: 6 } },
+    unlock_message: 'WORLD EXPLORER! You\'ve mastered ALL 6 exercise categories!',
+    share_message: 'Explored ALL 6 exercise categories! World explorer! 🌍 #PlankCoach'
+  },
+
+  // Same-Day Multi-Category Achievements (5 achievements)
+  {
+    id: 'same_day_2_categories',
+    name: 'Daily Variety',
+    description: 'Complete exercises from 2 categories in one day',
+    category: 'cross_category',
+    icon: '🌅',
+    badge_color: 'from-pink-400 to-rose-500',
+    rarity: 'uncommon',
+    points: 75,
+    requirement: { type: 'cross_category', value: 2, conditions: { same_day: true, minimum_categories: 2 } },
+    unlock_message: 'Variety is the spice of life! 2 categories in one day!',
+    share_message: '2 exercise categories in one day! Daily variety! 🌅 #PlankCoach'
+  },
+  {
+    id: 'same_day_3_categories',
+    name: 'Triple Threat',
+    description: 'Complete exercises from 3 categories in one day',
+    category: 'cross_category',
+    icon: '🎯',
+    badge_color: 'from-rose-400 to-pink-600',
+    rarity: 'rare',
+    points: 150,
+    requirement: { type: 'cross_category', value: 3, conditions: { same_day: true, minimum_categories: 3 } },
+    unlock_message: 'Triple threat activated! 3 categories conquered in one day!',
+    share_message: '3 exercise categories in one day! Triple threat! 🎯 #PlankCoach'
+  },
+  {
+    id: 'same_day_4_categories',
+    name: 'Quadruple Power',
+    description: 'Complete exercises from 4 categories in one day',
+    category: 'cross_category',
+    icon: '💥',
+    badge_color: 'from-pink-500 to-purple-700',
+    rarity: 'epic',
+    points: 300,
+    requirement: { type: 'cross_category', value: 4, conditions: { same_day: true, minimum_categories: 4 } },
+    unlock_message: 'QUADRUPLE POWER! 4 categories mastered in one incredible day!',
+    share_message: '4 exercise categories in one day! Quadruple power! 💥 #PlankCoach'
+  },
+  {
+    id: 'same_day_5_categories',
+    name: 'Fitness Tornado',
+    description: 'Complete exercises from 5 categories in one day',
+    category: 'cross_category',
+    icon: '🌪️',
+    badge_color: 'from-purple-600 to-indigo-800',
+    rarity: 'epic',
+    points: 500,
+    requirement: { type: 'cross_category', value: 5, conditions: { same_day: true, minimum_categories: 5 } },
+    unlock_message: 'FITNESS TORNADO! 5 categories destroyed in one day!',
+    share_message: '5 exercise categories in one day! Fitness tornado! 🌪️ #PlankCoach'
+  },
+  {
+    id: 'same_day_all_categories',
+    name: 'Fitness Hurricane',
+    description: 'Complete exercises from all 6 categories in one day',
+    category: 'cross_category',
+    icon: '🌀',
+    badge_color: 'from-indigo-700 to-purple-900',
+    rarity: 'legendary',
+    points: 1000,
+    requirement: { type: 'cross_category', value: 6, conditions: { same_day: true, minimum_categories: 6 } },
+    unlock_message: 'FITNESS HURRICANE! ALL 6 categories conquered in ONE DAY!',
+    share_message: 'ALL 6 exercise categories in ONE DAY! Fitness hurricane! 🌀 #PlankCoach'
+  },
+
+  // Weekly Multi-Category Achievements (5 achievements)
+  {
+    id: 'weekly_3_categories',
+    name: 'Weekly Variety',
+    description: 'Complete exercises from 3 categories within a week',
+    category: 'cross_category',
+    icon: '📅',
+    badge_color: 'from-cyan-400 to-blue-500',
+    rarity: 'uncommon',
+    points: 100,
+    requirement: { type: 'cross_category', value: 3, conditions: { within_timeframe: 7, minimum_categories: 3 } },
+    unlock_message: 'Weekly variety achieved! 3 categories conquered this week!',
+    share_message: '3 exercise categories this week! Weekly variety! 📅 #PlankCoach'
+  },
+  {
+    id: 'weekly_4_categories',
+    name: 'Weekly Warrior',
+    description: 'Complete exercises from 4 categories within a week',
+    category: 'cross_category',
+    icon: '⚔️',
+    badge_color: 'from-blue-500 to-indigo-600',
+    rarity: 'rare',
+    points: 200,
+    requirement: { type: 'cross_category', value: 4, conditions: { within_timeframe: 7, minimum_categories: 4 } },
+    unlock_message: 'Weekly warrior status! 4 categories dominated this week!',
+    share_message: '4 exercise categories this week! Weekly warrior! ⚔️ #PlankCoach'
+  },
+  {
+    id: 'weekly_5_categories',
+    name: 'Weekly Champion',
+    description: 'Complete exercises from 5 categories within a week',
+    category: 'cross_category',
+    icon: '🏆',
+    badge_color: 'from-indigo-600 to-purple-700',
+    rarity: 'epic',
+    points: 400,
+    requirement: { type: 'cross_category', value: 5, conditions: { within_timeframe: 7, minimum_categories: 5 } },
+    unlock_message: 'Weekly champion crowned! 5 categories conquered this week!',
+    share_message: '5 exercise categories this week! Weekly champion! 🏆 #PlankCoach'
+  },
+  {
+    id: 'weekly_all_categories',
+    name: 'Weekly Perfectionist',
+    description: 'Complete exercises from all 6 categories within a week',
+    category: 'cross_category',
+    icon: '💎',
+    badge_color: 'from-purple-700 to-pink-800',
+    rarity: 'legendary',
+    points: 750,
+    requirement: { type: 'cross_category', value: 6, conditions: { within_timeframe: 7, minimum_categories: 6 } },
+    unlock_message: 'WEEKLY PERFECTION! All 6 categories mastered this week!',
+    share_message: 'ALL 6 exercise categories this week! Weekly perfectionist! 💎 #PlankCoach'
+  },
+  {
+    id: 'balanced_training_month',
+    name: 'Balanced Training Master',
+    description: 'Complete exercises from all 6 categories for 4 consecutive weeks',
+    category: 'cross_category',
+    icon: '⚖️',
+    badge_color: 'from-pink-700 to-purple-900',
+    rarity: 'legendary',
+    points: 1500,
+    requirement: { type: 'cross_category', value: 4, conditions: { within_timeframe: 28, minimum_categories: 6, consecutive: true } },
+    unlock_message: 'BALANCED TRAINING MASTER! 4 weeks of perfect category balance!',
+    share_message: '4 weeks of balanced training! Training master! ⚖️ #PlankCoach'
+  },
+
+  // Combination Specific Achievements (5 achievements)
+  {
+    id: 'cardio_strength_combo',
+    name: 'Power Combo',
+    description: 'Complete both cardio and strength exercises in one session',
+    category: 'cross_category',
+    icon: '⚡',
+    badge_color: 'from-red-500 to-orange-600',
+    rarity: 'uncommon',
+    points: 75,
+    requirement: { type: 'cross_category', value: 1, conditions: { category_combination: ['cardio', 'strength'], same_day: true } },
+    unlock_message: 'Power combo activated! Cardio + Strength = Unstoppable!',
+    share_message: 'Cardio + Strength combo completed! Power combo! ⚡ #PlankCoach'
+  },
+  {
+    id: 'seated_standing_combo',
+    name: 'Mobility Master',
+    description: 'Complete both seated and standing exercises in one session',
+    category: 'cross_category',
+    icon: '🔄',
+    badge_color: 'from-green-500 to-purple-600',
+    rarity: 'uncommon',
+    points: 75,
+    requirement: { type: 'cross_category', value: 1, conditions: { category_combination: ['seated_exercise', 'standing_movement'], same_day: true } },
+    unlock_message: 'Mobility mastered! Seated + Standing = Complete movement!',
+    share_message: 'Seated + Standing combo! Mobility master! 🔄 #PlankCoach'
+  },
+  {
+    id: 'plank_legift_combo',
+    name: 'Core Focus',
+    description: 'Complete both planking and leg lift exercises in one session',
+    category: 'cross_category',
+    icon: '🎯',
+    badge_color: 'from-yellow-500 to-blue-600',
+    rarity: 'uncommon',
+    points: 75,
+    requirement: { type: 'cross_category', value: 1, conditions: { category_combination: ['planking', 'leg_lift'], same_day: true } },
+    unlock_message: 'Core focus achieved! Planking + Leg lifts = Ultimate core!',
+    share_message: 'Planking + Leg lift combo! Core focus! 🎯 #PlankCoach'
+  },
+  {
+    id: 'endurance_combo',
+    name: 'Endurance Beast',
+    description: 'Complete cardio, planking, and leg lift exercises in one session',
+    category: 'cross_category',
+    icon: '🦣',
+    badge_color: 'from-red-600 to-blue-700',
+    rarity: 'rare',
+    points: 150,
+    requirement: { type: 'cross_category', value: 1, conditions: { category_combination: ['cardio', 'planking', 'leg_lift'], same_day: true } },
+    unlock_message: 'ENDURANCE BEAST! Triple endurance combo mastered!',
+    share_message: 'Cardio + Planking + Leg lift combo! Endurance beast! 🦣 #PlankCoach'
+  },
+  {
+    id: 'complete_workout_combo',
+    name: 'Complete Athlete',
+    description: 'Complete strength, cardio, and mobility exercises in one session',
+    category: 'cross_category',
+    icon: '🏃‍♂️',
+    badge_color: 'from-orange-600 to-purple-700',
+    rarity: 'epic',
+    points: 300,
+    requirement: { type: 'cross_category', value: 1, conditions: { category_combination: ['strength', 'cardio', 'standing_movement'], same_day: true } },
+    unlock_message: 'COMPLETE ATHLETE! Strength + Cardio + Mobility = Perfect workout!',
+    share_message: 'Strength + Cardio + Mobility combo! Complete athlete! 🏃‍♂️ #PlankCoach'
+  },
+
+  // Advanced Cross-Category Achievements (5 achievements)
+  {
+    id: 'cross_category_consistency_week',
+    name: 'Variety Consistency',
+    description: 'Complete exercises from at least 3 categories every day for a week',
+    category: 'cross_category',
+    icon: '🌈',
+    badge_color: 'from-pink-500 to-violet-600',
+    rarity: 'epic',
+    points: 500,
+    requirement: { type: 'cross_category', value: 7, conditions: { minimum_categories: 3, within_timeframe: 7, consecutive: true } },
+    unlock_message: 'VARIETY CONSISTENCY! 3+ categories every day for a week!',
+    share_message: '3+ categories daily for a week! Variety consistency! 🌈 #PlankCoach'
+  },
+  {
+    id: 'cross_category_mastery_100',
+    name: 'Cross-Category Master',
+    description: 'Complete 100 total sessions across at least 4 categories',
+    category: 'cross_category',
+    icon: '🎓',
+    badge_color: 'from-violet-600 to-purple-800',
+    rarity: 'epic',
+    points: 750,
+    requirement: { type: 'cross_category', value: 100, conditions: { minimum_categories: 4 } },
+    unlock_message: 'CROSS-CATEGORY MASTER! 100 sessions across 4+ categories!',
+    share_message: '100 sessions across 4+ categories! Cross-category master! 🎓 #PlankCoach'
+  },
+  {
+    id: 'category_streak_master',
+    name: 'Category Streak Master',
+    description: 'Maintain 7-day streaks in 3 different categories simultaneously',
+    category: 'cross_category',
+    icon: '🔗',
+    badge_color: 'from-purple-700 to-indigo-900',
+    rarity: 'legendary',
+    points: 1000,
+    requirement: { type: 'cross_category', value: 3, conditions: { minimum_categories: 3, consecutive: true, within_timeframe: 7 } },
+    unlock_message: 'CATEGORY STREAK MASTER! 7-day streaks in 3 categories!',
+    share_message: '7-day streaks in 3 categories! Category streak master! 🔗 #PlankCoach'
+  },
+  {
+    id: 'ultimate_variety_month',
+    name: 'Ultimate Variety Champion',
+    description: 'Complete exercises from all 6 categories every week for a month',
+    category: 'cross_category',
+    icon: '👑',
+    badge_color: 'from-indigo-800 to-purple-900',
+    rarity: 'legendary',
+    points: 2000,
+    requirement: { type: 'cross_category', value: 4, conditions: { minimum_categories: 6, within_timeframe: 28, consecutive: true } },
+    unlock_message: 'ULTIMATE VARIETY CHAMPION! All 6 categories every week for a month!',
+    share_message: 'All 6 categories weekly for a month! Ultimate variety champion! 👑 #PlankCoach'
+  },
+  {
+    id: 'fitness_philosopher',
+    name: 'Fitness Philosopher',
+    description: 'Accumulate 10 hours total across all 6 exercise categories',
+    category: 'cross_category',
+    icon: '🧠',
+    badge_color: 'from-purple-900 to-indigo-900',
+    rarity: 'legendary',
+    points: 2500,
+    requirement: { type: 'cross_category', value: 36000, conditions: { minimum_categories: 6 } },
+    unlock_message: 'FITNESS PHILOSOPHER! 10 hours mastered across ALL 6 categories!',
+    share_message: '10 hours across all 6 categories! Fitness philosopher! 🧠 #PlankCoach'
   }
 ];
 
@@ -441,9 +1416,56 @@ export class ExpandedAchievementEngine {
       case 'improvement':
         return this.checkImprovementAchievement(achievement.requirement.value, achievement.requirement.conditions, sessionData);
       
+      case 'category_specific':
+        return this.checkCategorySpecificAchievement(achievement.requirement.value, achievement.requirement.conditions, sessionData);
+      
+      case 'cross_category':
+        return this.checkCrossCategoryAchievement(achievement.requirement.value, achievement.requirement.conditions, sessionData);
+      
       default:
         return false;
     }
+  }
+
+  private async checkCategorySpecificAchievement(targetValue: number, conditions?: any, sessionData?: any): Promise<boolean> {
+    if (!conditions?.exercise_categories?.length) return false;
+    
+    const category = conditions.exercise_categories[0];
+    
+    // Get sessions for the specific category
+    const { data: exercises } = await supabase
+      .from('plank_exercises')
+      .select('id')
+      .eq('category', category);
+    
+    const exerciseIds = exercises?.map(e => e.id) || [];
+    if (exerciseIds.length === 0) return false;
+
+    const { data: sessions } = await supabase
+      .from('user_sessions')
+      .select('*')
+      .eq('user_id', this.userId)
+      .in('exercise_id', exerciseIds);
+
+    return (sessions?.length || 0) >= targetValue;
+  }
+
+  private async checkCrossCategoryAchievement(targetValue: number, conditions?: any, sessionData?: any): Promise<boolean> {
+    if (!conditions?.minimum_categories) return false;
+
+    // Get all user sessions with exercise category info
+    const { data: sessions } = await supabase
+      .from('user_sessions')
+      .select(`
+        *,
+        plank_exercises!inner(category)
+      `)
+      .eq('user_id', this.userId);
+
+    if (!sessions?.length) return false;
+
+    const categories = new Set(sessions.map(s => s.plank_exercises.category));
+    return categories.size >= conditions.minimum_categories;
   }
 
   private async checkStreakAchievement(targetDays: number): Promise<boolean> {

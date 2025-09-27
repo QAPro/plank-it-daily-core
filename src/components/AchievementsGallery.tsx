@@ -9,6 +9,7 @@ import AchievementCategories, { AchievementCategory } from "@/components/achieve
 import AchievementProgressCard from "@/components/achievements/AchievementProgressCard";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import FlagGuard from '@/components/access/FlagGuard';
 
 const AchievementsGallery = () => {
   const { achievements: earnedAchievements, loading: achievementsLoading } = useUserAchievements();
@@ -126,51 +127,53 @@ const AchievementsGallery = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Achievement Categories */}
-      <AchievementCategories 
-        categories={categories}
-        selectedCategory={selectedCategory}
-        onCategorySelect={setSelectedCategory}
-      />
+    <FlagGuard featureName="achievements_gallery">
+      <div className="space-y-6">
+        {/* Achievement Categories */}
+        <AchievementCategories 
+          categories={categories}
+          selectedCategory={selectedCategory}
+          onCategorySelect={setSelectedCategory}
+        />
 
-      {/* Achievement Progress Cards */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-      >
-        {sortedProgress.map((progressItem, index) => (
-          <motion.div
-            key={progressItem.achievement.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1, duration: 0.3 }}
-          >
-            <AchievementProgressCard
-              achievement={progressItem.achievement}
-              isEarned={progressItem.isEarned}
-              currentProgress={progressItem.currentProgress}
-              showProgress={!progressItem.isEarned}
-            />
-          </motion.div>
-        ))}
-      </motion.div>
-
-      {/* Empty state */}
-      {sortedProgress.length === 0 && (
+        {/* Achievement Progress Cards */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-center py-12"
+          transition={{ duration: 0.5 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
         >
-          <Trophy className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-600 mb-2">No achievements yet</h3>
-          <p className="text-gray-500">Start working out to earn your first achievement!</p>
+          {sortedProgress.map((progressItem, index) => (
+            <motion.div
+              key={progressItem.achievement.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1, duration: 0.3 }}
+            >
+              <AchievementProgressCard
+                achievement={progressItem.achievement}
+                isEarned={progressItem.isEarned}
+                currentProgress={progressItem.currentProgress}
+                showProgress={!progressItem.isEarned}
+              />
+            </motion.div>
+          ))}
         </motion.div>
-      )}
-    </div>
+
+        {/* Empty state */}
+        {sortedProgress.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-12"
+          >
+            <Trophy className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-600 mb-2">No achievements yet</h3>
+            <p className="text-gray-500">Start working out to earn your first achievement!</p>
+          </motion.div>
+        )}
+      </div>
+    </FlagGuard>
   );
 };
 

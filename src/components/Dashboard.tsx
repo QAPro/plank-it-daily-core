@@ -4,6 +4,7 @@ import { AnimatePresence } from 'framer-motion';
 import TabNavigation from './TabNavigation';
 import MobileBottomNav from './MobileBottomNav';
 import { useIsMobile } from '@/hooks/use-mobile';
+import FlagGuard from '@/components/access/FlagGuard';
 
 import HomeTab from './tabs/HomeTab';
 import EnhancedWorkoutTab from './tabs/EnhancedWorkoutTab';
@@ -88,36 +89,38 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
-      {/* Debug Components - VAPID Key Manager for troubleshooting */}
-      {showVapidManager && (
-        <VapidKeyManager onClose={() => setShowVapidManager(false)} />
-      )}
-      
-      <div className="flex flex-col h-screen">        
-        {/* Main Content */}
-        <div className={`flex-1 overflow-y-auto ${isMobile ? 'pb-28' : ''}`}>
-          <div className="h-full">
-            <AnimatePresence mode="wait">
-              {renderTabContent()}
-            </AnimatePresence>
-          </div>
-        </div>
-
-        {/* Navigation */}
-        {isMobile ? (
-          <MobileBottomNav 
-            activeTab={activeTab} 
-            onTabChange={handleTabChange} 
-          />
-        ) : (
-          <TabNavigation 
-            activeTab={activeTab} 
-            onTabChange={handleTabChange} 
-          />
+    <FlagGuard featureName="main_dashboard">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
+        {/* Debug Components - VAPID Key Manager for troubleshooting */}
+        {showVapidManager && (
+          <VapidKeyManager onClose={() => setShowVapidManager(false)} />
         )}
+        
+        <div className="flex flex-col h-screen">        
+          {/* Main Content */}
+          <div className={`flex-1 overflow-y-auto ${isMobile ? 'pb-28' : ''}`}>
+            <div className="h-full">
+              <AnimatePresence mode="wait">
+                {renderTabContent()}
+              </AnimatePresence>
+            </div>
+          </div>
+
+          {/* Navigation */}
+          {isMobile ? (
+            <MobileBottomNav 
+              activeTab={activeTab} 
+              onTabChange={handleTabChange} 
+            />
+          ) : (
+            <TabNavigation 
+              activeTab={activeTab} 
+              onTabChange={handleTabChange} 
+            />
+          )}
+        </div>
       </div>
-    </div>
+    </FlagGuard>
   );
 };
 

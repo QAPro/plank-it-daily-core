@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import FlagGuard from '@/components/access/FlagGuard';
 
 const EnhancedAchievementsGallery = () => {
   const { achievements: earnedAchievements, loading: achievementsLoading } = useUserAchievements();
@@ -173,117 +174,119 @@ const EnhancedAchievementsGallery = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Stats Overview */}
-      <div className="grid grid-cols-2 gap-4">
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-orange-600 mb-1">
-              {earnedAchievements?.length || 0}
-            </div>
-            <div className="text-sm text-gray-600">Achievements Earned</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-purple-600 mb-1">
-              {totalPoints}
-            </div>
-            <div className="text-sm text-gray-600">Total Points</div>
-          </CardContent>
-        </Card>
-      </div>
+    <FlagGuard featureName="enhanced_achievements_gallery">
+      <div className="space-y-6">
+        {/* Stats Overview */}
+        <div className="grid grid-cols-2 gap-4">
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-orange-600 mb-1">
+                {earnedAchievements?.length || 0}
+              </div>
+              <div className="text-sm text-gray-600">Achievements Earned</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-purple-600 mb-1">
+                {totalPoints}
+              </div>
+              <div className="text-sm text-gray-600">Total Points</div>
+            </CardContent>
+          </Card>
+        </div>
 
-      {/* Search Bar */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-        <Input
-          placeholder="Search achievements..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10"
-        />
-      </div>
+        {/* Search Bar */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Input
+            placeholder="Search achievements..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
 
-      {/* Category Filter */}
-      <div className="flex flex-wrap gap-3">
-        {categories.map(category => (
-          <motion.button
-            key={category.id}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className={`relative p-4 rounded-xl text-white transition-all duration-300 ${
-              selectedCategory === category.id
-                ? `bg-gradient-to-br ${category.color} shadow-lg scale-105`
-                : `bg-gradient-to-br ${category.color} opacity-70 hover:opacity-90`
-            }`}
-            onClick={() => setSelectedCategory(category.id)}
-          >
-            <div className="flex items-center space-x-2 mb-2">
-              {category.icon}
-              <span className="font-semibold">{category.name}</span>
-            </div>
-            <div className="text-sm opacity-90">
-              {category.earnedCount} earned
-            </div>
-            {category.earnedCount > 0 && (
-              <Badge className="absolute -top-1 -right-1 bg-white text-gray-800 text-xs h-5 px-1">
-                {category.earnedCount}
-              </Badge>
-            )}
-          </motion.button>
-        ))}
-      </div>
+        {/* Category Filter */}
+        <div className="flex flex-wrap gap-3">
+          {categories.map(category => (
+            <motion.button
+              key={category.id}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className={`relative p-4 rounded-xl text-white transition-all duration-300 ${
+                selectedCategory === category.id
+                  ? `bg-gradient-to-br ${category.color} shadow-lg scale-105`
+                  : `bg-gradient-to-br ${category.color} opacity-70 hover:opacity-90`
+              }`}
+              onClick={() => setSelectedCategory(category.id)}
+            >
+              <div className="flex items-center space-x-2 mb-2">
+                {category.icon}
+                <span className="font-semibold">{category.name}</span>
+              </div>
+              <div className="text-sm opacity-90">
+                {category.earnedCount} earned
+              </div>
+              {category.earnedCount > 0 && (
+                <Badge className="absolute -top-1 -right-1 bg-white text-gray-800 text-xs h-5 px-1">
+                  {category.earnedCount}
+                </Badge>
+              )}
+            </motion.button>
+          ))}
+        </div>
 
-      {/* Achievement Grid */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-      >
-        {sortedProgress.map((progressItem, index) => (
-          <motion.div
-            key={`${progressItem.achievement.id}-${selectedCategory}`}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05, duration: 0.3 }}
-          >
-            <EnhancedAchievementCard
-              achievementProgress={progressItem}
-              onClick={() => handleAchievementClick(progressItem)}
-            />
-          </motion.div>
-        ))}
-      </motion.div>
-
-      {/* Empty state */}
-      {sortedProgress.length === 0 && (
+        {/* Achievement Grid */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-center py-12"
+          transition={{ duration: 0.5 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
         >
-          <Trophy className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-600 mb-2">
-            {searchQuery ? 'No matching earned achievements' : 'No achievements earned yet'}
-          </h3>
-          <p className="text-gray-500">
-            {searchQuery ? 'Try a different search term among your earned achievements' : 'Complete workouts to discover and earn achievements!'}
-          </p>
+          {sortedProgress.map((progressItem, index) => (
+            <motion.div
+              key={`${progressItem.achievement.id}-${selectedCategory}`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05, duration: 0.3 }}
+            >
+              <EnhancedAchievementCard
+                achievementProgress={progressItem}
+                onClick={() => handleAchievementClick(progressItem)}
+              />
+            </motion.div>
+          ))}
         </motion.div>
-      )}
 
-      {/* Achievement Detail Modal */}
-      {selectedAchievement && (
-        <EnhancedAchievementCelebration
-          achievement={selectedAchievement}
-          onClose={() => setSelectedAchievement(null)}
-          onShare={handleShare}
-          isVisible={!!selectedAchievement}
-        />
-      )}
-    </div>
+        {/* Empty state */}
+        {sortedProgress.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-12"
+          >
+            <Trophy className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-600 mb-2">
+              {searchQuery ? 'No matching earned achievements' : 'No achievements earned yet'}
+            </h3>
+            <p className="text-gray-500">
+              {searchQuery ? 'Try a different search term among your earned achievements' : 'Complete workouts to discover and earn achievements!'}
+            </p>
+          </motion.div>
+        )}
+
+        {/* Achievement Detail Modal */}
+        {selectedAchievement && (
+          <EnhancedAchievementCelebration
+            achievement={selectedAchievement}
+            onClose={() => setSelectedAchievement(null)}
+            onShare={handleShare}
+            isVisible={!!selectedAchievement}
+          />
+        )}
+      </div>
+    </FlagGuard>
   );
 };
 

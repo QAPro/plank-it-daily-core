@@ -4,6 +4,7 @@ import { Play, Clock, Target, Star, TrendingUp, Heart, Trophy, Zap } from "lucid
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import FlagGuard from '@/components/access/FlagGuard';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Exercise = Tables<'plank_exercises'>;
@@ -73,101 +74,103 @@ const EnhancedExerciseCard = ({
   const recommendationInfo = recommendationType ? recommendationConfig[recommendationType as keyof typeof recommendationConfig] : null;
 
   return (
-    <motion.div
-      initial={{ x: -50, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      transition={{ delay: 0.1 + index * 0.1, duration: 0.5 }}
-    >
-      <Card className="bg-white/80 backdrop-blur-sm border-orange-100 overflow-hidden hover:shadow-lg transition-shadow">
-        <CardContent className="p-0">
-          <div className={`bg-gradient-to-r ${colorClass} p-4 text-white relative`}>
-            <div className="flex justify-between items-start mb-2">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="text-xl font-bold">{exercise.name}</h3>
-                  {onToggleFavorite && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => onToggleFavorite(exercise.id)}
-                      className="p-1 h-auto hover:bg-white/20"
-                    >
-                      <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current text-red-200' : 'text-white/60'}`} />
-                    </Button>
+    <FlagGuard featureName="enhanced_exercise_cards">
+      <motion.div
+        initial={{ x: -50, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ delay: 0.1 + index * 0.1, duration: 0.5 }}
+      >
+        <Card className="bg-white/80 backdrop-blur-sm border-orange-100 overflow-hidden hover:shadow-lg transition-shadow">
+          <CardContent className="p-0">
+            <div className={`bg-gradient-to-r ${colorClass} p-4 text-white relative`}>
+              <div className="flex justify-between items-start mb-2">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-xl font-bold">{exercise.name}</h3>
+                    {onToggleFavorite && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => onToggleFavorite(exercise.id)}
+                        className="p-1 h-auto hover:bg-white/20"
+                      >
+                        <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current text-red-200' : 'text-white/60'}`} />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+                <div className="flex flex-col items-end gap-1">
+                  <div className="flex space-x-1">
+                    {getDifficultyStars(exercise.difficulty_level)}
+                  </div>
+                  {performance && (
+                    <div className="text-xs bg-white/20 px-2 py-1 rounded flex items-center gap-1">
+                      <Trophy className="w-3 h-3" />
+                      {formatDuration(performance.best_duration_seconds)}
+                    </div>
                   )}
                 </div>
               </div>
-              <div className="flex flex-col items-end gap-1">
-                <div className="flex space-x-1">
-                  {getDifficultyStars(exercise.difficulty_level)}
+              
+              <div className="flex items-center space-x-4 text-sm">
+                {performance && (
+                  <div className="flex items-center">
+                    <Clock className="w-4 h-4 mr-1" />
+                    {formatDuration(performance.average_duration_seconds)} avg
+                  </div>
+                )}
+                <div className="flex items-center">
+                  <Target className="w-4 h-4 mr-1" />
+                  Level {exercise.difficulty_level}
                 </div>
                 {performance && (
-                  <div className="text-xs bg-white/20 px-2 py-1 rounded flex items-center gap-1">
-                    <Trophy className="w-3 h-3" />
-                    {formatDuration(performance.best_duration_seconds)}
+                  <div className="flex items-center">
+                    <TrendingUp className="w-4 h-4 mr-1" />
+                    {performance.total_sessions} sessions
                   </div>
                 )}
               </div>
             </div>
-            
-            <div className="flex items-center space-x-4 text-sm">
-              {performance && (
-                <div className="flex items-center">
-                  <Clock className="w-4 h-4 mr-1" />
-                  {formatDuration(performance.average_duration_seconds)} avg
+
+            <div className="p-4">
+              {/* Recommendation Badge */}
+              {recommendationInfo && (
+                <div className="mb-3">
+                  <Badge className={`${recommendationInfo.color} flex items-center gap-1 w-fit`}>
+                    <recommendationInfo.icon className="w-3 h-3" />
+                    {recommendationInfo.label}
+                    {confidenceScore && confidenceScore > 0.8 && (
+                      <span className="ml-1">🔥</span>
+                    )}
+                  </Badge>
                 </div>
               )}
-              <div className="flex items-center">
-                <Target className="w-4 h-4 mr-1" />
-                Level {exercise.difficulty_level}
+
+              <p className="text-gray-600 mb-4 line-clamp-2">{exercise.description}</p>
+              
+
+
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => onStart(exercise)}
+                  className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold py-2 rounded-lg"
+                >
+                  <Play className="w-4 h-4 mr-2" />
+                  Start Exercise
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => onViewDetails(exercise)}
+                  className="px-3"
+                >
+                  Details
+                </Button>
               </div>
-              {performance && (
-                <div className="flex items-center">
-                  <TrendingUp className="w-4 h-4 mr-1" />
-                  {performance.total_sessions} sessions
-                </div>
-              )}
             </div>
-          </div>
-
-          <div className="p-4">
-            {/* Recommendation Badge */}
-            {recommendationInfo && (
-              <div className="mb-3">
-                <Badge className={`${recommendationInfo.color} flex items-center gap-1 w-fit`}>
-                  <recommendationInfo.icon className="w-3 h-3" />
-                  {recommendationInfo.label}
-                  {confidenceScore && confidenceScore > 0.8 && (
-                    <span className="ml-1">🔥</span>
-                  )}
-                </Badge>
-              </div>
-            )}
-
-            <p className="text-gray-600 mb-4 line-clamp-2">{exercise.description}</p>
-            
-
-
-            <div className="flex gap-2">
-              <Button
-                onClick={() => onStart(exercise)}
-                className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold py-2 rounded-lg"
-              >
-                <Play className="w-4 h-4 mr-2" />
-                Start Exercise
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => onViewDetails(exercise)}
-                className="px-3"
-              >
-                Details
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </FlagGuard>
   );
 };
 

@@ -95,6 +95,10 @@ export const useExpandedAchievementProgress = () => {
         return await calculateTimeBasedProgress(achievement.requirement.value, achievement.requirement.conditions);
       case 'improvement':
         return await calculateImprovementProgress(achievement.requirement.conditions);
+      case 'category_specific':
+        return await calculateCategorySpecificProgress(achievement.requirement.value, achievement.requirement.conditions);
+      case 'cross_category':
+        return await calculateCrossCategoryProgress(achievement.requirement.value, achievement.requirement.conditions);
       default:
         return 0;
     }
@@ -214,6 +218,48 @@ export const useExpandedAchievementProgress = () => {
     return Math.max(0, improvement);
   };
 
+  const calculateCategorySpecificProgress = async (targetValue: number, conditions?: any) => {
+    if (!conditions?.exercise_categories?.length) return 0;
+    
+    const category = conditions.exercise_categories[0];
+    
+    // Get exercises for the specific category
+    const { data: exercises } = await supabase
+      .from('plank_exercises')
+      .select('id')
+      .eq('category', category);
+    
+    const exerciseIds = exercises?.map(e => e.id) || [];
+    if (exerciseIds.length === 0) return 0;
+
+    // Get sessions for this category
+    const { data: sessions } = await supabase
+      .from('user_sessions')
+      .select('*')
+      .eq('user_id', user?.id)
+      .in('exercise_id', exerciseIds);
+
+    return Math.min(sessions?.length || 0, targetValue);
+  };
+
+  const calculateCrossCategoryProgress = async (targetValue: number, conditions?: any) => {
+    if (!conditions?.minimum_categories) return 0;
+
+    // Get all user sessions with exercise category info
+    const { data: sessions } = await supabase
+      .from('user_sessions')
+      .select(`
+        *,
+        plank_exercises!inner(category)
+      `)
+      .eq('user_id', user?.id);
+
+    if (!sessions?.length) return 0;
+
+    const categories = new Set(sessions.map(s => s.plank_exercises.category));
+    return Math.min(categories.size, conditions.minimum_categories);
+  };
+
   const calculateEstimatedCompletion = (achievement: any, currentProgress: number): string => {
     if (currentProgress === 0) return 'Start working out to make progress!';
     
@@ -234,6 +280,13 @@ export const useExpandedAchievementProgress = () => {
           return `${remaining} more ${achievement.requirement.conditions.time_of_day} workouts`;
         }
         return `${Math.ceil(remaining / 60)} more minutes to accumulate`;
+      case 'category_specific':
+        return `${remaining} more ${achievement.requirement.conditions?.exercise_categories?.[0] || 'category'} exercises`;
+      case 'cross_category':
+        if (achievement.requirement.conditions?.minimum_categories) {
+          return `Try exercises from ${remaining} more categories`;
+        }
+        return 'Keep exploring different exercise types!';
       default:
         return 'Keep going!';
     }

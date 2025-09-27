@@ -7,24 +7,20 @@ import { AuthProvider } from '@/contexts/AuthContext';
 // Mock Supabase client
 export const mockSupabase = {
   auth: {
-    getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
-    onAuthStateChange: vi.fn().mockReturnValue({ data: { subscription: { unsubscribe: vi.fn() } } }),
+    getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+    onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
   },
-  from: vi.fn().mockReturnValue({
-    select: vi.fn().mockReturnThis(),
-    insert: vi.fn().mockReturnThis(),
-    update: vi.fn().mockReturnThis(),
-    delete: vi.fn().mockReturnThis(),
-    eq: vi.fn().mockReturnThis(),
-    order: vi.fn().mockReturnThis(),
-    limit: vi.fn().mockReturnThis(),
+  from: () => ({
+    select: () => mockSupabase.from(),
+    insert: () => mockSupabase.from(),
+    update: () => mockSupabase.from(),
+    delete: () => mockSupabase.from(),
+    eq: () => mockSupabase.from(),
+    order: () => mockSupabase.from(),
+    limit: () => mockSupabase.from(),
   }),
-  rpc: vi.fn(),
+  rpc: () => Promise.resolve({ data: null, error: null }),
 };
-
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: mockSupabase,
-}));
 
 // Test factories
 export const createMockUser = (overrides = {}) => ({
@@ -48,6 +44,24 @@ export const createMockFeatureFlag = (overrides = {}) => ({
   parent_feature_id: null,
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
+  ...overrides,
+});
+
+export const createMockExercise = (overrides = {}) => ({
+  id: 'test-exercise-id',
+  name: 'Test Exercise',
+  category: 'planking',
+  difficulty_level: 1,
+  description: 'A test exercise',
+  duration_seconds: 30,
+  created_at: new Date().toISOString(),
+  equipment_needed: [],
+  estimated_calories_per_minute: 5,
+  image_url: 'test-image.jpg',
+  instructions: ['Test instruction'],
+  is_beginner_friendly: true,
+  primary_muscles: ['core'],
+  tags: ['test'],
   ...overrides,
 });
 

@@ -30,6 +30,12 @@ export interface FeaturePerformanceMetrics {
   user_drop_off_rate: number;
 }
 
+export interface AdoptionTrendPoint {
+  date: string;
+  adoption_rate: number;
+  active_features: number;
+}
+
 class FeatureAnalyticsService {
   private sessionId: string;
 
@@ -67,7 +73,7 @@ class FeatureAnalyticsService {
       user_id: user.id,
       feature_name: featureName,
       event_type: 'accessed',
-      component_path,
+      component_path: componentPath,
       metadata: {
         timestamp: Date.now(),
         user_agent: navigator.userAgent,
@@ -106,7 +112,15 @@ class FeatureAnalyticsService {
         return null;
       }
 
-      return data;
+      // The RPC returns an array with one object, so we take the first element
+      const result = data && data.length > 0 ? data[0] : null;
+      if (result) {
+        return {
+          ...result,
+          performance_impact: result.performance_impact as 'low' | 'medium' | 'high',
+        };
+      }
+      return null;
     } catch (err) {
       console.error('[FeatureAnalytics] Error getting analytics:', err);
       return null;
@@ -124,14 +138,15 @@ class FeatureAnalyticsService {
         return null;
       }
 
-      return data;
+      // The RPC returns an array with one object, so we take the first element
+      return data && data.length > 0 ? data[0] : null;
     } catch (err) {
       console.error('[FeatureAnalytics] Error getting performance metrics:', err);
       return null;
     }
   }
 
-  async getFeatureAdoptionTrends(days: number = 30): Promise<any[]> {
+  async getFeatureAdoptionTrends(days: number = 30): Promise<AdoptionTrendPoint[]> {
     try {
       const { data, error } = await supabase.rpc('get_feature_adoption_trends', {
         _days_back: days,
@@ -149,16 +164,18 @@ class FeatureAnalyticsService {
     }
   }
 
-  async getUserFeatureJourney(userId: string): Promise<any[]> {
+  async getUserFeatureJourney(userId: string): Promise<FeatureUsageEvent[]> {
     try {
       const { data, error } = await supabase
         .from('feature_usage_events')
         .select(`
+          user_id,
           feature_name,
           event_type,
           metadata,
           created_at,
-          component_path
+          component_path,
+          session_id
         `)
         .eq('user_id', userId)
         .order('created_at', { ascending: true })
@@ -169,7 +186,16 @@ class FeatureAnalyticsService {
         return [];
       }
 
-      return data || [];
+      return (data || []).map(item => ({
+        user_id: item.user_id,
+        feature_name: item.feature_name,
+        event_type: item.event_type as 'enabled' | 'disabled' | 'accessed' | 'interaction',
+        metadata: (typeof item.metadata === 'object' && item.metadata !== null) 
+          ? item.metadata as Record<string, any> 
+          : {},
+        component_path: item.component_path,
+        session_id: item.session_id,
+      }));
     } catch (err) {
       console.error('[FeatureAnalytics] Error getting user journey:', err);
       return [];

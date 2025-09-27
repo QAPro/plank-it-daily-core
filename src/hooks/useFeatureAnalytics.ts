@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { featureAnalyticsService, FeatureAnalytics, FeaturePerformanceMetrics } from "@/services/featureAnalyticsService";
+import { featureAnalyticsService, FeatureAnalytics, FeaturePerformanceMetrics, AdoptionTrendPoint } from "@/services/featureAnalyticsService";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
 
@@ -43,7 +43,7 @@ export const useFeatureAnalytics = (featureName: string) => {
 };
 
 export const useFeatureAdoptionTrends = (days: number = 30) => {
-  return useQuery({
+  return useQuery<AdoptionTrendPoint[]>({
     queryKey: ["feature-adoption-trends", days],
     queryFn: () => featureAnalyticsService.getFeatureAdoptionTrends(days),
     staleTime: 10 * 60 * 1000, // 10 minutes

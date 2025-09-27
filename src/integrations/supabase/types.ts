@@ -1106,6 +1106,39 @@ export type Database = {
           },
         ]
       }
+      feature_usage_events: {
+        Row: {
+          component_path: string | null
+          created_at: string
+          event_type: string
+          feature_name: string
+          id: string
+          metadata: Json | null
+          session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          component_path?: string | null
+          created_at?: string
+          event_type: string
+          feature_name: string
+          id?: string
+          metadata?: Json | null
+          session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          component_path?: string | null
+          created_at?: string
+          event_type?: string
+          feature_name?: string
+          id?: string
+          metadata?: Json | null
+          session_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       featured_users: {
         Row: {
           created_at: string
@@ -4457,6 +4490,10 @@ export type Database = {
           username: string
         }[]
       }
+      assign_ab_test_variant: {
+        Args: { _feature_name: string; _user_id: string }
+        Returns: string
+      }
       assign_role: {
         Args: {
           _reason?: string
@@ -4517,6 +4554,14 @@ export type Database = {
           username: string
         }[]
       }
+      get_ab_test_results: {
+        Args: { _feature_name: string }
+        Returns: {
+          conversion_rate: number
+          user_count: number
+          variant: string
+        }[]
+      }
       get_active_users_metrics: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -4574,6 +4619,28 @@ export type Database = {
         Args: { difficulty_level: number; exercise_category: string }
         Returns: string
       }
+      get_feature_adoption_trends: {
+        Args: { _days_back?: number }
+        Returns: {
+          active_features: number
+          adoption_rate: number
+          date: string
+        }[]
+      }
+      get_feature_analytics: {
+        Args: { _feature_name: string }
+        Returns: {
+          active_users_24h: number
+          active_users_30d: number
+          active_users_7d: number
+          adoption_rate: number
+          engagement_score: number
+          feature_name: string
+          performance_impact: string
+          total_users: number
+          user_satisfaction: number
+        }[]
+      }
       get_feature_flag_analytics: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -4582,6 +4649,17 @@ export type Database = {
           feature_name: string
           total_evaluations: number
           unique_users: number
+        }[]
+      }
+      get_feature_performance_metrics: {
+        Args: { _feature_name: string }
+        Returns: {
+          avg_load_time: number
+          cpu_usage_increase: number
+          error_rate: number
+          feature_name: string
+          memory_usage_increase: number
+          user_drop_off_rate: number
         }[]
       }
       get_onboarding_analytics: {

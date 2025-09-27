@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import UserManagement from './UserManagement';
 import FeatureFlagsManager from './FeatureFlagsManager';
+import FeatureAnalyticsDashboard from './FeatureAnalyticsDashboard';
 import EnhancedAdminAnalytics from './analytics/EnhancedAdminAnalytics';
 import ABTestingDashboard from './analytics/ABTestingDashboard';
 import NotificationAnalyticsDashboard from './analytics/NotificationAnalyticsDashboard';
@@ -100,6 +101,9 @@ const AdminDashboard = () => {
 
         <TabsContent value="features" className="space-y-6">
           <FeatureFlagsManager />
+          <div className="mt-8">
+            <FeatureAnalyticsDashboard />
+          </div>
         </TabsContent>
 
         <TabsContent value="experiments" className="space-y-6">

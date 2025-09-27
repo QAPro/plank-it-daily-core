@@ -1,19 +1,30 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useFeatureAdoptionTrends, useABTestResults } from "@/hooks/useFeatureAnalytics";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
-import { TrendingUp, Users, Activity, AlertTriangle, Target, Zap } from "lucide-react";
+import { useFeatureAdoptionTrends } from "@/hooks/useFeatureAnalytics";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
+import { TrendingUp, Users, Activity, Target } from "lucide-react";
+import { useAdmin } from "@/hooks/useAdmin";
 
 const FeatureAnalyticsDashboard: React.FC = () => {
+  const { isAdmin } = useAdmin();
   const [selectedTimeframe, setSelectedTimeframe] = useState("30");
   const [searchFeature, setSearchFeature] = useState("");
   
   const { data: adoptionTrends, isLoading: trendsLoading } = useFeatureAdoptionTrends(parseInt(selectedTimeframe));
+
+  if (!isAdmin) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <p className="text-muted-foreground">Access denied. Admin privileges required.</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   // Mock data for demonstration - in real implementation, this would come from API
   const mockFeatureMetrics = [
@@ -126,7 +137,9 @@ const FeatureAnalyticsDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {(filteredMetrics.reduce((sum, m) => sum + m.adoption_rate, 0) / filteredMetrics.length).toFixed(1)}%
+                  {filteredMetrics.length > 0 
+                    ? (filteredMetrics.reduce((sum, m) => sum + m.adoption_rate, 0) / filteredMetrics.length).toFixed(1)
+                    : '0'}%
                 </div>
                 <p className="text-xs text-muted-foreground">Across all features</p>
               </CardContent>
@@ -152,7 +165,9 @@ const FeatureAnalyticsDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {(filteredMetrics.reduce((sum, m) => sum + m.engagement_score, 0) / filteredMetrics.length).toFixed(1)}
+                  {filteredMetrics.length > 0 
+                    ? (filteredMetrics.reduce((sum, m) => sum + m.engagement_score, 0) / filteredMetrics.length).toFixed(1)
+                    : '0'}
                 </div>
                 <p className="text-xs text-muted-foreground">Out of 10</p>
               </CardContent>

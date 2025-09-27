@@ -128,3 +128,64 @@ export const getDevicePlatformAnalytics = async (daysBack = 30): Promise<DeviceP
   if (error) throw error;
   return (data ?? []) as DevicePlatformAnalyticsRow[];
 };
+
+// Achievement Analytics Types
+export interface AchievementCompletionAnalytics {
+  achievement_type: string;
+  achievement_name: string;
+  total_unlocks: number;
+  completion_rate: number;
+  avg_days_to_unlock: number;
+  category: string;
+  rarity: string;
+}
+
+export interface AchievementCategoryAnalytics {
+  category: string;
+  total_achievements: number;
+  total_unlocks: number;
+  unique_users_unlocked: number;
+  avg_completion_rate: number;
+  most_popular_achievement: string;
+  category_engagement_score: number;
+}
+
+export interface AchievementUnlockTrends {
+  date: string;
+  total_unlocks: number;
+  unique_users: number;
+  most_unlocked_achievement: string;
+  category_breakdown: Record<string, number>;
+}
+
+export interface AchievementSystemHealth {
+  metric_name: string;
+  metric_value: number;
+  metric_status: string;
+  last_calculated: string;
+}
+
+// Achievement Analytics Service Functions
+export const getAchievementCompletionAnalytics = async (): Promise<AchievementCompletionAnalytics[]> => {
+  const { data, error } = await supabase.rpc("get_achievement_completion_analytics");
+  if (error) throw error;
+  return (data ?? []) as AchievementCompletionAnalytics[];
+};
+
+export const getAchievementCategoryAnalytics = async (): Promise<AchievementCategoryAnalytics[]> => {
+  const { data, error } = await supabase.rpc("get_achievement_category_analytics");
+  if (error) throw error;
+  return (data ?? []) as AchievementCategoryAnalytics[];
+};
+
+export const getAchievementUnlockTrends = async (daysBack = 30): Promise<AchievementUnlockTrends[]> => {
+  const { data, error } = await supabase.rpc("get_achievement_unlock_trends", { days_back: daysBack });
+  if (error) throw error;
+  return (data ?? []) as AchievementUnlockTrends[];
+};
+
+export const getAchievementSystemHealth = async (): Promise<AchievementSystemHealth[]> => {
+  const { data, error } = await supabase.rpc("get_achievement_system_health");
+  if (error) throw error;
+  return (data ?? []) as AchievementSystemHealth[];
+};

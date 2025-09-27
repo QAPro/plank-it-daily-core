@@ -19,6 +19,7 @@ import RealTimeMetricsWidget from "./RealTimeMetricsWidget";
 import { PartialErrorBanner } from "@/components/ui/error-state";
 import { Badge } from "@/components/ui/badge";
 import { Zap, TrendingUp } from "lucide-react";
+import AchievementAnalyticsDashboard from "./AchievementAnalyticsDashboard";
 
 const AdminAnalyticsDashboard = () => {
   const { filters, apiParams } = useAnalyticsFilters();
@@ -109,6 +110,12 @@ const AdminAnalyticsDashboard = () => {
         </div>
 
         <RetentionCohortChart monthsBack={monthsBack} />
+
+        {/* Achievement Analytics Section */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Achievement System Analytics</h3>
+          <AchievementAnalyticsDashboard daysBack={daysBack} />
+        </div>
 
         {/* Enhanced Export information card */}
         <Card className="border-orange-200 bg-gradient-to-r from-orange-50 to-yellow-50">

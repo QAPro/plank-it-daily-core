@@ -4562,6 +4562,49 @@ export type Database = {
           variant: string
         }[]
       }
+      get_achievement_category_analytics: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          avg_completion_rate: number
+          category: string
+          category_engagement_score: number
+          most_popular_achievement: string
+          total_achievements: number
+          total_unlocks: number
+          unique_users_unlocked: number
+        }[]
+      }
+      get_achievement_completion_analytics: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          achievement_name: string
+          achievement_type: string
+          avg_days_to_unlock: number
+          category: string
+          completion_rate: number
+          rarity: string
+          total_unlocks: number
+        }[]
+      }
+      get_achievement_system_health: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          last_calculated: string
+          metric_name: string
+          metric_status: string
+          metric_value: number
+        }[]
+      }
+      get_achievement_unlock_trends: {
+        Args: { days_back?: number }
+        Returns: {
+          category_breakdown: Json
+          date: string
+          most_unlocked_achievement: string
+          total_unlocks: number
+          unique_users: number
+        }[]
+      }
       get_active_users_metrics: {
         Args: Record<PropertyKey, never>
         Returns: {

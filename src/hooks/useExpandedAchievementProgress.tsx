@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { EXPANDED_ACHIEVEMENTS, ExpandedAchievementEngine } from '@/services/expandedAchievementService';
+import { EXPANDED_ACHIEVEMENTS, ExpandedAchievementEngine, ALL_ACHIEVEMENTS } from '@/services/expandedAchievementService';
 import type { Tables } from '@/integrations/supabase/types';
 
 type UserAchievementProgress = Tables<'user_achievement_progress'>;
@@ -42,10 +42,10 @@ export const useExpandedAchievementProgress = () => {
         progressData?.map(p => [p.achievement_id, p]) || []
       );
 
-      // Combine achievement definitions with progress
+      // Combine achievement definitions with progress using complete list
       const progressWithData: AchievementWithProgress[] = [];
 
-      for (const achievement of EXPANDED_ACHIEVEMENTS) {
+      for (const achievement of ALL_ACHIEVEMENTS) {
         const isEarned = earnedNames.has(achievement.name);
         const progress = progressMap.get(achievement.id);
         

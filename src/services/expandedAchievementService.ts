@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
+import { CATEGORY_ACHIEVEMENTS, CROSS_CATEGORY_ACHIEVEMENTS } from './categoryAchievementDefinitions';
 
 type UserAchievement = Tables<'user_achievements'>;
 
@@ -31,6 +32,12 @@ export interface AchievementRequirement {
     category_combination?: string[];
     same_day?: boolean;
     minimum_categories?: number;
+    balanced_requirement?: number;
+    duration_based?: boolean;
+    perfectionist_requirement?: number;
+    ultimate_explorer?: boolean;
+    champion_requirement?: number;
+    renaissance_requirement?: number;
   };
 }
 
@@ -1360,6 +1367,18 @@ export const EXPANDED_ACHIEVEMENTS: ExpandedAchievement[] = [
   }
 ];
 
+// Combine all achievement definitions
+const BASE_ACHIEVEMENTS = EXPANDED_ACHIEVEMENTS;
+export { EXPANDED_ACHIEVEMENTS as BASE_EXPANDED_ACHIEVEMENTS };
+export const ALL_ACHIEVEMENTS: ExpandedAchievement[] = [
+  ...BASE_ACHIEVEMENTS,
+  ...CATEGORY_ACHIEVEMENTS, 
+  ...CROSS_CATEGORY_ACHIEVEMENTS
+];
+
+// Update EXPANDED_ACHIEVEMENTS to include all achievements
+export const EXPANDED_ACHIEVEMENTS_COMPLETE = ALL_ACHIEVEMENTS;
+
 export class ExpandedAchievementEngine {
   private userId: string;
 
@@ -1380,8 +1399,8 @@ export class ExpandedAchievementEngine {
 
     const existingNames = new Set(existingAchievements?.map(a => a.achievement_name) || []);
 
-    // Check each achievement category
-    for (const achievement of EXPANDED_ACHIEVEMENTS) {
+    // Check each achievement using the complete list
+    for (const achievement of ALL_ACHIEVEMENTS) {
       if (existingNames.has(achievement.name)) continue;
 
       const earned = await this.checkSingleAchievement(achievement, sessionData);
@@ -1645,12 +1664,12 @@ export class ExpandedAchievementEngine {
   }
 
   static getAchievementByName(name: string): ExpandedAchievement | undefined {
-    return EXPANDED_ACHIEVEMENTS.find(a => a.name === name);
+    return ALL_ACHIEVEMENTS.find(a => a.name === name);
   }
 
   static getAchievementsByCategory(category: string): ExpandedAchievement[] {
-    if (category === 'all') return EXPANDED_ACHIEVEMENTS;
-    return EXPANDED_ACHIEVEMENTS.filter(a => a.category === category);
+    if (category === 'all') return ALL_ACHIEVEMENTS;
+    return ALL_ACHIEVEMENTS.filter(a => a.category === category);
   }
 
   static getRarityColor(rarity: ExpandedAchievement['rarity']): string {

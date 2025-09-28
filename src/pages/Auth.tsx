@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, Mail, Lock, User, CheckCircle, AlertCircle, XCircle, Info } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,11 +8,11 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { handleAuthSignIn } from '@/utils/authCleanup';
-import { validateUsernameFormat } from '@/utils/usernameValidation';
-import { validateDisplayName } from '@/utils/inputValidation';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Auth = () => {
   console.log('Auth component: Rendering auth page');
+  const { user, loading: authLoading, error: authError } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -27,12 +27,55 @@ const Auth = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Redirect if already authenticated
+  if (!authLoading && user) {
+    navigate('/', { replace: true });
+    return null;
+  }
+
+  // Show auth error state
+  if (authError && !authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-pink-50 to-orange-50 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl font-bold text-red-600 flex items-center justify-center gap-2">
+              <AlertCircle className="h-6 w-6" />
+              Authentication Error
+            </CardTitle>
+            <CardDescription>{authError}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              onClick={() => window.location.reload()} 
+              className="w-full bg-red-600 hover:bg-red-700"
+            >
+              Reload Page
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Form submitted with:', formData);
+    setLoading(true);
     
-    if (isLogin) {
-      try {
+    try {
+      if (isForgotPassword) {
+        const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
+          redirectTo: `${window.location.origin}/auth/reset-password`
+        });
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Reset email sent",
+          description: "Check your email for password reset instructions",
+        });
+      } else if (isLogin) {
         const { error } = await handleAuthSignIn({
           email: formData.email,
           password: formData.password
@@ -45,13 +88,36 @@ const Auth = () => {
             variant: "destructive",
           });
         }
-      } catch (error: any) {
+      } else {
+        // Sign up
+        const { error } = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+            data: {
+              full_name: formData.fullName,
+              username: formData.username
+            }
+          }
+        });
+        
+        if (error) throw error;
+        
         toast({
-          title: "Error",
-          description: error.message || "Login failed",
-          variant: "destructive",
+          title: "Account created",
+          description: "Check your email to verify your account",
         });
       }
+    } catch (error: any) {
+      console.error('Auth error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "An error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -61,6 +127,18 @@ const Auth = () => {
       [e.target.name]: e.target.value
     });
   };
+
+  // Show loading state during auth initialization
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-orange-200 border-t-orange-600 rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center p-4">

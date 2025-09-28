@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,8 +7,10 @@ import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle, XCircle, AlertTriangle, Loader2, Shield, Database, Globe, Zap } from 'lucide-react';
 import { ValidationService, ValidationResult } from '@/services/validationService';
+import { ServiceWorkerDebugPanel } from '@/components/debug/ServiceWorkerDebugPanel';
+import { ProductionLogViewer } from '@/components/debug/ProductionLogViewer';
 
-export const ProductionReadinessCheck: React.FC = () => {
+export const ProductionReadinessCheck = () => {
   const [validationResults, setValidationResults] = useState<ValidationResult[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [showReport, setShowReport] = useState(false);
@@ -228,6 +230,12 @@ export const ProductionReadinessCheck: React.FC = () => {
           </Card>
         </div>
       )}
+
+      {/* Advanced Debug Panels */}
+      <div className="space-y-4">
+        <ServiceWorkerDebugPanel />
+        <ProductionLogViewer />
+      </div>
     </div>
   );
 };

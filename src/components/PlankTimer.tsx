@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useEnhancedSessionTracking } from '@/hooks/useEnhancedSessionTracking';
 import CountdownTimer from '@/components/timer/CountdownTimer';

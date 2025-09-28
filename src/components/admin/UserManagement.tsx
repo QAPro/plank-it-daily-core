@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import { useState } from "react";
 import UserSearch from "./users/UserSearch";
 import UserDetailsCard from "./users/UserDetailsCard";
 import FeatureOverridesManager from "./users/FeatureOverridesManager";

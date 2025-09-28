@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { announceToScreenReader } from '@/utils/accessibility';
 
 interface AccessibleChartWrapperProps {

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Trophy, Clock, Star, Target, Award, Search, RefreshCw, Heart, Dumbbell, Activity, Zap, User, Gauge, TrendingUp } from "lucide-react";
 import { useOptimizedAchievementProgress } from "@/hooks/useOptimizedAchievementProgress";

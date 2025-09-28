@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Flame, Trophy, Target, Calendar } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";

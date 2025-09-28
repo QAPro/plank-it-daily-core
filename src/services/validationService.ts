@@ -97,8 +97,9 @@ export class ValidationService {
   private async validatePerformance(): Promise<ValidationResult[]> {
     const results: ValidationResult[] = [];
 
-    // Test initial load time
-    const loadTime = performance.now();
+    // Test actual page load time using Navigation Timing API
+    const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+    const loadTime = navigation ? navigation.loadEventEnd - navigation.fetchStart : 0;
     const threshold = 3000; // 3 seconds
 
     results.push({

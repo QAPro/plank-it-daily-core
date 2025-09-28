@@ -1,6 +1,6 @@
 
 import { ProductionDiagnostics } from "@/components/ProductionDiagnostics";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "@/components/ui/toaster";
@@ -22,10 +22,19 @@ import { DevToolsNotifications } from "@/components/DevToolsNotifications";
 import ServiceWorkerMessageHandler from "@/components/notifications/ServiceWorkerMessageHandler";
 import { Settings } from "lucide-react";
 import { logger } from '@/utils/productionLogger';
+import { PerformanceMonitor } from '@/utils/performanceOptimization';
 
 function App() {
   const [showDevTools, setShowDevTools] = useState(false);
   logger.debug('App: Rendering with authentication provider');
+  
+  // Initialize performance monitoring
+  useEffect(() => {
+    const perfMonitor = new PerformanceMonitor();
+    perfMonitor.onMetricsReady((metrics) => {
+      logger.debug('Performance metrics:', metrics);
+    });
+  }, []);
   
   return (
     <ErrorBoundary>

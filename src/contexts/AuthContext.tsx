@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setLoading(false);
           setError('Authentication initialization timeout. Please refresh the page.');
         }
-      }, 15000); // 15 second timeout
+      }, 5000); // 5 second timeout (reduced from 15s)
     };
     
     setupTimeout();
@@ -104,10 +104,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             // Clean up pending verification email on successful login
             localStorage.removeItem('pendingVerificationEmail');
             
-            // Defer subscription refresh to prevent deadlocks
+            // Defer subscription refresh to prevent blocking auth flow
             setTimeout(() => {
               refreshSubscriptionStatus(session.user);
-            }, 100);
+            }, 1000); // Increased delay to prevent blocking
           } else if (event === 'SIGNED_OUT') {
             logInfo('User signed out');
             setSession(null);
@@ -121,7 +121,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             // Refresh subscription status on token refresh
             setTimeout(() => {
               refreshSubscriptionStatus(session.user);
-            }, 100);
+            }, 1000); // Increased delay to prevent blocking
           } else if (event === 'USER_UPDATED' && session?.user) {
             logInfo('User updated', { 
               userEmail: session.user.email 
@@ -185,10 +185,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           if (session) {
             setSession(session);
             setUser(session.user);
-            // Refresh subscription status for existing session
+            // Refresh subscription status for existing session (non-blocking)
             setTimeout(() => {
               refreshSubscriptionStatus(session.user);
-            }, 100);
+            }, 2000); // Defer to allow UI to load first
           }
           if (authTimeout) clearTimeout(authTimeout);
           setLoading(false);

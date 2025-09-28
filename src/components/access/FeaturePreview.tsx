@@ -1,17 +1,18 @@
 
-import React from 'react';
+
+import { ReactNode } from 'react';
 import { Lock, Eye, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 type FeaturePreviewProps = {
-  children: React.ReactNode;
+  children: ReactNode;
   height?: number;
   blur?: boolean;
   overlay?: boolean;
   onPreviewClick?: () => void;
 };
 
-const FeaturePreview: React.FC<FeaturePreviewProps> = ({
+const FeaturePreview = ({
   children,
   height = 200,
   blur = true,

@@ -1,14 +1,15 @@
 
-import React from "react";
+
+import { ReactNode } from 'react';
 import { useUserFeatureFlag } from "@/hooks/useUserFeatureFlag";
 
 type FlagGuardProps = {
   featureName: string;
-  children: React.ReactNode;
-  fallback?: React.ReactNode;
+  children: ReactNode;
+  fallback?: ReactNode;
 };
 
-const FlagGuard: React.FC<FlagGuardProps> = ({ featureName, children, fallback = null }) => {
+const FlagGuard = ({ featureName, children, fallback = null }: FlagGuardProps) => {
   const { loading, enabled } = useUserFeatureFlag(featureName);
 
   if (loading) return null;

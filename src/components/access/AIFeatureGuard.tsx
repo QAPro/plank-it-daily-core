@@ -1,17 +1,18 @@
 
-import React from 'react';
+
+import { ReactNode } from 'react';
 import { isAIEnabled } from '@/constants/featureGating';
 
 interface AIFeatureGuardProps {
-  children: React.ReactNode;
-  fallback?: React.ReactNode;
+  children: ReactNode;
+  fallback?: ReactNode;
 }
 
 /**
  * Component that conditionally renders AI features based on the environment configuration.
  * When AI is disabled, it renders nothing (or an optional fallback).
  */
-const AIFeatureGuard: React.FC<AIFeatureGuardProps> = ({ children, fallback = null }) => {
+const AIFeatureGuard = ({ children, fallback = null }: AIFeatureGuardProps) => {
   if (!isAIEnabled()) {
     return <>{fallback}</>;
   }

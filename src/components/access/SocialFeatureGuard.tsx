@@ -1,5 +1,5 @@
 
-import React from 'react';
+
 import { isSocialEnabled } from '@/constants/featureGating';
 
 interface SocialFeatureGuardProps {
@@ -7,7 +7,7 @@ interface SocialFeatureGuardProps {
   fallback?: React.ReactNode;
 }
 
-const SocialFeatureGuard: React.FC<SocialFeatureGuardProps> = ({ 
+const SocialFeatureGuard = ({ 
   children, 
   fallback = null 
 }) => {

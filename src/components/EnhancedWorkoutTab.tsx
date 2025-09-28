@@ -1,4 +1,5 @@
-import React from 'react';
+
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Clock, TrendingUp } from 'lucide-react';
@@ -9,15 +10,15 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useExercises } from '@/hooks/useExercises';
 import WorkoutTab from '@/components/tabs/WorkoutTab';
 
-const EnhancedWorkoutTab: React.FC = () => {
+const EnhancedWorkoutTab = () => {
   const { user } = useAuth();
   const { data: exercises } = useExercises();
   const { quickStartData, nextChallenge, isLoading, getProgressionSuggestion } = useQuickStart();
-  const [showSuggestion, setShowSuggestion] = React.useState(false);
-  const [progressionSuggestion, setProgressionSuggestion] = React.useState<any>(null);
+  const [showSuggestion, setShowSuggestion] = useState(false);
+  const [progressionSuggestion, setProgressionSuggestion] = useState<any>(null);
 
   // Handle quick start from URL parameter
-  React.useEffect(() => {
+  useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const quickStart = urlParams.get('quick-start');
     

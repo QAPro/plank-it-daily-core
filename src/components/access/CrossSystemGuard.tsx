@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { useStatusTracks } from '@/hooks/useStatusTracks';
 import { useReputation } from '@/hooks/useReputation';
 import { useAuth } from '@/contexts/AuthContext';

@@ -1,5 +1,6 @@
 
-import React from 'react';
+
+import { ReactNode } from 'react';
 import { useFeatureAccess } from '@/hooks/useFeatureAccess';
 import { Skeleton } from '@/components/ui/skeleton';
 import UpgradePrompt from './UpgradePrompt';
@@ -10,16 +11,16 @@ type FeatureGuardMode = 'block' | 'preview' | 'tease';
 
 type EnhancedFeatureGuardProps = {
   feature: FeatureName;
-  children: React.ReactNode;
+  children: ReactNode;
   mode?: FeatureGuardMode;
-  fallback?: React.ReactNode;
+  fallback?: ReactNode;
   previewHeight?: number;
   showUpgradePrompt?: boolean;
   compact?: boolean;
-  loadingSkeleton?: React.ReactNode;
+  loadingSkeleton?: ReactNode;
 };
 
-const EnhancedFeatureGuard: React.FC<EnhancedFeatureGuardProps> = ({ 
+const EnhancedFeatureGuard = ({ 
   feature, 
   children, 
   mode = 'block',

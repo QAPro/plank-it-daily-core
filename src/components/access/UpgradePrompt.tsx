@@ -1,5 +1,5 @@
 
-import React from 'react';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,7 +15,7 @@ type UpgradePromptProps = {
   compact?: boolean;
 };
 
-const UpgradePrompt: React.FC<UpgradePromptProps> = ({ 
+const UpgradePrompt = ({ 
   feature, 
   requiredTier, 
   currentTier, 

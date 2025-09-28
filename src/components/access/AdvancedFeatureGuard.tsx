@@ -1,14 +1,15 @@
-import React from 'react';
+
+import { ReactNode } from 'react';
 import CrossSystemGuard from './CrossSystemGuard';
 import type { CrossSystemRequirement } from './CrossSystemGuard';
 
 interface AdvancedFeatureGuardProps {
   feature: 'advanced_analytics' | 'photo_sharing' | 'playlist_sharing' | 'unlimited_posts' | 'moderator_tools' | 'exercise_mastery';
-  children: React.ReactNode;
+  children: ReactNode;
   upgradeAction?: () => void;
 }
 
-const AdvancedFeatureGuard: React.FC<AdvancedFeatureGuardProps> = ({ 
+const AdvancedFeatureGuard = ({ 
   feature, 
   children, 
   upgradeAction 

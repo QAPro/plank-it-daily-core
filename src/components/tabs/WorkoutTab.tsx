@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, Sparkles, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -40,7 +40,7 @@ const WorkoutTab = ({ onStartWorkout }: WorkoutTabProps) => {
   const [selectedDetailsExercise, setSelectedDetailsExercise] = useState<Exercise | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [isCompactView, setIsCompactView] = useState(false);
-  const quickStartDurationRef = React.useRef<number | null>(null);
+  const quickStartDurationRef = useRef<number | null>(null);
   const [filters, setFilters] = useState<FilterState>({
     search: '',
     difficulty: [],
@@ -63,7 +63,7 @@ const WorkoutTab = ({ onStartWorkout }: WorkoutTabProps) => {
   const { plans, upgrade } = useSubscription();
 
   // Handle deep link data when available
-  React.useEffect(() => {
+  useEffect(() => {
     if (deepLinkData && exercises && exercises.length > 0) {
       const exercise = exercises.find(e => e.id === deepLinkData.exerciseId);
       if (exercise) {

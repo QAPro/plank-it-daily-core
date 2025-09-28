@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import ExerciseDetailsModal from "@/components/ExerciseDetailsModal";
 import ExerciseFamilyList from "@/components/exercise-families/ExerciseFamilyList";
@@ -21,7 +21,7 @@ const EnhancedWorkoutTab = ({ onStartWorkout, selectedWorkout }: EnhancedWorkout
   );
 
   // Update selected exercise when selectedWorkout prop changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (selectedWorkout?.exerciseId) {
       setSelectedExerciseId(selectedWorkout.exerciseId);
     }

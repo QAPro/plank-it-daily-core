@@ -1,6 +1,6 @@
 
-import { logInfo, logError } from '@/utils/productionLogger';
-import React, { useState, useEffect, useCallback } from 'react';
+import { logInfo, logError, logDebug } from '@/utils/productionLogger';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useExercises } from './useExercises';
@@ -61,9 +61,9 @@ export const useEnhancedSessionTracking = () => {
       const cycleId = await autoStartWorkoutCycle(exercise.id);
       setCurrentHookCycleId(cycleId);
       logInfo('Hook cycle started', { cycleId });
-    } catch (error) {
-      console.error('Failed to start hook cycle:', error);
-    }
+      } catch (error) {
+        logError('Failed to start hook cycle', { exerciseId: exercise.id, error: error.message }, error);
+      }
   };
 
   const pauseSession = () => {
@@ -99,7 +99,7 @@ export const useEnhancedSessionTracking = () => {
         .single();
 
       if (streakError) {
-        console.error("Error fetching user streak:", streakError);
+        logError("Error fetching user streak", { error: streakError.message }, streakError);
         return { streak: 0, isNewStreak: false };
       }
 
@@ -144,7 +144,7 @@ export const useEnhancedSessionTracking = () => {
         : await supabase.from('user_streaks').insert(updates);
 
       if (updateError) {
-        console.error("Error updating user streak:", updateError);
+        logError("Error updating user streak", { error: updateError.message }, updateError);
         return { streak: newStreak, isNewStreak };
       }
 
@@ -159,7 +159,7 @@ export const useEnhancedSessionTracking = () => {
 
       return { streak: newStreak, isNewStreak };
     } catch (error) {
-      console.error("Unexpected error updating streak:", error);
+      logError("Unexpected error updating streak", { error: error.message }, error);
       return { streak: 0, isNewStreak: false };
     }
   }, [user, showMilestone]);
@@ -208,25 +208,27 @@ const completeSession = async (duration: number, notes?: string) => {
       .single();
 
     if (sessionError) {
-      console.error('❌ Error creating session:', sessionError);
+      logError('Error creating session', { error: sessionError.message }, sessionError);
       toast.error('Failed to save session');
       return;
     }
 
-    console.log('✅ Session created successfully:', session);
+    logInfo('Session created successfully', { sessionId: session.id });
 
     // Update last workout for quick start (async, don't wait)
     try {
       const { QuickStartService } = await import('@/services/quickStartService');
-      QuickStartService.updateLastWorkout(user.id, selectedExercise.id, duration).catch(console.error);
+      QuickStartService.updateLastWorkout(user.id, selectedExercise.id, duration).catch((error) => {
+        logError('Error updating last workout', { error: error.message }, error);
+      });
     } catch (error) {
-      console.error('Error importing QuickStartService:', error);
+      logError('Error importing QuickStartService', { error: error.message }, error);
     }
 
     // Update user streak and get streak info for XP calculation
-    console.log('📈 Updating streak...');
+    logDebug('Updating streak...');
     const streakResult = await updateStreak();
-    console.log('📈 Streak result:', streakResult);
+    logDebug('Streak result', { streak: streakResult.streak, isNewStreak: streakResult.isNewStreak });
 
     // Award workout XP
     console.log('🎖️ AWARDING WORKOUT XP', {

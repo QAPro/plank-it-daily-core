@@ -8,12 +8,11 @@ import Dashboard from "@/components/Dashboard";
 import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
 import { StreakProvider } from "@/components/StreakProvider";
 import { LevelProgressionProvider } from "@/components/level/LevelProgressionProvider";
-import { motion, AnimatePresence } from "framer-motion";
-// import DevTools from '@/components/DevTools';
+import { AnimatePresence } from "framer-motion";
 
 const Index = () => {
   const [showWelcome, setShowWelcome] = useState(true);
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, error: authError } = useAuth();
   const { isOnboardingComplete, loading: onboardingLoading, markOnboardingComplete } = useOnboarding();
   const navigate = useNavigate();
 
@@ -22,7 +21,8 @@ const Index = () => {
     authLoading, 
     onboardingLoading, 
     isOnboardingComplete,
-    showWelcome 
+    showWelcome,
+    authError
   });
 
   useEffect(() => {
@@ -71,6 +71,16 @@ const Index = () => {
     );
   }
 
+  // Show auth error if there is one
+  if (authError) {
+    console.log('Index: Showing auth error', authError);
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center">
+        <div className="text-red-600 text-lg">Authentication Error: {authError}</div>
+      </div>
+    );
+  }
+
   // If no user, navigation to /auth will happen in useEffect
   if (!user) {
     console.log('Index: No user found, should redirect');
@@ -105,7 +115,6 @@ const Index = () => {
             )}
           </AnimatePresence>
         </div>
-        {/* <DevTools /> */}
       </StreakProvider>
     </LevelProgressionProvider>
   );

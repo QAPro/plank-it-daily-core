@@ -43,6 +43,22 @@ export const useFeatureFlags = () => {
     },
   });
 
+  const updateRolloutMutation = useMutation({
+    mutationFn: async ({ name, percentage }: { name: string; percentage: number }) => {
+      await featureManagementService.updateRolloutPercentage(name, percentage);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["feature-flags"] });
+      toast({ title: "Rollout updated", description: "The rollout percentage was updated successfully." });
+    },
+    meta: {
+      onError: (err: unknown) => {
+        console.error("[useFeatureFlags] rollout update error", err);
+        toast({ title: "Update failed", description: "Could not update the rollout percentage." });
+      },
+    },
+  });
+
   const flags = (data as FeatureFlag[]) || [];
 
   // Helper function to check if a feature is enabled
@@ -83,6 +99,7 @@ export const useFeatureFlags = () => {
     refetch,
     toggle: (name: string, enabled: boolean) => toggleMutation.mutate({ name, enabled }),
     upsert: (flag: Partial<FeatureFlag> & { feature_name: string }) => upsertMutation.mutate(flag),
+    updateRollout: (name: string, percentage: number) => updateRolloutMutation.mutate({ name, percentage }),
     // Hierarchical helpers
     getParentFeatures,
     getChildFeatures,

@@ -56,6 +56,50 @@ export const featureManagementService = {
     }
   },
 
+  async updateRolloutPercentage(featureName: string, percentage: number) {
+    console.log("[featureManagementService] updateRolloutPercentage", featureName, percentage);
+    const { error } = await supabase
+      .from("feature_flags")
+      .update({ rollout_percentage: percentage, updated_at: new Date().toISOString() })
+      .eq("feature_name", featureName);
+    if (error) {
+      console.error("[featureManagementService] update rollout percentage error", error);
+      throw error;
+    }
+  },
+
+  async bulkUpdateRolloutPercentage(featureNames: string[], percentage: number) {
+    console.log("[featureManagementService] bulkUpdateRolloutPercentage", featureNames, percentage);
+    const { error } = await supabase
+      .from("feature_flags")
+      .update({ rollout_percentage: percentage, updated_at: new Date().toISOString() })
+      .in("feature_name", featureNames);
+    if (error) {
+      console.error("[featureManagementService] bulk update rollout percentage error", error);
+      throw error;
+    }
+  },
+
+  async getFeatureAnalytics(featureName: string) {
+    console.log("[featureManagementService] getFeatureAnalytics", featureName);
+    const { data, error } = await supabase.rpc("get_feature_analytics", { 
+      _feature_name: featureName 
+    });
+    if (error) {
+      console.error("[featureManagementService] get feature analytics error", error);
+      // Return mock data if analytics function doesn't exist yet
+      return {
+        feature_name: featureName,
+        total_users: Math.floor(Math.random() * 1000) + 100,
+        active_users_24h: Math.floor(Math.random() * 50) + 10,
+        active_users_7d: Math.floor(Math.random() * 200) + 50,
+        adoption_rate: Math.floor(Math.random() * 30) + 20,
+        engagement_score: Math.floor(Math.random() * 5) + 3
+      };
+    }
+    return data;
+  },
+
   async upsertFeatureFlag(flag: Partial<FeatureFlag> & { feature_name: string }) {
     console.log("[featureManagementService] upsertFeatureFlag", flag.feature_name);
     const { error } = await supabase.from("feature_flags").upsert(

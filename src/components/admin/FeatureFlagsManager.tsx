@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -16,6 +17,9 @@ import { RefreshCw, Plus, Users, Target, Zap, Search, Filter, ChevronDown, Chevr
 import { toast } from "sonner";
 import { GRANULAR_FEATURE_CATEGORIES, getGranularFeaturesByCategory, getGranularFeatureByName, getAllGranularFeatureNames } from "@/constants/granularFeatureCatalog";
 import type { FeatureFlag } from "@/services/featureManagementService";
+import AdvancedFlagControls, { AdvancedFlagState } from "./flags/AdvancedFlagControls";
+import RolloutPercentageControl from "./flags/RolloutPercentageControl";
+import BulkRolloutControl from "./flags/BulkRolloutControl";
 
 // Enhanced data structures for hierarchical flags
 type FeatureFlagWithChildren = FeatureFlag & {
@@ -51,6 +55,7 @@ const FeatureFlagsManager: React.FC = () => {
   const [selectedFeature, setSelectedFeature] = useState<string>("");
   const [bulkAction, setBulkAction] = useState<'enable' | 'disable'>('enable');
   const [selectedFlags, setSelectedFlags] = useState<Set<string>>(new Set());
+  const [showBulkRollout, setShowBulkRollout] = useState(false);
   const [expandAll, setExpandAll] = useState(false);
 
   // Enhanced new flag form state
@@ -413,11 +418,26 @@ const FeatureFlagsManager: React.FC = () => {
                   </Select>
                 </div>
                 <div className="flex justify-end gap-2">
+                  <Label>Action</Label>
+                  <Select value={bulkAction} onValueChange={(value: 'enable' | 'disable') => setBulkAction(value)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="enable">Enable All</SelectItem>
+                      <SelectItem value="disable">Disable All</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex justify-end gap-2">
                   <Button variant="outline" onClick={() => setShowBulkDialog(false)}>
                     Cancel
                   </Button>
                   <Button onClick={handleBulkAction}>
                     Apply to {selectedFlags.size} flags
+                  </Button>
+                  <Button variant="outline" onClick={() => { setShowBulkDialog(false); setShowBulkRollout(true); }}>
+                    Set Rollout %
                   </Button>
                 </div>
               </div>
@@ -470,16 +490,35 @@ const FeatureFlagsManager: React.FC = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div>
+                  <div className="space-y-3">
                     <Label htmlFor="rollout_percentage">Rollout Percentage</Label>
-                    <Input
-                      id="rollout_percentage"
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={newFlag.rollout_percentage}
-                      onChange={(e) => setNewFlag({ ...newFlag, rollout_percentage: parseInt(e.target.value) || 0 })}
-                    />
+                    <div className="space-y-2">
+                      <Slider
+                        value={[newFlag.rollout_percentage]}
+                        onValueChange={(values) => setNewFlag({ ...newFlag, rollout_percentage: values[0] })}
+                        min={0}
+                        max={100}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex gap-1 justify-center">
+                        {[0, 25, 50, 75, 100].map((value) => (
+                          <Button
+                            key={value}
+                            size="sm"
+                            variant={newFlag.rollout_percentage === value ? "default" : "outline"}
+                            onClick={() => setNewFlag({ ...newFlag, rollout_percentage: value })}
+                            className="text-xs px-2"
+                            type="button"
+                          >
+                            {value}%
+                          </Button>
+                        ))}
+                      </div>
+                      <p className="text-sm text-center text-muted-foreground">
+                        {newFlag.rollout_percentage}% of users will see this feature
+                      </p>
+                    </div>
                   </div>
                 </div>
                 <div>
@@ -621,7 +660,15 @@ const FeatureFlagsManager: React.FC = () => {
                         <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
                           <span>{parentFlag.componentCount} components</span>
                           <span>{parentFlag.usageCount} users</span>
-                          <span>{parentFlag.rollout_percentage}% rollout</span>
+                        </div>
+                        <div className="mt-3">
+                          <RolloutPercentageControl
+                            featureName={parentFlag.feature_name}
+                            currentPercentage={parentFlag.rollout_percentage || 100}
+                            isEnabled={parentFlag.is_enabled}
+                            onUpdate={refetch}
+                            userCount={parentFlag.usageCount || 0}
+                          />
                         </div>
                       </div>
                     </div>
@@ -754,6 +801,17 @@ const FeatureFlagsManager: React.FC = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <BulkRolloutControl
+        isOpen={showBulkRollout}
+        onClose={() => setShowBulkRollout(false)}
+        selectedFeatures={Array.from(selectedFlags)}
+        onSuccess={() => {
+          refetch();
+          setSelectedFlags(new Set());
+          setShowBulkRollout(false);
+        }}
+      />
     </div>
   );
 };

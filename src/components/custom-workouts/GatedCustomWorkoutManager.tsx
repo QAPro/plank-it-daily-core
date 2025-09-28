@@ -1,5 +1,4 @@
 
-import React from 'react';
 import { useFeatureAccess } from '@/hooks/useFeatureAccess';
 import { useCustomWorkouts } from '@/hooks/useCustomWorkouts';
 import EnhancedFeatureGuard from '@/components/access/EnhancedFeatureGuard';
@@ -9,7 +8,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 
 const FREE_WORKOUT_LIMIT = 3;
 
-const GatedCustomWorkoutManager: React.FC = () => {
+const GatedCustomWorkoutManager = () => {
   const { hasAccess, tier } = useFeatureAccess();
   const { listQuery } = useCustomWorkouts();
   const { upgrade, plans } = useSubscription();

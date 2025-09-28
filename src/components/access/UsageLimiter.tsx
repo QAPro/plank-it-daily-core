@@ -1,5 +1,4 @@
 
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -16,7 +15,7 @@ type UsageLimiterProps = {
   compact?: boolean;
 };
 
-const UsageLimiter: React.FC<UsageLimiterProps> = ({
+const UsageLimiter = ({
   feature,
   current,
   limit,

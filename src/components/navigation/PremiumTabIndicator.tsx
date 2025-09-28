@@ -1,9 +1,9 @@
 
-import React from 'react';
 import { TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Crown, Lock } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
+import { ReactNode } from 'react';
 import { useFeatureAccess } from '@/hooks/useFeatureAccess';
 import type { FeatureName } from '@/constants/featureGating';
 
@@ -12,10 +12,10 @@ type PremiumTabIndicatorProps = {
   icon: LucideIcon;
   label: string;
   tabValue: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
 };
 
-const PremiumTabIndicator: React.FC<PremiumTabIndicatorProps> = ({ 
+const PremiumTabIndicator = ({
   feature,
   icon: Icon, 
   label, 

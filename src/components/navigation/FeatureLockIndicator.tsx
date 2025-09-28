@@ -1,5 +1,4 @@
 
-import React from 'react';
 import { TabsTrigger } from "@/components/ui/tabs";
 import { Lock, AlertCircle } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';

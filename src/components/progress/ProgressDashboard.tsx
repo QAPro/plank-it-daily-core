@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Camera, Music, BookOpen, TrendingUp, Users, Heart, BarChart3 } from 'lucide-react';
@@ -11,7 +10,7 @@ import ProgressMetricsDashboard from './ProgressMetricsDashboard';
 import ProgressTimeline from './ProgressTimeline';
 import { motion } from 'framer-motion';
 
-const ProgressDashboard: React.FC = () => {
+const ProgressDashboard = () => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

@@ -1,5 +1,3 @@
-
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import type { ExerciseDistribution } from '@/utils/analyticsUtils';
@@ -8,7 +6,7 @@ interface ExerciseDistributionChartProps {
   data: ExerciseDistribution[];
 }
 
-const ExerciseDistributionChart: React.FC<ExerciseDistributionChartProps> = ({ data }) => {
+const ExerciseDistributionChart = ({ data }: ExerciseDistributionChartProps) => {
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;

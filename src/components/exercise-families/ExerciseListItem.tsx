@@ -1,4 +1,3 @@
-import React from "react";
 import { motion } from "framer-motion";
 import { Play, Info, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,7 +13,7 @@ interface ExerciseListItemProps {
   isSelected?: boolean;
 }
 
-const ExerciseListItem: React.FC<ExerciseListItemProps> = ({
+const ExerciseListItem = ({
   exercise,
   onStart,
   onViewDetails,

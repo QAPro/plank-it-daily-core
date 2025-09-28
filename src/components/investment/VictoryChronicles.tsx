@@ -1,11 +1,10 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, Trophy, Zap, Lightbulb, Star, TrendingUp, Calendar } from 'lucide-react';
 import { useWorkoutVictoryLogs } from '@/hooks/useWorkoutVictoryLogs';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const VictoryChronicles: React.FC = () => {
+const VictoryChronicles = () => {
   const { victoryLogs, loading, getVictoryInsights } = useWorkoutVictoryLogs();
   const insights = getVictoryInsights();
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DollarSign, Clock, Target, TrendingUp } from 'lucide-react';
@@ -9,7 +8,7 @@ interface ValuePropositionCardProps {
   metrics: ProgressMetrics;
 }
 
-const ValuePropositionCard: React.FC<ValuePropositionCardProps> = ({ metrics }) => {
+const ValuePropositionCard = ({ metrics }: ValuePropositionCardProps) => {
   const formatTime = (hours: number): string => {
     if (hours < 1) return `${Math.round(hours * 60)}min`;
     return `${Math.round(hours * 10) / 10}h`;

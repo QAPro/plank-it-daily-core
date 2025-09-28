@@ -1,4 +1,4 @@
-import React from 'react';
+import { ReactNode } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingDown, Users, CreditCard, Target } from 'lucide-react';
@@ -10,7 +10,7 @@ interface FunnelStage {
   users: number;
   conversionRate: number;
   dropoffRate: number;
-  icon: React.ReactNode;
+  icon: ReactNode;
   color: string;
 }
 

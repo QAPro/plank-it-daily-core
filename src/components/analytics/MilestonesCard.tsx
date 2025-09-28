@@ -1,5 +1,3 @@
-
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Award } from 'lucide-react';
@@ -9,7 +7,7 @@ interface MilestonesCardProps {
   milestones: MilestoneProgress[];
 }
 
-const MilestonesCard: React.FC<MilestonesCardProps> = ({ milestones }) => {
+const MilestonesCard = ({ milestones }: MilestonesCardProps) => {
   return (
     <Card>
       <CardHeader>

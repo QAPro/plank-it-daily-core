@@ -1,19 +1,17 @@
-
-import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { adminUserService, SubscriptionTimelineEvent } from "@/services/adminUserService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock, CheckCircle, AlertOctagon, CreditCard } from "lucide-react";
 
-const EventIcon: React.FC<{ type: string }> = ({ type }) => {
+const EventIcon = ({ type }: { type: string }) => {
   if (type === "subscription_created") return <CheckCircle className="w-4 h-4 text-primary" />;
   if (type === "payment_success") return <CreditCard className="w-4 h-4 text-green-600" />;
   if (type === "payment_failed") return <AlertOctagon className="w-4 h-4 text-destructive" />;
   return <Clock className="w-4 h-4 text-muted-foreground" />;
 };
 
-const SubscriptionTimeline: React.FC<{ userId: string }> = ({ userId }) => {
+const SubscriptionTimeline = ({ userId }: { userId: string }) => {
   const { data = [], isLoading } = useQuery({
     queryKey: ["admin-user-subscription-timeline", userId],
     queryFn: () => adminUserService.getUserSubscriptionTimeline(userId),

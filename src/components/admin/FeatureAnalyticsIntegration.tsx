@@ -1,4 +1,3 @@
-import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +14,7 @@ interface FeatureAnalyticsIntegrationProps {
  * Embedded analytics component that can be used within the feature flags manager
  * to show real-time analytics for each feature flag
  */
-export const FeatureAnalyticsIntegration: React.FC<FeatureAnalyticsIntegrationProps> = ({
+export const FeatureAnalyticsIntegration = ({
   featureName,
   onViewDetails
 }) => {

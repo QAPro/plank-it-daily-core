@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +9,7 @@ interface HealthImpactVisualizationProps {
   metrics: ProgressMetrics;
 }
 
-const HealthImpactVisualization: React.FC<HealthImpactVisualizationProps> = ({ metrics }) => {
+const HealthImpactVisualization = ({ metrics }: HealthImpactVisualizationProps) => {
   const healthBenefits = [
     {
       icon: Heart,

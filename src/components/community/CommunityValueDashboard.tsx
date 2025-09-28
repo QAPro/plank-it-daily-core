@@ -1,11 +1,10 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Users, Heart, MessageCircle, Award, Sparkles, HandHeart, Star, Target } from 'lucide-react';
 
-const CommunityValueDashboard: React.FC = () => {
+const CommunityValueDashboard = () => {
   // Mock data for community connections and contributions
   const communityStats = {
     connectionsCount: 12,

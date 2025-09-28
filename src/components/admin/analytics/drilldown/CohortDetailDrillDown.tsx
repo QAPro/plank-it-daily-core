@@ -1,5 +1,3 @@
-
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Users, TrendingUp, Activity } from 'lucide-react';
@@ -9,7 +7,7 @@ interface CohortDetailDrillDownProps {
   metadata?: Record<string, any>;
 }
 
-const CohortDetailDrillDown: React.FC<CohortDetailDrillDownProps> = ({ cohortId, metadata }) => {
+const CohortDetailDrillDown = ({ cohortId, metadata }: CohortDetailDrillDownProps) => {
   return (
     <Card>
       <CardHeader>

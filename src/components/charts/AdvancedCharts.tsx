@@ -1,5 +1,3 @@
-
-import React from 'react';
 import {
   LineChart,
   Line,
@@ -24,7 +22,7 @@ interface ChartProps {
   height?: number;
 }
 
-export const ProgressTrendChart: React.FC<ChartProps> = ({ title, data, height = 300 }) => {
+export const ProgressTrendChart = ({ title, data, height = 300 }: ChartProps) => {
   return (
     <Card>
       <CardHeader>
@@ -64,7 +62,7 @@ export const ProgressTrendChart: React.FC<ChartProps> = ({ title, data, height =
   );
 };
 
-export const ExerciseVarietyChart: React.FC<ChartProps> = ({ title, data, height = 300 }) => {
+export const ExerciseVarietyChart = ({ title, data, height = 300 }: ChartProps) => {
   return (
     <Card>
       <CardHeader>
@@ -99,7 +97,7 @@ export const ExerciseVarietyChart: React.FC<ChartProps> = ({ title, data, height
   );
 };
 
-export const ConsistencyHeatmap: React.FC<ChartProps> = ({ title, data, height = 200 }) => {
+export const ConsistencyHeatmap = ({ title, data, height = 200 }: ChartProps) => {
   const getIntensityColor = (intensity: number) => {
     if (intensity === 0) return '#f3f4f6';
     if (intensity === 1) return '#fed7aa';
@@ -144,11 +142,13 @@ export const ConsistencyHeatmap: React.FC<ChartProps> = ({ title, data, height =
   );
 };
 
-export const PerformanceRadarChart: React.FC<{
+export const PerformanceRadarChart = ({
+  title, data, height = 300
+}: {
   title: string;
   data: Array<{ metric: string; value: number; fullMark: number }>;
   height?: number;
-}> = ({ title, data, height = 300 }) => {
+}) => {
   return (
     <Card>
       <CardHeader>

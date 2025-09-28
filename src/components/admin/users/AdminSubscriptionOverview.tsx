@@ -1,5 +1,3 @@
-
-import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { adminUserService } from "@/services/adminUserService";
@@ -17,7 +15,7 @@ const StatCard = ({ title, value, hint }: { title: string; value: number; hint?:
   </Card>
 );
 
-const AdminSubscriptionOverview: React.FC = () => {
+const AdminSubscriptionOverview = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "subscription-overview"],
     queryFn: () => adminUserService.getSubscriptionSummary(),

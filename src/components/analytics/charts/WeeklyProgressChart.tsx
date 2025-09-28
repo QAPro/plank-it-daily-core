@@ -1,5 +1,3 @@
-
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { Target } from 'lucide-react';
@@ -10,7 +8,7 @@ interface WeeklyProgressChartProps {
   goal?: number;
 }
 
-const WeeklyProgressChart: React.FC<WeeklyProgressChartProps> = ({ data, goal = 1 }) => {
+const WeeklyProgressChart = ({ data, goal = 1 }: WeeklyProgressChartProps) => {
   const completedDays = data.filter(d => d.completed).length;
   const completionRate = Math.round((completedDays / data.length) * 100);
   

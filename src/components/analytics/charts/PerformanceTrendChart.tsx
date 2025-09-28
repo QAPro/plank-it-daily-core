@@ -1,5 +1,3 @@
-
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { TrendingUp, TrendingDown } from 'lucide-react';
@@ -11,7 +9,7 @@ interface PerformanceTrendChartProps {
   title?: string;
 }
 
-const PerformanceTrendChart: React.FC<PerformanceTrendChartProps> = ({ 
+const PerformanceTrendChart = ({ 
   data, 
   title = "Performance Trend" 
 }) => {

@@ -1,18 +1,16 @@
-
-import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { adminUserService, UserEngagementMetrics } from "@/services/adminUserService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-const Stat: React.FC<{ label: string; value: string | number }> = ({ label, value }) => (
+const Stat = ({ label, value }: { label: string; value: string | number }) => (
   <div className="rounded border p-3">
     <div className="text-xs text-muted-foreground">{label}</div>
     <div className="font-medium">{value}</div>
   </div>
 );
 
-const UserEngagementCard: React.FC<{ userId: string }> = ({ userId }) => {
+const UserEngagementCard = ({ userId }: { userId: string }) => {
   const { data, isLoading } = useQuery({
     queryKey: ["admin-user-engagement", userId],
     queryFn: () => adminUserService.getUserEngagementMetrics(userId),

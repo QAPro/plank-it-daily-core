@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -221,7 +220,7 @@ const SmartRecommendationsPanel = () => {
 };
 
 // Wrap the component with AIFeatureGuard
-const GuardedSmartRecommendationsPanel: React.FC = () => {
+const GuardedSmartRecommendationsPanel = () => {
   return (
     <AIFeatureGuard>
       <SmartRecommendationsPanel />

@@ -1,4 +1,4 @@
-import React from 'react';
+import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Minus, Target, Zap, Clock } from 'lucide-react';
@@ -27,7 +27,7 @@ interface ProgressionVisualizationChartsProps {
   days?: number;
 }
 
-const ProgressionVisualizationCharts: React.FC<ProgressionVisualizationChartsProps> = ({ 
+const ProgressionVisualizationCharts = ({ 
   days = 90 
 }) => {
   const { user } = useAuth();
@@ -77,7 +77,7 @@ const ProgressionVisualizationCharts: React.FC<ProgressionVisualizationChartsPro
   const performanceChange = ((recentAvg - olderAvg) / olderAvg) * 100 || 0;
 
   // Weekly aggregation for consistency tracking
-  const weeklyData = React.useMemo(() => {
+  const weeklyData = useMemo(() => {
     const weeks = new Map<string, { duration: number; sessions: number; week: string }>();
     
     sessions.forEach(session => {
@@ -105,7 +105,7 @@ const ProgressionVisualizationCharts: React.FC<ProgressionVisualizationChartsPro
   }, [sessions]);
 
   // Progress velocity calculation
-  const progressVelocity = React.useMemo(() => {
+  const progressVelocity = useMemo(() => {
     if (trendData.length < 7) return 0;
     
     const recent7 = trendData.slice(-7);

@@ -1,4 +1,4 @@
-import React from 'react';
+import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -10,7 +10,7 @@ interface ImprovementCalculatorProps {
   metrics: ProgressMetrics;
 }
 
-const ImprovementCalculator: React.FC<ImprovementCalculatorProps> = ({ metrics }) => {
+const ImprovementCalculator = ({ metrics }: ImprovementCalculatorProps) => {
   const getImprovementLevel = (percentage: number): { level: string; color: string; description: string } => {
     if (percentage >= 200) return { level: 'Legendary', color: 'text-purple-600', description: 'Extraordinary transformation' };
     if (percentage >= 100) return { level: 'Exceptional', color: 'text-orange-600', description: 'Outstanding progress' };
@@ -37,7 +37,7 @@ const ImprovementCalculator: React.FC<ImprovementCalculatorProps> = ({ metrics }
   };
 
   // Stabilize message selection to prevent render inconsistencies
-  const selectedMessages = React.useMemo(() => {
+  const selectedMessages = useMemo(() => {
     const messageIndex = Math.abs(metrics.improvementPercentage + metrics.strengthGainPercentage) % 3;
     return {
       improvement: motivationalMessages.improvement[messageIndex],

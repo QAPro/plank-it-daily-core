@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -10,7 +9,7 @@ interface HabitFormationTrackerProps {
   milestones: HabitMilestone[];
 }
 
-const HabitFormationTracker: React.FC<HabitFormationTrackerProps> = ({ milestones }) => {
+const HabitFormationTracker = ({ milestones }: HabitFormationTrackerProps) => {
   const getMilestoneIcon = (type: string, isAchieved: boolean) => {
     const iconClass = isAchieved ? 'text-green-600' : 'text-gray-400';
     

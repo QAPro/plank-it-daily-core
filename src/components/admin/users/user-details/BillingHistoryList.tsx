@@ -1,5 +1,3 @@
-
-import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { adminUserService, BillingHistoryItem } from "@/services/adminUserService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/utils/price";
 import { Receipt } from "lucide-react";
 
-const BillingHistoryList: React.FC<{ userId: string }> = ({ userId }) => {
+const BillingHistoryList = ({ userId }: { userId: string }) => {
   const { data = [], isLoading } = useQuery({
     queryKey: ["admin-user-billing-history", userId],
     queryFn: () => adminUserService.getUserBillingHistory(userId),

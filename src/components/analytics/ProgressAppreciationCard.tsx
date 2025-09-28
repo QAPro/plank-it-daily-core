@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -19,7 +18,7 @@ interface ProgressAppreciationCardProps {
   recentStreak: number;
 }
 
-const ProgressAppreciationCard: React.FC<ProgressAppreciationCardProps> = ({
+const ProgressAppreciationCard = ({
   highlights,
   totalSessions,
   recentStreak

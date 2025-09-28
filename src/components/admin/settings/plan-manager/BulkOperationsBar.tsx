@@ -1,5 +1,4 @@
-
-import React from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -35,7 +34,7 @@ interface BulkOperationsBarProps {
   isLoading: boolean;
 }
 
-export const BulkOperationsBar: React.FC<BulkOperationsBarProps> = ({
+export const BulkOperationsBar = ({
   selectedCount,
   onClearSelection,
   onBulkActivate,
@@ -47,7 +46,7 @@ export const BulkOperationsBar: React.FC<BulkOperationsBarProps> = ({
   onBulkSetPopular,
   isLoading
 }) => {
-  const [bulkAction, setBulkAction] = React.useState<string>("");
+  const [bulkAction, setBulkAction] = useState<string>("");
 
   const handleBulkAction = async () => {
     if (!bulkAction) return;

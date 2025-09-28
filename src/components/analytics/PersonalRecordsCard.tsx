@@ -1,5 +1,3 @@
-
-import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Trophy, Clock, Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +8,7 @@ interface PersonalRecordsCardProps {
   records: PersonalRecord[];
 }
 
-const PersonalRecordsCard: React.FC<PersonalRecordsCardProps> = ({ records }) => {
+const PersonalRecordsCard = ({ records }: PersonalRecordsCardProps) => {
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;

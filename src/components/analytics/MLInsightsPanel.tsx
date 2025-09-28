@@ -1,5 +1,3 @@
-
-import React from "react";
 import { useMLInsights } from "@/hooks/useMLInsights";
 import { useBenchmarking } from "@/hooks/useBenchmarking";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,7 +26,7 @@ const formatMins = (sec: number) => {
   return `${m}m ${s}s`;
 };
 
-const MLInsightsPanel: React.FC = () => {
+const MLInsightsPanel = () => {
   const { data: insights, isLoading, error } = useMLInsights();
   const { data: bench, isLoading: bLoading } = useBenchmarking();
 
@@ -169,7 +167,7 @@ const MLInsightsPanel: React.FC = () => {
 };
 
 // Wrap the component with AIFeatureGuard
-const GuardedMLInsightsPanel: React.FC = () => {
+const GuardedMLInsightsPanel = () => {
   return (
     <AIFeatureGuard>
       <MLInsightsPanel />

@@ -1,5 +1,3 @@
-
-import React from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +13,7 @@ type Props = {
   userId: string;
 };
 
-const CustomerSupportTools: React.FC<Props> = ({ userId }) => {
+const CustomerSupportTools = ({ userId }: Props) => {
   const qc = useQueryClient();
   const { toast } = useToast();
   const { user: currentAdmin } = useAuth();

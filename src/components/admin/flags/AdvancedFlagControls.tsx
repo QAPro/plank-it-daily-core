@@ -1,5 +1,3 @@
-
-import React from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -18,7 +16,7 @@ type Props = {
   onChange: (next: AdvancedFlagState) => void;
 };
 
-const AdvancedFlagControls: React.FC<Props> = ({ value, onChange }) => {
+const AdvancedFlagControls = ({ value, onChange }: Props) => {
   return (
     <div className="space-y-4 pt-2 border-t">
       <div>

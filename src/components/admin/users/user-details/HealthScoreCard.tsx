@@ -1,5 +1,3 @@
-
-import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { adminUserService } from "@/services/adminUserService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +6,7 @@ import { AlertTriangle, ThumbsUp } from "lucide-react";
 
 type Health = { health_score: number; risk_factors: any; recommendations: any };
 
-const HealthScoreCard: React.FC<{ userId: string }> = ({ userId }) => {
+const HealthScoreCard = ({ userId }: { userId: string }) => {
   const { data, isLoading } = useQuery({
     queryKey: ["admin-user-health", userId],
     queryFn: () => adminUserService.getUserSubscriptionHealth(userId),

@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Award, Calendar, Clock, Users, Zap, AlertTriangle, Crown, Sparkles } from 'lucide-react';
 import { useSeasonalCertifications } from '@/hooks/useProgressCelebration';
 
-const SeasonalRewards: React.FC = () => {
+const SeasonalRewards = () => {
   const { data: certifications, isLoading } = useSeasonalCertifications();
 
   if (isLoading) {

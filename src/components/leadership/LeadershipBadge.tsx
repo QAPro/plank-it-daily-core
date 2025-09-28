@@ -1,4 +1,3 @@
-import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Crown, Shield, Star } from 'lucide-react';
 import { useLeadershipRoles, LeadershipRole } from '@/hooks/useLeadershipRoles';
@@ -9,7 +8,7 @@ interface LeadershipBadgeProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-const LeadershipBadge: React.FC<LeadershipBadgeProps> = ({ 
+const LeadershipBadge = ({ 
   showPerks = false, 
   size = 'md' 
 }) => {

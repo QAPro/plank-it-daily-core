@@ -1,4 +1,5 @@
 
+import { logInfo, logError } from '@/utils/productionLogger';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';

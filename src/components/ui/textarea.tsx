@@ -1,4 +1,4 @@
-import { forwardRef, TextareaHTMLAttributes } from "react"
+import React, { forwardRef, TextareaHTMLAttributes } from "react"
 
 import { cn } from "@/lib/utils"
 

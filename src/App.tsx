@@ -1,4 +1,5 @@
 
+import { ProductionDiagnostics } from "@/components/ProductionDiagnostics";
 import { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -63,6 +64,7 @@ function App() {
             </Routes>
             <Toaster />
             <SonnerToaster />
+            <ProductionDiagnostics />
           </Router>
         </AuthProvider>
     </ErrorBoundary>

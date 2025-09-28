@@ -6,7 +6,9 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle, XCircle, AlertTriangle, Loader2, Shield, Database, Globe, Zap } from 'lucide-react';
-import { ValidationService, ValidationResult } from '@/services/validationService';
+import { PreLaunchValidationService } from '@/services/prelaunchValidation';
+import { ValidationResult } from '@/services/validationService';
+import { runProductionReadinessCheck } from '@/utils/productionDeployment';
 import { ServiceWorkerDebugPanel } from '@/components/debug/ServiceWorkerDebugPanel';
 import { ProductionLogViewer } from '@/components/debug/ProductionLogViewer';
 
@@ -15,22 +17,31 @@ export const ProductionReadinessCheck = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [showReport, setShowReport] = useState(false);
 
-  const validationService = new ValidationService();
+  const validationService = new PreLaunchValidationService();
 
   const runValidation = async () => {
     setIsRunning(true);
     setValidationResults([]);
     
     try {
-      const results = await validationService.runPreLaunchValidation();
+      console.log('🚀 Running comprehensive production readiness check...');
+      const results = await validationService.runProductionReadinessCheck();
       setValidationResults(results);
       setShowReport(true);
+      
+      // Also run our deployment check utility
+      await runProductionReadinessCheck();
     } catch (error) {
       console.error('Validation failed:', error);
     } finally {
       setIsRunning(false);
     }
   };
+
+  // Auto-run validation on component mount
+  useEffect(() => {
+    runValidation();
+  }, []);
 
   const getStatusIcon = (status: string) => {
     switch (status) {

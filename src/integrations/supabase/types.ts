@@ -2051,6 +2051,45 @@ export type Database = {
         }
         Relationships: []
       }
+      rollout_schedules: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          created_by: string
+          current_step: number
+          feature_name: string
+          id: string
+          schedule_data: Json
+          schedule_name: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          created_by: string
+          current_step?: number
+          feature_name: string
+          id?: string
+          schedule_data?: Json
+          schedule_name: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string
+          current_step?: number
+          feature_name?: string
+          id?: string
+          schedule_data?: Json
+          schedule_name?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       seasonal_certifications: {
         Row: {
           certification_name: string
@@ -4572,6 +4611,10 @@ export type Database = {
         Args: { _cohort_rules: Json; _user_id: string }
         Returns: boolean
       }
+      execute_rollout_step: {
+        Args: { _schedule_id: string; _step_index: number }
+        Returns: boolean
+      }
       find_user_by_username_or_email: {
         Args: { identifier: string }
         Returns: {
@@ -4757,6 +4800,15 @@ export type Database = {
           drop_off_rate: number
           step_name: string
           total_users: number
+        }[]
+      }
+      get_pending_rollout_executions: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          feature_name: string
+          schedule_id: string
+          step_index: number
+          target_percentage: number
         }[]
       }
       get_secure_billing_history: {

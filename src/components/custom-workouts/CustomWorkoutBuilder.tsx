@@ -1,5 +1,5 @@
 
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { Tables } from '@/integrations/supabase/types';
 import { useExercises } from '@/hooks/useExercises';
 import { Button } from '@/components/ui/button';

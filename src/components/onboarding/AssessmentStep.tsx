@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronLeft, Play, Pause, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -18,7 +18,7 @@ const AssessmentStep = ({ data, onUpdate, onNext, onBack }: AssessmentStepProps)
   const [difficulty, setDifficulty] = useState<number>(3);
   const [hasCompleted, setHasCompleted] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isActive) {
       interval = setInterval(() => {

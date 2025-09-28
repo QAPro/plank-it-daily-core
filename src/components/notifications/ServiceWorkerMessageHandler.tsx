@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { useSecureServiceWorker } from '@/hooks/useSecureServiceWorker';
+import { logger } from '@/utils/productionLogger';
 
 export const ServiceWorkerMessageHandler = () => {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ export const ServiceWorkerMessageHandler = () => {
     // Handle messages from service worker (sanitized)
     const handleMessage = async (event: MessageEvent) => {
       try {
-        console.log('[App] Received message from service worker:', event.data);
+        logger.debug('[App] Received message from service worker', { data: event.data });
         if (!event || !event.data || typeof event.data !== 'object') return;
 
         // Only accept messages from our active service worker controller
@@ -53,7 +54,7 @@ export const ServiceWorkerMessageHandler = () => {
           }
 
           case 'SHARE_ACHIEVEMENT': {
-            console.log('[App] Share achievement triggered:', data);
+            logger.debug('[App] Share achievement triggered', { data });
             if (data?.achievement) {
               toast({
                 title: '🎉 Share Your Achievement!',
@@ -95,10 +96,10 @@ export const ServiceWorkerMessageHandler = () => {
           }
 
           default:
-            console.log('[App] Unknown message type:', type);
+            logger.debug('[App] Unknown message type', { type });
         }
       } catch (err) {
-        console.warn('[App] Error handling SW message', err);
+        logger.warn('[App] Error handling SW message', { error: err });
       }
     };
 

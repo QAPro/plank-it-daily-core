@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, Loader2, Mail } from 'lucide-react';
+import { logger } from '@/utils/productionLogger';
 
 const EmailVerificationHandler = () => {
   const [searchParams] = useSearchParams();
@@ -20,7 +21,7 @@ const EmailVerificationHandler = () => {
       const tokenHash = searchParams.get('token_hash');
       const type = searchParams.get('type');
       
-      console.log('Email verification params:', { token, tokenHash, type, url: window.location.href });
+      logger.debug('Email verification params', { token, tokenHash, type, url: window.location.href });
       
       // Check if we have either token or token_hash
       const verificationToken = tokenHash || token;
@@ -40,7 +41,7 @@ const EmailVerificationHandler = () => {
       try {
         // Handle the verification based on type
         if (type === 'signup' || type === 'email_change') {
-          console.log('Attempting verification with:', { type, tokenType: tokenHash ? 'token_hash' : 'token' });
+          logger.debug('Attempting verification', { type, tokenType: tokenHash ? 'token_hash' : 'token' });
           
           const { data, error } = await supabase.auth.verifyOtp({
             token_hash: verificationToken,
@@ -76,10 +77,10 @@ const EmailVerificationHandler = () => {
             return;
           }
 
-          console.log('Verification response:', { data, error });
+          logger.debug('Verification response', { data, error });
 
           if (data.user) {
-            console.log('Email verification successful for user:', data.user.email);
+            logger.info('Email verification successful', { userEmail: data.user.email });
             setStatus('success');
             
             if (type === 'signup') {
@@ -105,7 +106,7 @@ const EmailVerificationHandler = () => {
             setTimeout(async () => {
               try {
                 const { data: refreshedSession } = await supabase.auth.getSession();
-                console.log('Refreshed session after verification:', refreshedSession.session?.user?.email);
+                logger.debug('Refreshed session after verification', { userEmail: refreshedSession.session?.user?.email });
                 
                 // Redirect to main app after verification and session refresh
                 navigate('/', { replace: true });

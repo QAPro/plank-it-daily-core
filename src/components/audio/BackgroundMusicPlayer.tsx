@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Play, Pause, Volume2, VolumeX, SkipForward, SkipBack } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
 import FlagGuard from '@/components/access/FlagGuard';
 import { cn } from '@/lib/utils';
+import { logger } from '@/utils/productionLogger';
 
 interface Playlist {
   id: string;
@@ -96,7 +97,7 @@ export const BackgroundMusicPlayer: React.FC<BackgroundMusicPlayerProps> = ({
         await audioRef.current.play();
         setIsPlaying(true);
       } catch (error) {
-        console.error('Error playing audio:', error);
+        logger.error('Error playing audio', { error });
       }
     }
   };

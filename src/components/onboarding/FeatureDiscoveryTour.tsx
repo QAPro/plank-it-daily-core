@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, Star, BarChart3, Users, Zap, Crown, Check } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';

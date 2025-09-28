@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useExerciseFamilies } from "@/hooks/useExerciseFamilies";
@@ -26,7 +26,7 @@ const ExerciseFamilyList: React.FC<ExerciseFamilyListProps> = ({
   const [expandedFamilies, setExpandedFamilies] = useState<Set<string>>(new Set());
 
   // Auto-expand families that contain the selected exercise
-  React.useEffect(() => {
+  useEffect(() => {
     if (selectedExerciseId && exercisesByFamily && families) {
       const newExpanded = new Set(expandedFamilies);
       let found = false;

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { User, Edit, Mail, Calendar, Check, X, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";

@@ -1,5 +1,6 @@
-import React from 'react';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { 
@@ -35,7 +36,7 @@ const HolisticProgressCard: React.FC<HolisticProgressCardProps> = ({
   reflection,
   onReflectionSubmit
 }) => {
-  const [reflectionText, setReflectionText] = React.useState('');
+  const [reflectionText, setReflectionText] = useState('');
 
   const handleReflectionSubmit = () => {
     if (reflectionText.trim() && onReflectionSubmit) {

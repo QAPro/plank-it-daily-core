@@ -1,9 +1,10 @@
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { logger } from '@/utils/productionLogger';
 
 type AvatarOption = {
   id: string;
@@ -26,7 +27,7 @@ const AvatarSelector = ({ selectedUrl, onSelect, className }: AvatarSelectorProp
   useEffect(() => {
     let mounted = true;
     const fetchOptions = async () => {
-      console.log("Fetching avatar options...");
+      logger.debug("Fetching avatar options...");
       const { data, error } = await supabase
         .from("avatar_options")
         .select("*")
@@ -35,7 +36,7 @@ const AvatarSelector = ({ selectedUrl, onSelect, className }: AvatarSelectorProp
       if (!mounted) return;
 
       if (error) {
-        console.error("Failed to load avatar options", error);
+        logger.error("Failed to load avatar options", { error });
         setOptions([]);
       } else {
         setOptions(data || []);

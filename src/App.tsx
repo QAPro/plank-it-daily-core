@@ -21,10 +21,11 @@ import { InstallPrompt } from "@/components/notifications/InstallPrompt";
 import { DevToolsNotifications } from "@/components/DevToolsNotifications";
 import ServiceWorkerMessageHandler from "@/components/notifications/ServiceWorkerMessageHandler";
 import { Settings } from "lucide-react";
+import { logger } from '@/utils/productionLogger';
 
 function App() {
   const [showDevTools, setShowDevTools] = useState(false);
-  console.log('App: Rendering with authentication provider');
+  logger.debug('App: Rendering with authentication provider');
   
   return (
     <ErrorBoundary>

@@ -1,5 +1,5 @@
 
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useExercisePerformance } from '@/hooks/useExercisePerformance';
 import { useExtendedSessionHistory } from '@/hooks/useExtendedSessionHistory';
@@ -11,6 +11,7 @@ import {
   generateTrendData, 
   findPersonalRecords
 } from '@/utils/analyticsUtils';
+import { logger } from '@/utils/productionLogger';
 
 // Minimal metadata needed for display
 type ExerciseMeta = {
@@ -37,7 +38,7 @@ const CondensedPerformanceDashboard: React.FC = () => {
         .select('id,name,difficulty_level');
 
       if (error) {
-        console.error('Error loading exercises:', error);
+        logger.error('Error loading exercises', { error });
         if (isMounted) setExerciseMap({});
       } else if (isMounted) {
         const map: Record<string, ExerciseMeta> = {};

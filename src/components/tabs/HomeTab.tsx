@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from "framer-motion";
 import { Calendar, Trophy, Users, TrendingUp, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,6 +19,7 @@ import XPMultiplierNotification from "@/components/xp/XPMultiplierNotification";
 import { useLevelProgression } from "@/hooks/useLevelProgression";
 import { useRewardTiming } from "@/hooks/useRewardTiming";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
+import { logger } from '@/utils/productionLogger';
 
 interface HomeTabProps {
   onExerciseSelect?: (exerciseId: string) => void;
@@ -50,7 +51,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
       const audio = new Audio('/notification.mp3');
       audio.play().catch(() => {
         // Fallback if audio fails
-        console.log('Timer completed!');
+        logger.debug('Timer completed!');
       });
     }
   });
@@ -182,16 +183,16 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
   };
 
   // Handle external workout selection from WorkoutTab (priority over preferences)
-  React.useEffect(() => {
+  useEffect(() => {
     if (selectedWorkout) {
-      console.log('HomeTab: External workout selected:', selectedWorkout);
+      logger.debug('HomeTab: External workout selected', { selectedWorkout });
       prepareWorkout(selectedWorkout.exerciseId, selectedWorkout.duration);
       // Don't call onWorkoutStarted here - only call it when user actually starts the workout
     }
   }, [selectedWorkout, onWorkoutStarted]);
 
   // Initialize from user preferences when component loads (priority: selectedWorkout > existing state > preferences)
-  React.useEffect(() => {
+  useEffect(() => {
     // If we have an external workout selection, prioritize that and skip preferences
     if (selectedWorkout) {
       return;
@@ -199,7 +200,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
 
     // Initialize from preferences if they're loaded and we haven't set values yet
     if (!preferencesLoading && preferences) {
-      console.log('HomeTab: Initializing from preferences:', {
+      logger.debug('HomeTab: Initializing from preferences', {
         last_exercise_id: preferences.last_exercise_id,
         last_duration: preferences.last_duration
       });

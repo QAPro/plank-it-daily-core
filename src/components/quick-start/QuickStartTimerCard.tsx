@@ -1,4 +1,4 @@
-import React from "react";
+
 import { motion } from "framer-motion";
 import { Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,8 @@ import CompactStreakBadge from "./CompactStreakBadge";
 import TrendBadge from "./TrendBadge";
 import WeeklyProgressBadge from "./WeeklyProgressBadge";
 import type { Tables } from "@/integrations/supabase/types";
+import { logger } from '@/utils/productionLogger';
+import { useEffect } from 'react';
 
 type Exercise = Tables<'plank_exercises'>;
 
@@ -66,9 +68,9 @@ const QuickStartTimerCard = ({
   const currentDuration = duration || selectedWorkout?.duration || preferences?.last_duration || 60;
 
   // Force component to recognize selectedWorkout changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (selectedWorkout?.exerciseId) {
-      console.log('Selected workout changed:', selectedWorkout);
+        logger.debug('Selected workout changed', { selectedWorkout });
     }
   }, [selectedWorkout]);
 

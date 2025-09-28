@@ -1,8 +1,8 @@
 
-import React from 'react';
+import { FC } from 'react';
 import { ProductionReadinessCheck } from '@/components/ProductionReadinessCheck';
 
-const ProductionCheck: React.FC = () => {
+const ProductionCheck: FC = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto py-8">

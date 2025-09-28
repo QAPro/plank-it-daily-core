@@ -59,7 +59,7 @@ export const useEnhancedSessionTracking = () => {
     try {
       const cycleId = await autoStartWorkoutCycle(exercise.id);
       setCurrentHookCycleId(cycleId);
-      console.log('Hook cycle started:', cycleId);
+      logInfo('Hook cycle started', { cycleId });
     } catch (error) {
       console.error('Failed to start hook cycle:', error);
     }
@@ -82,7 +82,7 @@ export const useEnhancedSessionTracking = () => {
   };
 
   const clearCompletedSession = () => {
-    console.log('useEnhancedSessionTracking: Clearing completedSession');
+    logInfo('useEnhancedSessionTracking: Clearing completedSession');
     setCompletedSession(null);
   };
 
@@ -164,7 +164,7 @@ export const useEnhancedSessionTracking = () => {
   }, [user, showMilestone]);
 
 const completeSession = async (duration: number, notes?: string) => {
-  console.log('🎯 COMPLETE SESSION CALLED', { 
+  logError('🎯 COMPLETE SESSION CALLED', { 
     userId: user?.id, 
     exerciseId: selectedExercise?.id, 
     duration, 

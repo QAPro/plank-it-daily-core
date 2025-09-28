@@ -13,26 +13,33 @@ export interface GranularFeature {
 }
 
 export const GRANULAR_FEATURE_CATALOG: Record<string, GranularFeature> = {
-  // === CORE FEATURES ===
-  main_dashboard: {
-    name: "Main Dashboard",
-    description: "Primary application dashboard with tab management",
-    category: "core",
-    components: ["Dashboard"],
-    impact: "high"
-  },
+  // === CORE FEATURES (Always Available) ===
   plank_timer: {
     name: "Plank Timer",
-    description: "Core timer functionality for plank exercises",
+    description: "Core timer functionality for plank exercises - always available",
     category: "core", 
     components: ["PlankTimer"],
     impact: "high"
   },
   timer_setup: {
     name: "Timer Setup",
-    description: "Timer configuration and preset selection interface",
+    description: "Timer configuration and preset selection interface - always available",
     category: "core",
     components: ["TimerSetup"],
+    impact: "high"
+  },
+  mobile_navigation: {
+    name: "Mobile Bottom Navigation",
+    description: "Mobile-specific bottom navigation bar - always available",
+    category: "core",
+    components: ["MobileBottomNav"],
+    impact: "high"
+  },
+  desktop_navigation: {
+    name: "Desktop Tab Navigation",
+    description: "Desktop tab navigation system - always available",
+    category: "core", 
+    components: ["TabNavigation"],
     impact: "high"
   },
   session_celebration: {
@@ -51,20 +58,6 @@ export const GRANULAR_FEATURE_CATALOG: Record<string, GranularFeature> = {
   },
 
   // === UI & NAVIGATION ===
-  mobile_navigation: {
-    name: "Mobile Bottom Navigation",
-    description: "Mobile-specific bottom navigation bar",
-    category: "navigation",
-    components: ["MobileBottomNav"],
-    impact: "high"
-  },
-  desktop_navigation: {
-    name: "Desktop Tab Navigation",
-    description: "Desktop tab navigation system",
-    category: "navigation", 
-    components: ["TabNavigation"],
-    impact: "high"
-  },
   exercise_cards: {
     name: "Exercise Cards",
     description: "Basic exercise display cards",

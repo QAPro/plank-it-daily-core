@@ -19,7 +19,7 @@ import { useAdmin } from '@/hooks/useAdmin';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import { handleAuthSignOut } from '@/utils/authCleanup';
 import { useToast } from '@/hooks/use-toast';
-import FlagGuard from '@/components/access/FlagGuard';
+
 
 interface TabNavigationProps {
   activeTab: string;
@@ -90,54 +90,52 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, onTabChange })
   }
 
   return (
-    <FlagGuard featureName="desktop_navigation">
-      <div className="bg-white border-t border-gray-200 px-4 py-2">
-        <div className="flex justify-around items-center max-w-screen-xl mx-auto">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            
-            return (
-              <button
-                key={tab.id}
-                onClick={() => onTabChange(tab.id)}
-                className={`flex flex-col items-center space-y-1 px-2 py-1 rounded-lg transition-colors ${
-                  isActive 
-                    ? 'text-orange-500 bg-orange-50' 
-                    : 'text-gray-500 hover:text-gray-700'
+    <div className="bg-white border-t border-gray-200 px-4 py-2">
+      <div className="flex justify-around items-center max-w-screen-xl mx-auto">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          
+          return (
+            <button
+              key={tab.id}
+              onClick={() => onTabChange(tab.id)}
+              className={`flex flex-col items-center space-y-1 px-2 py-1 rounded-lg transition-colors ${
+                isActive 
+                  ? 'text-orange-500 bg-orange-50' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`p-2 rounded-lg ${
+                  isActive ? 'bg-orange-100' : 'hover:bg-gray-100'
                 }`}
               >
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`p-2 rounded-lg ${
-                    isActive ? 'bg-orange-100' : 'hover:bg-gray-100'
-                  }`}
-                >
-                  <Icon size={20} />
-                </motion.div>
-                <span className="text-xs font-medium">{tab.label}</span>
-              </button>
-            );
-          })}
-          
-          {/* Sign Out Button */}
-          <button
-            onClick={onSignOut}
-            className="flex flex-col items-center space-y-1 px-2 py-1 rounded-lg transition-colors text-red-500 hover:text-red-700 hover:bg-red-50"
+                <Icon size={20} />
+              </motion.div>
+              <span className="text-xs font-medium">{tab.label}</span>
+            </button>
+          );
+        })}
+        
+        {/* Sign Out Button */}
+        <button
+          onClick={onSignOut}
+          className="flex flex-col items-center space-y-1 px-2 py-1 rounded-lg transition-colors text-red-500 hover:text-red-700 hover:bg-red-50"
+        >
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="p-2 rounded-lg hover:bg-red-100"
           >
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="p-2 rounded-lg hover:bg-red-100"
-            >
-              <LogOut size={20} />
-            </motion.div>
-            <span className="text-xs font-medium">Sign Out</span>
-          </button>
-        </div>
+            <LogOut size={20} />
+          </motion.div>
+          <span className="text-xs font-medium">Sign Out</span>
+        </button>
       </div>
-    </FlagGuard>
+    </div>
   );
 };
 

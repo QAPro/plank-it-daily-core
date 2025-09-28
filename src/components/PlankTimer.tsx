@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useEnhancedSessionTracking } from '@/hooks/useEnhancedSessionTracking';
 import CountdownTimer from '@/components/timer/CountdownTimer';
-import FlagGuard from '@/components/access/FlagGuard';
+
 
 interface PlankTimerProps {
   selectedExercise: any;
@@ -79,14 +79,12 @@ const PlankTimer = ({ selectedExercise, onExerciseChange, onBack, quickStartDura
   }
 
   return (
-    <FlagGuard featureName="plank_timer">
-      <CountdownTimer
-        selectedExercise={currentExercise}
-        onBack={handleBack}
-        onExerciseChange={onExerciseChange}
-        quickStartDuration={quickStartDuration}
-      />
-    </FlagGuard>
+    <CountdownTimer
+      selectedExercise={currentExercise}
+      onBack={handleBack}
+      onExerciseChange={onExerciseChange}
+      quickStartDuration={quickStartDuration}
+    />
   );
 };
 

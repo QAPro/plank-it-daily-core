@@ -1,5 +1,5 @@
 
-import React from 'react';
+import { FC } from 'react';
 import { useLeagues } from '@/hooks/useLeagues';
 import { useTournaments } from '@/hooks/useTournaments';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';

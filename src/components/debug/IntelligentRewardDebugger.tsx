@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRewardTiming } from '@/hooks/useRewardTiming';
 import { RewardTimingService } from '@/services/rewardTimingService';
 import { Clock, Zap, Target, Gamepad2, RefreshCw, Play } from 'lucide-react';
+import { logError } from '@/utils/productionLogger';
 
 export const IntelligentRewardDebugger = () => {
   const { user } = useAuth();
@@ -41,7 +42,7 @@ export const IntelligentRewardDebugger = () => {
       }
 
     } catch (error) {
-      console.error('Manual test failed:', error);
+      logError('Manual test failed:', { error });
     } finally {
       setIsManualTesting(false);
     }

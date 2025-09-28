@@ -6,6 +6,7 @@ import { AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
 import { validateVapidPublicKey, testVapidKey, getVapidKeyGenerationInstructions } from '@/utils/vapidKeyValidator';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { logInfo, logError } from '@/utils/productionLogger';
 
 export const VapidKeyDebugger: React.FC = () => {
   const [vapidKey, setVapidKey] = useState<string>('');
@@ -24,7 +25,7 @@ export const VapidKeyDebugger: React.FC = () => {
       const { data, error } = await supabase.functions.invoke('get-vapid-public-key');
       
       if (error) {
-        console.error('[VAPID Debug] Fetch error:', error);
+        logError('[VAPID Debug] Fetch error:', { error });
         const errorMsg = `Function error: ${error.message}`;
         setServerError(errorMsg);
         setValidation({ isValid: false, errors: [errorMsg] });
@@ -32,14 +33,14 @@ export const VapidKeyDebugger: React.FC = () => {
       }
 
       if (data?.error) {
-        console.error('[VAPID Debug] Server error:', data.error);
+        logError('[VAPID Debug] Server error:', { error: data.error });
         setServerError(data.error);
         setValidation({ isValid: false, errors: [data.error] });
         return;
       }
 
       if (!data?.publicKey) {
-        console.error('[VAPID Debug] No public key in response:', data);
+        logError('[VAPID Debug] No public key in response:', { data });
         const errorMsg = 'No public key in server response';
         setServerError(errorMsg);
         setValidation({ isValid: false, errors: [errorMsg] });
@@ -57,14 +58,14 @@ export const VapidKeyDebugger: React.FC = () => {
       const testResult = await testVapidKey(key);
       setTestResult(testResult);
       
-      console.log('[VAPID Debug] Key fetched and tested:', {
+      logInfo('[VAPID Debug] Key fetched and tested:', {
         keyLength: key.length,
         validation: validationResult,
         testResult
       });
       
     } catch (error) {
-      console.error('[VAPID Debug] Exception:', error);
+      logError('[VAPID Debug] Exception:', { error });
       setValidation({ 
         isValid: false, 
         errors: [`Exception: ${error instanceof Error ? error.message : 'Unknown error'}`] 

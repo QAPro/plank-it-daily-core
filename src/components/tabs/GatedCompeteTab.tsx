@@ -1,5 +1,5 @@
 
-import React from 'react';
+import { FC } from 'react';
 import { useFeatureAccess } from '@/hooks/useFeatureAccess';
 import { useSubscription } from '@/hooks/useSubscription';
 import EnhancedFeatureGuard from '@/components/access/EnhancedFeatureGuard';

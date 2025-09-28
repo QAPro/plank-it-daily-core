@@ -1,5 +1,5 @@
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { cleanupAuthState } from '@/utils/authCleanup';
@@ -39,7 +39,7 @@ const refreshSubscriptionStatus = async (user: User) => {
   }
 };
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -66,7 +66,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Set up auth state listener first
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
         async (event, session) => {
-          console.log('Auth state changed:', event, { 
+          logInfo('Auth state changed', { 
+            event,
             email: session?.user?.email,
             emailConfirmed: session?.user?.email_confirmed_at,
             url: window.location.href 
@@ -87,12 +88,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             // If we're on the verification page and the user's email isn't confirmed,
             // don't automatically set them as signed in - let the verification handler manage this
             if (isVerificationPage && !session.user.email_confirmed_at) {
-              console.log('Delaying sign-in state update - awaiting email verification completion');
+              logInfo('Delaying sign-in state update', { 
+                reason: 'awaiting email verification completion' 
+              });
               setLoading(false);
               return;
             }
             
-            console.log('User signed in successfully');
+            logInfo('User signed in successfully', { 
+              userEmail: session.user.email 
+            });
             setSession(session);
             setUser(session.user);
             
@@ -104,13 +109,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               refreshSubscriptionStatus(session.user);
             }, 100);
           } else if (event === 'SIGNED_OUT') {
-            console.log('User signed out');
+            logInfo('User signed out');
             setSession(null);
             setUser(null);
             // Ensure clean state on sign out
             cleanupAuthState();
           } else if (event === 'TOKEN_REFRESHED' && session?.user) {
-            console.log('Token refreshed successfully');
+            logInfo('Token refreshed successfully');
             setSession(session);
             setUser(session.user);
             // Refresh subscription status on token refresh
@@ -118,14 +123,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               refreshSubscriptionStatus(session.user);
             }, 100);
           } else if (event === 'USER_UPDATED' && session?.user) {
-            console.log('User updated:', session.user.email);
+            logInfo('User updated', { 
+              userEmail: session.user.email 
+            });
             setSession(session);
             setUser(session.user);
             
             // Check if this is an email change completion
             const pendingEmailChange = localStorage.getItem('pendingEmailChange');
             if (pendingEmailChange && session.user.email === pendingEmailChange) {
-              console.log('Email change completed, clearing pending change');
+              logInfo('Email change completed', { 
+                action: 'clearing pending change' 
+              });
               localStorage.removeItem('pendingEmailChange');
               
               // Update the users table with the new email
@@ -139,9 +148,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                   .eq('id', session.user.id)
                   .then(({ error }) => {
                     if (error) {
-                      console.error('Error updating user email in database:', error);
+                      logError('Error updating user email in database', { error });
                     } else {
-                      console.log('User email updated in database');
+                      logInfo('User email updated in database');
                     }
                   });
               }, 100);
@@ -160,10 +169,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const checkSession = async () => {
         try {
           const { data: { session }, error } = await supabase.auth.getSession();
-          console.log('Initial session check:', session?.user?.email || 'No session');
+          logInfo('Initial session check', { 
+            userEmail: session?.user?.email || 'No session' 
+          });
           
           if (error) {
-            console.error('Error getting initial session:', error);
+            logError('Error getting initial session', { error });
             setError('Failed to get initial session');
             if (authTimeout) clearTimeout(authTimeout);
             setLoading(false);
@@ -182,7 +193,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           if (authTimeout) clearTimeout(authTimeout);
           setLoading(false);
         } catch (error) {
-          console.error('Session check error:', error);
+          logError('Session check error', { error });
           setError('Failed to initialize authentication');
           if (authTimeout) clearTimeout(authTimeout);
           setLoading(false);
@@ -193,12 +204,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Cleanup subscription on unmount
       return () => {
-        console.log('AuthProvider: Cleaning up auth subscription');
+        logInfo('AuthProvider: Cleaning up auth subscription');
         if (authTimeout) clearTimeout(authTimeout);
         subscription.unsubscribe();
       };
     } catch (error) {
-      console.error('Error setting up auth listener:', error);
+      logError('Error setting up auth listener', { error });
       setError('Failed to setup authentication');
       if (authTimeout) clearTimeout(authTimeout);
       setLoading(false);

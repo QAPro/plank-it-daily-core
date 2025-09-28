@@ -1,5 +1,5 @@
 
-import React from 'react';
+import { FC } from 'react';
 import { useSeasonalEvents } from '@/hooks/useSeasonalEvents';
 import { Calendar } from 'lucide-react';
 import SeasonalEventCard from '@/components/events/SeasonalEventCard';

@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { Copy, RefreshCw, Bell, AlertCircle, CheckCircle } from 'lucide-react';
+import { logInfo } from '@/utils/productionLogger';
 
 interface ServiceWorkerDebuggerProps {
   onClose?: () => void;
@@ -130,7 +131,7 @@ export function ServiceWorkerDebugger({ onClose }: ServiceWorkerDebuggerProps) {
       });
 
       notification.onclick = () => {
-        console.log('[Direct] Notification clicked');
+        logInfo('[Direct] Notification clicked');
         notification.close();
       };
 

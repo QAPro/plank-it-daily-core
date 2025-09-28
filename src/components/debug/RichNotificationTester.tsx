@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { NotificationService } from '@/services/notificationService';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { logInfo, logError } from '@/utils/productionLogger';
 
 export const RichNotificationTester = () => {
   const { user } = useAuth();
@@ -24,14 +25,14 @@ export const RichNotificationTester = () => {
     
     try {
       const result = await testFunction();
-      console.log(`${type} notification result:`, result);
+      logInfo(`${type} notification result:`, { type, result });
       
       toast({
         title: "Notification Sent",
         description: `${type} notification sent successfully! Check your browser notifications.`,
       });
     } catch (error) {
-      console.error(`Error sending ${type} notification:`, error);
+      logError(`Error sending ${type} notification:`, { type, error });
       toast({
         title: "Error",
         description: `Failed to send ${type} notification: ${error.message}`,

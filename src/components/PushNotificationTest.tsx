@@ -3,9 +3,10 @@ import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Bell } from 'lucide-react';
+import { logInfo } from '@/utils/productionLogger';
 
 export const PushNotificationTest = () => {
-  console.log('[PushNotificationTest] Component rendering...');
+  logInfo('PushNotificationTest component rendering');
   
   const {
     isSupported,
@@ -15,14 +16,14 @@ export const PushNotificationTest = () => {
     unsubscribe
   } = usePushNotifications();
 
-  console.log('[PushNotificationTest] Hook values:', {
+  logInfo('PushNotificationTest hook values', {
     isSupported,
     isSubscribed,
     isLoading
   });
 
   useEffect(() => {
-    console.log('[PushNotificationTest] Component mounted', {
+    logInfo('PushNotificationTest component mounted', {
       isSupported,
       isSubscribed,
       isLoading
@@ -30,15 +31,15 @@ export const PushNotificationTest = () => {
   }, [isSupported, isSubscribed, isLoading]);
 
   const handleSubscribe = async () => {
-    console.log('[PushNotificationTest] Subscribe button clicked');
+    logInfo('PushNotificationTest subscribe button clicked');
     const result = await subscribe();
-    console.log('[PushNotificationTest] Subscribe result:', result);
+    logInfo('PushNotificationTest subscribe result', { result });
   };
 
   const handleUnsubscribe = async () => {
-    console.log('[PushNotificationTest] Unsubscribe button clicked');
+    logInfo('PushNotificationTest unsubscribe button clicked');
     const result = await unsubscribe();
-    console.log('[PushNotificationTest] Unsubscribe result:', result);
+    logInfo('PushNotificationTest unsubscribe result', { result });
   };
 
   return (

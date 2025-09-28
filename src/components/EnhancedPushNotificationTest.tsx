@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Bell, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { logError, logInfo } from '@/utils/productionLogger';
 
 export const EnhancedPushNotificationTest = () => {
   const { user } = useAuth();
@@ -40,21 +41,21 @@ export const EnhancedPushNotificationTest = () => {
         setSwReady(true);
       }
     } catch (error) {
-      console.error('Service worker check failed:', error);
+      logError('Service worker check failed', { error }, error as Error);
       setSwReady(false);
     }
   };
 
   const handleSubscribe = async () => {
-    console.log('[EnhancedTest] Subscribe button clicked');
+    logInfo('Enhanced test subscribe button clicked');
     const result = await subscribe();
-    console.log('[EnhancedTest] Subscribe result:', result);
+    logInfo('Enhanced test subscribe result', { result });
   };
 
   const handleUnsubscribe = async () => {
-    console.log('[EnhancedTest] Unsubscribe button clicked');
+    logInfo('Enhanced test unsubscribe button clicked');
     const result = await unsubscribe();
-    console.log('[EnhancedTest] Unsubscribe result:', result);
+    logInfo('Enhanced test unsubscribe result', { result });
   };
 
   const getStatusIcon = (condition: boolean) => {

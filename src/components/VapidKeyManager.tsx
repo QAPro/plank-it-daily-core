@@ -12,6 +12,7 @@ import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { validateVapidPublicKey, testVapidKey, type VapidKeyValidationResult } from '@/utils/vapidKeyValidator';
 import { NotificationService } from '@/services/notificationService';
 import { toast } from '@/components/ui/sonner';
+import { logInfo } from '@/utils/productionLogger';
 
 interface VapidKeyManagerProps {
   onClose?: () => void;
@@ -174,7 +175,7 @@ export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => 
         results
       };
       
-      console.log('VAPID Connectivity Diagnostics:', diagnostics);
+      logInfo('VAPID Connectivity Diagnostics', diagnostics);
       
       // Determine overall status
       const allPassed = Object.values(results).every((r: any) => r.status === 'success');
@@ -209,7 +210,7 @@ export const VapidKeyManager: React.FC<VapidKeyManagerProps> = ({ onClose }) => 
         globalError: e?.message ?? String(e)
       };
       
-      console.log('VAPID Connectivity Diagnostics (Global Error):', diagnostics);
+      logInfo('VAPID Connectivity Diagnostics (Global Error)', diagnostics);
       
       setConnectivityTest({ 
         status: 'failed', 

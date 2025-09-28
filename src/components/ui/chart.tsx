@@ -1,4 +1,4 @@
-import { HTMLAttributes, ComponentProps, forwardRef, ElementRef, ComponentPropsWithoutRef, ReactNode, ComponentType, createContext, useContext, useId, useMemo, CSSProperties, createElement } from "react"
+import React, { HTMLAttributes, ComponentProps, forwardRef, ElementRef, ComponentPropsWithoutRef, ReactNode, ComponentType, createContext, useContext, useId, useMemo, CSSProperties, createElement } from "react"
 import * as RechartsPrimitive from "recharts"
 
 import { cn } from "@/lib/utils"

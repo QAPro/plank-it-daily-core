@@ -34,12 +34,17 @@ const Index = () => {
       return;
     }
 
-    if (user && !onboardingLoading && isOnboardingComplete !== null) {
+    if (user && !onboardingLoading) {
       console.log('Index: User authenticated, checking welcome/onboarding state');
       const hasSeenWelcome = localStorage.getItem('plankcoach-welcome-seen');
-      if (hasSeenWelcome || isOnboardingComplete) {
-        console.log('Index: Hiding welcome screen');
+      
+      // If onboarding is complete OR user has seen welcome, hide welcome screen
+      if (isOnboardingComplete === true || hasSeenWelcome) {
+        console.log('Index: Hiding welcome screen - onboarding complete or welcome seen');
         setShowWelcome(false);
+      } else if (isOnboardingComplete === false) {
+        console.log('Index: Onboarding incomplete, will show onboarding flow after welcome');
+        // Keep showWelcome true initially, but will transition to onboarding after welcome
       }
     }
   }, [user, authLoading, isOnboardingComplete, onboardingLoading, navigate]);

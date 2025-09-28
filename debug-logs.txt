@@ -1,0 +1,1932 @@
+index-CuTUk8HV.js:1022 Auth component: Rendering auth page
+auth:1 Unchecked runtime.lastError: The message port closed before a response was received.Understand this error
+index-CuTUk8HV.js:1022 Auth component: Rendering auth page
+index-CuTUk8HV.js:1022 Index: Current state {user: 'phil.bailey001@gmail.com', authLoading: false, onboardingLoading: true, isOnboardingComplete: null, showWelcome: true}
+index-CuTUk8HV.js:1022 Index: Showing loading state
+index-CuTUk8HV.js:1022 Index: Auth state change detected {user: 'phil.bailey001@gmail.com', authLoading: false}
+index-CuTUk8HV.js:1022 Index: Current state {user: 'phil.bailey001@gmail.com', authLoading: false, onboardingLoading: true, isOnboardingComplete: null, showWelcome: true}
+index-CuTUk8HV.js:1022 Index: Showing loading state
+index-CuTUk8HV.js:1022 Index: Auth state change detected {user: 'phil.bailey001@gmail.com', authLoading: false}
+index-CuTUk8HV.js:1022 Index: Current state {user: 'phil.bailey001@gmail.com', authLoading: false, onboardingLoading: true, isOnboardingComplete: null, showWelcome: true}
+index-CuTUk8HV.js:1022 Index: Showing loading state
+index-CuTUk8HV.js:1022 Index: Auth state change detected {user: 'phil.bailey001@gmail.com', authLoading: false}
+www.plank.coach/:1 <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes">Understand this warning
+www.plank.coach/:1 Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner.
+index-CuTUk8HV.js:1022 Index: Current state {user: 'phil.bailey001@gmail.com', authLoading: false, onboardingLoading: false, isOnboardingComplete: true, showWelcome: true}
+index-CuTUk8HV.js:1022 Index: Rendering main content {showWelcome: true}
+index-CuTUk8HV.js:40 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+childList
+SI @ index-CuTUk8HV.js:40
+Xs @ index-CuTUk8HV.js:40
+CI @ index-CuTUk8HV.js:40
+Xs @ index-CuTUk8HV.js:40
+CI @ index-CuTUk8HV.js:40
+Xs @ index-CuTUk8HV.js:40
+CI @ index-CuTUk8HV.js:40
+Xs @ index-CuTUk8HV.js:40
+CI @ index-CuTUk8HV.js:40
+Xs @ index-CuTUk8HV.js:40
+CI @ index-CuTUk8HV.js:40
+Xs @ index-CuTUk8HV.js:40
+CI @ index-CuTUk8HV.js:40
+Xs @ index-CuTUk8HV.js:40
+CI @ index-CuTUk8HV.js:40
+Xs @ index-CuTUk8HV.js:40
+CI @ index-CuTUk8HV.js:40
+Xs @ index-CuTUk8HV.js:40
+CI @ index-CuTUk8HV.js:40
+Xs @ index-CuTUk8HV.js:40
+CI @ index-CuTUk8HV.js:40
+Xs @ index-CuTUk8HV.js:40
+CI @ index-CuTUk8HV.js:40
+Xs @ index-CuTUk8HV.js:40
+CI @ index-CuTUk8HV.js:40
+Xs @ index-CuTUk8HV.js:40
+CI @ index-CuTUk8HV.js:40
+Xs @ index-CuTUk8HV.js:40
+CI @ index-CuTUk8HV.js:40
+Xs @ index-CuTUk8HV.js:40
+CI @ index-CuTUk8HV.js:40
+Xs @ index-CuTUk8HV.js:40
+CI @ index-CuTUk8HV.js:40
+aX @ index-CuTUk8HV.js:40
+Xl @ index-CuTUk8HV.js:40
+EI @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:1022 Index: Auth state change detected {user: 'phil.bailey001@gmail.com', authLoading: false}
+index-CuTUk8HV.js:1022 Index: User authenticated, checking welcome/onboarding state
+index-CuTUk8HV.js:1022 Index: Hiding welcome screen
+index-CuTUk8HV.js:1022 Index: Current state {user: 'phil.bailey001@gmail.com', authLoading: false, onboardingLoading: false, isOnboardingComplete: true, showWelcome: false}
+index-CuTUk8HV.js:1022 Index: Rendering main content {showWelcome: false}
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:1022 Index: Current state {user: 'phil.bailey001@gmail.com', authLoading: false, onboardingLoading: false, isOnboardingComplete: true, showWelcome: false}
+index-CuTUk8HV.js:1022 Index: Rendering main content {showWelcome: false}
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 cornhusk, shared-service, error: TypeError: Failed to construct 'URL': Invalid URLInvalid url: 
+extractOriginPath @ content-script.js:1
+fingerprintPage @ content-script.js:1
+observeCheckoutMutations @ content-script.js:1
+attributes
+Y$ @ index-CuTUk8HV.js:678
+Fie.render @ index-CuTUk8HV.js:678
+d @ index-CuTUk8HV.js:670
+process @ index-CuTUk8HV.js:670
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+x @ index-CuTUk8HV.js:670
+requestAnimationFrame
+v @ index-CuTUk8HV.js:670
+w.<computed> @ index-CuTUk8HV.js:670
+scheduleResolve @ index-CuTUk8HV.js:670
+Ine @ index-CuTUk8HV.js:670
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:670
+start @ index-CuTUk8HV.js:670
+k$ @ index-CuTUk8HV.js:678
+iae @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+o @ index-CuTUk8HV.js:678
+(anonymous) @ index-CuTUk8HV.js:678
+Ky @ index-CuTUk8HV.js:40
+nu @ index-CuTUk8HV.js:40
+(anonymous) @ index-CuTUk8HV.js:40
+_ @ index-CuTUk8HV.js:25
+I @ index-CuTUk8HV.js:25Understand this warning
+index-CuTUk8HV.js:678 [useUserFeatureFlag] evaluating main_dashboard for user ed4c7813-f858-4ade-8e04-ade1f5b93081
+www.plank.coach/:1 Error handling response: TypeError: Cannot read properties of undefined (reading 'isCheckout')
+    at chrome-extension://clmkdohmabikagpnhjmgacbclihgmdje/content-script.js:1:5713Understand this error
+www.plank.coach/:1 Unchecked runtime.lastError: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was receivedUnderstand this error
+www.plank.coach/:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was receivedUnderstand this error
+index-CuTUk8HV.js:1034 [SW] Service worker registered: https://www.plank.coach/
+sw-secure.js:18 [SW-Secure] Installing secure service worker
+sw-secure.js:22 [SW-Secure] Caching essential resources
+sw-secure.js:25 [SW-Secure] Skip waiting on install
+index-CuTUk8HV.js:1034 [SW] New service worker available, will activate on next visit
+sw-secure.js:33 [SW-Secure] Activating secure service worker
+sw-secure.js:40 [SW-Secure] Deleting old cache: workbox-precache-v2-https://www.plank.coach/
+sw-secure.js:46 [SW-Secure] Claiming clients
+index-CuTUk8HV.js:1022 Index: Current state {user: 'phil.bailey001@gmail.com', authLoading: false, onboardingLoading: false, isOnboardingComplete: true, showWelcome: false}
+index-CuTUk8HV.js:1022 Index: Rendering main content {showWelcome: false}
+index-CuTUk8HV.js:1022 Index: Auth state change detected {user: 'phil.bailey001@gmail.com', authLoading: false}
+index-CuTUk8HV.js:1022 Index: User authenticated, checking welcome/onboarding state
+index-CuTUk8HV.js:1022 Index: Hiding welcome screen
+index-CuTUk8HV.js:1022 Index: Current state {user: 'phil.bailey001@gmail.com', authLoading: false, onboardingLoading: false, isOnboardingComplete: true, showWelcome: false}
+index-CuTUk8HV.js:1022 Index: Rendering main content {showWelcome: false}
+index-CuTUk8HV.js:1022 Index: Current state {user: 'phil.bailey001@gmail.com', authLoading: false, onboardingLoading: false, isOnboardingComplete: true, showWelcome: false}
+index-CuTUk8HV.js:1022 Index: Rendering main content {showWelcome: false}
+index-CuTUk8HV.js:1022 Index: Auth state change detected {user: 'phil.bailey001@gmail.com', authLoading: false}authLoading: falseuser: "phil.bailey001@gmail.com"[[Prototype]]: Object
+index-CuTUk8HV.js:1022 Index: User authenticated, checking welcome/onboarding state
+index-CuTUk8HV.js:1022 Index: Hiding welcome screen
+index-CuTUk8HV.js:1022 Index: Current state {user: 'phil.bailey001@gmail.com', authLoading: false, onboardingLoading: false, isOnboardingComplete: true, showWelcome: false}
+index-CuTUk8HV.js:1022 Index: Rendering main content {showWelcome: false}

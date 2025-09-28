@@ -1,5 +1,5 @@
 
-import React from 'react';
+// No React imports needed
 import { motion } from 'framer-motion';
 import { Check, Star, Crown, Zap } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

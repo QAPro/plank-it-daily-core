@@ -1,5 +1,5 @@
 
-import React from 'react';
+// No React imports needed
 import SocialFeatureGuard from '@/components/access/SocialFeatureGuard';
 import { Button } from '@/components/ui/button';
 import { Share2 } from 'lucide-react';

@@ -1,6 +1,6 @@
 
 import { motion, AnimatePresence } from "framer-motion";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 
 interface XPGainNotificationProps {

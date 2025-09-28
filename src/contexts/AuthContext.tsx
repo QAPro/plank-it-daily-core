@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { cleanupAuthState } from '@/utils/authCleanup';
+import { logDebug, logInfo, logWarn, logError } from '@/utils/productionLogger';
 
 interface AuthContextType {
   user: User | null;
@@ -29,11 +30,11 @@ export const useAuth = () => {
 // Helper function to refresh subscription status
 const refreshSubscriptionStatus = async (user: User) => {
   try {
-    console.log('Refreshing subscription status for user:', user.email);
+    logDebug('Refreshing subscription status for user:', { email: user.email });
     await supabase.functions.invoke('check-subscription');
-    console.log('Subscription status refreshed successfully');
+    logDebug('Subscription status refreshed successfully');
   } catch (error) {
-    console.log('Subscription refresh failed (non-critical):', error);
+    logWarn('Subscription refresh failed (non-critical):', { error });
     // Don't throw - this is a background operation that shouldn't break auth flow
   }
 };
@@ -45,14 +46,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log('AuthProvider: Initializing auth state listener');
+    logDebug('AuthProvider: Initializing auth state listener');
     let authTimeout: NodeJS.Timeout;
     
     // Set timeout to prevent infinite loading
     const setupTimeout = () => {
       authTimeout = setTimeout(() => {
         if (loading) {
-          console.warn('Auth initialization timeout - setting loading to false');
+          logWarn('Auth initialization timeout - setting loading to false');
           setLoading(false);
           setError('Authentication initialization timeout. Please refresh the page.');
         }

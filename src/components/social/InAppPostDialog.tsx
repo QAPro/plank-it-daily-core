@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -32,7 +32,7 @@ const InAppPostDialog: React.FC<InAppPostDialogProps> = ({
   const [isPosting, setIsPosting] = useState(false);
   const [showExternalOptions, setShowExternalOptions] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isOpen && shareData) {
       // Auto-generate the default message
       const autoMessage = SocialSharingService.generateShareText(shareData);

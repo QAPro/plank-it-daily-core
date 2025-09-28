@@ -1,5 +1,5 @@
 
-import React from 'react';
+// No React imports needed
 import { Badge } from '@/components/ui/badge';
 import { Trophy, Medal, Award, Star, Target } from 'lucide-react';
 

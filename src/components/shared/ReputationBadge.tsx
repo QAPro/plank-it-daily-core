@@ -1,4 +1,4 @@
-import React from 'react';
+// No React imports needed
 import { Badge } from '@/components/ui/badge';
 import { Star, Trophy, Award, Medal } from 'lucide-react';
 import { ReputationService } from '@/services/reputationService';

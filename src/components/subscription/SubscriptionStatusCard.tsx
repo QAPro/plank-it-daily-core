@@ -1,5 +1,5 @@
 
-import React from 'react';
+// No React imports needed
 import { motion } from 'framer-motion';
 import { Crown, Star, ArrowRight, Calendar } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';

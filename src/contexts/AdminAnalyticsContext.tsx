@@ -1,6 +1,7 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { logDebug, logInfo, logError } from '@/utils/productionLogger';
 
 interface DrillDownState {
   type: 'user' | 'exercise' | 'cohort' | 'timeframe' | null;
@@ -29,7 +30,7 @@ interface AdminAnalyticsProviderProps {
   children: ReactNode;
 }
 
-export const AdminAnalyticsProvider: React.FC<AdminAnalyticsProviderProps> = ({ children }) => {
+export const AdminAnalyticsProvider = ({ children }: AdminAnalyticsProviderProps) => {
   const [drillDownState, setDrillDownState] = useState<DrillDownState>({
     type: null,
     value: null,
@@ -45,18 +46,19 @@ export const AdminAnalyticsProvider: React.FC<AdminAnalyticsProviderProps> = ({ 
   const [isRealTimeEnabled, setIsRealTimeEnabled] = useState(false);
 
   const setDrillDown = (type: DrillDownState['type'], value: string, metadata?: Record<string, any>) => {
-    console.log('Setting drill down:', { type, value, metadata });
+    logDebug('Setting drill down:', { type, value, metadata });
     setDrillDownState({ type, value, metadata });
   };
 
   const clearDrillDown = () => {
-    console.log('Clearing drill down');
+    logDebug('Clearing drill down');
     setDrillDownState({ type: null, value: null, metadata: undefined });
   };
 
   const toggleRealTime = () => {
-    setIsRealTimeEnabled(!isRealTimeEnabled);
-    console.log('Real-time toggled:', !isRealTimeEnabled);
+    const newValue = !isRealTimeEnabled;
+    setIsRealTimeEnabled(newValue);
+    logDebug('Real-time toggled:', { enabled: newValue });
   };
 
   // Real-time metrics updates
@@ -81,7 +83,7 @@ export const AdminAnalyticsProvider: React.FC<AdminAnalyticsProviderProps> = ({ 
           });
         }
       } catch (error) {
-        console.error('Error updating real-time metrics:', error);
+        logError('Error updating real-time metrics:', { error });
       }
     };
 
@@ -108,7 +110,7 @@ export const AdminAnalyticsProvider: React.FC<AdminAnalyticsProviderProps> = ({ 
           table: 'user_sessions'
         },
         (payload) => {
-          console.log('New session detected:', payload);
+          logInfo('New session detected:', { payload });
           setRealTimeMetrics(prev => ({
             ...prev,
             sessionsToday: prev.sessionsToday + 1,

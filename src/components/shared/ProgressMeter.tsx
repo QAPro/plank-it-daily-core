@@ -1,5 +1,5 @@
 
-import React from 'react';
+// No React imports needed
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 

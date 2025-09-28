@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { logDebug } from '@/utils/productionLogger';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Play, Pause, Square, RotateCcw, Volume2, VolumeX, Settings } from 'lucide-react';
@@ -60,12 +61,12 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
   } = useCountdownTimer({
     initialDuration: 60,
     onComplete: async (wasCompleted: boolean) => {
-      logger.debug('CountdownTimer: Timer completed, wasCompleted', { wasCompleted });
+      logDebug('CountdownTimer: Timer completed, wasCompleted', { wasCompleted });
       if (wasCompleted) {
         setShowConfetti(true);
-        logger.debug('CountdownTimer: About to call completeSession');
+        logDebug('CountdownTimer: About to call completeSession');
         await completeSession(duration, sessionNotes);
-        logger.debug('CountdownTimer: completeSession finished');
+        logDebug('CountdownTimer: completeSession finished');
       }
     },
     onPlayCompletionSound: playCompletionSound,
@@ -91,28 +92,28 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
 
   // Show celebration when session completes
   useEffect(() => {
-    logger.debug('CountdownTimer: completedSession changed', { completedSession });
+    logDebug('CountdownTimer: completedSession changed', { completedSession });
     if (completedSession) {
-      logger.debug('CountdownTimer: Setting showCelebration to true');
+      logDebug('CountdownTimer: Setting showCelebration to true');
       setShowCelebration(true);
     }
   }, [completedSession]);
 
   const handleSetDuration = (newDuration: number) => {
-    console.log('CountdownTimer: handleSetDuration called with:', newDuration);
+    logDebug('CountdownTimer: handleSetDuration called with:', { newDuration });
     setTimerDuration(newDuration);
     setShowSetup(false);
     toast.success(`Timer set for ${Math.floor(newDuration / 60)}:${(newDuration % 60).toString().padStart(2, '0')}`);
   };
 
   const handleStartTimer = () => {
-    console.log('CountdownTimer: handleStartTimer called');
+    logDebug('CountdownTimer: handleStartTimer called');
     handleStart();
     toast.success('Timer started! You can do this!');
   };
 
   const handlePauseTimer = () => {
-    console.log('CountdownTimer: handlePauseTimer called');
+    logDebug('CountdownTimer: handlePauseTimer called');
     handlePause();
     toast.info('Timer paused');
     
@@ -127,13 +128,13 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
   };
 
   const handleResumeTimer = () => {
-    console.log('CountdownTimer: handleResumeTimer called');
+    logDebug('CountdownTimer: handleResumeTimer called');
     handleResume();
     toast.success('Timer resumed');
   };
 
   const handleStopTimer = () => {
-    console.log('CountdownTimer: handleStopTimer called');
+    logDebug('CountdownTimer: handleStopTimer called');
     handleStop();
     toast.info('Timer stopped');
     
@@ -146,7 +147,7 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
   };
 
   const handleResetTimer = () => {
-    console.log('CountdownTimer: handleResetTimer called');
+    logDebug('CountdownTimer: handleResetTimer called');
     handleReset();
     setShowConfetti(false);
     setShowCelebration(false);
@@ -154,7 +155,7 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
   };
 
   const handleCloseCelebration = () => {
-    console.log('CountdownTimer: handleCloseCelebration called');
+    logDebug('CountdownTimer: handleCloseCelebration called');
     setShowCelebration(false);
     setShowConfetti(false);
     clearCompletedSession();
@@ -168,7 +169,7 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
         onStart={handleSetDuration}
         onBack={onBack}
         onComplete={async (duration) => {
-          console.log('CountdownTimer: Timer completed in TimerSetup with duration:', duration);
+          logDebug('CountdownTimer: Timer completed in TimerSetup with duration:', { duration });
           setShowSetup(false);
           setShowConfetti(true);
           await completeSession(duration, sessionNotes || '');

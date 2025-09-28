@@ -41,11 +41,13 @@ const GatedCustomWorkoutManager: React.FC = () => {
 
         {/* Show custom workout manager with limits */}
         {isAtLimit ? (
-          <EnhancedFeatureGuard
-            feature="custom_workouts"
-            mode="block"
-            showUpgradePrompt={true}
-          >
+        <EnhancedFeatureGuard
+          feature="custom_workouts"
+          mode="block"
+          showUpgradePrompt={true}
+          fallback={<div>Custom workouts require premium access</div>}
+          loadingSkeleton={<div>Loading...</div>}
+        >
             <CustomWorkoutManager />
           </EnhancedFeatureGuard>
         ) : (

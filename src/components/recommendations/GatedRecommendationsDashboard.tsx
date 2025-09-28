@@ -36,6 +36,7 @@ const GatedRecommendationsDashboard: React.FC<GatedRecommendationsDashboardProps
       showUpgradePrompt={true}
       compact={false}
       fallback={<BasicRecommendationsCard onExerciseSelect={onExerciseSelect} />}
+      loadingSkeleton={<div>Loading recommendations...</div>}
     >
       <RecommendationsDashboard onExerciseSelect={onExerciseSelect} />
     </EnhancedFeatureGuard>

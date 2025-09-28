@@ -1,5 +1,4 @@
 
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,9 +18,9 @@ const UpgradePrompt = ({
   feature, 
   requiredTier, 
   currentTier, 
-  onUpgrade,
+  onUpgrade = undefined,
   compact = false 
-}) => {
+}: UpgradePromptProps) => {
   const { plans, upgrade, loading } = useSubscription();
 
   const getFeatureDisplayName = (featureName: FeatureName) => {

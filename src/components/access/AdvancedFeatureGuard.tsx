@@ -12,7 +12,7 @@ interface AdvancedFeatureGuardProps {
 const AdvancedFeatureGuard = ({ 
   feature, 
   children, 
-  upgradeAction 
+  upgradeAction = () => {}
 }) => {
   const getFeatureRequirements = (featureType: string): {
     requirements: CrossSystemRequirement[];

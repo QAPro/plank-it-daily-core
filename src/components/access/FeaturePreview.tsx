@@ -17,7 +17,7 @@ const FeaturePreview = ({
   height = 200,
   blur = true,
   overlay = true,
-  onPreviewClick
+  onPreviewClick = () => {}
 }) => {
   return (
     <div 

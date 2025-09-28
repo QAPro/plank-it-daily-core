@@ -23,6 +23,8 @@ const GatedCompeteTab: React.FC = () => {
       previewHeight={350}
       showUpgradePrompt={true}
       compact={false}
+      fallback={<div>Social challenges require premium access</div>}
+      loadingSkeleton={<div>Loading challenges...</div>}
     >
       <CompeteTab />
     </EnhancedFeatureGuard>

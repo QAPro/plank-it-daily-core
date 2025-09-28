@@ -2,12 +2,14 @@ import { useState, useCallback } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, TrendingUp, Users, History } from "lucide-react";
+import { AlertTriangle, TrendingUp, Users, History, Calendar } from "lucide-react";
 import { featureManagementService } from "@/services/featureManagementService";
 import { useToast } from "@/hooks/use-toast";
 import { useFeatureUserMetrics } from "@/hooks/useFeatureUserMetrics";
 import type { FeatureFlag } from "@/services/featureManagementService";
 import RolloutHistoryPanel from "./RolloutHistoryPanel";
+import { RolloutScheduleManager } from "./RolloutScheduleManager";
+import { RolloutScheduleDialog } from "./RolloutScheduleDialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -203,10 +205,66 @@ const RolloutPercentageControl = ({
         <span className="text-xs text-muted-foreground">
           {percentage}% of users will see this feature
         </span>
-        {renderUpdateButton()}
+        <div className="flex gap-2">
+          {(showConfirmation && (percentage < featureFlag.rollout_percentage! || percentage < 50)) ? (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                {renderUpdateButton()}
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Confirm Rollout Change</AlertDialogTitle>
+                  <AlertDialogDescription className="space-y-3">
+                    <div>
+                      You're about to change the rollout from{" "}
+                      <Badge variant="outline">{featureFlag.rollout_percentage}%</Badge> to{" "}
+                      <Badge variant="outline">{percentage}%</Badge>
+                    </div>
+                    
+                    {userMetrics && userMetrics.current_rollout_users > 0 && (
+                      <div className="bg-amber-50 p-3 rounded-md">
+                        <p className="text-sm text-amber-800">
+                          <strong>Estimated Impact:</strong> This change could affect approximately{" "}
+                          {Math.abs(
+                            Math.ceil((userMetrics.total_users * percentage / 100) - 
+                            userMetrics.current_rollout_users)
+                          )} users.
+                        </p>
+                        {userMetrics.error_rate > 0 && (
+                          <p className="text-sm text-amber-800 mt-1">
+                            Current error rate: {userMetrics.error_rate.toFixed(1)}%
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleUpdate}>
+                    Confirm Change
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          ) : (
+            renderUpdateButton()
+          )}
+          
+          <RolloutScheduleDialog 
+            featureName={featureFlag.feature_name} 
+            currentPercentage={featureFlag.rollout_percentage || 0}
+          >
+            <Button variant="outline" size="sm">
+              <Calendar className="h-4 w-4 mr-2" />
+              Schedule
+            </Button>
+          </RolloutScheduleDialog>
+        </div>
       </div>
       
-      <RolloutHistoryPanel featureName={featureFlag.feature_name} />
+        <RolloutHistoryPanel featureName={featureFlag.feature_name} />
+        <RolloutScheduleManager featureName={featureFlag.feature_name} />
     </div>
   );
 };

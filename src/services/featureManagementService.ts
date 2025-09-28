@@ -144,4 +144,65 @@ export const featureManagementService = {
       throw error;
     }
   },
+
+  // Rollout schedule management
+  async createRolloutSchedule(schedule: {
+    feature_name: string;
+    schedule_name: string;
+    schedule_data: Array<{
+      percentage: number;
+      execute_at: string;
+      executed: boolean;
+    }>;
+  }) {
+    console.log("[featureManagementService] createRolloutSchedule", schedule.feature_name);
+    const { error } = await supabase.from("rollout_schedules").insert({
+      feature_name: schedule.feature_name,
+      schedule_name: schedule.schedule_name,
+      schedule_data: schedule.schedule_data,
+      created_by: (await supabase.auth.getUser()).data.user?.id,
+    });
+    if (error) {
+      console.error("[featureManagementService] create rollout schedule error", error);
+      throw error;
+    }
+  },
+
+  async getRolloutSchedules(featureName?: string) {
+    console.log("[featureManagementService] getRolloutSchedules", featureName);
+    let query = supabase.from("rollout_schedules").select("*").order("created_at", { ascending: false });
+    
+    if (featureName) {
+      query = query.eq("feature_name", featureName);
+    }
+    
+    const { data, error } = await query;
+    if (error) {
+      console.error("[featureManagementService] get rollout schedules error", error);
+      throw error;
+    }
+    return data || [];
+  },
+
+  async updateRolloutScheduleStatus(scheduleId: string, status: "active" | "paused" | "cancelled") {
+    console.log("[featureManagementService] updateRolloutScheduleStatus", scheduleId, status);
+    const { error } = await supabase
+      .from("rollout_schedules")
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq("id", scheduleId);
+    if (error) {
+      console.error("[featureManagementService] update rollout schedule status error", error);
+      throw error;
+    }
+  },
+
+  async executeScheduledRollouts() {
+    console.log("[featureManagementService] executeScheduledRollouts");
+    const { data, error } = await supabase.functions.invoke("execute-rollout-schedules");
+    if (error) {
+      console.error("[featureManagementService] execute scheduled rollouts error", error);
+      throw error;
+    }
+    return data;
+  },
 };

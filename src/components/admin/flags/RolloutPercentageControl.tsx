@@ -2,9 +2,12 @@ import { useState, useCallback } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, TrendingUp, Users } from "lucide-react";
+import { AlertTriangle, TrendingUp, Users, History } from "lucide-react";
 import { featureManagementService } from "@/services/featureManagementService";
 import { useToast } from "@/hooks/use-toast";
+import { useFeatureUserMetrics } from "@/hooks/useFeatureUserMetrics";
+import type { FeatureFlag } from "@/services/featureManagementService";
+import RolloutHistoryPanel from "./RolloutHistoryPanel";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,29 +21,29 @@ import {
 } from "@/components/ui/alert-dialog";
 
 type Props = {
-  featureName: string;
-  currentPercentage: number;
-  isEnabled: boolean;
+  featureFlag: FeatureFlag;
   onUpdate?: () => void;
-  userCount?: number;
   showConfirmation?: boolean;
 };
 
 const RolloutPercentageControl = ({ 
-  featureName, 
-  currentPercentage, 
-  isEnabled,
+  featureFlag,
   onUpdate,
-  userCount = 0,
   showConfirmation = true 
 }: Props) => {
-  const [percentage, setPercentage] = useState(currentPercentage);
+  const [percentage, setPercentage] = useState(featureFlag.rollout_percentage || 100);
   const [isUpdating, setIsUpdating] = useState(false);
   const { toast } = useToast();
+  
+  const { data: userMetrics } = useFeatureUserMetrics(featureFlag.feature_name);
+  
+  const currentPercentage = featureFlag.rollout_percentage || 100;
+  const isEnabled = featureFlag.is_enabled;
 
   const presetValues = [0, 25, 50, 75, 100];
   
-  const estimatedUsers = Math.floor((userCount * percentage) / 100);
+  const totalUsers = userMetrics?.total_users || 0;
+  const estimatedUsers = Math.floor((totalUsers * percentage) / 100);
   const isDecreasing = percentage < currentPercentage;
   const isSignificantChange = Math.abs(percentage - currentPercentage) >= 25;
 
@@ -49,10 +52,10 @@ const RolloutPercentageControl = ({
     
     setIsUpdating(true);
     try {
-      await featureManagementService.updateRolloutPercentage(featureName, percentage);
+      await featureManagementService.updateRolloutPercentage(featureFlag.feature_name, percentage);
       toast({
         title: "Rollout updated",
-        description: `${featureName} rollout set to ${percentage}%`,
+        description: `${featureFlag.feature_name} rollout set to ${percentage}%`,
       });
       onUpdate?.();
     } catch (error) {
@@ -65,7 +68,7 @@ const RolloutPercentageControl = ({
     } finally {
       setIsUpdating(false);
     }
-  }, [percentage, currentPercentage, featureName, onUpdate, toast]);
+  }, [percentage, currentPercentage, featureFlag.feature_name, onUpdate, toast]);
 
   const handleSliderChange = (values: number[]) => {
     setPercentage(values[0]);
@@ -104,13 +107,18 @@ const RolloutPercentageControl = ({
               </AlertDialogTitle>
               <AlertDialogDescription className="space-y-2">
                 <p>
-                  You're about to change <strong>{featureName}</strong> rollout from{" "}
+                  You're about to change <strong>{featureFlag.feature_name}</strong> rollout from{" "}
                   <strong>{currentPercentage}%</strong> to <strong>{percentage}%</strong>.
                 </p>
                 {isDecreasing && (
                   <p className="text-destructive">
                     ⚠️ This will reduce access for approximately{" "}
-                    {Math.floor((userCount * (currentPercentage - percentage)) / 100)} users.
+                    {Math.floor((totalUsers * (currentPercentage - percentage)) / 100)} users.
+                  </p>
+                )}
+                {userMetrics?.error_rate > 0 && (
+                  <p className="text-amber-600">
+                    Current error rate: {userMetrics.error_rate.toFixed(2)}%
                   </p>
                 )}
                 {estimatedUsers > 0 && (
@@ -148,12 +156,20 @@ const RolloutPercentageControl = ({
             {percentage}%
           </Badge>
         </div>
-        {estimatedUsers > 0 && (
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Users className="h-3 w-3" />
-            {estimatedUsers} users
-          </div>
-        )}
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          {estimatedUsers > 0 && (
+            <div className="flex items-center gap-1">
+              <Users className="h-3 w-3" />
+              {estimatedUsers} users
+            </div>
+          )}
+          {userMetrics?.active_users_24h !== undefined && (
+            <div className="flex items-center gap-1">
+              <TrendingUp className="h-3 w-3" />
+              {userMetrics.active_users_24h} active (24h)
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="space-y-2">
@@ -189,6 +205,8 @@ const RolloutPercentageControl = ({
         </span>
         {renderUpdateButton()}
       </div>
+      
+      <RolloutHistoryPanel featureName={featureFlag.feature_name} />
     </div>
   );
 };

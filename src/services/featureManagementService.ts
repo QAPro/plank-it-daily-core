@@ -87,17 +87,36 @@ export const featureManagementService = {
     });
     if (error) {
       console.error("[featureManagementService] get feature analytics error", error);
-      // Return mock data if analytics function doesn't exist yet
-      return {
-        feature_name: featureName,
-        total_users: Math.floor(Math.random() * 1000) + 100,
-        active_users_24h: Math.floor(Math.random() * 50) + 10,
-        active_users_7d: Math.floor(Math.random() * 200) + 50,
-        adoption_rate: Math.floor(Math.random() * 30) + 20,
-        engagement_score: Math.floor(Math.random() * 5) + 3
-      };
+      return null;
     }
-    return data;
+    return data && data.length > 0 ? data[0] : null;
+  },
+
+  async getFeatureUserMetrics(featureName: string) {
+    console.log("[featureManagementService] getFeatureUserMetrics", featureName);
+    const { data, error } = await supabase.rpc("get_feature_user_metrics", { 
+      _feature_name: featureName 
+    });
+    if (error) {
+      console.error("[featureManagementService] get feature user metrics error", error);
+      return null;
+    }
+    return data && data.length > 0 ? data[0] : null;
+  },
+
+  async getRolloutHistory(featureName: string) {
+    console.log("[featureManagementService] getRolloutHistory", featureName);
+    const { data, error } = await supabase
+      .from("rollout_history")
+      .select("*")
+      .eq("feature_name", featureName)
+      .order("created_at", { ascending: false })
+      .limit(10);
+    if (error) {
+      console.error("[featureManagementService] get rollout history error", error);
+      return [];
+    }
+    return data || [];
   },
 
   async upsertFeatureFlag(flag: Partial<FeatureFlag> & { feature_name: string }) {

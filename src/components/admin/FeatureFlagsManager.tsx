@@ -274,14 +274,7 @@ const FeatureFlagsManager: React.FC = () => {
     return catalogFeature?.uiComponents || [];
   };
 
-  const getUsageStats = (featureName: string) => {
-    // Mock usage stats - in real app, this would come from analytics
-    return {
-      activeUsers: Math.floor(Math.random() * 1000),
-      dailyUsage: Math.floor(Math.random() * 5000),
-      errorRate: Math.random() * 0.1
-    };
-  };
+  // Real user metrics are now fetched per feature in the RolloutPercentageControl component
 
   // Enhanced organized flags with tree state and advanced filtering
   const organizedFlags = useMemo(() => {
@@ -302,7 +295,8 @@ const FeatureFlagsManager: React.FC = () => {
         .filter(child => !showEnabledOnly || child.is_enabled);
 
       const displayInfo = getFeatureDisplayInfo(parent.feature_name);
-      const usage = getUsageStats(parent.feature_name);
+      // Use the actual user count if available, default to 0
+      const actualUserCount = 0; // Will be fetched in real-time by the RolloutPercentageControl
       
       return {
         ...parent,
@@ -310,7 +304,7 @@ const FeatureFlagsManager: React.FC = () => {
         category: displayInfo.category,
         icon: getCategoryIcon(displayInfo.category),
         componentCount: children.length,
-        usageCount: usage.activeUsers,
+        usageCount: actualUserCount,
         performanceImpact: children.length > 5 ? 'high' : children.length > 2 ? 'medium' : 'low'
       } as FeatureFlagWithChildren;
     })
@@ -663,11 +657,8 @@ const FeatureFlagsManager: React.FC = () => {
                         </div>
                         <div className="mt-3">
                           <RolloutPercentageControl
-                            featureName={parentFlag.feature_name}
-                            currentPercentage={parentFlag.rollout_percentage || 100}
-                            isEnabled={parentFlag.is_enabled}
+                            featureFlag={parentFlag}
                             onUpdate={refetch}
-                            userCount={parentFlag.usageCount || 0}
                           />
                         </div>
                       </div>

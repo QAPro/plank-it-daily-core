@@ -2018,6 +2018,39 @@ export type Database = {
         }
         Relationships: []
       }
+      rollout_history: {
+        Row: {
+          change_reason: string | null
+          changed_by: string | null
+          created_at: string
+          feature_name: string
+          id: string
+          new_percentage: number
+          old_percentage: number
+          user_impact_estimate: number | null
+        }
+        Insert: {
+          change_reason?: string | null
+          changed_by?: string | null
+          created_at?: string
+          feature_name: string
+          id?: string
+          new_percentage: number
+          old_percentage: number
+          user_impact_estimate?: number | null
+        }
+        Update: {
+          change_reason?: string | null
+          changed_by?: string | null
+          created_at?: string
+          feature_name?: string
+          id?: string
+          new_percentage?: number
+          old_percentage?: number
+          user_impact_estimate?: number | null
+        }
+        Relationships: []
+      }
       seasonal_certifications: {
         Row: {
           certification_name: string
@@ -4703,6 +4736,16 @@ export type Database = {
           feature_name: string
           memory_usage_increase: number
           user_drop_off_rate: number
+        }[]
+      }
+      get_feature_user_metrics: {
+        Args: { _feature_name: string }
+        Returns: {
+          active_users_24h: number
+          active_users_7d: number
+          current_rollout_users: number
+          error_rate: number
+          total_users: number
         }[]
       }
       get_onboarding_analytics: {

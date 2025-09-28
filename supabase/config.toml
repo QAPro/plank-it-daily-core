@@ -23,3 +23,6 @@ verify_jwt = true
 
 [functions.execute-rollout-schedules]
 verify_jwt = false
+
+[functions.assign-ab-test-variant]
+verify_jwt = false

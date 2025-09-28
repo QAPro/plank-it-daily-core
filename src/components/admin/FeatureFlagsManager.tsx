@@ -20,6 +20,7 @@ import type { FeatureFlag } from "@/services/featureManagementService";
 import AdvancedFlagControls, { AdvancedFlagState } from "./flags/AdvancedFlagControls";
 import RolloutPercentageControl from "./flags/RolloutPercentageControl";
 import BulkRolloutControl from "./flags/BulkRolloutControl";
+import { ABTestingIntegration } from "./flags/ABTestingIntegration";
 
 // Enhanced data structures for hierarchical flags
 type FeatureFlagWithChildren = FeatureFlag & {
@@ -657,6 +658,14 @@ const FeatureFlagsManager: React.FC = () => {
                         </div>
                         <div className="mt-3">
                           <RolloutPercentageControl
+                            featureFlag={parentFlag}
+                            onUpdate={refetch}
+                          />
+                        </div>
+                        
+                        {/* A/B Testing Integration */}
+                        <div className="mt-4 pt-4 border-t">
+                          <ABTestingIntegration 
                             featureFlag={parentFlag}
                             onUpdate={refetch}
                           />

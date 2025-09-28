@@ -41,6 +41,171 @@ export type Database = {
         }
         Relationships: []
       }
+      ab_test_experiments: {
+        Row: {
+          confidence_level: number | null
+          created_at: string
+          created_by: string | null
+          ended_at: string | null
+          experiment_description: string | null
+          experiment_name: string
+          feature_flag_id: string | null
+          hypothesis: string | null
+          id: string
+          minimum_sample_size: number
+          significance_threshold: number
+          started_at: string | null
+          status: string
+          success_metric: string
+          test_duration_days: number
+          traffic_split: Json
+          updated_at: string
+          winner_variant: string | null
+        }
+        Insert: {
+          confidence_level?: number | null
+          created_at?: string
+          created_by?: string | null
+          ended_at?: string | null
+          experiment_description?: string | null
+          experiment_name: string
+          feature_flag_id?: string | null
+          hypothesis?: string | null
+          id?: string
+          minimum_sample_size?: number
+          significance_threshold?: number
+          started_at?: string | null
+          status?: string
+          success_metric: string
+          test_duration_days?: number
+          traffic_split?: Json
+          updated_at?: string
+          winner_variant?: string | null
+        }
+        Update: {
+          confidence_level?: number | null
+          created_at?: string
+          created_by?: string | null
+          ended_at?: string | null
+          experiment_description?: string | null
+          experiment_name?: string
+          feature_flag_id?: string | null
+          hypothesis?: string | null
+          id?: string
+          minimum_sample_size?: number
+          significance_threshold?: number
+          started_at?: string | null
+          status?: string
+          success_metric?: string
+          test_duration_days?: number
+          traffic_split?: Json
+          updated_at?: string
+          winner_variant?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ab_test_experiments_feature_flag_id_fkey"
+            columns: ["feature_flag_id"]
+            isOneToOne: false
+            referencedRelation: "feature_flags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ab_test_results: {
+        Row: {
+          created_at: string
+          event_type: string
+          event_value: number | null
+          experiment_id: string
+          id: string
+          metadata: Json | null
+          session_id: string | null
+          user_id: string
+          variant: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          event_value?: number | null
+          experiment_id: string
+          id?: string
+          metadata?: Json | null
+          session_id?: string | null
+          user_id: string
+          variant: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          event_value?: number | null
+          experiment_id?: string
+          id?: string
+          metadata?: Json | null
+          session_id?: string | null
+          user_id?: string
+          variant?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ab_test_results_experiment_id_fkey"
+            columns: ["experiment_id"]
+            isOneToOne: false
+            referencedRelation: "ab_test_experiments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ab_test_statistics: {
+        Row: {
+          calculated_at: string
+          confidence_interval_lower: number | null
+          confidence_interval_upper: number | null
+          conversion_rate: number
+          conversions: number
+          experiment_id: string
+          id: string
+          p_value: number | null
+          statistical_significance: number | null
+          total_users: number
+          variant: string
+        }
+        Insert: {
+          calculated_at?: string
+          confidence_interval_lower?: number | null
+          confidence_interval_upper?: number | null
+          conversion_rate?: number
+          conversions?: number
+          experiment_id: string
+          id?: string
+          p_value?: number | null
+          statistical_significance?: number | null
+          total_users?: number
+          variant: string
+        }
+        Update: {
+          calculated_at?: string
+          confidence_interval_lower?: number | null
+          confidence_interval_upper?: number | null
+          conversion_rate?: number
+          conversions?: number
+          experiment_id?: string
+          id?: string
+          p_value?: number | null
+          statistical_significance?: number | null
+          total_users?: number
+          variant?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ab_test_statistics_experiment_id_fkey"
+            columns: ["experiment_id"]
+            isOneToOne: false
+            referencedRelation: "ab_test_experiments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       activity_comments: {
         Row: {
           activity_id: string
@@ -1015,9 +1180,11 @@ export type Database = {
       feature_flags: {
         Row: {
           ab_test_config: Json | null
+          ab_test_enabled: boolean
           cohort_rules: Json | null
           created_at: string
           created_by: string | null
+          current_experiment_id: string | null
           description: string | null
           feature_name: string
           id: string
@@ -1032,9 +1199,11 @@ export type Database = {
         }
         Insert: {
           ab_test_config?: Json | null
+          ab_test_enabled?: boolean
           cohort_rules?: Json | null
           created_at?: string
           created_by?: string | null
+          current_experiment_id?: string | null
           description?: string | null
           feature_name: string
           id?: string
@@ -1049,9 +1218,11 @@ export type Database = {
         }
         Update: {
           ab_test_config?: Json | null
+          ab_test_enabled?: boolean
           cohort_rules?: Json | null
           created_at?: string
           created_by?: string | null
+          current_experiment_id?: string | null
           description?: string | null
           feature_name?: string
           id?: string
@@ -1065,6 +1236,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "feature_flags_current_experiment_id_fkey"
+            columns: ["current_experiment_id"]
+            isOneToOne: false
+            referencedRelation: "ab_test_experiments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "feature_flags_parent_feature_id_fkey"
             columns: ["parent_feature_id"]
@@ -4578,6 +4756,10 @@ export type Database = {
         Args: { user_email: string }
         Returns: boolean
       }
+      calculate_ab_test_statistics: {
+        Args: { _experiment_id: string }
+        Returns: undefined
+      }
       calculate_composite_investment_score: {
         Args: {
           _mastery_weight?: number
@@ -4598,6 +4780,10 @@ export type Database = {
       can_modify_user_roles: {
         Args: { _admin_id: string; _target_user_id: string }
         Returns: boolean
+      }
+      detect_experiment_winner: {
+        Args: { _experiment_id: string }
+        Returns: string
       }
       detect_leadership_candidates: {
         Args: Record<PropertyKey, never>

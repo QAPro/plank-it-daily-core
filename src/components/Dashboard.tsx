@@ -88,6 +88,8 @@ const Dashboard = () => {
     return null;
   }
 
+  console.log('[Dashboard] Rendering Dashboard for user:', user?.email);
+
   return (
     <FlagGuard featureName="main_dashboard">
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">

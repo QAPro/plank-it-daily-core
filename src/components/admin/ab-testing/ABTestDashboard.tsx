@@ -15,15 +15,23 @@ import {
   Trophy,
   AlertTriangle,
   BarChart3,
-  Activity
+  Activity,
+  FileText,
+  Lightbulb,
+  LineChart
 } from "lucide-react";
 import { useABTestExperiments, useABTestStatistics } from "@/hooks/useABTesting";
 import { ABTestExperimentDialog } from "./ABTestExperimentDialog";
+import { RealTimeAnalyticsDashboard } from "./RealTimeAnalyticsDashboard";
+import { ExperimentTemplatesModal } from "./ExperimentTemplatesModal";
+import { ExperimentRecommendations } from "./ExperimentRecommendations";
 import { ABTestExperiment } from "@/services/abTestingService";
 
 export const ABTestDashboard = () => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showTemplatesModal, setShowTemplatesModal] = useState(false);
   const [selectedExperiment, setSelectedExperiment] = useState<ABTestExperiment | null>(null);
+  const [selectedExperimentForAnalytics, setSelectedExperimentForAnalytics] = useState<ABTestExperiment | null>(null);
   const { 
     experiments, 
     loading, 
@@ -87,6 +95,11 @@ export const ABTestDashboard = () => {
     setShowCreateDialog(true);
   };
 
+  const handleTemplateSelect = (experiment: Partial<ABTestExperiment>) => {
+    setSelectedExperiment(experiment as ABTestExperiment);
+    setShowCreateDialog(true);
+  };
+
   const runningExperiments = experiments.filter(exp => exp.status === 'running');
   const completedExperiments = experiments.filter(exp => exp.status === 'completed');
   const draftExperiments = experiments.filter(exp => exp.status === 'draft');
@@ -109,10 +122,16 @@ export const ABTestDashboard = () => {
             Manage and analyze your feature experiments
           </p>
         </div>
-        <Button onClick={handleCreateNew} className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          New Experiment
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowTemplatesModal(true)} className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Templates
+          </Button>
+          <Button onClick={handleCreateNew} className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            New Experiment
+          </Button>
+        </div>
       </div>
 
       {/* Stats Overview */}
@@ -166,6 +185,33 @@ export const ABTestDashboard = () => {
         </Card>
       </div>
 
+      {/* AI Recommendations */}
+      <ExperimentRecommendations onCreateExperiment={handleTemplateSelect} />
+
+      {/* Real-Time Analytics for Selected Experiment */}
+      {selectedExperimentForAnalytics && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <LineChart className="h-5 w-5" />
+                Real-Time Analytics: {selectedExperimentForAnalytics.experiment_name}
+              </CardTitle>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setSelectedExperimentForAnalytics(null)}
+              >
+                Close
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <RealTimeAnalyticsDashboard experiment={selectedExperimentForAnalytics} />
+          </CardContent>
+        </Card>
+      )}
+
       {/* Experiments Table */}
       <Tabs defaultValue="all" className="w-full">
         <TabsList>
@@ -173,6 +219,10 @@ export const ABTestDashboard = () => {
           <TabsTrigger value="running">Running ({runningExperiments.length})</TabsTrigger>
           <TabsTrigger value="completed">Completed ({completedExperiments.length})</TabsTrigger>
           <TabsTrigger value="draft">Draft ({draftExperiments.length})</TabsTrigger>
+          <TabsTrigger value="recommendations" className="flex items-center gap-1">
+            <Lightbulb className="h-3 w-3" />
+            AI Insights
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="space-y-4">
@@ -182,6 +232,7 @@ export const ABTestDashboard = () => {
             onStart={start}
             onPause={pause}
             onStop={stop}
+            onViewAnalytics={setSelectedExperimentForAnalytics}
             isStarting={isStarting}
             isPausing={isPausing}
             isStopping={isStopping}
@@ -195,6 +246,7 @@ export const ABTestDashboard = () => {
             onStart={start}
             onPause={pause}
             onStop={stop}
+            onViewAnalytics={setSelectedExperimentForAnalytics}
             isStarting={isStarting}
             isPausing={isPausing}
             isStopping={isStopping}
@@ -208,6 +260,7 @@ export const ABTestDashboard = () => {
             onStart={start}
             onPause={pause}
             onStop={stop}
+            onViewAnalytics={setSelectedExperimentForAnalytics}
             isStarting={isStarting}
             isPausing={isPausing}
             isStopping={isStopping}
@@ -221,10 +274,15 @@ export const ABTestDashboard = () => {
             onStart={start}
             onPause={pause}
             onStop={stop}
+            onViewAnalytics={setSelectedExperimentForAnalytics}
             isStarting={isStarting}
             isPausing={isPausing}
             isStopping={isStopping}
           />
+        </TabsContent>
+
+        <TabsContent value="recommendations" className="space-y-4">
+          <ExperimentRecommendations onCreateExperiment={handleTemplateSelect} />
         </TabsContent>
       </Tabs>
 
@@ -236,6 +294,13 @@ export const ABTestDashboard = () => {
         onSave={handleSaveExperiment}
         isLoading={isCreating || isUpdating}
       />
+
+      {/* Templates Modal */}
+      <ExperimentTemplatesModal
+        open={showTemplatesModal}
+        onOpenChange={setShowTemplatesModal}
+        onSelectTemplate={handleTemplateSelect}
+      />
     </div>
   );
 };
@@ -246,6 +311,7 @@ interface ExperimentsListProps {
   onStart: (id: string) => void;
   onPause: (id: string) => void;
   onStop: (id: string) => void;
+  onViewAnalytics: (experiment: ABTestExperiment) => void;
   isStarting: boolean;
   isPausing: boolean;
   isStopping: boolean;
@@ -257,6 +323,7 @@ const ExperimentsList = ({
   onStart,
   onPause,
   onStop,
+  onViewAnalytics,
   isStarting,
   isPausing,
   isStopping
@@ -311,6 +378,7 @@ const ExperimentsList = ({
           onStart={onStart}
           onPause={onPause}
           onStop={onStop}
+          onViewAnalytics={onViewAnalytics}
           isStarting={isStarting}
           isPausing={isPausing}
           isStopping={isStopping}
@@ -326,6 +394,7 @@ interface ExperimentCardProps {
   onStart: (id: string) => void;
   onPause: (id: string) => void;
   onStop: (id: string) => void;
+  onViewAnalytics: (experiment: ABTestExperiment) => void;
   isStarting: boolean;
   isPausing: boolean;
   isStopping: boolean;
@@ -337,6 +406,7 @@ const ExperimentCard = ({
   onStart,
   onPause,
   onStop,
+  onViewAnalytics,
   isStarting,
   isPausing,
   isStopping
@@ -462,6 +532,17 @@ const ExperimentCard = ({
           </div>
 
           <div className="flex items-center gap-2">
+            {experiment.status === 'running' && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => onViewAnalytics(experiment)}
+                className="flex items-center gap-1"
+              >
+                <BarChart3 className="h-3 w-3" />
+                Analytics
+              </Button>
+            )}
             <Button variant="outline" size="sm" onClick={() => onEdit(experiment)}>
               Edit
             </Button>

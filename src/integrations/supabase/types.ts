@@ -4752,6 +4752,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      audit_security_configuration: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          check_name: string
+          details: string
+          status: string
+        }[]
+      }
       bootstrap_first_admin: {
         Args: { user_email: string }
         Returns: boolean

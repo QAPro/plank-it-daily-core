@@ -4634,15 +4634,6 @@ export type Database = {
       }
     }
     Views: {
-      security_monitoring_dashboard: {
-        Row: {
-          last_checked: string | null
-          metric_category: string | null
-          metric_value: string | null
-          status: string | null
-        }
-        Relationships: []
-      }
       user_push_subscription_status: {
         Row: {
           created_at: string | null
@@ -5028,6 +5019,15 @@ export type Database = {
           masked_payment_intent: string
           status: string
           transaction_id: string
+        }[]
+      }
+      get_security_monitoring_status: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          last_checked: string
+          metric_category: string
+          metric_value: string
+          status: string
         }[]
       }
       get_security_status_report: {

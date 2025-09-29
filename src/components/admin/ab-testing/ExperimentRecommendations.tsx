@@ -26,18 +26,9 @@ export const ExperimentRecommendations = ({ onCreateExperiment }: ExperimentReco
   const [dismissedRecommendations, setDismissedRecommendations] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    const loadRecommendations = async () => {
-      try {
-        const recs = await enhancedABTestingService.generateExperimentRecommendations('current-user');
-        setRecommendations(recs);
-      } catch (error) {
-        console.error('Failed to load recommendations:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadRecommendations();
+    // AI recommendations disabled - requires ML integration
+    setLoading(false);
+    setRecommendations([]);
   }, []);
 
   const getPriorityColor = (score: number) => {
@@ -103,21 +94,34 @@ export const ExperimentRecommendations = ({ onCreateExperiment }: ExperimentReco
     );
   }
 
-  if (visibleRecommendations.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CheckCircle className="h-5 w-5 text-green-600" />
-            All Caught Up!
-          </CardTitle>
-          <CardDescription>
-            No new experiment recommendations at this time. Check back later for AI-generated suggestions.
-          </CardDescription>
-        </CardHeader>
-      </Card>
-    );
-  }
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Lightbulb className="h-5 w-5" />
+          AI Experiment Recommendations
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="text-center py-8">
+          <div className="bg-muted rounded-lg p-6">
+            <Lightbulb className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">AI Recommendations Not Yet Implemented</h3>
+            <p className="text-muted-foreground mb-4">
+              This feature requires machine learning models and user behavior analytics integration.
+            </p>
+            <div className="text-sm text-muted-foreground space-y-1">
+              <p><strong>Required integrations:</strong></p>
+              <p>• Machine learning recommendation engine</p>
+              <p>• User behavior analytics platform</p>
+              <p>• Feature usage pattern analysis</p>
+              <p>• Historical experiment performance database</p>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   return (
     <div className="space-y-4">

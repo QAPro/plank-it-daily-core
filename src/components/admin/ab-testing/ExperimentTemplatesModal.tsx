@@ -150,7 +150,11 @@ export const ExperimentTemplatesModal = ({
         <DialogHeader>
           <DialogTitle>Experiment Templates</DialogTitle>
           <DialogDescription>
-            Choose from proven experiment templates to get started quickly
+            Choose from proven experiment templates to get started quickly.
+            <br />
+            <span className="text-xs text-muted-foreground mt-2 block">
+              Note: Advanced features like visual designer, collaboration tools, and mobile optimization are not yet implemented.
+            </span>
           </DialogDescription>
         </DialogHeader>
 

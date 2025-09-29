@@ -46,42 +46,16 @@ export interface ExperimentRecommendation {
 class EnhancedABTestingService {
   // Bayesian Analysis
   async calculateBayesianStatistics(experimentId: string): Promise<BayesianResult[]> {
-    // Simulate Bayesian calculation (in real implementation, use proper Bayesian libraries)
-    const statistics = await abTestingService.getExperimentStatistics(experimentId);
-    
-    return statistics.map(stat => ({
-      variant: stat.variant,
-      probability_of_being_best: stat.variant === 'control' ? 0.35 : 0.65,
-      expected_loss: Math.random() * 0.05,
-      credible_interval_lower: stat.conversion_rate - 0.02,
-      credible_interval_upper: stat.conversion_rate + 0.02
-    }));
+    // Bayesian analysis not yet implemented
+    // Requires: Statistical computing libraries (R/Python integration), Bayesian frameworks
+    throw new Error('Bayesian statistical analysis not yet implemented - requires external statistical computing integration');
   }
 
   // Multi-Armed Bandit
   async updateBanditAllocation(experimentId: string): Promise<{ control: number; variant_a: number }> {
-    const statistics = await abTestingService.getExperimentStatistics(experimentId);
-    const controlStats = statistics.find(s => s.variant === 'control');
-    const variantStats = statistics.find(s => s.variant === 'variant_a');
-
-    if (!controlStats || !variantStats) {
-      return { control: 50, variant_a: 50 };
-    }
-
-    // Thompson Sampling-like allocation
-    const controlRate = controlStats.conversion_rate;
-    const variantRate = variantStats.conversion_rate;
-    
-    const total = controlRate + variantRate;
-    if (total === 0) return { control: 50, variant_a: 50 };
-
-    const controlAllocation = Math.floor((controlRate / total) * 100);
-    const variantAllocation = 100 - controlAllocation;
-
-    return { 
-      control: Math.max(10, Math.min(90, controlAllocation)), 
-      variant_a: Math.max(10, Math.min(90, variantAllocation))
-    };
+    // Multi-armed bandit allocation not yet implemented
+    // Requires: Thompson Sampling algorithms, Bayesian optimization libraries
+    throw new Error('Multi-armed bandit allocation not yet implemented - requires advanced statistical algorithms');
   }
 
   // Sequential Testing
@@ -90,39 +64,9 @@ class EnhancedABTestingService {
     reason?: string;
     winning_variant?: string;
   }> {
-    const statistics = await abTestingService.getExperimentStatistics(experimentId);
-    const controlStats = statistics.find(s => s.variant === 'control');
-    const variantStats = statistics.find(s => s.variant === 'variant_a');
-
-    if (!controlStats || !variantStats || !variantStats.p_value) {
-      return { should_stop: false };
-    }
-
-    // Simple sequential bounds (O'Brien-Fleming-like)
-    const totalUsers = controlStats.total_users + variantStats.total_users;
-    const plannedSampleSize = 10000; // Should come from experiment config
-    const fraction = totalUsers / plannedSampleSize;
-
-    // Adjusted alpha for interim analysis
-    const adjustedAlpha = 0.05 / Math.sqrt(fraction);
-
-    if (variantStats.p_value < adjustedAlpha) {
-      return {
-        should_stop: true,
-        reason: 'Statistical significance reached with sequential bounds',
-        winning_variant: variantStats.conversion_rate > controlStats.conversion_rate ? 'variant_a' : 'control'
-      };
-    }
-
-    // Futility bounds
-    if (fraction > 0.5 && variantStats.p_value > 0.8) {
-      return {
-        should_stop: true,
-        reason: 'Futility bound reached - unlikely to detect effect'
-      };
-    }
-
-    return { should_stop: false };
+    // Sequential testing not yet implemented
+    // Requires: O'Brien-Fleming bounds calculation, Group Sequential Design libraries
+    throw new Error('Sequential testing bounds checking not yet implemented - requires specialized statistical libraries');
   }
 
   // Advanced Sample Size Calculation
@@ -246,33 +190,9 @@ class EnhancedABTestingService {
 
   // Automatic Recommendations
   async generateExperimentRecommendations(userId: string): Promise<ExperimentRecommendation[]> {
-    // Simulate intelligent recommendations based on user behavior patterns
-    return [
-      {
-        feature_name: 'checkout_button',
-        recommended_test_type: 'button-optimization',
-        priority_score: 85,
-        reasoning: 'High traffic area with moderate conversion rate - good opportunity for improvement',
-        estimated_impact: 12,
-        recommended_metrics: ['button_click', 'conversion', 'revenue']
-      },
-      {
-        feature_name: 'pricing_display',
-        recommended_test_type: 'pricing-test',
-        priority_score: 78,
-        reasoning: 'Users spend significant time on pricing page but many don\'t convert',
-        estimated_impact: 18,
-        recommended_metrics: ['page_view', 'time_spent', 'purchase']
-      },
-      {
-        feature_name: 'feature_discovery',
-        recommended_test_type: 'feature-adoption',
-        priority_score: 72,
-        reasoning: 'New feature has low adoption despite positive user feedback',
-        estimated_impact: 25,
-        recommended_metrics: ['feature_usage', 'engagement', 'retention']
-      }
-    ];
+    // AI-powered recommendations not yet implemented
+    // Requires: Machine learning models, user behavior analytics platform, feature usage tracking
+    throw new Error('AI experiment recommendations not yet implemented - requires ML models and user analytics integration');
   }
 
   // Meta-analysis across experiments
@@ -283,18 +203,9 @@ class EnhancedABTestingService {
     top_performing_elements: string[];
     common_failure_patterns: string[];
   }> {
-    const experiments = await abTestingService.getExperiments();
-    const completedExperiments = experiments.filter(exp => exp.status === 'completed');
-
-    const successfulTests = completedExperiments.filter(exp => exp.winner_variant && exp.winner_variant !== 'control');
-
-    return {
-      total_experiments: experiments.length,
-      successful_tests: successfulTests.length,
-      average_lift: 8.5, // Simulated average
-      top_performing_elements: ['button_color', 'headline_text', 'pricing_display'],
-      common_failure_patterns: ['insufficient_sample_size', 'test_too_short', 'low_baseline_rate']
-    };
+    // Meta-analysis not yet implemented
+    // Requires: Historical experiment database, statistical analysis libraries, pattern recognition algorithms
+    throw new Error('Experiment meta-analysis not yet implemented - requires comprehensive experiment database and analysis tools');
   }
 
   // Power Analysis for Running Experiments
@@ -303,38 +214,9 @@ class EnhancedABTestingService {
     projected_end_power: number;
     recommendation: string;
   }> {
-    const experiment = await abTestingService.getExperiment(experimentId);
-    const statistics = await abTestingService.getExperimentStatistics(experimentId);
-
-    if (!experiment || statistics.length === 0) {
-      return {
-        current_power: 0,
-        projected_end_power: 0,
-        recommendation: 'Insufficient data for power analysis'
-      };
-    }
-
-    const totalUsers = statistics.reduce((sum, stat) => sum + stat.total_users, 0);
-    const plannedSampleSize = experiment.minimum_sample_size * 2; // Assuming equal split
-
-    // Simplified power calculation
-    const currentPower = Math.min(0.8, (totalUsers / plannedSampleSize) * 0.8);
-    const projectedEndPower = 0.8; // Assuming we reach planned sample size
-
-    let recommendation = '';
-    if (currentPower < 0.5) {
-      recommendation = 'Continue running - insufficient power to detect meaningful effects';
-    } else if (currentPower >= 0.8) {
-      recommendation = 'Sufficient power reached - can make decision';
-    } else {
-      recommendation = 'Moderate power - consider extending if no clear winner emerges';
-    }
-
-    return {
-      current_power: currentPower,
-      projected_end_power: projectedEndPower,
-      recommendation
-    };
+    // Power analysis not yet implemented
+    // Requires: Statistical power calculation libraries, effect size estimation algorithms
+    throw new Error('Power analysis not yet implemented - requires specialized statistical calculation libraries');
   }
 }
 

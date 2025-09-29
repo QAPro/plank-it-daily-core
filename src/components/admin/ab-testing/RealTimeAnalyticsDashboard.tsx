@@ -26,29 +26,11 @@ export const RealTimeAnalyticsDashboard = ({ experiment }: RealTimeAnalyticsDash
   const [realTimeData, setRealTimeData] = useState<any[]>([]);
   const [isLive, setIsLive] = useState(false);
 
-  // Simulate real-time data updates
-  useEffect(() => {
-    if (experiment.status === 'running') {
-      setIsLive(true);
-      const interval = setInterval(() => {
-        refetch();
-        // Simulate adding new data points
-        const now = new Date();
-        const newDataPoint = {
-          time: now.toLocaleTimeString(),
-          control_rate: Math.random() * 0.1 + 0.15,
-          variant_rate: Math.random() * 0.12 + 0.16,
-          sample_size: Math.floor(Math.random() * 100) + 1000
-        };
-        setRealTimeData(prev => [...prev.slice(-19), newDataPoint]);
-      }, 30000); // Update every 30 seconds
-
-      return () => {
-        clearInterval(interval);
-        setIsLive(false);
-      };
-    }
-  }, [experiment.status, refetch]);
+  // Real-time updates disabled - WebSocket integration needed
+  // External integrations required:
+  // - WebSocket infrastructure for live data streaming
+  // - Analytics platforms (Google Analytics, Mixpanel, Amplitude)
+  // - Real-time event processing system
 
   const controlStats = statistics.find(s => s.variant === 'control');
   const variantStats = statistics.find(s => s.variant === 'variant_a');
@@ -60,26 +42,10 @@ export const RealTimeAnalyticsDashboard = ({ experiment }: RealTimeAnalyticsDash
 
   const isSignificant = variantStats?.statistical_significance && variantStats.p_value && variantStats.p_value < 0.05;
 
-  // Sample funnel data
-  const funnelData = [
-    { name: 'Visits', control: 10000, variant: 10000 },
-    { name: 'Engagement', control: 7500, variant: 8200 },
-    { name: 'Clicks', control: 1500, variant: 1800 },
-    { name: 'Conversions', control: controlStats?.conversions || 0, variant: variantStats?.conversions || 0 },
-  ];
-
-  // Sample cohort data
-  const cohortData = [
-    { cohort: 'Day 1', control: 85, variant: 88 },
-    { cohort: 'Day 7', control: 72, variant: 79 },
-    { cohort: 'Day 14', control: 65, variant: 71 },
-    { cohort: 'Day 30', control: 58, variant: 66 },
-  ];
-
-  const pieData = [
-    { name: 'Control', value: controlStats?.total_users || 0, color: '#8884d8' },
-    { name: 'Variant A', value: variantStats?.total_users || 0, color: '#82ca9d' },
-  ];
+  // Placeholder data - requires external analytics integration
+  const funnelData = [];
+  const cohortData = [];
+  const pieData = [];
 
   if (loading) {
     return (
@@ -188,32 +154,12 @@ export const RealTimeAnalyticsDashboard = ({ experiment }: RealTimeAnalyticsDash
         </CardHeader>
         <CardContent>
           <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={realTimeData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="time" />
-                <YAxis tickFormatter={(value) => `${(value * 100).toFixed(1)}%`} />
-                <Tooltip 
-                  formatter={(value: number) => [`${(value * 100).toFixed(2)}%`, 'Conversion Rate']}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="control_rate" 
-                  stroke="#8884d8" 
-                  strokeWidth={2}
-                  name="Control"
-                  dot={{ r: 3 }}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="variant_rate" 
-                  stroke="#82ca9d" 
-                  strokeWidth={2}
-                  name="Variant A"
-                  dot={{ r: 3 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            <div className="flex items-center justify-center h-full text-muted-foreground">
+              <div className="text-center">
+                <p className="text-sm font-medium">Real-time analytics not yet implemented</p>
+                <p className="text-xs">Requires WebSocket integration and streaming analytics platform</p>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -229,16 +175,12 @@ export const RealTimeAnalyticsDashboard = ({ experiment }: RealTimeAnalyticsDash
           </CardHeader>
           <CardContent>
             <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={funnelData} layout="horizontal">
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis dataKey="name" type="category" />
-                  <Tooltip />
-                  <Bar dataKey="control" fill="#8884d8" name="Control" />
-                  <Bar dataKey="variant" fill="#82ca9d" name="Variant A" />
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="flex items-center justify-center h-full text-muted-foreground">
+                <div className="text-center">
+                  <p className="text-sm font-medium">Funnel analysis not yet implemented</p>
+                  <p className="text-xs">Requires user behavior tracking and analytics platform integration</p>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -252,25 +194,12 @@ export const RealTimeAnalyticsDashboard = ({ experiment }: RealTimeAnalyticsDash
           </CardHeader>
           <CardContent>
             <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
+              <div className="flex items-center justify-center h-full text-muted-foreground">
+                <div className="text-center">
+                  <p className="text-sm font-medium">Traffic distribution visualization not yet implemented</p>
+                  <p className="text-xs">Requires real-time traffic analytics integration</p>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -286,28 +215,12 @@ export const RealTimeAnalyticsDashboard = ({ experiment }: RealTimeAnalyticsDash
         </CardHeader>
         <CardContent>
           <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={cohortData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="cohort" />
-                <YAxis tickFormatter={(value) => `${value}%`} />
-                <Tooltip formatter={(value: number) => [`${value}%`, 'Retention Rate']} />
-                <Line 
-                  type="monotone" 
-                  dataKey="control" 
-                  stroke="#8884d8" 
-                  strokeWidth={2}
-                  name="Control"
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="variant" 
-                  stroke="#82ca9d" 
-                  strokeWidth={2}
-                  name="Variant A"
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            <div className="flex items-center justify-center h-full text-muted-foreground">
+              <div className="text-center">
+                <p className="text-sm font-medium">Cohort retention analysis not yet implemented</p>
+                <p className="text-xs">Requires user segmentation data and retention tracking system</p>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

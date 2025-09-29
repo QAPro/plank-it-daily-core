@@ -456,11 +456,15 @@ export type Database = {
       }
       billing_transactions: {
         Row: {
+          access_log_count: number | null
+          access_restricted: boolean | null
           amount_cents: number
           created_at: string
           currency: string
           description: string | null
+          encrypted_payment_intent_id: string | null
           id: string
+          last_accessed_at: string | null
           status: string
           stripe_payment_intent_id: string | null
           subscription_id: string | null
@@ -468,11 +472,15 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          access_log_count?: number | null
+          access_restricted?: boolean | null
           amount_cents: number
           created_at?: string
           currency?: string
           description?: string | null
+          encrypted_payment_intent_id?: string | null
           id?: string
+          last_accessed_at?: string | null
           status?: string
           stripe_payment_intent_id?: string | null
           subscription_id?: string | null
@@ -480,11 +488,15 @@ export type Database = {
           user_id: string
         }
         Update: {
+          access_log_count?: number | null
+          access_restricted?: boolean | null
           amount_cents?: number
           created_at?: string
           currency?: string
           description?: string | null
+          encrypted_payment_intent_id?: string | null
           id?: string
+          last_accessed_at?: string | null
           status?: string
           stripe_payment_intent_id?: string | null
           subscription_id?: string | null
@@ -4728,6 +4740,22 @@ export type Database = {
         Args: { _override_id: string; _reason?: string }
         Returns: boolean
       }
+      admin_secure_billing_access: {
+        Args: {
+          _access_reason?: string
+          _limit_count?: number
+          _target_user_id: string
+        }
+        Returns: {
+          amount_cents: number
+          created_at: string
+          currency: string
+          description: string
+          masked_payment_intent: string
+          status: string
+          transaction_id: string
+        }[]
+      }
       admin_secure_user_lookup: {
         Args: { _access_reason?: string; _user_id: string }
         Returns: {
@@ -4787,6 +4815,10 @@ export type Database = {
       }
       can_modify_user_roles: {
         Args: { _admin_id: string; _target_user_id: string }
+        Returns: boolean
+      }
+      check_billing_access_rate_limit: {
+        Args: { _user_id: string }
         Returns: boolean
       }
       detect_experiment_winner: {
@@ -5289,6 +5321,18 @@ export type Database = {
           p_user_id: string
         }
         Returns: boolean
+      }
+      user_secure_billing_history: {
+        Args: { _limit_count?: number }
+        Returns: {
+          amount_cents: number
+          created_at: string
+          currency: string
+          description: string
+          masked_payment_intent: string
+          status: string
+          transaction_id: string
+        }[]
       }
     }
     Enums: {

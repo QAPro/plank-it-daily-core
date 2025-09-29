@@ -8,6 +8,8 @@ import { useFeatureAdoptionTrends } from "@/hooks/useFeatureAnalytics";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 import { TrendingUp, Users, Activity, Target } from "lucide-react";
 import { useAdmin } from "@/hooks/useAdmin";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const FeatureAnalyticsDashboard: React.FC = () => {
   const { isAdmin } = useAdmin();
@@ -26,21 +28,59 @@ const FeatureAnalyticsDashboard: React.FC = () => {
     );
   }
 
-  // Real feature metrics from Supabase - placeholder for external analytics integration
-  const mockFeatureMetrics = [
-    {
-      feature_name: "No Analytics Data",
-      total_users: 0,
-      active_users_24h: 0,
-      active_users_7d: 0,
-      active_users_30d: 0,
-      adoption_rate: 0,
-      engagement_score: 0,
-      performance_impact: "unknown" as const,
-      user_satisfaction: 0,
-      placeholder_message: "Analytics integration required - Connect to real usage tracking system"
+  // Real feature metrics from Supabase database
+  const { data: featureMetrics, isLoading: metricsLoading } = useQuery({
+    queryKey: ['feature-metrics'],
+    queryFn: async () => {
+      const { data: flags } = await supabase.from('feature_flags').select('feature_name').eq('is_enabled', true);
+      if (!flags || flags.length === 0) {
+        return [{
+          feature_name: "No Features Available",
+          total_users: 0,
+          active_users_24h: 0,
+          active_users_7d: 0,
+          active_users_30d: 0,
+          adoption_rate: 0,
+          engagement_score: 0,
+          performance_impact: "unknown" as const,
+          user_satisfaction: 0,
+          placeholder_message: "No active feature flags found. Create feature flags to see analytics."
+        }];
+      }
+
+      // Fetch analytics for each feature using the database function
+      const featureAnalytics = await Promise.all(
+        flags.map(async (flag) => {
+          const { data, error } = await supabase.rpc('get_feature_analytics', { 
+            _feature_name: flag.feature_name 
+          });
+          
+          if (error || !data || data.length === 0) {
+            return {
+              feature_name: flag.feature_name,
+              total_users: 0,
+              active_users_24h: 0,
+              active_users_7d: 0,
+              active_users_30d: 0,
+              adoption_rate: 0,
+              engagement_score: 0,
+              performance_impact: "unknown" as const,
+              user_satisfaction: 0,
+              placeholder_message: "Analytics integration required - Connect to real usage tracking system"
+            };
+          }
+          
+          return {
+            ...(data[0] as any),
+            placeholder_message: data[0]?.total_users === 0 ? "Analytics integration required - Connect to real usage tracking system" : undefined
+          };
+        })
+      );
+
+      return featureAnalytics;
     },
-  ];
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
 
   const performanceIntegrationNote = {
     message: "Performance monitoring requires APM tool integration (New Relic, DataDog, etc.)",
@@ -61,9 +101,11 @@ const FeatureAnalyticsDashboard: React.FC = () => {
     }
   };
 
-  const filteredMetrics = mockFeatureMetrics.filter(metric =>
+  const filteredMetrics = (featureMetrics || []).filter(metric =>
     metric.feature_name.toLowerCase().includes(searchFeature.toLowerCase())
   );
+
+  const hasPlaceholderData = filteredMetrics.some((m: any) => m.placeholder_message);
 
   return (
     <div className="space-y-6">
@@ -165,17 +207,24 @@ const FeatureAnalyticsDashboard: React.FC = () => {
               </p>
             </CardHeader>
             <CardContent>
-              {filteredMetrics[0]?.placeholder_message ? (
+              {metricsLoading ? (
+                <div className="p-8 text-center">
+                  <Activity className="w-8 h-8 mx-auto animate-pulse text-muted-foreground mb-4" />
+                  <p className="text-sm text-muted-foreground">Loading feature analytics...</p>
+                </div>
+              ) : hasPlaceholderData ? (
                 <div className="p-8 text-center bg-blue-50 border border-blue-200 rounded-lg">
                   <Activity className="w-12 h-12 mx-auto text-blue-500 mb-4" />
                   <h4 className="font-medium text-blue-800 mb-2">
                     📊 Analytics Integration Required
                   </h4>
                   <p className="text-sm text-blue-700 mb-4">
-                    {filteredMetrics[0].placeholder_message}
+                    Connect usage tracking to see real feature analytics and user engagement metrics
                   </p>
-                  <div className="text-xs text-blue-600">
-                    Recommended integrations: Google Analytics, Mixpanel, or custom event tracking
+                  <div className="text-xs text-blue-600 space-y-1">
+                    <div>• Recommended: Google Analytics, Mixpanel, or custom event tracking</div>
+                    <div>• Database stores usage events in feature_usage_events table</div>
+                    <div>• Use get_feature_analytics() function for real-time data</div>
                   </div>
                 </div>
               ) : (

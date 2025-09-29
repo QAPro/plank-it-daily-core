@@ -13,7 +13,7 @@ import { Slider } from "@/components/ui/slider";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { RefreshCw, Plus, Users, Target, Zap, Search, Filter, ChevronDown, ChevronRight, AlertTriangle, Palette, Brain, Music, TrendingUp, Crown, Trophy, Gamepad2, FolderOpen, Folder, Settings, Eye, EyeOff, Database, Layers, BarChart3, Sparkles, Play, Pause, Activity, CheckCircle2, XCircle } from "lucide-react";
+import { RefreshCw, Plus, Users, Target, Zap, Search, Filter, ChevronDown, ChevronRight, AlertTriangle, Palette, Brain, Music, TrendingUp, Crown, Trophy, Gamepad2, FolderOpen, Folder, Settings, Eye, EyeOff, Database, Layers, BarChart3, Sparkles, Play, Pause, Activity, CheckCircle2, XCircle, HelpCircle } from "lucide-react";
 import { toast } from "sonner";
 import { GRANULAR_FEATURE_CATEGORIES, getGranularFeaturesByCategory, getGranularFeatureByName, getAllGranularFeatureNames } from "@/constants/granularFeatureCatalog";
 import type { FeatureFlag } from "@/services/featureManagementService";
@@ -21,6 +21,7 @@ import AdvancedFlagControls, { AdvancedFlagState } from "./flags/AdvancedFlagCon
 import RolloutPercentageControl from "./flags/RolloutPercentageControl";
 import BulkRolloutControl from "./flags/BulkRolloutControl";
 import { ABTestingIntegration } from "./flags/ABTestingIntegration";
+import { FeatureFlagsHelp } from "./flags/FeatureFlagsHelp";
 
 // Enhanced data structures for hierarchical flags
 type FeatureFlagWithChildren = FeatureFlag & {
@@ -58,6 +59,7 @@ const FeatureFlagsManager: React.FC = () => {
   const [selectedFlags, setSelectedFlags] = useState<Set<string>>(new Set());
   const [showBulkRollout, setShowBulkRollout] = useState(false);
   const [expandAll, setExpandAll] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
   // Enhanced new flag form state
   const [newFlag, setNewFlag] = useState({
@@ -377,6 +379,10 @@ const FeatureFlagsManager: React.FC = () => {
           </div>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowHelp(true)}>
+            <HelpCircle className="h-4 w-4 mr-2" />
+            Help
+          </Button>
           <Button variant="outline" onClick={handleExpandAll}>
             {expandAll ? <FolderOpen className="h-4 w-4 mr-2" /> : <Folder className="h-4 w-4 mr-2" />}
             {expandAll ? 'Collapse All' : 'Expand All'}
@@ -811,6 +817,11 @@ const FeatureFlagsManager: React.FC = () => {
           setSelectedFlags(new Set());
           setShowBulkRollout(false);
         }}
+      />
+
+      <FeatureFlagsHelp 
+        open={showHelp} 
+        onOpenChange={setShowHelp} 
       />
     </div>
   );

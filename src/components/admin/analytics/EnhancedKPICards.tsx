@@ -94,16 +94,22 @@ const EnhancedKPICards = () => {
   const { data: kpiData, isLoading, error, refetch } = useQuery({
     queryKey: ['enhanced-kpi-data'],
     queryFn: () => executeWithRetry(async () => {
-      const [usersResult, premiumResult] = await Promise.all([
+      const [usersResult, premiumResult, billingResult, sessionsResult] = await Promise.all([
         supabase.from('users').select('id', { count: 'exact', head: true }),
-        supabase.from('users').select('id', { count: 'exact', head: true }).neq('subscription_tier', 'free')
+        supabase.from('users').select('id', { count: 'exact', head: true }).neq('subscription_tier', 'free'),
+        supabase.from('billing_transactions').select('amount_cents').eq('status', 'completed'),
+        supabase.from('user_sessions').select('user_id').gte('completed_at', new Date(Date.now() - 24*60*60*1000).toISOString())
       ]);
 
-      // Simulate additional KPI data that would come from analytics
       const totalUsers = usersResult.count || 0;
       const premiumUsers = premiumResult.count || 0;
-      const activeUsers = Math.floor(totalUsers * 0.7); // 70% active rate
-      const revenue = premiumUsers * 9.99; // Assuming $9.99/month
+      
+      // Real active users from sessions in last 24h
+      const activeUsers = new Set(sessionsResult.data?.map(s => s.user_id) || []).size;
+      
+      // Real revenue from billing transactions
+      const totalRevenueCents = billingResult.data?.reduce((sum, t) => sum + t.amount_cents, 0) || 0;
+      const revenue = totalRevenueCents / 100; // Convert cents to dollars
 
       return {
         totalUsers,
@@ -156,7 +162,7 @@ const EnhancedKPICards = () => {
         onClick={() => setDrillDown('user', 'all', { metric: 'total_users' })}
       />
       <KPICard
-        title="Active Users"
+        title="Active Users (24h)"
         value={kpiData.activeUsers}
         trend={kpiData.trends.active}
         icon={Activity}
@@ -170,7 +176,7 @@ const EnhancedKPICards = () => {
         onClick={() => setDrillDown('user', 'premium', { metric: 'premium_users' })}
       />
       <KPICard
-        title="Monthly Revenue"
+        title="Total Revenue"
         value={kpiData.revenue}
         trend={kpiData.trends.revenue}
         icon={DollarSign}

@@ -5005,6 +5005,14 @@ export type Database = {
           target_percentage: number
         }[]
       }
+      get_public_user_info: {
+        Args: { target_user_id: string }
+        Returns: {
+          avatar_url: string
+          user_id: string
+          username: string
+        }[]
+      }
       get_secure_billing_history: {
         Args: {
           access_reason?: string

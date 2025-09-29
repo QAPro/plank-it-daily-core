@@ -33,53 +33,47 @@ const ABTestingDashboard = () => {
   const { data: abTests, isLoading } = useQuery({
     queryKey: ['ab-tests'],
     queryFn: async () => {
-      // Simulate A/B test data
-      const mockTests: ABTest[] = [
-        {
-          id: '1',
-          feature_name: 'onboarding_flow',
-          variants: ['original', 'simplified', 'gamified'],
-          is_active: true,
-          total_users: 450,
-          conversion_rates: {
-            original: 42.3,
-            simplified: 48.7,
-            gamified: 51.2
-          },
-          statistical_significance: 85,
-          confidence_level: 95
-        },
-        {
-          id: '2', 
-          feature_name: 'premium_upgrade_prompt',
-          variants: ['banner', 'modal', 'sidebar'],
-          is_active: true,
-          total_users: 320,
-          conversion_rates: {
-            banner: 3.2,
-            modal: 5.8,
-            sidebar: 4.1
-          },
-          statistical_significance: 92,
-          confidence_level: 95
-        },
-        {
-          id: '3',
-          feature_name: 'workout_reminder_timing',
-          variants: ['morning', 'evening', 'personalized'],
-          is_active: false,
-          total_users: 280,
-          conversion_rates: {
-            morning: 28.4,
-            evening: 31.2,
-            personalized: 35.7
-          },
-          statistical_significance: 96,
-          confidence_level: 99
-        }
-      ];
+      // Fetch real A/B test data from Supabase
+      const { data: experiments, error: experimentsError } = await supabase
+        .from('ab_test_experiments')
+        .select('*, ab_test_statistics(*)');
+      
+      if (experimentsError) {
+        console.error('Error fetching experiments:', experimentsError);
+        return [];
+      }
 
-      return mockTests;
+      if (!experiments || experiments.length === 0) {
+        return [];
+      }
+
+      // Transform the data to match the ABTest interface
+      const transformedTests: ABTest[] = experiments.map((exp) => {
+        const stats = exp.ab_test_statistics || [];
+        const conversion_rates: Record<string, number> = {};
+        
+        stats.forEach((stat) => {
+          conversion_rates[stat.variant] = stat.conversion_rate || 0;
+        });
+
+        // Calculate average statistical significance
+        const avgSignificance = stats.length > 0 
+          ? stats.reduce((sum, stat) => sum + (stat.statistical_significance || 0), 0) / stats.length
+          : 0;
+
+        return {
+          id: exp.id,
+          feature_name: exp.experiment_name,
+          variants: Object.keys(conversion_rates),
+          is_active: exp.status === 'running',
+          total_users: stats.reduce((sum, stat) => sum + (stat.total_users || 0), 0),
+          conversion_rates,
+          statistical_significance: avgSignificance,
+          confidence_level: exp.confidence_level || 95,
+        };
+      });
+
+      return transformedTests;
     },
   });
 
@@ -168,123 +162,144 @@ const ABTestingDashboard = () => {
 
       {/* Test Details */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {abTests?.map((test) => {
-          const { status, color } = getTestStatus(test);
-          const bestVariant = Object.entries(test.conversion_rates).reduce((a, b) => 
-            test.conversion_rates[a[0]] > test.conversion_rates[b[0]] ? a : b
-          );
+        {abTests && abTests.length > 0 ? (
+          abTests.map((test) => {
+            const { status, color } = getTestStatus(test);
+            const bestVariant = Object.entries(test.conversion_rates).reduce((a, b) => 
+              test.conversion_rates[a[0]] > test.conversion_rates[b[0]] ? a : b
+            );
 
-          return (
-            <Card key={test.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-center justify-between">
+            return (
+              <Card key={test.id} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="capitalize text-lg">
+                        {test.feature_name.replace(/_/g, ' ')}
+                      </CardTitle>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {test.total_users} participants • {test.variants.length} variants
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className={`w-3 h-3 rounded-full ${color}`}></div>
+                      <Badge variant="outline" className="capitalize">
+                        {status}
+                      </Badge>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Statistical Significance */}
                   <div>
-                    <CardTitle className="capitalize text-lg">
-                      {test.feature_name.replace(/_/g, ' ')}
-                    </CardTitle>
-                    <p className="text-sm text-gray-600 mt-1">
-                      {test.total_users} participants • {test.variants.length} variants
-                    </p>
+                    <div className="flex justify-between text-sm mb-2">
+                      <span>Statistical Significance</span>
+                      <span>{test.statistical_significance}%</span>
+                    </div>
+                    <Progress value={test.statistical_significance} className="h-2" />
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full ${color}`}></div>
-                    <Badge variant="outline" className="capitalize">
-                      {status}
-                    </Badge>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Statistical Significance */}
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span>Statistical Significance</span>
-                    <span>{test.statistical_significance}%</span>
-                  </div>
-                  <Progress value={test.statistical_significance} className="h-2" />
-                </div>
 
-                {/* Variant Performance */}
-                <div className="space-y-3">
-                  <p className="font-medium text-sm">Variant Performance</p>
-                  {test.variants.map((variant) => {
-                    const { rate, isWinning, lift } = getVariantPerformance(test, variant);
-                    
-                    return (
-                      <div key={variant} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                        <div className="flex items-center gap-2">
-                          <span className="capitalize font-medium text-sm">{variant}</span>
-                          {isWinning && (
-                            <Badge variant="default" className="text-xs">
-                              Winner
-                            </Badge>
-                          )}
+                  {/* Variant Performance */}
+                  <div className="space-y-3">
+                    <p className="font-medium text-sm">Variant Performance</p>
+                    {test.variants.map((variant) => {
+                      const { rate, isWinning, lift } = getVariantPerformance(test, variant);
+                      
+                      return (
+                        <div key={variant} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                          <div className="flex items-center gap-2">
+                            <span className="capitalize font-medium text-sm">{variant}</span>
+                            {isWinning && (
+                              <Badge variant="default" className="text-xs">
+                                Winner
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <p className="font-bold text-sm">{rate}%</p>
+                            {lift > 0 && !isWinning && (
+                              <p className="text-xs text-red-600">-{lift.toFixed(1)}%</p>
+                            )}
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className="font-bold text-sm">{rate}%</p>
-                          {lift > 0 && !isWinning && (
-                            <p className="text-xs text-red-600">-{lift.toFixed(1)}%</p>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
 
-                {/* Action Buttons */}
-                <div className="flex gap-2 pt-2">
-                  {test.is_active ? (
-                    <>
-                      <Button size="sm" variant="outline" className="flex-1">
-                        <Pause className="w-3 h-3 mr-1" />
-                        Pause
-                      </Button>
-                      <Button size="sm" variant="outline" className="flex-1">
-                        <BarChart3 className="w-3 h-3 mr-1" />
-                        Details
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <Button size="sm" variant="outline" className="flex-1">
-                        <Play className="w-3 h-3 mr-1" />
-                        Implement Winner
-                      </Button>
-                      <Button size="sm" variant="outline" className="flex-1">
-                        <BarChart3 className="w-3 h-3 mr-1" />
-                        Full Report
-                      </Button>
-                    </>
+                  {/* Action Buttons */}
+                  <div className="flex gap-2 pt-2">
+                    {test.is_active ? (
+                      <>
+                        <Button size="sm" variant="outline" className="flex-1">
+                          <Pause className="w-3 h-3 mr-1" />
+                          Pause
+                        </Button>
+                        <Button size="sm" variant="outline" className="flex-1">
+                          <BarChart3 className="w-3 h-3 mr-1" />
+                          Details
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button size="sm" variant="outline" className="flex-1">
+                          <Play className="w-3 h-3 mr-1" />
+                          Implement Winner
+                        </Button>
+                        <Button size="sm" variant="outline" className="flex-1">
+                          <BarChart3 className="w-3 h-3 mr-1" />
+                          Full Report
+                        </Button>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Recommendations */}
+                  {test.statistical_significance >= 95 && (
+                    <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                      <p className="text-sm font-medium text-green-800">
+                        🎉 Test Complete!
+                      </p>
+                      <p className="text-xs text-green-700 mt-1">
+                        "{bestVariant[0]}" variant shows {bestVariant[1]}% conversion rate. 
+                        Consider implementing this variant.
+                      </p>
+                    </div>
                   )}
-                </div>
 
-                {/* Recommendations */}
-                {test.statistical_significance >= 95 && (
-                  <div className="p-3 bg-green-50 rounded-lg border border-green-200">
-                    <p className="text-sm font-medium text-green-800">
-                      🎉 Test Complete!
-                    </p>
-                    <p className="text-xs text-green-700 mt-1">
-                      "{bestVariant[0]}" variant shows {bestVariant[1]}% conversion rate. 
-                      Consider implementing this variant.
-                    </p>
-                  </div>
-                )}
-
-                {test.is_active && test.statistical_significance < 80 && (
-                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                    <p className="text-sm font-medium text-blue-800">
-                      📊 Still Collecting Data
-                    </p>
-                    <p className="text-xs text-blue-700 mt-1">
-                      Need more data for reliable results. Current confidence: {test.statistical_significance}%
-                    </p>
-                  </div>
-                )}
+                  {test.is_active && test.statistical_significance < 80 && (
+                    <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                      <p className="text-sm font-medium text-blue-800">
+                        📊 Still Collecting Data
+                      </p>
+                      <p className="text-xs text-blue-700 mt-1">
+                        Need more data for reliable results. Current confidence: {test.statistical_significance}%
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })
+        ) : (
+          <div className="lg:col-span-2">
+            <Card>
+              <CardContent className="p-12 text-center">
+                <Beaker className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  No A/B Tests Configured
+                </h3>
+                <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                  Create A/B test experiments to analyze feature variants and optimize user experience. 
+                  Click "Create New Test" to get started.
+                </p>
+                <Button className="bg-orange-500 hover:bg-orange-600">
+                  <Beaker className="w-4 h-4 mr-2" />
+                  Create Your First Test
+                </Button>
               </CardContent>
             </Card>
-          );
-        })}
+          </div>
+        )}
       </div>
 
       {/* Test Creation Guide */}

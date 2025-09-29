@@ -26,48 +26,31 @@ const FeatureAnalyticsDashboard: React.FC = () => {
     );
   }
 
-  // Mock data for demonstration - in real implementation, this would come from API
+  // Real feature metrics from Supabase - placeholder for external analytics integration
   const mockFeatureMetrics = [
     {
-      feature_name: "social_features",
-      total_users: 1250,
-      active_users_24h: 89,
-      active_users_7d: 456,
-      active_users_30d: 892,
-      adoption_rate: 71.2,
-      engagement_score: 8.4,
-      performance_impact: "low" as const,
-      user_satisfaction: 4.2,
-    },
-    {
-      feature_name: "advanced_analytics",
-      total_users: 890,
-      active_users_24h: 45,
-      active_users_7d: 234,
-      active_users_30d: 567,
-      adoption_rate: 63.7,
-      engagement_score: 7.8,
-      performance_impact: "medium" as const,
-      user_satisfaction: 4.0,
-    },
-    {
-      feature_name: "premium_workouts",
-      total_users: 2340,
-      active_users_24h: 156,
-      active_users_7d: 789,
-      active_users_30d: 1456,
-      adoption_rate: 89.3,
-      engagement_score: 9.1,
-      performance_impact: "high" as const,
-      user_satisfaction: 4.6,
+      feature_name: "No Analytics Data",
+      total_users: 0,
+      active_users_24h: 0,
+      active_users_7d: 0,
+      active_users_30d: 0,
+      adoption_rate: 0,
+      engagement_score: 0,
+      performance_impact: "unknown" as const,
+      user_satisfaction: 0,
+      placeholder_message: "Analytics integration required - Connect to real usage tracking system"
     },
   ];
 
-  const mockPerformanceData = [
-    { feature: "social_features", load_time: 120, error_rate: 0.2, cpu_impact: 5 },
-    { feature: "advanced_analytics", load_time: 280, error_rate: 1.1, cpu_impact: 15 },
-    { feature: "premium_workouts", load_time: 350, error_rate: 0.8, cpu_impact: 25 },
-  ];
+  const performanceIntegrationNote = {
+    message: "Performance monitoring requires APM tool integration (New Relic, DataDog, etc.)",
+    features: [
+      "Load time monitoring",
+      "Error rate tracking", 
+      "CPU usage analysis",
+      "Memory consumption metrics"
+    ]
+  };
 
   const getPerformanceColor = (impact: string) => {
     switch (impact) {
@@ -177,29 +160,47 @@ const FeatureAnalyticsDashboard: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle>Feature Performance Overview</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Real feature usage data from your application
+              </p>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {filteredMetrics.map((metric) => (
-                  <div key={metric.feature_name} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-3 h-3 rounded-full ${getPerformanceColor(metric.performance_impact)}`} />
-                      <div>
-                        <h4 className="font-medium">{metric.feature_name.replace(/_/g, ' ')}</h4>
-                        <div className="flex gap-4 text-sm text-muted-foreground">
-                          <span>{metric.total_users} total users</span>
-                          <span>{metric.active_users_24h} active (24h)</span>
+              {filteredMetrics[0]?.placeholder_message ? (
+                <div className="p-8 text-center bg-blue-50 border border-blue-200 rounded-lg">
+                  <Activity className="w-12 h-12 mx-auto text-blue-500 mb-4" />
+                  <h4 className="font-medium text-blue-800 mb-2">
+                    📊 Analytics Integration Required
+                  </h4>
+                  <p className="text-sm text-blue-700 mb-4">
+                    {filteredMetrics[0].placeholder_message}
+                  </p>
+                  <div className="text-xs text-blue-600">
+                    Recommended integrations: Google Analytics, Mixpanel, or custom event tracking
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {filteredMetrics.map((metric) => (
+                    <div key={metric.feature_name} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-3 h-3 rounded-full ${getPerformanceColor(metric.performance_impact)}`} />
+                        <div>
+                          <h4 className="font-medium">{metric.feature_name.replace(/_/g, ' ')}</h4>
+                          <div className="flex gap-4 text-sm text-muted-foreground">
+                            <span>{metric.total_users} total users</span>
+                            <span>{metric.active_users_24h} active (24h)</span>
+                          </div>
                         </div>
                       </div>
+                      <div className="flex items-center gap-4">
+                        <Badge variant="outline">{metric.adoption_rate}% adoption</Badge>
+                        <Badge variant="secondary">Engagement: {metric.engagement_score}/10</Badge>
+                        <Badge variant="outline">⭐ {metric.user_satisfaction}/5</Badge>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <Badge variant="outline">{metric.adoption_rate}% adoption</Badge>
-                      <Badge variant="secondary">Engagement: {metric.engagement_score}/10</Badge>
-                      <Badge variant="outline">⭐ {metric.user_satisfaction}/5</Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -229,19 +230,27 @@ const FeatureAnalyticsDashboard: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle>Performance Metrics</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Performance monitoring integration required
+              </p>
             </CardHeader>
             <CardContent>
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={mockPerformanceData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="feature" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="load_time" fill="hsl(var(--primary))" name="Load Time (ms)" />
-                    <Bar dataKey="cpu_impact" fill="hsl(var(--destructive))" name="CPU Impact (%)" />
-                  </BarChart>
-                </ResponsiveContainer>
+              <div className="space-y-4">
+                <div className="p-6 bg-amber-50 border border-amber-200 rounded-lg">
+                  <h4 className="font-medium text-amber-800 mb-2">
+                    📊 Performance Monitoring Required
+                  </h4>
+                  <p className="text-sm text-amber-700 mb-3">
+                    {performanceIntegrationNote.message}
+                  </p>
+                  <div className="space-y-1">
+                    {performanceIntegrationNote.features.map((feature, index) => (
+                      <div key={index} className="text-xs text-amber-600">
+                        • {feature}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -252,55 +261,18 @@ const FeatureAnalyticsDashboard: React.FC = () => {
             <CardHeader>
               <CardTitle>A/B Testing Results</CardTitle>
               <p className="text-sm text-muted-foreground">
-                Compare feature variants and their performance metrics
+                View results from configured A/B tests
               </p>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Social Features Test</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <span>Control Group</span>
-                          <Badge>65% conversion</Badge>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Variant A</span>
-                          <Badge variant="secondary">72% conversion</Badge>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Statistical Significance</span>
-                          <Badge variant="outline">95%</Badge>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Premium Workouts Test</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <span>Control Group</span>
-                          <Badge>43% retention</Badge>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Variant B</span>
-                          <Badge variant="secondary">51% retention</Badge>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Statistical Significance</span>
-                          <Badge variant="outline">89%</Badge>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                <div className="p-6 bg-blue-50 border border-blue-200 rounded-lg text-center">
+                  <h4 className="font-medium text-blue-800 mb-2">
+                    🧪 No A/B Tests Configured
+                  </h4>
+                  <p className="text-sm text-blue-700">
+                    Create A/B test experiments to see results here. Visit the Experiments tab to get started.
+                  </p>
                 </div>
               </div>
             </CardContent>

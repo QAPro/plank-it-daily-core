@@ -111,10 +111,10 @@ const EnhancedKPICards = () => {
         premiumUsers,
         revenue,
         trends: {
-          users: Math.random() * 20 - 5, // -5% to +15% growth
-          active: Math.random() * 15 - 2, // -2% to +13% growth
-          premium: Math.random() * 25 + 5, // +5% to +30% growth
-          revenue: Math.random() * 30 + 10, // +10% to +40% growth
+          users: 0, // Historical trend analysis requires time-series data collection
+          active: 0, // Historical trend analysis requires time-series data collection
+          premium: 0, // Historical trend analysis requires time-series data collection
+          revenue: 0, // Historical trend analysis requires time-series data collection
         }
       } as KPIData;
     }),

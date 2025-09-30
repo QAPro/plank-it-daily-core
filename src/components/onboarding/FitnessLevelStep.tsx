@@ -13,7 +13,7 @@ interface FitnessLevelStepProps {
 
 const FitnessLevelStep = ({ data, onUpdate, onNext, onBack }: FitnessLevelStepProps) => {
   const levels = [
-    { value: 1, label: 'Beginner', description: 'New to fitness or planks' },
+    { value: 1, label: 'Beginner', description: 'New to fitness' },
     { value: 2, label: 'Novice', description: 'Some exercise experience' },
     { value: 3, label: 'Intermediate', description: 'Regular exercise routine' },
     { value: 4, label: 'Advanced', description: 'Strong fitness background' },
@@ -48,7 +48,7 @@ const FitnessLevelStep = ({ data, onUpdate, onNext, onBack }: FitnessLevelStepPr
         >
           <h2 className="text-2xl font-bold text-gray-800 mb-2">What's your fitness level?</h2>
           <p className="text-gray-600">
-            This helps us customize your plank workouts
+            This helps us customize your workouts
           </p>
         </motion.div>
 
@@ -78,13 +78,13 @@ const FitnessLevelStep = ({ data, onUpdate, onNext, onBack }: FitnessLevelStepPr
                   <h3 className="font-semibold text-gray-800">{level.label}</h3>
                   <p className="text-sm text-gray-600">{level.description}</p>
                 </div>
-                <div className={`w-6 h-6 rounded-full border-2 ${
+                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
                   data.fitnessLevel === level.value
                     ? 'border-orange-500 bg-orange-500'
                     : 'border-gray-300'
                 }`}>
                   {data.fitnessLevel === level.value && (
-                    <div className="w-2 h-2 bg-white rounded-full m-1" />
+                    <div className="w-2 h-2 bg-white rounded-full" />
                   )}
                 </div>
               </div>

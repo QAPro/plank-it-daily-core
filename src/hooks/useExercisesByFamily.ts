@@ -37,8 +37,10 @@ export const useExercisesByFamily = () => {
           familyKey = 'seated_exercise';
         } else if (exercise.category === 'standing_movement') {
           familyKey = 'standing_movement';
-        } else if (exercise.category === 'cardio' || exercise.category === 'strength') {
-          familyKey = 'cardio_strength';
+        } else if (exercise.category === 'cardio') {
+          familyKey = 'walking';
+        } else if (exercise.category === 'strength') {
+          familyKey = 'wall_sits';
         } else {
           familyKey = exercise.category;
         }

@@ -6,7 +6,7 @@ import OptimizedAchievementsGallery from "@/components/achievements/OptimizedAch
 import SkillTreeDisplay from "@/components/achievements/SkillTreeDisplay";
 import SeasonalAchievementsBanner from "@/components/achievements/SeasonalAchievementsBanner";
 import HiddenAchievementCelebration from "@/components/achievements/HiddenAchievementCelebration";
-import { Trophy, TreePine, Calendar, Sparkles } from "lucide-react";
+import { Trophy, TreePine, Calendar, Eye } from "lucide-react";
 
 const AchievementsTab = () => {
   const [celebratingAchievement, setCelebratingAchievement] = useState<any>(null);
@@ -40,7 +40,7 @@ const AchievementsTab = () => {
             Skill Trees
           </TabsTrigger>
           <TabsTrigger value="hidden" className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4" />
+            <Eye className="w-4 h-4" />
             Discoveries
           </TabsTrigger>
         </TabsList>

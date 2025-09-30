@@ -24,23 +24,21 @@ const CompletionStep = ({ data, onComplete, loading }: CompletionStepProps) => {
     },
     {
       icon: TrendingUp,
-      title: 'Assessment Complete',
-      description: data.assessmentResult 
-        ? `Baseline: ${Math.floor(data.assessmentResult.duration / 60)}:${(data.assessmentResult.duration % 60).toString().padStart(2, '0')}`
-        : 'Ready to start tracking'
+      title: 'Profile Set',
+      description: 'Ready to start tracking your progress'
     },
     {
       icon: Zap,
-      title: 'First Session',
-      description: 'Your plank journey has begun!'
+      title: 'Ready to Go',
+      description: 'Your fitness journey has begun!'
     }
   ];
 
   const getMotivationalMessage = () => {
     if (data.experienceLevel === 'beginner') {
-      return "Every expert was once a beginner. You're taking the first step toward building incredible core strength!";
+      return "Every expert was once a beginner. You're taking the first step toward building an incredible future for yourself!";
     } else if (data.experienceLevel === 'intermediate') {
-      return "You're ready to take your core strength to the next level. Let's build those gains!";
+      return "You're ready to take your fitness to the next level. Let's build those gains!";
     } else {
       return "Time to push your limits and achieve new personal records. Let's make it happen!";
     }
@@ -113,7 +111,7 @@ const CompletionStep = ({ data, onComplete, loading }: CompletionStepProps) => {
           <div className="flex items-center justify-center space-x-4 text-sm text-gray-500">
             <div className="flex items-center">
               <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-              <span>Ready to plank</span>
+              <span>Ready to train</span>
             </div>
             <div className="flex items-center">
               <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>

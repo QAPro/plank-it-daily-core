@@ -7,11 +7,9 @@ import { useToast } from '@/hooks/use-toast';
 import WelcomeStep from './WelcomeStep';
 import FitnessLevelStep from './FitnessLevelStep';
 import GoalSelectionStep from './GoalSelectionStep';
-import AssessmentStep from './AssessmentStep';
-import FirstWorkoutStep from './FirstWorkoutStep';
 import CompletionStep from './CompletionStep';
 
-export type OnboardingStep = 'welcome' | 'fitness-level' | 'goals' | 'assessment' | 'first-workout' | 'completion';
+export type OnboardingStep = 'welcome' | 'fitness-level' | 'goals' | 'completion';
 
 export interface OnboardingData {
   fitnessLevel: number;
@@ -42,7 +40,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   };
 
   const nextStep = () => {
-    const steps: OnboardingStep[] = ['welcome', 'fitness-level', 'goals', 'assessment', 'first-workout', 'completion'];
+    const steps: OnboardingStep[] = ['welcome', 'fitness-level', 'goals', 'completion'];
     const currentIndex = steps.indexOf(currentStep);
     if (currentIndex < steps.length - 1) {
       setCurrentStep(steps[currentIndex + 1]);
@@ -50,7 +48,7 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
   };
 
   const prevStep = () => {
-    const steps: OnboardingStep[] = ['welcome', 'fitness-level', 'goals', 'assessment', 'first-workout', 'completion'];
+    const steps: OnboardingStep[] = ['welcome', 'fitness-level', 'goals', 'completion'];
     const currentIndex = steps.indexOf(currentStep);
     if (currentIndex > 0) {
       setCurrentStep(steps[currentIndex - 1]);
@@ -77,24 +75,9 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
 
       if (onboardingError) throw onboardingError;
 
-      // Save assessment result if available
-      if (onboardingData.assessmentResult) {
-        const { error: assessmentError } = await supabase
-          .from('user_assessments')
-          .insert({
-            user_id: user.id,
-            assessment_type: 'initial_plank',
-            duration_seconds: onboardingData.assessmentResult.duration,
-            difficulty_rating: onboardingData.assessmentResult.difficulty,
-            notes: onboardingData.assessmentResult.notes,
-          });
-
-        if (assessmentError) throw assessmentError;
-      }
-
       toast({
         title: 'Welcome to PlankIt!',
-        description: 'Your onboarding is complete. Ready to start your plank journey?',
+        description: 'Your onboarding is complete. Ready to start your fitness journey?',
       });
 
       onComplete();
@@ -128,23 +111,6 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
           <GoalSelectionStep
             data={onboardingData}
             onUpdate={updateOnboardingData}
-            onNext={nextStep}
-            onBack={prevStep}
-          />
-        );
-      case 'assessment':
-        return (
-          <AssessmentStep
-            data={onboardingData}
-            onUpdate={updateOnboardingData}
-            onNext={nextStep}
-            onBack={prevStep}
-          />
-        );
-      case 'first-workout':
-        return (
-          <FirstWorkoutStep
-            data={onboardingData}
             onNext={nextStep}
             onBack={prevStep}
           />

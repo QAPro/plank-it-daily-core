@@ -51,21 +51,17 @@ const ExerciseDetailsModal = ({ exercise, isOpen, onClose, onStart }: ExerciseDe
           transition={{ duration: 0.2 }}
         >
           {/* Header */}
-          <div className={`bg-gradient-to-r ${colorClass} p-6 text-white rounded-t-lg -mx-6 -mt-6 mb-6`}>
+          <div className={`bg-gradient-to-r ${colorClass} p-6 text-white rounded-t-lg -ml-6 -mr-12 -mt-6 mb-6`}>
             <div className="flex justify-between items-start mb-3">
               <h2 className="text-2xl font-bold">{exercise.name}</h2>
               <div className="flex space-x-1">
                 {getDifficultyStars(exercise.difficulty_level)}
               </div>
             </div>
-            <div className="flex items-center space-x-6 text-sm">
+            <div className="flex items-center text-sm">
               <div className="flex items-center">
                 <Target className="w-5 h-5 mr-2" />
                 Difficulty Level {exercise.difficulty_level}
-              </div>
-              <div className="flex items-center">
-                <Clock className="w-5 h-5 mr-2" />
-                Custom Duration
               </div>
             </div>
           </div>

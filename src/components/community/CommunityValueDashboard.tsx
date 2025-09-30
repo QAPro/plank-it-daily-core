@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Users, Heart, MessageCircle, Award, Sparkles, HandHeart, Star, Target } from 'lucide-react';
+import { Users, Heart, MessageCircle, Award, HandHeart, Star, Target } from 'lucide-react';
 
 const CommunityValueDashboard = () => {
   // Mock data for community connections and contributions
@@ -125,7 +125,7 @@ const CommunityValueDashboard = () => {
         >
           <Card className="text-center">
             <CardContent className="pt-6">
-              <Sparkles className="w-8 h-8 text-primary mx-auto mb-2" />
+              <Heart className="w-8 h-8 text-primary mx-auto mb-2" />
               <div className="text-2xl font-bold">{communityStats.encouragementsReceived}</div>
               <div className="text-sm text-muted-foreground">Support Received</div>
             </CardContent>

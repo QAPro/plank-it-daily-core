@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Trophy, Star, TrendingUp, Heart, Sparkles, Target } from 'lucide-react';
+import { Trophy, Star, TrendingUp, Heart, Target } from 'lucide-react';
 import { useProgressAnalytics } from '@/hooks/useProgressAnalytics';
 
 const ProgressCelebrationDashboard: React.FC = () => {
@@ -73,9 +73,9 @@ const ProgressCelebrationDashboard: React.FC = () => {
         className="text-center space-y-4"
       >
         <div className="flex items-center justify-center gap-2">
-          <Sparkles className="w-8 h-8 text-primary" />
+          <TrendingUp className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold">Your Amazing Progress</h1>
-          <Sparkles className="w-8 h-8 text-primary" />
+          <TrendingUp className="w-8 h-8 text-primary" />
         </div>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
           {randomMessage}
@@ -208,7 +208,7 @@ const ProgressCelebrationDashboard: React.FC = () => {
       >
         <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
           <CardContent className="text-center py-8">
-            <Sparkles className="w-12 h-12 text-primary mx-auto mb-4" />
+            <Heart className="w-12 h-12 text-primary mx-auto mb-4" />
             <h3 className="text-xl font-semibold mb-2">You're Doing Amazing!</h3>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Your commitment to your health and fitness journey is truly inspiring. Every workout, 

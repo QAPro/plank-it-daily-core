@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Heart, Clock, Target, Crown, Sparkles } from 'lucide-react';
+import { Heart, Clock, Target, Crown, Brain } from 'lucide-react';
 import { useExercises } from '@/hooks/useExercises';
 import { useSubscription } from '@/hooks/useSubscription';
 import AIFeatureGuard from '@/components/access/AIFeatureGuard';
@@ -92,7 +92,7 @@ const BasicRecommendationsCard: React.FC<BasicRecommendationsCardProps> = ({
             <div className="mt-6 p-4 bg-gradient-to-r from-purple-50 to-orange-50 rounded-lg border border-purple-200">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <Sparkles className="w-8 h-8 text-purple-500" />
+                  <Brain className="w-8 h-8 text-purple-500" />
                   <div>
                     <h4 className="font-semibold text-gray-800">Want Smarter Recommendations?</h4>
                     <p className="text-sm text-gray-600">Get AI-powered, personalized workout suggestions</p>

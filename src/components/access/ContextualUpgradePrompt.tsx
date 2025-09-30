@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { X, Sparkles, Users, TrendingUp, Zap } from 'lucide-react';
+import { X, Brain, Users, TrendingUp, Zap, Crown } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
 import type { FeatureName } from '@/constants/featureGating';
 
@@ -43,10 +43,10 @@ const ContextualUpgradePrompt: React.FC<ContextualUpgradePromptProps> = ({
   const getFeatureIcon = (featureName: FeatureName) => {
     switch (featureName) {
       case 'advanced_stats': return TrendingUp;
-      case 'smart_recommendations': return Sparkles;
+      case 'smart_recommendations': return Brain;
       case 'social_challenges': return Users;
       case 'custom_workouts': return Zap;
-      default: return Sparkles;
+      default: return Crown;
     }
   };
 

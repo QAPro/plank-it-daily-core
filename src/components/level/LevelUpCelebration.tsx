@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Trophy, Gift } from "lucide-react";
+import { Star, Trophy, Gift } from "lucide-react";
 import type { UserLevel, LevelUnlock } from "@/services/levelProgressionService";
 
 interface LevelUpCelebrationProps {
@@ -55,7 +55,7 @@ const LevelUpCelebration = ({
                       transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                       className="absolute -top-2 -right-2"
                     >
-                      <Sparkles className="w-8 h-8 text-orange-500" />
+                      <Star className="w-8 h-8 text-orange-500" />
                     </motion.div>
                   </div>
                   <h1 className="text-3xl font-bold text-gray-800 mt-4 mb-2">

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { X, Share2, Sparkles } from 'lucide-react';
+import { X, Share2, Award } from 'lucide-react';
 
 interface HiddenAchievementCelebrationProps {
   achievement: {
@@ -166,9 +166,9 @@ const HiddenAchievementCelebration = ({
                 className="flex justify-center mb-4"
               >
                 <div className="flex items-center space-x-2 bg-black/30 rounded-full px-4 py-2">
-                  <Sparkles className="w-4 h-4 text-yellow-300" />
+                  <Award className="w-4 h-4 text-yellow-300" />
                   <span className="text-sm font-medium text-white">Hidden Achievement</span>
-                  <Sparkles className="w-4 h-4 text-yellow-300" />
+                  <Award className="w-4 h-4 text-yellow-300" />
                 </div>
               </motion.div>
 

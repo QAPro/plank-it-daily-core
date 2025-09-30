@@ -12,7 +12,7 @@ const WelcomeStep = ({ onNext }: WelcomeStepProps) => {
     {
       icon: Target,
       title: 'Build Core Strength',
-      description: 'Strengthen your entire core with proven plank techniques'
+      description: 'Strengthen your entire core with proven techniques'
     },
     {
       icon: TrendingUp,
@@ -50,7 +50,7 @@ const WelcomeStep = ({ onNext }: WelcomeStepProps) => {
         </div>
         <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome to PlankCoach!</h1>
         <p className="text-lg text-gray-600 max-w-md">
-          Let's set up your personalized plank journey in just a few steps
+          Let's set up your personalized fitness journey in just a few steps
         </p>
       </motion.div>
 

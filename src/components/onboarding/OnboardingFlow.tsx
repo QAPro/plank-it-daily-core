@@ -76,7 +76,6 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
       if (onboardingError) throw onboardingError;
 
       toast({
-        title: 'Welcome to PlankIt!',
         description: 'Your onboarding is complete. Ready to start your fitness journey?',
       });
 

@@ -20,6 +20,7 @@ import { useLevelProgression } from "@/hooks/useLevelProgression";
 import { useRewardTiming } from "@/hooks/useRewardTiming";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { logger } from '@/utils/productionLogger';
+import FirstTimeOverlay from '@/components/FirstTimeOverlay';
 
 interface HomeTabProps {
   onExerciseSelect?: (exerciseId: string) => void;
@@ -40,7 +41,11 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
   const [selectedExercise, setSelectedExercise] = useState<string>('');
   const [selectedDuration, setSelectedDuration] = useState<number>(60);
   const [initializedFromPreferences, setInitializedFromPreferences] = useState(false);
+  const [showFirstTimeOverlay, setShowFirstTimeOverlay] = useState(false);
+  const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const { toast } = useToast();
+
+  const FOREARM_PLANK_ID = '92f98556-b5cf-4bdf-b941-95520f7e148a';
 
   // Timer state management
   const timerState = useTimerState({
@@ -191,10 +196,50 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     }
   }, [selectedWorkout, onWorkoutStarted]);
 
-  // Initialize from user preferences when component loads (priority: selectedWorkout > existing state > preferences)
+  // Check if this is the user's first time on home tab
+  useEffect(() => {
+    const checkFirstTimeUser = async () => {
+      if (!user) return;
+
+      // Check if overlay was already dismissed
+      const dismissed = localStorage.getItem('first-time-home-dismissed');
+      if (dismissed) return;
+
+      try {
+        // Check if user has any previous workout sessions
+        const { data: sessions, error } = await supabase
+          .from('user_sessions')
+          .select('id')
+          .eq('user_id', user.id)
+          .limit(1);
+
+        if (error) throw error;
+
+        // If no sessions found, this is a first-time user
+        if (!sessions || sessions.length === 0) {
+          setIsFirstTimeUser(true);
+          setShowFirstTimeOverlay(true);
+          // Set default exercise to forearm plank and duration to 30 seconds
+          setSelectedExercise(FOREARM_PLANK_ID);
+          setSelectedDuration(30);
+        }
+      } catch (error) {
+        console.error('Error checking first-time user status:', error);
+      }
+    };
+
+    checkFirstTimeUser();
+  }, [user]);
+
+  // Initialize from user preferences when component loads (priority: selectedWorkout > first-time defaults > existing state > preferences)
   useEffect(() => {
     // If we have an external workout selection, prioritize that and skip preferences
     if (selectedWorkout) {
+      return;
+    }
+
+    // If this is a first-time user, don't load preferences (use first-time defaults)
+    if (isFirstTimeUser) {
       return;
     }
 
@@ -218,7 +263,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
       
       setInitializedFromPreferences(true);
     }
-  }, [preferences, preferencesLoading, selectedWorkout, selectedExercise, selectedDuration]);
+  }, [preferences, preferencesLoading, selectedWorkout, selectedExercise, selectedDuration, isFirstTimeUser]);
 
   const handleDurationChange = async (duration: number) => {
     setSelectedDuration(duration);
@@ -232,6 +277,19 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     }
   };
 
+  const handleGoToWorkouts = () => {
+    localStorage.setItem('first-time-home-dismissed', 'true');
+    setShowFirstTimeOverlay(false);
+    if (onTabChange) {
+      onTabChange('workout');
+    }
+  };
+
+  const handleDismissOverlay = () => {
+    localStorage.setItem('first-time-home-dismissed', 'true');
+    setShowFirstTimeOverlay(false);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -241,6 +299,13 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     >
       {/* XP Multiplier Notification */}
       <XPMultiplierNotification />
+
+      {/* First Time User Overlay */}
+      <FirstTimeOverlay
+        visible={showFirstTimeOverlay}
+        onGoToWorkouts={handleGoToWorkouts}
+        onDismiss={handleDismissOverlay}
+      />
 
       {/* Welcome Header removed - moved to timer card for desktop */}
 

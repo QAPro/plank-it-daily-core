@@ -1,12 +1,12 @@
 
 import { motion } from "framer-motion";
-import { Bell, Volume2, Vibrate, Moon, Zap, Timer } from "lucide-react";
+import { Bell, Volume2, Vibrate } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { EnhancedNotificationPreferences } from "@/components/notifications/EnhancedNotificationPreferences";
 import { MusicPreferences } from "@/components/preferences/MusicPreferences";
+import FlagGuard from "@/components/access/FlagGuard";
 
 const PreferencesSettings = () => {
   const { preferences, loading, updatePreferences } = useUserPreferences();
@@ -28,15 +28,6 @@ const PreferencesSettings = () => {
     );
   }
 
-  const handleDifficultyChange = (difficulty: string) => {
-    if (difficulty && ['beginner', 'intermediate', 'advanced'].includes(difficulty)) {
-      updatePreferences({ difficulty_preference: difficulty as any });
-    }
-  };
-
-  const handleDurationChange = (duration: number) => {
-    updatePreferences({ preferred_workout_duration: duration });
-  };
 
   return (
     <motion.div
@@ -45,62 +36,6 @@ const PreferencesSettings = () => {
       transition={{ duration: 0.5 }}
       className="space-y-6"
     >
-      <h3 className="text-lg font-semibold text-gray-800">Workout Preferences</h3>
-      
-      {/* Difficulty Preference */}
-      <Card className="bg-white/80 backdrop-blur-sm border-orange-100">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm flex items-center">
-            <Zap className="w-4 h-4 mr-2 text-orange-500" />
-            Difficulty Level
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              { value: 'beginner', label: 'Beginner' },
-              { value: 'intermediate', label: 'Intermediate' },
-              { value: 'advanced', label: 'Advanced' }
-            ].map((difficulty) => (
-              <Button
-                key={difficulty.value}
-                variant={preferences.difficulty_preference === difficulty.value ? "default" : "outline"}
-                size="sm"
-                onClick={() => handleDifficultyChange(difficulty.value)}
-                className="text-xs"
-              >
-                {difficulty.label}
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Duration Preference */}
-      <Card className="bg-white/80 backdrop-blur-sm border-orange-100">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm flex items-center">
-            <Timer className="w-4 h-4 mr-2 text-orange-500" />
-            Preferred Duration
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 gap-2">
-            {[30, 60, 120].map((duration) => (
-              <Button
-                key={duration}
-                variant={preferences.preferred_workout_duration === duration ? "default" : "outline"}
-                size="sm"
-                onClick={() => handleDurationChange(duration)}
-                className="text-xs"
-              >
-                {duration}s
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
       {/* App Settings */}
       <Card className="bg-white/80 backdrop-blur-sm border-orange-100">
         <CardHeader className="pb-3">
@@ -142,14 +77,16 @@ const PreferencesSettings = () => {
         </CardContent>
       </Card>
 
-      {/* Music Preferences */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.2 }}
-      >
-        <MusicPreferences />
-      </motion.div>
+      {/* Music Preferences - Only show if feature is enabled */}
+      <FlagGuard featureName="background_music_player">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+        >
+          <MusicPreferences />
+        </motion.div>
+      </FlagGuard>
 
       {/* Enhanced Notification Preferences */}
       <motion.div

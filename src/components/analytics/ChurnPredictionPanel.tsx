@@ -34,10 +34,36 @@ const ChurnPredictionPanel = () => {
 
       if (error) throw error;
 
-      // Simulate risk scoring based on user activity
-      const usersWithRisk: ChurnRiskUser[] = users.map(user => {
+      // Calculate real risk scores based on actual user activity
+      const usersWithRisk: ChurnRiskUser[] = await Promise.all(users.map(async (user) => {
         const daysSinceSignup = Math.floor((Date.now() - new Date(user.created_at).getTime()) / (1000 * 60 * 60 * 24));
-        const riskScore = Math.random() * 100;
+        
+        // Get actual user session data
+        const { data: sessions } = await supabase
+          .from('user_sessions')
+          .select('completed_at')
+          .eq('user_id', user.id)
+          .order('completed_at', { ascending: false })
+          .limit(10);
+
+        const lastSession = sessions?.[0]?.completed_at;
+        const daysSinceLastActivity = lastSession 
+          ? Math.floor((Date.now() - new Date(lastSession).getTime()) / (1000 * 60 * 60 * 24))
+          : daysSinceSignup;
+
+        // Calculate risk score based on real metrics
+        let riskScore = 0;
+        if (daysSinceLastActivity > 14) riskScore += 40;
+        else if (daysSinceLastActivity > 7) riskScore += 25;
+        
+        if (user.subscription_tier === 'free' && daysSinceSignup > 30) riskScore += 20;
+        
+        const recentSessions = sessions?.filter(s => 
+          new Date(s.completed_at) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+        ).length || 0;
+        
+        if (recentSessions === 0) riskScore += 30;
+        else if (recentSessions < 2) riskScore += 15;
         
         const factors = [];
         if (riskScore > 70) factors.push('Low activity');
@@ -48,12 +74,12 @@ const ChurnPredictionPanel = () => {
           id: user.id,
           email: user.email,
           full_name: user.full_name || 'Unknown User',
-          risk_score: Math.round(riskScore),
-          last_session: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
+          risk_score: Math.min(100, Math.round(riskScore)),
+          last_session: lastSession || user.created_at,
           subscription_tier: user.subscription_tier,
           factors
         };
-      });
+      }));
 
       const highRiskUsers = usersWithRisk.filter(user => user.risk_score > 70);
       const mediumRiskUsers = usersWithRisk.filter(user => user.risk_score > 40 && user.risk_score <= 70);

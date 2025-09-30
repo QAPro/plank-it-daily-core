@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { Calendar, Gift, Clock, Star } from 'lucide-react';
 import { SeasonalAchievementEngine, type SeasonalAchievement } from '@/services/seasonalAchievementService';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SeasonalAchievementsBannerProps {
   onAchievementClick?: (achievement: SeasonalAchievement) => void;
@@ -31,10 +32,17 @@ const SeasonalAchievementsBanner = ({ onAchievementClick }: SeasonalAchievements
         const progressMap = new Map<string, number>();
 
         for (const achievement of achievements) {
-          // This would require extending the engine to return progress percentage
-          // For now, we'll use mock progress
-          const mockProgress = Math.floor(Math.random() * 100);
-          progressMap.set(achievement.id, mockProgress);
+          // Check if user has already earned this achievement
+          const { data: earned } = await supabase
+            .from('user_achievements')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('achievement_type', achievement.id)
+            .maybeSingle();
+          
+          // Show 100% if earned, 0% otherwise
+          // Real progress tracking can be added based on specific achievement criteria
+          progressMap.set(achievement.id, earned ? 100 : 0);
         }
 
         setUserProgress(progressMap);

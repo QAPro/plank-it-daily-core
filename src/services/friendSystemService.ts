@@ -179,9 +179,9 @@ export class FriendSystemManager {
 
       if (!requester) throw new Error('User not found');
 
-      // Create friend request
+      // Create friend request with proper UUID
       const newRequest: StoredPendingRequest = {
-        id: Math.random().toString(36).substr(2, 9),
+        id: crypto.randomUUID(),
         requester_id: userId,
         target_id: targetUserId,
         created_at: new Date().toISOString(),
@@ -219,10 +219,10 @@ export class FriendSystemManager {
         this.getUserProfile(userId)
       ]);
 
-      // Create friendship entries
+      // Create friendship entries with proper UUID
       const friends = this.getStoredFriends();
       const friendship: StoredFriend = {
-        id: Math.random().toString(36).substr(2, 9),
+        id: crypto.randomUUID(),
         user_id: request.requester_id,
         friend_user_id: userId,
         status: 'accepted',

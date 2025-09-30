@@ -42,32 +42,133 @@ const SocialInsightsDashboard = () => {
     if (!user) return;
 
     try {
-      // For now, we'll use placeholder data since the tables might not be fully synced
-      // This will be updated once the database types are properly generated
-      const mockInsights: SocialInsights = {
+      // Get friends list
+      const { data: friends, error: friendsError } = await supabase
+        .from('friends')
+        .select('*')
+        .or(`user_id.eq.${user.id},friend_id.eq.${user.id}`)
+        .eq('status', 'accepted');
+
+      if (friendsError) throw friendsError;
+
+      const friendIds = friends?.map(f => 
+        f.user_id === user.id ? f.friend_id : f.user_id
+      ) || [];
+
+      const totalFriends = friendIds.length;
+
+      // Get friend activities this week
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+
+      const { data: friendSessions } = await supabase
+        .from('user_sessions')
+        .select('user_id, completed_at')
+        .in('user_id', friendIds)
+        .gte('completed_at', weekAgo.toISOString());
+
+      const { data: friendAchievements } = await supabase
+        .from('user_achievements')
+        .select('user_id')
+        .in('user_id', friendIds)
+        .gte('earned_at', weekAgo.toISOString());
+
+      // Get active today count
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const activeToday = new Set(
+        friendSessions?.filter(s => new Date(s.completed_at) >= today)
+          .map(s => s.user_id) || []
+      ).size;
+
+      // Get user's workouts this week
+      const { data: userSessions } = await supabase
+        .from('user_sessions')
+        .select('*')
+        .eq('user_id', user.id)
+        .gte('completed_at', weekAgo.toISOString());
+
+      const userWorkoutsThisWeek = userSessions?.length || 0;
+      const avgFriendWorkouts = friendIds.length > 0 
+        ? Math.round((friendSessions?.length || 0) / friendIds.length) 
+        : 0;
+
+      // Calculate user rank
+      const workoutCounts = new Map<string, number>();
+      friendSessions?.forEach(s => {
+        workoutCounts.set(s.user_id, (workoutCounts.get(s.user_id) || 0) + 1);
+      });
+      workoutCounts.set(user.id, userWorkoutsThisWeek);
+      
+      const sortedCounts = Array.from(workoutCounts.entries())
+        .sort((a, b) => b[1] - a[1]);
+      const rank = sortedCounts.findIndex(([id]) => id === user.id) + 1;
+
+      // Get motivation metrics from activity_comments table
+      // Note: activity_reactions table doesn't exist yet, so we'll use comments only
+      const { count: commentsGiven } = await supabase
+        .from('activity_comments')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+
+      // Get user's activities
+      const { data: userActivities } = await supabase
+        .from('friend_activities')
+        .select('id')
+        .eq('user_id', user.id);
+
+      const userActivityIds = userActivities?.map(a => a.id) || [];
+
+      const { count: commentsReceived } = await supabase
+        .from('activity_comments')
+        .select('*', { count: 'exact', head: true })
+        .in('activity_id', userActivityIds.length > 0 ? userActivityIds : ['none']);
+
+      const insights: SocialInsights = {
         friendActivities: {
-          totalWorkouts: 12,
-          totalAchievements: 3,
-          activeToday: 2,
-          mostActiveStreak: 5
+          totalWorkouts: friendSessions?.length || 0,
+          totalAchievements: friendAchievements?.length || 0,
+          activeToday,
+          mostActiveStreak: 0 // Can be calculated from user_streaks if needed
         },
         userComparisons: {
-          rank: 3,
-          totalFriends: 8,
-          workoutsThisWeek: 4,
-          averageFriendWorkouts: 3
+          rank: rank || (totalFriends + 1),
+          totalFriends,
+          workoutsThisWeek: userWorkoutsThisWeek,
+          averageFriendWorkouts: avgFriendWorkouts
         },
         motivationMetrics: {
-          reactionsGiven: 15,
-          reactionsReceived: 8,
-          commentsGiven: 6,
-          commentsReceived: 4
+          reactionsGiven: 0, // Activity reactions table not yet implemented
+          reactionsReceived: 0,
+          commentsGiven: commentsGiven || 0,
+          commentsReceived: commentsReceived || 0
         }
       };
 
-      setInsights(mockInsights);
+      setInsights(insights);
     } catch (error) {
       console.error('Error loading social insights:', error);
+      // Set empty insights on error
+      setInsights({
+        friendActivities: {
+          totalWorkouts: 0,
+          totalAchievements: 0,
+          activeToday: 0,
+          mostActiveStreak: 0
+        },
+        userComparisons: {
+          rank: 1,
+          totalFriends: 0,
+          workoutsThisWeek: 0,
+          averageFriendWorkouts: 0
+        },
+        motivationMetrics: {
+          reactionsGiven: 0,
+          reactionsReceived: 0,
+          commentsGiven: 0,
+          commentsReceived: 0
+        }
+      });
     } finally {
       setLoading(false);
     }

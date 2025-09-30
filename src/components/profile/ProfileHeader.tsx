@@ -17,6 +17,7 @@ import PendingEmailChangeBanner from "./PendingEmailChangeBanner";
 import { validateUsernameFormat } from "@/utils/usernameValidation";
 import ReputationBadge from "@/components/shared/ReputationBadge";
 import { useReputation } from "@/hooks/useReputation";
+import { format } from "date-fns";
 
 const ProfileHeader = () => {
   const { user, session } = useAuth();
@@ -174,6 +175,14 @@ const ProfileHeader = () => {
     setPendingEmailChange(null);
   };
 
+  const getMemberSinceDate = () => {
+    const createdAt = userProfile?.created_at || user?.created_at;
+    if (createdAt) {
+      return format(new Date(createdAt), 'yyyy');
+    }
+    return new Date().getFullYear().toString();
+  };
+
   return (
     <motion.div
       initial={{ scale: 0.9, opacity: 0 }}
@@ -250,7 +259,7 @@ const ProfileHeader = () => {
                   </div>
                   <div className="flex items-center space-x-1">
                     <Calendar className="w-3 h-3" />
-                    <span>Member since 2024</span>
+                    <span>Member since {getMemberSinceDate()}</span>
                   </div>
                 </div>
               )}

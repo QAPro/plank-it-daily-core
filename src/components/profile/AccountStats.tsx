@@ -5,9 +5,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useSessionHistory } from "@/hooks/useSessionHistory";
 import { useStreakTracking } from "@/hooks/useStreakTracking";
 import { useUserAchievements } from "@/hooks/useUserAchievements";
+import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
 
 const AccountStats = () => {
+  const { user } = useAuth();
   const { data: sessions } = useSessionHistory();
   const { streak } = useStreakTracking();
   const { achievements } = useUserAchievements();
@@ -15,7 +17,7 @@ const AccountStats = () => {
   const totalWorkouts = sessions?.length || 0;
   const totalTime = sessions?.reduce((acc, session) => acc + session.duration_seconds, 0) || 0;
   const averageDuration = totalWorkouts > 0 ? Math.round(totalTime / totalWorkouts) : 0;
-  const joinDate = format(new Date(), 'MMMM yyyy'); // This would be user creation date in real app
+  const joinDate = user?.created_at ? format(new Date(user.created_at), 'MMMM yyyy') : format(new Date(), 'MMMM yyyy');
 
   const stats = [
     {

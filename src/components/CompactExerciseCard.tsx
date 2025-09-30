@@ -58,7 +58,10 @@ export const CompactExerciseCard = ({
       transition={{ delay: index * 0.05, duration: 0.3 }}
       whileHover={{ y: -2 }}
     >
-      <Card className="group hover:shadow-md transition-all duration-200 border-border/50 hover:border-border">
+      <Card 
+        className="group hover:shadow-md transition-all duration-200 border-border/50 hover:border-border cursor-pointer"
+        onClick={() => onViewDetails(exercise)}
+      >
         <CardContent className="p-4">
           {/* Header with difficulty indicator */}
           <div className="flex items-start justify-between mb-3">
@@ -109,7 +112,10 @@ export const CompactExerciseCard = ({
           {/* Action buttons */}
           <div className="flex items-center gap-2">
             <Button
-              onClick={() => onStart(exercise)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onStart(exercise);
+              }}
               size="sm"
               className="flex-1 h-8 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground"
             >
@@ -117,7 +123,10 @@ export const CompactExerciseCard = ({
               Start
             </Button>
             <Button
-              onClick={() => onViewDetails(exercise)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewDetails(exercise);
+              }}
               variant="outline"
               size="sm"
               className="h-8 w-8 p-0"

@@ -80,7 +80,10 @@ const EnhancedExerciseCard = ({
         animate={{ x: 0, opacity: 1 }}
         transition={{ delay: 0.1 + index * 0.1, duration: 0.5 }}
       >
-        <Card className="bg-white/80 backdrop-blur-sm border-orange-100 overflow-hidden hover:shadow-lg transition-shadow">
+        <Card 
+          className="bg-white/80 backdrop-blur-sm border-orange-100 overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => onViewDetails(exercise)}
+        >
           <CardContent className="p-0">
             <div className={`bg-gradient-to-r ${colorClass} p-4 text-white relative`}>
               <div className="flex justify-between items-start mb-2">
@@ -91,7 +94,10 @@ const EnhancedExerciseCard = ({
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => onToggleFavorite(exercise.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onToggleFavorite(exercise.id);
+                        }}
                         className="p-1 h-auto hover:bg-white/20"
                       >
                         <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current text-red-200' : 'text-white/60'}`} />
@@ -152,7 +158,10 @@ const EnhancedExerciseCard = ({
 
               <div className="flex gap-2">
                 <Button
-                  onClick={() => onStart(exercise)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onStart(exercise);
+                  }}
                   className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold py-2 rounded-lg"
                 >
                   <Play className="w-4 h-4 mr-2" />
@@ -160,7 +169,10 @@ const EnhancedExerciseCard = ({
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => onViewDetails(exercise)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onViewDetails(exercise);
+                  }}
                   className="px-3"
                 >
                   Details

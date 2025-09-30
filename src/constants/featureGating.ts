@@ -33,7 +33,8 @@ export type FeatureName =
   | 'basic_social_sharing'
   | 'workout_posting'
   | 'league_sharing'
-  | 'competition_graphics';
+  | 'competition_graphics'
+  | 'friend_search';
 
 export const FEATURE_REQUIREMENTS: Record<FeatureName, SubscriptionTier> = {
   advanced_stats: 'premium',
@@ -51,6 +52,7 @@ export const FEATURE_REQUIREMENTS: Record<FeatureName, SubscriptionTier> = {
   workout_posting: 'free',
   league_sharing: 'premium',
   competition_graphics: 'premium',
+  friend_search: 'free',
 };
 
 // AI-related features that should be disabled when AI is off
@@ -70,4 +72,5 @@ export const SOCIAL_FEATURES: FeatureName[] = [
   'workout_posting',
   'league_sharing',
   'competition_graphics',
+  'friend_search',
 ];

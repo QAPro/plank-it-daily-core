@@ -25,25 +25,23 @@ const FriendsTab = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="activity" className="flex items-center gap-2">
             <Activity className="w-4 h-4" />
             <span className="hidden sm:inline">Activity</span>
           </TabsTrigger>
-          <TabsTrigger value="challenges" className="flex items-center gap-2 relative">
-            <Trophy className="w-4 h-4" />
-            <span className="hidden sm:inline">Challenges</span>
-            {!hasAccess('social_challenges') && (
-              <Badge variant="secondary" className="ml-1 text-[10px] px-1 py-0">PRO</Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="insights" className="flex items-center gap-2 relative">
-            <TrendingUp className="w-4 h-4" />
-            <span className="hidden sm:inline">Insights</span>
-            {!hasAccess('social_challenges') && (
-              <Badge variant="secondary" className="ml-1 text-[10px] px-1 py-0">PRO</Badge>
-            )}
-          </TabsTrigger>
+          {hasAccess('social_challenges') && (
+            <>
+              <TabsTrigger value="challenges" className="flex items-center gap-2">
+                <Trophy className="w-4 h-4" />
+                <span className="hidden sm:inline">Challenges</span>
+              </TabsTrigger>
+              <TabsTrigger value="insights" className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4" />
+                <span className="hidden sm:inline">Insights</span>
+              </TabsTrigger>
+            </>
+          )}
           <TabsTrigger value="friends" className="flex items-center gap-2">
             <Users className="w-4 h-4" />
             <span className="hidden sm:inline">Friends</span>

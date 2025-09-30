@@ -17,12 +17,12 @@ const WelcomeStep = ({ onNext }: WelcomeStepProps) => {
     {
       icon: TrendingUp,
       title: 'Track Progress',
-      description: 'Watch your endurance improve day by day'
+      description: 'Watch your health improve day by day'
     },
     {
       icon: Users,
       title: 'Join Community',
-      description: 'Connect with thousands of fitness enthusiasts'
+      description: 'Connect with other motivated users building better health every day'
     },
     {
       icon: Zap,
@@ -87,9 +87,6 @@ const WelcomeStep = ({ onNext }: WelcomeStepProps) => {
         >
           Let's Get Started
         </Button>
-        <p className="text-sm text-gray-500 mt-4">
-          This will take about 2-3 minutes
-        </p>
       </motion.div>
     </div>
   );

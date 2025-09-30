@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useSessionStats } from "@/hooks/useSessionHistory";
 import WeeklyGoalSettings from "@/components/WeeklyGoalSettings";
-import FlagGuard from '@/components/access/FlagGuard';
+
 
 const StatsDashboard = () => {
   const { data: stats, isLoading, error } = useSessionStats();
@@ -67,12 +67,44 @@ const StatsDashboard = () => {
     );
   }
 
+  // Empty state for new users
+  if (stats.totalSessions === 0) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Card className="bg-gradient-to-br from-orange-50 to-red-50 border-orange-200">
+          <CardContent className="p-8 text-center space-y-4">
+            <div className="flex justify-center">
+              <div className="w-20 h-20 rounded-full bg-orange-100 flex items-center justify-center">
+                <Trophy className="w-10 h-10 text-orange-500" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold text-gray-800">Start Your Journey!</h3>
+              <p className="text-gray-600 max-w-md mx-auto">
+                Complete your first workout to start tracking your progress and building your stats.
+              </p>
+            </div>
+            <Button 
+              onClick={() => window.location.href = '/'} 
+              className="bg-orange-500 hover:bg-orange-600 text-white"
+            >
+              Start Your First Workout
+            </Button>
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
+  }
+
   const weeklyProgressPercent = Math.round((stats.thisWeekSessions / stats.weeklyGoal) * 100);
   const maxSessionsInWeek = Math.max(...stats.weeklyProgress.map(day => day.sessions), 1);
 
   return (
-    <FlagGuard featureName="stats_dashboard">
-      <div className="space-y-6">
+    <div className="space-y-6">
         {/* Stats Cards */}
         <div className="grid grid-cols-2 gap-4">
           <motion.div
@@ -205,7 +237,6 @@ const StatsDashboard = () => {
           </Card>
         </motion.div>
       </div>
-    </FlagGuard>
   );
 };
 

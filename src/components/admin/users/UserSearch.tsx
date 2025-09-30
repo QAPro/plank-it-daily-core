@@ -62,7 +62,7 @@ const UserSearch: React.FC<UserSearchProps> = ({ onSelect }) => {
               {results.map((u) => (
                 <li key={u.id} className="flex items-center justify-between p-3">
                   <div className="min-w-0">
-                    <div className="font-medium truncate">{u.full_name || u.username || u.email || u.id}</div>
+                    <div className="font-medium truncate">{u.username || u.email || u.id}</div>
                     <div className="text-xs text-muted-foreground truncate">
                       {u.email || "No email"} • {u.username || "No username"} • {u.id}
                     </div>

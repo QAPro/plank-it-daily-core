@@ -358,7 +358,7 @@ const EnhancedBulkSubscriptionManager: React.FC = () => {
                       </TableCell>
                       <TableCell>
                         <div>
-                          <div className="font-medium">{user.full_name || user.username || "Unnamed"}</div>
+                          <div className="font-medium">{user.username || user.email || "Unnamed"}</div>
                           <div className="text-sm text-muted-foreground">{user.email}</div>
                         </div>
                       </TableCell>

@@ -214,7 +214,7 @@ const VictoryPartnershipsManager: React.FC = () => {
                               </div>
                               <div>
                                 <h4 className="font-semibold">
-                                  {partnership.partner?.full_name || partnership.partner?.username || 'Victory Partner'}
+                                  {partnership.partner?.username || 'Victory Partner'}
                                 </h4>
                                 <p className="text-sm text-muted-foreground">{style.label}</p>
                               </div>

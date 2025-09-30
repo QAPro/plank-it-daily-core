@@ -120,15 +120,15 @@ const FriendRequests = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <Avatar className="w-12 h-12">
-                  <AvatarImage src={request.users.avatar_url} alt={request.users.full_name} />
+                  <AvatarImage src={request.users.avatar_url} alt={request.users.username} />
                   <AvatarFallback>
-                    {request.users.full_name?.charAt(0) || request.users.username?.charAt(0) || 'U'}
+                    {request.users.username?.charAt(0) || 'U'}
                   </AvatarFallback>
                 </Avatar>
 
                 <div>
                   <h4 className="font-semibold text-gray-800 mb-1">
-                    {request.users.full_name || request.users.username}
+                    {request.users.username}
                   </h4>
                   <p className="text-sm text-gray-600">
                     Sent {formatDistanceToNow(new Date(request.created_at), { addSuffix: true })}
@@ -138,7 +138,7 @@ const FriendRequests = () => {
 
               <div className="flex items-center space-x-2">
                 <Button
-                  onClick={() => acceptRequest(request.id, request.users.full_name || request.users.username)}
+                  onClick={() => acceptRequest(request.id, request.users.username)}
                   disabled={processingRequests.has(request.id)}
                   className="bg-green-600 hover:bg-green-700 text-white"
                   size="sm"
@@ -151,7 +151,7 @@ const FriendRequests = () => {
                 </Button>
                 
                 <Button
-                  onClick={() => declineRequest(request.id, request.users.full_name || request.users.username)}
+                  onClick={() => declineRequest(request.id, request.users.username)}
                   disabled={processingRequests.has(request.id)}
                   variant="outline"
                   className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"

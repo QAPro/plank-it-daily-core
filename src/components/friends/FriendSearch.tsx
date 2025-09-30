@@ -106,16 +106,16 @@ const FriendSearch = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <Avatar className="w-12 h-12">
-                      <AvatarImage src={user.avatar_url} alt={user.full_name} />
+                      <AvatarImage src={user.avatar_url} alt={user.username} />
                       <AvatarFallback>
-                        {user.full_name?.charAt(0) || user.username?.charAt(0) || 'U'}
+                        {user.username?.charAt(0) || 'U'}
                       </AvatarFallback>
                     </Avatar>
 
                     <div>
                       <div className="flex items-center space-x-2 mb-1">
                         <h4 className="font-semibold text-gray-800">
-                          {user.full_name || user.username}
+                          {user.username}
                         </h4>
                         <Badge variant="secondary" className="bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs">
                           Level {user.current_level}
@@ -133,7 +133,7 @@ const FriendSearch = () => {
                   </div>
 
                   <Button
-                    onClick={() => sendFriendRequest(user.id, user.full_name || user.username)}
+                    onClick={() => sendFriendRequest(user.id, user.username)}
                     disabled={sendingRequests.has(user.id)}
                     className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white"
                   >

@@ -28,7 +28,6 @@ const ProfileHeader = () => {
   const [emailChangeDialogOpen, setEmailChangeDialogOpen] = useState(false);
   const [pendingEmailChange, setPendingEmailChange] = useState<string | null>(null);
   const [editData, setEditData] = useState({
-    full_name: '',
     username: '',
     avatar_url: '' as string | null,
   });
@@ -60,7 +59,6 @@ const ProfileHeader = () => {
       } else if (data) {
         setUserProfile(data);
         setEditData({
-          full_name: data.full_name || '',
           username: data.username || '',
           avatar_url: data.avatar_url || '',
         });
@@ -81,7 +79,6 @@ const ProfileHeader = () => {
   const handleCancel = () => {
     setIsEditing(false);
     setEditData({
-      full_name: userProfile?.full_name || '',
       username: userProfile?.username || '',
       avatar_url: userProfile?.avatar_url || '',
     });
@@ -112,7 +109,6 @@ const ProfileHeader = () => {
       const { error } = await supabase
         .from('users')
         .update({
-          full_name: editData.full_name.trim() || null,
           username: editData.username.trim() || null,
           avatar_url: editData.avatar_url || null,
           updated_at: new Date().toISOString()
@@ -134,7 +130,6 @@ const ProfileHeader = () => {
 
       setUserProfile(prev => ({
         ...prev,
-        full_name: editData.full_name.trim() || null,
         username: editData.username.trim() || null,
         avatar_url: editData.avatar_url || null,
       }));
@@ -157,9 +152,6 @@ const ProfileHeader = () => {
   };
 
   const getDisplayName = () => {
-    if (userProfile?.full_name) {
-      return userProfile.full_name;
-    }
     if (userProfile?.username) {
       return `@${userProfile.username}`;
     }
@@ -167,9 +159,6 @@ const ProfileHeader = () => {
   };
 
   const getSubtitle = () => {
-    if (userProfile?.username && userProfile?.full_name) {
-      return `@${userProfile.username}`;
-    }
     if (user?.email) {
       return user.email;
     }
@@ -212,17 +201,6 @@ const ProfileHeader = () => {
             <div className="flex-1">
               {isEditing ? (
                 <div className="space-y-3">
-                  <div className="space-y-1">
-                    <Input
-                      value={editData.full_name}
-                      onChange={(e) => setEditData(prev => ({ ...prev, full_name: e.target.value }))}
-                      placeholder="Enter your full name (e.g., John Smith)"
-                      className="bg-white/20 text-white placeholder:text-orange-100 border-white/30 focus:border-white"
-                    />
-                    <p className="text-xs text-orange-100/80">
-                      This is how your name appears on your profile and to other users
-                    </p>
-                  </div>
                   <UsernameInput
                     value={editData.username}
                     onChange={(value) => setEditData(prev => ({ ...prev, username: value }))}

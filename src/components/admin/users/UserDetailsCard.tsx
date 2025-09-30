@@ -264,7 +264,7 @@ const UserDetailsCard: React.FC<Props> = ({ user }) => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          {user.full_name || user.username || user.email || "User"}
+          {user.username || user.email || "User"}
           {isSuperadmin && <Badge variant="default" className="bg-gradient-to-r from-purple-500 to-blue-500">Superadmin</Badge>}
           {isAdmin && !isSuperadmin && <Badge variant="default">Admin</Badge>}
           {lifetimeOverride && <Badge variant="secondary" className="ml-2">Lifetime</Badge>}

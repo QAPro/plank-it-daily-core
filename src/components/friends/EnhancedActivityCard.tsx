@@ -136,7 +136,7 @@ const EnhancedActivityCard = ({ activity, currentUserId, onUpdate }: EnhancedAct
           <Avatar className="w-10 h-10">
             <AvatarImage src={activity.users.avatar_url} />
             <AvatarFallback>
-              {activity.users.full_name?.charAt(0) || activity.users.username?.charAt(0) || 'U'}
+              {activity.users.username?.charAt(0) || 'U'}
             </AvatarFallback>
           </Avatar>
           
@@ -217,13 +217,13 @@ const EnhancedActivityCard = ({ activity, currentUserId, onUpdate }: EnhancedAct
                 <Avatar className="w-8 h-8">
                   <AvatarImage src={comment.users.avatar_url} />
                   <AvatarFallback>
-                    {comment.users.full_name?.charAt(0) || comment.users.username?.charAt(0) || 'U'}
+                    {comment.users.username?.charAt(0) || 'U'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
                   <div className="bg-gray-50 rounded-lg px-3 py-2">
                     <p className="font-semibold text-sm text-gray-900">
-                      {comment.users.full_name || comment.users.username}
+                      {comment.users.username}
                     </p>
                     <p className="text-sm text-gray-700">{comment.content}</p>
                   </div>

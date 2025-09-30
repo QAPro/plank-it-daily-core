@@ -239,7 +239,7 @@ const SuccessCircle: React.FC = () => {
                           </div>
                           <div>
                             <h4 className="font-semibold">
-                              {story.author?.full_name || story.author?.username || 'Success Champion'}
+                              {story.author?.username || 'Success Champion'}
                             </h4>
                             <div className="flex items-center text-sm text-muted-foreground">
                               <Calendar className="w-3 h-3 mr-1" />

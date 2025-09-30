@@ -104,7 +104,7 @@ const ChallengeLeaderboard = ({ challengeId, challengeType }: ChallengeLeaderboa
                 
                 <div className="flex-1 min-w-0">
                   <p className="font-medium truncate">
-                    {participant.users?.full_name || participant.users?.username || 'Anonymous'}
+                    {participant.users?.username || 'Anonymous'}
                   </p>
                   <p className="text-sm text-gray-500">
                     {formatProgress(participant.progress_data)}

@@ -20,7 +20,6 @@ const Auth = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    fullName: '',
     username: ''
   });
   
@@ -96,7 +95,6 @@ const Auth = () => {
           options: {
             emailRedirectTo: `${window.location.origin}/`,
             data: {
-              full_name: formData.fullName,
               username: formData.username
             }
           }
@@ -163,25 +161,6 @@ const Auth = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {!isLogin && !isForgotPassword && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">
-                    Full Name <span className="text-gray-400">(optional)</span>
-                  </label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <Input
-                      type="text"
-                      name="fullName"
-                      placeholder="Enter your full name (optional)"
-                      value={formData.fullName}
-                      onChange={handleInputChange}
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-              )}
-
               {!isLogin && !isForgotPassword && (
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">

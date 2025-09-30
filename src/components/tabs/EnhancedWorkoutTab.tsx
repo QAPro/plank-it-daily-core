@@ -45,6 +45,8 @@ const EnhancedWorkoutTab = ({ onStartWorkout, selectedWorkout }: EnhancedWorkout
 
   const handleExerciseSelect = (exercise: Exercise) => {
     setSelectedExerciseId(exercise.id);
+    setDetailsExercise(exercise);
+    setDetailsModalOpen(true);
   };
 
   const handleExerciseDetails = (exercise: Exercise) => {

@@ -118,7 +118,7 @@ export class PersonalProgressService {
       .eq('user_id', userId)
       .order('completed_at', { ascending: true })
       .limit(1)
-      .single();
+      .maybeSingle();
 
     const daysSinceStart = firstSession ? 
       Math.ceil((new Date().getTime() - new Date(firstSession.completed_at).getTime()) / (1000 * 60 * 60 * 24)) : 0;

@@ -4856,6 +4856,10 @@ export type Database = {
           username: string
         }[]
       }
+      format_price: {
+        Args: { amount_cents: number; currency?: string }
+        Returns: string
+      }
       get_ab_test_results: {
         Args: { _feature_name: string }
         Returns: {

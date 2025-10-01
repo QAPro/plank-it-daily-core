@@ -43,25 +43,7 @@ export default defineConfig(({ mode }) => ({
           }
         ]
       },
-      includeAssets: ['favicon.ico', 'robots.txt', 'manifest.json'],
-      manifest: {
-        name: 'Plank Coach - Your Daily Fitness Companion',
-        short_name: 'Plank Coach',
-        description: 'Transform your core strength with personalized plank workouts, achievement tracking, and social challenges.',
-        theme_color: '#1a1a1a',
-        background_color: '#ffffff',
-        display: 'standalone',
-        orientation: 'portrait-primary',
-        scope: '/',
-        start_url: '/',
-        icons: [
-          {
-            src: '/favicon.ico',
-            sizes: '48x48',
-            type: 'image/x-icon'
-          }
-        ]
-      }
+      includeAssets: ['favicon.ico', 'robots.txt', 'manifest.json']
     })
   ].filter(Boolean),
   resolve: {

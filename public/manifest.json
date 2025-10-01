@@ -71,12 +71,12 @@
       "src": "/placeholder.svg",
       "sizes": "1280x720",
       "type": "image/svg+xml",
-      "form_factor": "we",
+      "form_factor": "wide",
       "label": "Inner Fire Dashboard"
     }
   ],
   "prefer_related_applications": false,
   "related_applications": [],
   "scope": "/",
-  "": "plank-coach-pwa"
+  "id": "inner-fire-app"
 }

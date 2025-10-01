@@ -25,6 +25,14 @@ export const InstallPrompt = () => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       
+      // Track PWA install prompt shown
+      if (window.gtag) {
+        window.gtag('event', 'pwa_install_prompt_shown', {
+          'event_category': 'engagement',
+          'event_label': 'browser'
+        });
+      }
+      
       // Show prompt after a short delay and only if user hasn't dismissed it recently
       const dismissedTime = localStorage.getItem('pwa-install-dismissed');
       const now = Date.now();
@@ -39,6 +47,14 @@ export const InstallPrompt = () => {
       setIsInstalled(true);
       setShowPrompt(false);
       setDeferredPrompt(null);
+      
+      // Track PWA installation
+      if (window.gtag) {
+        window.gtag('event', 'pwa_install', {
+          'event_category': 'conversion',
+          'event_label': 'browser_prompt'
+        });
+      }
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -59,6 +75,13 @@ export const InstallPrompt = () => {
       
       if (choice.outcome === 'accepted') {
         console.log('User accepted the install prompt');
+        // Track manual install acceptance
+        if (window.gtag) {
+          window.gtag('event', 'pwa_install_prompt_accepted', {
+            'event_category': 'engagement',
+            'event_label': 'manual_prompt'
+          });
+        }
       } else {
         console.log('User dismissed the install prompt');
       }

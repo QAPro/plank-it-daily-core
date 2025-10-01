@@ -40,7 +40,7 @@ describe('SocialSharingService', () => {
       const result = SocialSharingService.generateShareText(data);
       
       expect(result).toContain('🔥 Just completed a 45s Standard Plank!');
-      expect(result).toContain('#PlankCoach #Fitness #CoreStrength');
+      expect(result).toContain('#InnerFire #Fitness #CoreStrength');
     });
 
     it('should include personal best indicator', () => {

@@ -36,7 +36,7 @@ const Index = () => {
 
     if (user && !onboardingLoading) {
       console.log('Index: User authenticated, checking welcome/onboarding state');
-      const hasSeenWelcome = localStorage.getItem('plankcoach-welcome-seen');
+      const hasSeenWelcome = localStorage.getItem('innerfire-welcome-seen');
       
       // If onboarding is complete OR user has seen welcome, hide welcome screen
       if (isOnboardingComplete === true || hasSeenWelcome) {
@@ -51,7 +51,7 @@ const Index = () => {
 
   const handleGetStarted = () => {
     console.log('Index: Get started clicked');
-    localStorage.setItem('plankcoach-welcome-seen', 'true');
+    localStorage.setItem('innerfire-welcome-seen', 'true');
     setShowWelcome(false);
   };
 

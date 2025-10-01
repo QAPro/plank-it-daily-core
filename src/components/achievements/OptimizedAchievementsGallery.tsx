@@ -182,7 +182,7 @@ const OptimizedAchievementsGallery = () => {
       const shareText = selectedAchievement.share_message;
       if (navigator.share) {
         navigator.share({
-          title: 'PlankCoach Achievement',
+          title: 'Inner Fire Achievement',
           text: shareText,
         });
       } else {

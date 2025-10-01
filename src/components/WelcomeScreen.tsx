@@ -48,12 +48,12 @@ const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
       >
         <motion.img
           src="/icon-512x512.png"
-          alt="PlankCoach Logo"
+          alt="Inner Fire Logo"
           animate={{ rotate: [0, 5, -5, 0] }}
           transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
           className="w-16 h-16 sm:w-24 sm:h-24 object-contain rounded-3xl mb-3 sm:mb-4 mx-auto shadow-2xl"
         />
-        <h1 className="text-2xl sm:text-4xl font-bold text-gray-800 mb-2">PlankCoach</h1>
+        <h1 className="text-2xl sm:text-4xl font-bold text-gray-800 mb-2">Inner Fire</h1>
         <p className="text-base sm:text-lg text-gray-600">Just 5 minutes a day, just for you</p>
       </motion.div>
 

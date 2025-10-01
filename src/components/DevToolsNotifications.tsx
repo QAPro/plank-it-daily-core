@@ -19,7 +19,7 @@ export function DevToolsNotifications({ onClose }: DevToolsNotificationsProps) {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [customTitle, setCustomTitle] = useState('Test Notification');
-  const [customBody, setCustomBody] = useState('This is a test push notification from Plank Coach!');
+  const [customBody, setCustomBody] = useState('This is a test push notification from Inner Fire!');
   const [notificationType, setNotificationType] = useState('test');
 
   const handleTestNotification = async (type: string) => {

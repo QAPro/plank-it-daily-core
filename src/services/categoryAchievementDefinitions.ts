@@ -14,7 +14,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 25,
     requirement: { type: 'category_specific', value: 1, conditions: { exercise_categories: ['cardio'] } },
     unlock_message: 'Your heart is pumping! First cardio exercise completed!',
-    share_message: 'Started my cardio journey! ❤️ #PlankCoach'
+    share_message: 'Started my cardio journey! ❤️ #InnerFire'
   },
   {
     id: 'cardio_streak_7',
@@ -27,7 +27,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 75,
     requirement: { type: 'category_specific', value: 7, conditions: { exercise_categories: ['cardio'], consecutive: true } },
     unlock_message: 'One week of cardio dedication! Your heart loves you!',
-    share_message: '7-day cardio streak completed! Heart strong! 💓 #PlankCoach'
+    share_message: '7-day cardio streak completed! Heart strong! 💓 #InnerFire'
   },
   {
     id: 'cardio_25_sessions',
@@ -40,7 +40,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 100,
     requirement: { type: 'category_specific', value: 25, conditions: { exercise_categories: ['cardio'] } },
     unlock_message: 'Twenty-five cardio sessions! You are a cardio enthusiast!',
-    share_message: '25 cardio sessions completed! Enthusiast level! 🏃‍♂️ #PlankCoach'
+    share_message: '25 cardio sessions completed! Enthusiast level! 🏃‍♂️ #InnerFire'
   },
   {
     id: 'cardio_lifetime_60min',
@@ -53,7 +53,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 150,
     requirement: { type: 'category_specific', value: 3600, conditions: { exercise_categories: ['cardio'] } },
     unlock_message: 'One full hour of cardio! Your endurance is amazing!',
-    share_message: '60 minutes of cardio completed! Endurance champion! ⏰ #PlankCoach'
+    share_message: '60 minutes of cardio completed! Endurance champion! ⏰ #InnerFire'
   },
   {
     id: 'cardio_consistency_21',
@@ -66,7 +66,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 200,
     requirement: { type: 'category_specific', value: 21, conditions: { exercise_categories: ['cardio'], within_timeframe: 30 } },
     unlock_message: 'Incredible cardio consistency! 21 days in a month!',
-    share_message: '21 cardio days this month! Consistency king! 📅 #PlankCoach'
+    share_message: '21 cardio days this month! Consistency king! 📅 #InnerFire'
   },
   {
     id: 'cardio_streak_30',
@@ -79,7 +79,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 300,
     requirement: { type: 'category_specific', value: 30, conditions: { exercise_categories: ['cardio'], consecutive: true } },
     unlock_message: 'THIRTY DAYS of cardio! You are on fire!',
-    share_message: '30-day cardio streak! I am on fire! 🔥 #PlankCoach'
+    share_message: '30-day cardio streak! I am on fire! 🔥 #InnerFire'
   },
   {
     id: 'cardio_mastery_100',
@@ -92,7 +92,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 500,
     requirement: { type: 'category_specific', value: 100, conditions: { exercise_categories: ['cardio'] } },
     unlock_message: 'ONE HUNDRED cardio sessions! You are a cardio master!',
-    share_message: '100 cardio sessions! Cardio master achieved! 👑 #PlankCoach'
+    share_message: '100 cardio sessions! Cardio master achieved! 👑 #InnerFire'
   },
   {
     id: 'cardio_lifetime_300min',
@@ -105,7 +105,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 750,
     requirement: { type: 'category_specific', value: 18000, conditions: { exercise_categories: ['cardio'] } },
     unlock_message: 'FIVE HOURS of cardio! You are a cardio legend!',
-    share_message: '5 hours of cardio completed! Cardio legend! 🏆 #PlankCoach'
+    share_message: '5 hours of cardio completed! Cardio legend! 🏆 #InnerFire'
   },
 
   // LEG LIFT CATEGORY (8 achievements)
@@ -120,7 +120,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 25,
     requirement: { type: 'category_specific', value: 1, conditions: { exercise_categories: ['leg_lift'] } },
     unlock_message: 'Legs up! First leg lift exercise completed!',
-    share_message: 'Started my leg lift journey! 🦵 #PlankCoach'
+    share_message: 'Started my leg lift journey! 🦵 #InnerFire'
   },
   {
     id: 'leg_lift_streak_7',
@@ -133,7 +133,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 75,
     requirement: { type: 'category_specific', value: 7, conditions: { exercise_categories: ['leg_lift'], consecutive: true } },
     unlock_message: 'One week of leg lifts! Your lower body is getting stronger!',
-    share_message: '7-day leg lift streak! Lower body strong! 🦴 #PlankCoach'
+    share_message: '7-day leg lift streak! Lower body strong! 🦴 #InnerFire'
   },
   {
     id: 'leg_lift_25_sessions',
@@ -146,7 +146,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 100,
     requirement: { type: 'category_specific', value: 25, conditions: { exercise_categories: ['leg_lift'] } },
     unlock_message: 'Twenty-five leg lift sessions! You are a leg lift enthusiast!',
-    share_message: '25 leg lift sessions completed! Enthusiast level! 💪 #PlankCoach'
+    share_message: '25 leg lift sessions completed! Enthusiast level! 💪 #InnerFire'
   },
   {
     id: 'leg_lift_lifetime_60min',
@@ -159,7 +159,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 150,
     requirement: { type: 'category_specific', value: 3600, conditions: { exercise_categories: ['leg_lift'] } },
     unlock_message: 'One full hour of leg lifts! Your legs are incredibly strong!',
-    share_message: '60 minutes of leg lifts! Leg strength champion! ⏱️ #PlankCoach'
+    share_message: '60 minutes of leg lifts! Leg strength champion! ⏱️ #InnerFire'
   },
   {
     id: 'leg_lift_consistency_21',
@@ -172,7 +172,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 200,
     requirement: { type: 'category_specific', value: 21, conditions: { exercise_categories: ['leg_lift'], within_timeframe: 30 } },
     unlock_message: 'Amazing leg lift consistency! 21 days in a month!',
-    share_message: '21 leg lift days this month! Consistency champion! 🗓️ #PlankCoach'
+    share_message: '21 leg lift days this month! Consistency champion! 🗓️ #InnerFire'
   },
   {
     id: 'leg_lift_streak_30',
@@ -185,7 +185,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 300,
     requirement: { type: 'category_specific', value: 30, conditions: { exercise_categories: ['leg_lift'], consecutive: true } },
     unlock_message: 'THIRTY DAYS of leg lifts! Your dedication is incredible!',
-    share_message: '30-day leg lift streak! Dedication level: epic! 🔥 #PlankCoach'
+    share_message: '30-day leg lift streak! Dedication level: epic! 🔥 #InnerFire'
   },
   {
     id: 'leg_lift_mastery_100',
@@ -198,7 +198,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 500,
     requirement: { type: 'category_specific', value: 100, conditions: { exercise_categories: ['leg_lift'] } },
     unlock_message: 'ONE HUNDRED leg lift sessions! You are a leg lift master!',
-    share_message: '100 leg lift sessions! Leg lift master achieved! 🏅 #PlankCoach'
+    share_message: '100 leg lift sessions! Leg lift master achieved! 🏅 #InnerFire'
   },
   {
     id: 'leg_lift_lifetime_300min',
@@ -211,7 +211,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 750,
     requirement: { type: 'category_specific', value: 18000, conditions: { exercise_categories: ['leg_lift'] } },
     unlock_message: 'FIVE HOURS of leg lifts! You are a leg lift legend!',
-    share_message: '5 hours of leg lifts! Leg lift legend! 🏆 #PlankCoach'
+    share_message: '5 hours of leg lifts! Leg lift legend! 🏆 #InnerFire'
   },
 
   // PLANKING CATEGORY (8 achievements)
@@ -226,7 +226,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 25,
     requirement: { type: 'category_specific', value: 1, conditions: { exercise_categories: ['planking'] } },
     unlock_message: 'Core engaged! First planking exercise completed!',
-    share_message: 'Started my planking journey! 🤲 #PlankCoach'
+    share_message: 'Started my planking journey! 🤲 #InnerFire'
   },
   {
     id: 'planking_streak_7',
@@ -239,7 +239,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 75,
     requirement: { type: 'category_specific', value: 7, conditions: { exercise_categories: ['planking'], consecutive: true } },
     unlock_message: 'One week of planking! Your core is getting solid!',
-    share_message: '7-day planking streak! Core solid! 💛 #PlankCoach'
+    share_message: '7-day planking streak! Core solid! 💛 #InnerFire'
   },
   {
     id: 'planking_25_sessions',
@@ -252,7 +252,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 100,
     requirement: { type: 'category_specific', value: 25, conditions: { exercise_categories: ['planking'] } },
     unlock_message: 'Twenty-five planking sessions! You are a planking enthusiast!',
-    share_message: '25 planking sessions completed! Enthusiast level! ⭐ #PlankCoach'
+    share_message: '25 planking sessions completed! Enthusiast level! ⭐ #InnerFire'
   },
   {
     id: 'planking_lifetime_60min',
@@ -265,7 +265,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 150,
     requirement: { type: 'category_specific', value: 3600, conditions: { exercise_categories: ['planking'] } },
     unlock_message: 'One full hour of planking! Your core is rock solid!',
-    share_message: '60 minutes of planking! Core rock solid! ⏳ #PlankCoach'
+    share_message: '60 minutes of planking! Core rock solid! ⏳ #InnerFire'
   },
   {
     id: 'planking_consistency_21',
@@ -278,7 +278,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 200,
     requirement: { type: 'category_specific', value: 21, conditions: { exercise_categories: ['planking'], within_timeframe: 30 } },
     unlock_message: 'Incredible planking consistency! 21 days in a month!',
-    share_message: '21 planking days this month! Consistency master! 📊 #PlankCoach'
+    share_message: '21 planking days this month! Consistency master! 📊 #InnerFire'
   },
   {
     id: 'planking_streak_30',
@@ -291,7 +291,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 300,
     requirement: { type: 'category_specific', value: 30, conditions: { exercise_categories: ['planking'], consecutive: true } },
     unlock_message: 'THIRTY DAYS of planking! You are absolutely dedicated!',
-    share_message: '30-day planking streak! Dedication level: epic! 🔥 #PlankCoach'
+    share_message: '30-day planking streak! Dedication level: epic! 🔥 #InnerFire'
   },
   {
     id: 'planking_mastery_100',
@@ -304,7 +304,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 500,
     requirement: { type: 'category_specific', value: 100, conditions: { exercise_categories: ['planking'] } },
     unlock_message: 'ONE HUNDRED planking sessions! You are a planking master!',
-    share_message: '100 planking sessions! Planking master achieved! 🏆 #PlankCoach'
+    share_message: '100 planking sessions! Planking master achieved! 🏆 #InnerFire'
   },
   {
     id: 'planking_lifetime_300min',
@@ -317,7 +317,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 750,
     requirement: { type: 'category_specific', value: 18000, conditions: { exercise_categories: ['planking'] } },
     unlock_message: 'FIVE HOURS of planking! You are a planking legend!',
-    share_message: '5 hours of planking! Planking legend! 👑 #PlankCoach'
+    share_message: '5 hours of planking! Planking legend! 👑 #InnerFire'
   },
 
   // SEATED EXERCISE CATEGORY (8 achievements)
@@ -332,7 +332,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 25,
     requirement: { type: 'category_specific', value: 1, conditions: { exercise_categories: ['seated_exercise'] } },
     unlock_message: 'Seated and ready! First seated exercise completed!',
-    share_message: 'Started my seated exercise journey! 🪑 #PlankCoach'
+    share_message: 'Started my seated exercise journey! 🪑 #InnerFire'
   },
   {
     id: 'seated_streak_7',
@@ -345,7 +345,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 75,
     requirement: { type: 'category_specific', value: 7, conditions: { exercise_categories: ['seated_exercise'], consecutive: true } },
     unlock_message: 'One week of seated exercises! Consistency in comfort!',
-    share_message: '7-day seated exercise streak! Comfortable consistency! 💚 #PlankCoach'
+    share_message: '7-day seated exercise streak! Comfortable consistency! 💚 #InnerFire'
   },
   {
     id: 'seated_25_sessions',
@@ -358,7 +358,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 100,
     requirement: { type: 'category_specific', value: 25, conditions: { exercise_categories: ['seated_exercise'] } },
     unlock_message: 'Twenty-five seated sessions! You are a seated exercise enthusiast!',
-    share_message: '25 seated exercise sessions! Enthusiast level! 🌱 #PlankCoach'
+    share_message: '25 seated exercise sessions! Enthusiast level! 🌱 #InnerFire'
   },
   {
     id: 'seated_lifetime_60min',
@@ -371,7 +371,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 150,
     requirement: { type: 'category_specific', value: 3600, conditions: { exercise_categories: ['seated_exercise'] } },
     unlock_message: 'One full hour of seated exercises! Comfortable yet effective!',
-    share_message: '60 minutes of seated exercises! Effective comfort! ⏲️ #PlankCoach'
+    share_message: '60 minutes of seated exercises! Effective comfort! ⏲️ #InnerFire'
   },
   {
     id: 'seated_consistency_21',
@@ -384,7 +384,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 200,
     requirement: { type: 'category_specific', value: 21, conditions: { exercise_categories: ['seated_exercise'], within_timeframe: 30 } },
     unlock_message: 'Amazing seated exercise consistency! 21 days in a month!',
-    share_message: '21 seated exercise days this month! Consistency expert! 📈 #PlankCoach'
+    share_message: '21 seated exercise days this month! Consistency expert! 📈 #InnerFire'
   },
   {
     id: 'seated_streak_30',
@@ -397,7 +397,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 300,
     requirement: { type: 'category_specific', value: 30, conditions: { exercise_categories: ['seated_exercise'], consecutive: true } },
     unlock_message: 'THIRTY DAYS of seated exercises! Unstoppable dedication!',
-    share_message: '30-day seated exercise streak! Unstoppable! 🔥 #PlankCoach'
+    share_message: '30-day seated exercise streak! Unstoppable! 🔥 #InnerFire'
   },
   {
     id: 'seated_mastery_100',
@@ -410,7 +410,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 500,
     requirement: { type: 'category_specific', value: 100, conditions: { exercise_categories: ['seated_exercise'] } },
     unlock_message: 'ONE HUNDRED seated sessions! You are a seated exercise master!',
-    share_message: '100 seated exercise sessions! Master achieved! 🎯 #PlankCoach'
+    share_message: '100 seated exercise sessions! Master achieved! 🎯 #InnerFire'
   },
   {
     id: 'seated_lifetime_300min',
@@ -423,7 +423,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 750,
     requirement: { type: 'category_specific', value: 18000, conditions: { exercise_categories: ['seated_exercise'] } },
     unlock_message: 'FIVE HOURS of seated exercises! You are a seated legend!',
-    share_message: '5 hours of seated exercises! Seated legend! 🏆 #PlankCoach'
+    share_message: '5 hours of seated exercises! Seated legend! 🏆 #InnerFire'
   },
 
   // STANDING MOVEMENT CATEGORY (8 achievements)
@@ -438,7 +438,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 25,
     requirement: { type: 'category_specific', value: 1, conditions: { exercise_categories: ['standing_movement'] } },
     unlock_message: 'Standing tall! First standing movement completed!',
-    share_message: 'Started my standing movement journey! 🧍 #PlankCoach'
+    share_message: 'Started my standing movement journey! 🧍 #InnerFire'
   },
   {
     id: 'standing_streak_7',
@@ -451,7 +451,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 75,
     requirement: { type: 'category_specific', value: 7, conditions: { exercise_categories: ['standing_movement'], consecutive: true } },
     unlock_message: 'One week standing strong! Your posture is improving!',
-    share_message: '7-day standing movement streak! Standing strong! 💜 #PlankCoach'
+    share_message: '7-day standing movement streak! Standing strong! 💜 #InnerFire'
   },
   {
     id: 'standing_25_sessions',
@@ -464,7 +464,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 100,
     requirement: { type: 'category_specific', value: 25, conditions: { exercise_categories: ['standing_movement'] } },
     unlock_message: 'Twenty-five standing sessions! You are a standing movement enthusiast!',
-    share_message: '25 standing movement sessions! Enthusiast level! 🚶‍♂️ #PlankCoach'
+    share_message: '25 standing movement sessions! Enthusiast level! 🚶‍♂️ #InnerFire'
   },
   {
     id: 'standing_lifetime_60min',
@@ -477,7 +477,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 150,
     requirement: { type: 'category_specific', value: 3600, conditions: { exercise_categories: ['standing_movement'] } },
     unlock_message: 'One full hour of standing movements! Your balance is amazing!',
-    share_message: '60 minutes of standing movements! Balance master! ⌚ #PlankCoach'
+    share_message: '60 minutes of standing movements! Balance master! ⌚ #InnerFire'
   },
   {
     id: 'standing_consistency_21',
@@ -490,7 +490,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 200,
     requirement: { type: 'category_specific', value: 21, conditions: { exercise_categories: ['standing_movement'], within_timeframe: 30 } },
     unlock_message: 'Outstanding standing consistency! 21 days in a month!',
-    share_message: '21 standing movement days this month! Standing consistent! 📏 #PlankCoach'
+    share_message: '21 standing movement days this month! Standing consistent! 📏 #InnerFire'
   },
   {
     id: 'standing_streak_30',
@@ -503,7 +503,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 300,
     requirement: { type: 'category_specific', value: 30, conditions: { exercise_categories: ['standing_movement'], consecutive: true } },
     unlock_message: 'THIRTY DAYS standing strong! You are remarkable!',
-    share_message: '30-day standing movement streak! Remarkable! 🔥 #PlankCoach'
+    share_message: '30-day standing movement streak! Remarkable! 🔥 #InnerFire'
   },
   {
     id: 'standing_mastery_100',
@@ -516,7 +516,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 500,
     requirement: { type: 'category_specific', value: 100, conditions: { exercise_categories: ['standing_movement'] } },
     unlock_message: 'ONE HUNDRED standing sessions! You are a standing movement master!',
-    share_message: '100 standing movement sessions! Master achieved! 🎖️ #PlankCoach'
+    share_message: '100 standing movement sessions! Master achieved! 🎖️ #InnerFire'
   },
   {
     id: 'standing_lifetime_300min',
@@ -529,7 +529,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 750,
     requirement: { type: 'category_specific', value: 18000, conditions: { exercise_categories: ['standing_movement'] } },
     unlock_message: 'FIVE HOURS of standing movements! You are a standing legend!',
-    share_message: '5 hours of standing movements! Standing legend! 🏆 #PlankCoach'
+    share_message: '5 hours of standing movements! Standing legend! 🏆 #InnerFire'
   },
 
   // STRENGTH CATEGORY (8 achievements)
@@ -544,7 +544,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 25,
     requirement: { type: 'category_specific', value: 1, conditions: { exercise_categories: ['strength'] } },
     unlock_message: 'Power unleashed! First strength exercise completed!',
-    share_message: 'Started my strength journey! 💪 #PlankCoach'
+    share_message: 'Started my strength journey! 💪 #InnerFire'
   },
   {
     id: 'strength_streak_7',
@@ -557,7 +557,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 75,
     requirement: { type: 'category_specific', value: 7, conditions: { exercise_categories: ['strength'], consecutive: true } },
     unlock_message: 'One week of strength! Your power is growing!',
-    share_message: '7-day strength streak! Power growing! 🧡 #PlankCoach'
+    share_message: '7-day strength streak! Power growing! 🧡 #InnerFire'
   },
   {
     id: 'strength_25_sessions',
@@ -570,7 +570,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 100,
     requirement: { type: 'category_specific', value: 25, conditions: { exercise_categories: ['strength'] } },
     unlock_message: 'Twenty-five strength sessions! You are a strength enthusiast!',
-    share_message: '25 strength sessions completed! Enthusiast level! 🏋️‍♂️ #PlankCoach'
+    share_message: '25 strength sessions completed! Enthusiast level! 🏋️‍♂️ #InnerFire'
   },
   {
     id: 'strength_lifetime_60min',
@@ -583,7 +583,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 150,
     requirement: { type: 'category_specific', value: 3600, conditions: { exercise_categories: ['strength'] } },
     unlock_message: 'One full hour of strength! Your muscles are incredible!',
-    share_message: '60 minutes of strength exercises! Muscle power! ⏱️ #PlankCoach'
+    share_message: '60 minutes of strength exercises! Muscle power! ⏱️ #InnerFire'
   },
   {
     id: 'strength_consistency_21',
@@ -596,7 +596,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 200,
     requirement: { type: 'category_specific', value: 21, conditions: { exercise_categories: ['strength'], within_timeframe: 30 } },
     unlock_message: 'Incredible strength consistency! 21 days in a month!',
-    share_message: '21 strength days this month! Strength consistent! 💯 #PlankCoach'
+    share_message: '21 strength days this month! Strength consistent! 💯 #InnerFire'
   },
   {
     id: 'strength_streak_30',
@@ -609,7 +609,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 300,
     requirement: { type: 'category_specific', value: 30, conditions: { exercise_categories: ['strength'], consecutive: true } },
     unlock_message: 'THIRTY DAYS of strength! You are incredibly powerful!',
-    share_message: '30-day strength streak! Incredibly powerful! 🔥 #PlankCoach'
+    share_message: '30-day strength streak! Incredibly powerful! 🔥 #InnerFire'
   },
   {
     id: 'strength_mastery_100',
@@ -622,7 +622,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 500,
     requirement: { type: 'category_specific', value: 100, conditions: { exercise_categories: ['strength'] } },
     unlock_message: 'ONE HUNDRED strength sessions! You are a strength master!',
-    share_message: '100 strength sessions! Strength master achieved! 🏅 #PlankCoach'
+    share_message: '100 strength sessions! Strength master achieved! 🏅 #InnerFire'
   },
   {
     id: 'strength_lifetime_300min',
@@ -635,7 +635,7 @@ export const CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 750,
     requirement: { type: 'category_specific', value: 18000, conditions: { exercise_categories: ['strength'] } },
     unlock_message: 'FIVE HOURS of strength! You are a strength legend!',
-    share_message: '5 hours of strength exercises! Strength legend! 🏆 #PlankCoach'
+    share_message: '5 hours of strength exercises! Strength legend! 🏆 #InnerFire'
   }
 ];
 
@@ -653,7 +653,7 @@ export const CROSS_CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 50,
     requirement: { type: 'cross_category', value: 2, conditions: { minimum_categories: 2 } },
     unlock_message: 'Exploring new territories! You\'ve tried 2 exercise categories!',
-    share_message: 'Explored 2 exercise categories! Territory expanding! 🗺️ #PlankCoach'
+    share_message: 'Explored 2 exercise categories! Territory expanding! 🗺️ #InnerFire'
   },
   {
     id: 'category_explorer_3',
@@ -666,7 +666,7 @@ export const CROSS_CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 100,
     requirement: { type: 'cross_category', value: 3, conditions: { minimum_categories: 3 } },
     unlock_message: 'Adventure calls! You\'ve conquered 3 exercise categories!',
-    share_message: 'Adventured through 3 exercise categories! 🎒 #PlankCoach'
+    share_message: 'Adventured through 3 exercise categories! 🎒 #InnerFire'
   },
   {
     id: 'category_explorer_4',
@@ -679,7 +679,7 @@ export const CROSS_CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 200,
     requirement: { type: 'cross_category', value: 4, conditions: { minimum_categories: 4 } },
     unlock_message: 'Wandering through fitness! You\'ve mastered 4 exercise categories!',
-    share_message: 'Wandered through 4 exercise categories! 🧭 #PlankCoach'
+    share_message: 'Wandered through 4 exercise categories! 🧭 #InnerFire'
   },
   {
     id: 'category_explorer_5',
@@ -692,7 +692,7 @@ export const CROSS_CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 400,
     requirement: { type: 'cross_category', value: 5, conditions: { minimum_categories: 5 } },
     unlock_message: 'Exploring every peak! You\'ve conquered 5 exercise categories!',
-    share_message: 'Explored 5 exercise categories! Peak conqueror! 🏔️ #PlankCoach'
+    share_message: 'Explored 5 exercise categories! Peak conqueror! 🏔️ #InnerFire'
   },
   {
     id: 'category_explorer_all',
@@ -705,7 +705,7 @@ export const CROSS_CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 800,
     requirement: { type: 'cross_category', value: 6, conditions: { minimum_categories: 6 } },
     unlock_message: 'WORLD EXPLORER! You\'ve mastered ALL 6 exercise categories!',
-    share_message: 'Explored ALL 6 exercise categories! World explorer! 🌍 #PlankCoach'
+    share_message: 'Explored ALL 6 exercise categories! World explorer! 🌍 #InnerFire'
   },
 
   // Same-Day Multi-Category (5 achievements)
@@ -720,7 +720,7 @@ export const CROSS_CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 75,
     requirement: { type: 'cross_category', value: 2, conditions: { same_day: true, minimum_categories: 2 } },
     unlock_message: 'Variety is the spice of life! 2 categories in one day!',
-    share_message: '2 exercise categories in one day! Daily variety! 🌅 #PlankCoach'
+    share_message: '2 exercise categories in one day! Daily variety! 🌅 #InnerFire'
   },
   {
     id: 'same_day_3_categories',
@@ -733,7 +733,7 @@ export const CROSS_CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 150,
     requirement: { type: 'cross_category', value: 3, conditions: { same_day: true, minimum_categories: 3 } },
     unlock_message: 'Triple threat activated! 3 categories conquered in one day!',
-    share_message: '3 exercise categories in one day! Triple threat! 🎯 #PlankCoach'
+    share_message: '3 exercise categories in one day! Triple threat! 🎯 #InnerFire'
   },
   {
     id: 'same_day_4_categories',
@@ -746,7 +746,7 @@ export const CROSS_CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 300,
     requirement: { type: 'cross_category', value: 4, conditions: { same_day: true, minimum_categories: 4 } },
     unlock_message: 'QUADRUPLE POWER! 4 categories mastered in one incredible day!',
-    share_message: '4 exercise categories in one day! Quadruple power! 💥 #PlankCoach'
+    share_message: '4 exercise categories in one day! Quadruple power! 💥 #InnerFire'
   },
   {
     id: 'same_day_5_categories',
@@ -759,7 +759,7 @@ export const CROSS_CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 500,
     requirement: { type: 'cross_category', value: 5, conditions: { same_day: true, minimum_categories: 5 } },
     unlock_message: 'FITNESS TORNADO! 5 categories destroyed in one day!',
-    share_message: '5 exercise categories in one day! Fitness tornado! 🌪️ #PlankCoach'
+    share_message: '5 exercise categories in one day! Fitness tornado! 🌪️ #InnerFire'
   },
   {
     id: 'same_day_all_categories',
@@ -772,7 +772,7 @@ export const CROSS_CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 1000,
     requirement: { type: 'cross_category', value: 6, conditions: { same_day: true, minimum_categories: 6 } },
     unlock_message: 'FITNESS HURRICANE! ALL 6 categories conquered in ONE DAY!',
-    share_message: 'ALL 6 exercise categories in ONE DAY! Fitness hurricane! 🌀 #PlankCoach'
+    share_message: 'ALL 6 exercise categories in ONE DAY! Fitness hurricane! 🌀 #InnerFire'
   },
 
   // Weekly Multi-Category Variety (5 achievements)
@@ -787,7 +787,7 @@ export const CROSS_CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 100,
     requirement: { type: 'cross_category', value: 3, conditions: { minimum_categories: 3, within_timeframe: 7 } },
     unlock_message: 'Weekly variety master! 3 categories in one week!',
-    share_message: '3 exercise categories this week! Variety seeker! 🗓️ #PlankCoach'
+    share_message: '3 exercise categories this week! Variety seeker! 🗓️ #InnerFire'
   },
   {
     id: 'weekly_variety_4',
@@ -800,7 +800,7 @@ export const CROSS_CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 200,
     requirement: { type: 'cross_category', value: 4, conditions: { minimum_categories: 4, within_timeframe: 7 } },
     unlock_message: 'Weekly variety expert! 4 categories conquered in one week!',
-    share_message: '4 exercise categories this week! Variety expert! 📅 #PlankCoach'
+    share_message: '4 exercise categories this week! Variety expert! 📅 #InnerFire'
   },
   {
     id: 'weekly_variety_5',
@@ -813,7 +813,7 @@ export const CROSS_CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 350,
     requirement: { type: 'cross_category', value: 5, conditions: { minimum_categories: 5, within_timeframe: 7 } },
     unlock_message: 'Weekly variety master! 5 categories mastered in one week!',
-    share_message: '5 exercise categories this week! Variety master! 🎯 #PlankCoach'
+    share_message: '5 exercise categories this week! Variety master! 🎯 #InnerFire'
   },
   {
     id: 'weekly_variety_all',
@@ -826,7 +826,7 @@ export const CROSS_CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 500,
     requirement: { type: 'cross_category', value: 6, conditions: { minimum_categories: 6, within_timeframe: 7 } },
     unlock_message: 'WEEKLY COMPLETE EXPLORER! All 6 categories in one week!',
-    share_message: 'ALL 6 categories in one week! Complete explorer! 🌟 #PlankCoach'
+    share_message: 'ALL 6 categories in one week! Complete explorer! 🌟 #InnerFire'
   },
   {
     id: 'consistency_across_categories',
@@ -839,7 +839,7 @@ export const CROSS_CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 1000,
     requirement: { type: 'cross_category', value: 28, conditions: { minimum_categories: 4, consecutive: true } },
     unlock_message: 'CROSS-CATEGORY CONSISTENCY MASTER! 4 weeks of 4+ categories!',
-    share_message: '4+ categories for 4 consecutive weeks! Consistency master! 🎪 #PlankCoach'
+    share_message: '4+ categories for 4 consecutive weeks! Consistency master! 🎪 #InnerFire'
   },
 
   // Advanced Multi-Category Mastery (7 achievements)
@@ -854,7 +854,7 @@ export const CROSS_CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 300,
     requirement: { type: 'cross_category', value: 50, conditions: { minimum_categories: 6, balanced_requirement: 8 } },
     unlock_message: 'Perfectly balanced trainer! 8+ sessions in each category!',
-    share_message: 'Balanced across all categories! Balanced trainer! ⚖️ #PlankCoach'
+    share_message: 'Balanced across all categories! Balanced trainer! ⚖️ #InnerFire'
   },
   {
     id: 'category_mastery_streak_14',
@@ -867,7 +867,7 @@ export const CROSS_CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 400,
     requirement: { type: 'cross_category', value: 14, conditions: { minimum_categories: 3, consecutive: true } },
     unlock_message: 'Multi-category streak master! 14 days of variety!',
-    share_message: '14-day multi-category streak! Streak master! 🔗 #PlankCoach'
+    share_message: '14-day multi-category streak! Streak master! 🔗 #InnerFire'
   },
   {
     id: 'fitness_philosopher_10h',
@@ -880,7 +880,7 @@ export const CROSS_CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 1500,
     requirement: { type: 'cross_category', value: 36000, conditions: { minimum_categories: 6, duration_based: true } },
     unlock_message: 'FITNESS PHILOSOPHER! 10+ hours mastered across all categories!',
-    share_message: '10+ hours across all categories! Fitness philosopher! 🧠 #PlankCoach'
+    share_message: '10+ hours across all categories! Fitness philosopher! 🧠 #InnerFire'
   },
   {
     id: 'category_perfectionist',
@@ -893,7 +893,7 @@ export const CROSS_CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 2000,
     requirement: { type: 'cross_category', value: 150, conditions: { minimum_categories: 6, perfectionist_requirement: 25 } },
     unlock_message: 'CATEGORY PERFECTIONIST! 25+ sessions in every single category!',
-    share_message: '25+ sessions in EVERY category! Perfectionist! 💎 #PlankCoach'
+    share_message: '25+ sessions in EVERY category! Perfectionist! 💎 #InnerFire'
   },
   {
     id: 'ultimate_fitness_explorer',
@@ -906,7 +906,7 @@ export const CROSS_CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 3000,
     requirement: { type: 'cross_category', value: 500, conditions: { minimum_categories: 6, ultimate_explorer: true } },
     unlock_message: 'ULTIMATE FITNESS EXPLORER! 500+ sessions across all categories!',
-    share_message: '500+ sessions across ALL categories! Ultimate explorer! 🚀 #PlankCoach'
+    share_message: '500+ sessions across ALL categories! Ultimate explorer! 🚀 #InnerFire'
   },
   {
     id: 'category_champion_100',
@@ -919,7 +919,7 @@ export const CROSS_CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 2500,
     requirement: { type: 'cross_category', value: 300, conditions: { minimum_categories: 3, champion_requirement: 100 } },
     unlock_message: 'MULTI-CATEGORY CHAMPION! 100+ sessions in 3+ categories!',
-    share_message: '100+ sessions in 3+ categories! Multi-category champion! 🏆 #PlankCoach'
+    share_message: '100+ sessions in 3+ categories! Multi-category champion! 🏆 #InnerFire'
   },
   {
     id: 'fitness_renaissance',
@@ -932,6 +932,6 @@ export const CROSS_CATEGORY_ACHIEVEMENTS: ExpandedAchievement[] = [
     points: 5000,
     requirement: { type: 'cross_category', value: 300, conditions: { minimum_categories: 6, renaissance_requirement: 50 } },
     unlock_message: 'FITNESS RENAISSANCE MASTER! 50+ sessions in ALL 6 categories!',
-    share_message: 'Mastered ALL 6 categories! Fitness Renaissance! 👑 #PlankCoach'
+    share_message: 'Mastered ALL 6 categories! Fitness Renaissance! 👑 #InnerFire'
   }
 ];

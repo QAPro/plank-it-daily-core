@@ -25,7 +25,7 @@ export default function PrivacyPolicy() {
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-3">Introduction</h2>
             <p className="text-foreground/80 leading-relaxed">
-              Welcome to Plank Coach. We respect your privacy and are committed to protecting your personal data. 
+              Welcome to Inner Fire. We respect your privacy and are committed to protecting your personal data. 
               This privacy policy explains how we collect, use, and safeguard your information when you use our fitness application.
             </p>
           </section>

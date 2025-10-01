@@ -25,7 +25,7 @@ export default function TermsOfService() {
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-3">Agreement to Terms</h2>
             <p className="text-foreground/80 leading-relaxed">
-              By accessing and using Plank Coach, you agree to be bound by these Terms of Service. 
+              By accessing and using Inner Fire, you agree to be bound by these Terms of Service. 
               If you do not agree to these terms, please do not use our application.
             </p>
           </section>
@@ -33,7 +33,7 @@ export default function TermsOfService() {
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-3">Description of Service</h2>
             <p className="text-foreground/80 leading-relaxed">
-              Plank Coach is a fitness application designed to help users improve their core strength through guided plank exercises, 
+              Inner Fire is a fitness application designed to help users improve their core strength through guided exercises, 
               progress tracking, and personalized workout plans. Our app provides exercise routines, performance analytics, and motivational features.
             </p>
           </section>
@@ -58,7 +58,7 @@ export default function TermsOfService() {
 
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-3">User Responsibilities</h2>
-            <p className="text-foreground/80 leading-relaxed mb-3">As a user of Plank Coach, you agree to:</p>
+            <p className="text-foreground/80 leading-relaxed mb-3">As a user of Inner Fire, you agree to:</p>
             <ul className="list-disc ml-6 space-y-1 text-foreground/80">
               <li>Provide accurate and truthful information when creating your account</li>
               <li>Keep your account credentials secure and confidential</li>
@@ -71,7 +71,7 @@ export default function TermsOfService() {
 
           <section>
             <h2 className="text-2xl font-semibend text-foreground mb-3">Prohibited Uses</h2>
-            <p className="text-foreground/80 leading-relaxed mb-3">You may not use Plank Coach to:</p>
+            <p className="text-foreground/80 leading-relaxed mb-3">You may not use Inner Fire to:</p>
             <ul className="list-disc ml-6 space-y-1 text-foreground/80">
               <li>Share inappropriate, offensive, or harmful content</li>
               <li>Violate any local, state, national, or international law</li>
@@ -98,7 +98,7 @@ export default function TermsOfService() {
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-3">Intellectual Property</h2>
             <p className="text-foreground/80 leading-relaxed">
-              The Plank Coach app, including its content, features, and functionality, is owned by us and protected by copyright, 
+              The Inner Fire app, including its content, features, and functionality, is owned by us and protected by copyright, 
               trademark, and other intellectual property laws. You may not copy, modify, distribute, or create derivative works 
               without our explicit written permission.
             </p>
@@ -115,7 +115,7 @@ export default function TermsOfService() {
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-3">Limitation of Liability</h2>
             <p className="text-foreground/80 leading-relaxed mb-3">
-              To the maximum extent permitted by law, Plank Coach and its developers shall not be liable for:
+              To the maximum extent permitted by law, Inner Fire and its developers shall not be liable for:
             </p>
             <ul className="list-disc ml-6 space-y-1 text-foreground/80">
               <li>Any direct, indirect, incidental, or consequential damages</li>
@@ -162,15 +162,15 @@ export default function TermsOfService() {
             <h2 className="text-2xl font-semibold text-foreground mb-3">Contact Information</h2>
             <p className="text-foreground/80 leading-relaxed">
               If you have questions about these Terms of Service, please contact us through the app's support feature. 
-              We're committed to addressing your concerns and ensuring a positive experience with Plank Coach.
+              We're committed to addressing your concerns and ensuring a positive experience with Inner Fire.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold text-foreground mb-3">Acknowledgment</h2>
             <p className="text-foreground/80 leading-relaxed">
-              By using Plank Coach, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service. 
-              Thank you for choosing Plank Coach for your fitness journey!
+              By using Inner Fire, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service. 
+              Thank you for choosing Inner Fire for your fitness journey!
             </p>
           </section>
         </div>

@@ -12,12 +12,12 @@ export const generateCSPHeader = (): string => {
     "frame-src 'none'",
     // Allow frame-ancestors for Lovable preview, strict security in production
     isLovablePreview ? "frame-ancestors *.lovable.app *.lovable.dev" : "frame-ancestors 'none'",
-    "script-src 'self'",
+    "script-src 'self' https://www.googletagmanager.com",
     "script-src-attr 'none'",
     "style-src 'self' 'unsafe-inline'", // unsafe-inline needed for dynamic styles
     "img-src 'self' data: blob: https:",
     "font-src 'self' data:",
-    `connect-src 'self' ${SUPABASE_ORIGIN} wss://kgwmplptoctmoaefnpfg.supabase.co`,
+    `connect-src 'self' ${SUPABASE_ORIGIN} wss://kgwmplptoctmoaefnpfg.supabase.co https://www.google-analytics.com https://analytics.google.com`,
     "worker-src 'self' blob:",
     "manifest-src 'self'",
     "form-action 'self'",

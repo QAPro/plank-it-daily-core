@@ -1,7 +1,7 @@
 {
-  "name": "Plank Coach - Your Daily Fitness Companion",
-  "short_name": "Plank Coach",
-  "description": "Transform your core strength with personalized plank workouts, achievement tracking, and social challenges.",
+  "name": "Inner Fire - JUst 5 minutes a day, just for you",
+  "short_name": "Inner Fire",
+  "description": "Transform your health with personalized workouts, achievement tracking, and social challenges.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -71,12 +71,12 @@
       "src": "/placeholder.svg",
       "sizes": "1280x720",
       "type": "image/svg+xml",
-      "form_factor": "wide",
-      "label": "Plank Coach Dashboard"
+      "form_factor": "we",
+      "label": "Inner Fire Dashboard"
     }
   ],
   "prefer_related_applications": false,
   "related_applications": [],
   "scope": "/",
-  "id": "plank-coach-pwa"
+  "": "plank-coach-pwa"
 }

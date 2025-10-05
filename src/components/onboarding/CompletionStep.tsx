@@ -15,7 +15,7 @@ const CompletionStep = ({ data, onComplete, loading }: CompletionStepProps) => {
     {
       icon: Trophy,
       title: 'Welcome Bonus',
-      description: 'You\'ve joined the PlankIt community!'
+      description: 'You\'ve joined the Inner Fire community!'
     },
     {
       icon: Target,
@@ -64,7 +64,7 @@ const CompletionStep = ({ data, onComplete, loading }: CompletionStepProps) => {
           </div>
           
           <h1 className="text-3xl font-bold text-gray-800 mb-3">Congratulations!</h1>
-          <h2 className="text-xl text-gray-600 mb-4">Your PlankIt setup is complete</h2>
+          <h2 className="text-xl text-gray-600 mb-4">Your Inner Fire setup is complete</h2>
           
           <div className="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-xl p-4 mb-6">
             <p className="text-sm text-orange-800 leading-relaxed">

@@ -93,7 +93,7 @@ const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
           Start Your Journey
         </Button>
         <p className="text-sm text-gray-500 mt-3 sm:mt-4">
-          Join other motivated users getting healthier every day
+          Join motivated users getting healthier every day
         </p>
       </motion.div>
     </motion.div>

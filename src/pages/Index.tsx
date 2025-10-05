@@ -26,16 +26,17 @@ const Index = () => {
   });
 
   useEffect(() => {
-    console.log('Index: Auth state change detected', { user: user?.email, authLoading });
+    console.log('Index: Auth state change detected', { user: user?.email, authLoading, onboardingLoading });
     
-    if (!authLoading && !user) {
+    // Only redirect if we're certain user is not logged in (both loading states complete)
+    if (!authLoading && !onboardingLoading && !user && !authError) {
       console.log('Index: No authenticated user, redirecting to /auth');
       navigate('/auth');
       return;
     }
 
-    if (user && !onboardingLoading) {
-      console.log('Index: User authenticated, checking welcome/onboarding state');
+    // Only make decisions when both auth and onboarding are done loading
+    if (!authLoading && !onboardingLoading && user && isOnboardingComplete !== null) {
       const hasSeenWelcome = localStorage.getItem('innerfire-welcome-seen');
       
       // If onboarding is complete OR user has seen welcome, hide welcome screen
@@ -47,7 +48,7 @@ const Index = () => {
         // Keep showWelcome true initially, but will transition to onboarding after welcome
       }
     }
-  }, [user, authLoading, isOnboardingComplete, onboardingLoading, navigate]);
+  }, [user, authLoading, isOnboardingComplete, onboardingLoading, authError, navigate]);
 
   const handleGetStarted = () => {
     console.log('Index: Get started clicked');
@@ -62,6 +63,7 @@ const Index = () => {
   };
 
   // Show loading while checking auth state or onboarding status
+  // IMPORTANT: Wait for BOTH to complete to prevent flickering/wrong routing
   if (authLoading || onboardingLoading) {
     console.log('Index: Showing loading state');
     return (
@@ -91,8 +93,9 @@ const Index = () => {
     );
   }
 
-  // Show onboarding flow if user hasn't completed it yet
-  if (isOnboardingComplete === false && !showWelcome) {
+  // Show onboarding flow ONLY if we're certain it's not complete
+  // Don't show if loading states aren't resolved yet
+  if (user && !authLoading && !onboardingLoading && isOnboardingComplete === false && !showWelcome) {
     console.log('Index: Showing onboarding flow');
     return (
       <LevelProgressionProvider>

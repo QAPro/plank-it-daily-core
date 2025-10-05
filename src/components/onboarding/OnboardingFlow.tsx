@@ -60,6 +60,19 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
     
     setLoading(true);
     try {
+      // First check if already completed to prevent duplicate completion
+      const { data: existingData } = await supabase
+        .from('user_onboarding')
+        .select('completed_at')
+        .eq('user_id', user.id)
+        .single();
+
+      if (existingData?.completed_at) {
+        console.log('[Onboarding] Already completed, skipping');
+        onComplete();
+        return;
+      }
+
       // Update onboarding record
       const { error: onboardingError } = await supabase
         .from('user_onboarding')
@@ -75,13 +88,15 @@ const OnboardingFlow = ({ onComplete }: { onComplete: () => void }) => {
 
       if (onboardingError) throw onboardingError;
 
+      console.log('[Onboarding] Completed successfully');
+      
       toast({
         description: 'Your onboarding is complete. Ready to start your fitness journey?',
       });
 
       onComplete();
     } catch (error: any) {
-      console.error('Error completing onboarding:', error);
+      console.error('[Onboarding] Error completing:', error);
       toast({
         title: 'Error',
         description: 'Failed to complete onboarding. Please try again.',

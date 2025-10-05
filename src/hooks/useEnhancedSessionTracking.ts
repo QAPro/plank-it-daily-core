@@ -143,14 +143,23 @@ export const useEnhancedSessionTracking = () => {
         ...updateData,
       };
 
-      const { error: updateError } = userStreak
-        ? await supabase.from('user_streaks').update(updateData).eq('user_id', user.id)
-        : await supabase.from('user_streaks').insert(insertData);
+      console.log('📊 UPDATING STREAK:', { 
+        isUpdate: !!userStreak, 
+        updateData, 
+        insertData: userStreak ? null : insertData 
+      });
+
+      const { data: updatedStreak, error: updateError } = userStreak
+        ? await supabase.from('user_streaks').update(updateData).eq('user_id', user.id).select().single()
+        : await supabase.from('user_streaks').insert(insertData).select().single();
 
       if (updateError) {
-        logError("Error updating user streak", { error: updateError.message }, updateError);
+        console.error('❌ STREAK UPDATE FAILED:', updateError);
+        logError("Error updating user streak", { error: updateError.message, updateData, userStreak }, updateError);
         return { streak: newStreak, isNewStreak };
       }
+
+      console.log('✅ STREAK UPDATED SUCCESSFULLY:', updatedStreak);
 
       // Check for milestone
       if (newStreak > 0 && newStreak % 7 === 0) {
@@ -178,6 +187,12 @@ const completeSession = async (duration: number, notes?: string) => {
     hasSelectedExercise: !!selectedExercise,
     hookCycleId: currentHookCycleId
   });
+  
+  if (!user?.id) {
+    console.error('❌ No authenticated user - cannot track workout progress');
+    toast.error('Please log in to track your progress');
+    return;
+  }
   
   if (!user || !selectedExercise) {
     console.error('❌ COMPLETE SESSION FAILED: Missing user or exercise', { user: !!user, selectedExercise: !!selectedExercise });

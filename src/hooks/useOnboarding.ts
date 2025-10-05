@@ -41,18 +41,13 @@ export const useOnboarding = () => {
         .from('user_onboarding')
         .select('completed_at')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('[Onboarding] Database error:', error.code, error.message);
         
-        // Only treat "not found" as false, retry on network errors
-        if (error.code === 'PGRST116') {
-          // Record doesn't exist yet - onboarding not complete
-          setIsOnboardingComplete(false);
-          setLoading(false);
-        } else if (retryCount < MAX_RETRIES) {
-          // Network or other error - retry
+        // Retry on network errors
+        if (retryCount < MAX_RETRIES) {
           console.log(`[Onboarding] Retrying in ${RETRY_DELAY}ms...`);
           await sleep(RETRY_DELAY * (retryCount + 1));
           return checkOnboardingStatus(retryCount + 1);

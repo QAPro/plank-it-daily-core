@@ -72,7 +72,7 @@ export class SmartRecommendationsService {
       supabase.from('user_preferences').select('*').eq('user_id', this.userId).single(),
       supabase.from('user_exercise_performance').select('*').eq('user_id', this.userId),
       supabase.from('plank_exercises').select('*').order('difficulty_level'),
-      supabase.from('user_streaks').select('*').eq('user_id', this.userId).single(),
+      supabase.from('user_streaks').select('*').eq('user_id', this.userId).maybeSingle(),
       supabase.from('user_sessions').select('*').eq('user_id', this.userId).order('completed_at', { ascending: false }).limit(14)
     ]);
 

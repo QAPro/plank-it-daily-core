@@ -96,7 +96,7 @@ export const useEnhancedSessionTracking = () => {
         .from('user_streaks')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (streakError) {
         logError("Error fetching user streak", { error: streakError.message }, streakError);

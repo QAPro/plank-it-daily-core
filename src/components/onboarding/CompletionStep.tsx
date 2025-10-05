@@ -14,7 +14,7 @@ const CompletionStep = ({ data, onComplete, loading }: CompletionStepProps) => {
   const achievements = [
     {
       icon: Trophy,
-      title: 'Welcome Bonus',
+      title: 'Welcome',
       description: 'You\'ve joined the Inner Fire community!'
     },
     {

@@ -231,35 +231,44 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
   useEffect(() => {
     // If we have an external workout selection, prioritize that and skip preferences
     if (selectedWorkout) {
+      logger.debug('HomeTab: Skipping preference load - external workout selected');
       return;
     }
 
     // If this is a first-time user, don't load preferences (use first-time defaults)
     if (isFirstTimeUser) {
+      logger.debug('HomeTab: Skipping preference load - first-time user');
       return;
     }
 
-    // Initialize from preferences if they're loaded and we haven't set values yet
+    // Only initialize once from preferences
+    if (initializedFromPreferences) {
+      return;
+    }
+
+    // Initialize from preferences if they're loaded
     if (!preferencesLoading && preferences) {
       logger.debug('HomeTab: Initializing from preferences', {
         last_exercise_id: preferences.last_exercise_id,
-        last_duration: preferences.last_duration
+        last_duration: preferences.last_duration,
+        currentExercise: selectedExercise,
+        currentDuration: selectedDuration
       });
       
-      // Set exercise from preferences if we don't have one already
-      if (preferences.last_exercise_id && !selectedExercise) {
+      // Set exercise from preferences
+      if (preferences.last_exercise_id) {
         setSelectedExercise(preferences.last_exercise_id);
+        logger.debug('HomeTab: Set exercise from preferences: ' + preferences.last_exercise_id);
       }
       
       // Set duration from preferences (default to 60 if no preference)
       const preferredDuration = preferences.last_duration || 60;
-      if (preferredDuration !== selectedDuration) {
-        setSelectedDuration(preferredDuration);
-      }
+      setSelectedDuration(preferredDuration);
+      logger.debug('HomeTab: Set duration from preferences: ' + preferredDuration);
       
       setInitializedFromPreferences(true);
     }
-  }, [preferences, preferencesLoading, selectedWorkout, selectedExercise, selectedDuration, isFirstTimeUser]);
+  }, [preferences, preferencesLoading, selectedWorkout, isFirstTimeUser, initializedFromPreferences]);
 
   const handleDurationChange = async (duration: number) => {
     setSelectedDuration(duration);

@@ -7,36 +7,33 @@ export interface ResolverResult {
 
 /**
  * Resolves a username or email to an email address for authentication
- * If the identifier is already an email, returns it directly
- * If it's a username, looks it up in the database to get the associated email
+ * Uses secure database function that prevents username enumeration
  */
 export const resolveUsernameToEmail = async (identifier: string): Promise<ResolverResult> => {
-  // Check if identifier looks like an email (contains @)
-  const isEmail = identifier.includes('@');
-  
-  if (isEmail) {
-    return { email: identifier };
+  if (!identifier || identifier.trim() === '') {
+    return { email: null, error: 'Invalid credentials' };
   }
-  
-  // It's a username, resolve to email using secure database function
+
   try {
+    // Use the secure resolve_login_identifier function
+    // This function returns the email directly or null if not found
     const { data, error } = await supabase
-      .rpc('find_user_by_username_or_email', { identifier })
-      .maybeSingle();
+      .rpc('resolve_login_identifier', { identifier: identifier.trim() });
     
     if (error) {
-      console.error('Error resolving username:', error);
+      console.error('Error resolving login identifier:', error);
       return { email: null, error: 'Failed to verify credentials' };
     }
     
+    // If data is null, user doesn't exist (but we don't reveal this)
     if (!data) {
       return { email: null, error: 'Invalid credentials' };
     }
     
-    // The function returns user data including email
-    return { email: data.email };
+    // Return the resolved email
+    return { email: data };
   } catch (err) {
-    console.error('Exception resolving username:', err);
+    console.error('Exception resolving identifier:', err);
     return { email: null, error: 'Failed to verify credentials' };
   }
 };

@@ -5278,6 +5278,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      resolve_login_identifier: {
+        Args: { identifier: string }
+        Returns: string
+      }
       revoke_admin_role: {
         Args: { _reason?: string; _target_user_id: string }
         Returns: boolean

@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { resolveUsernameToEmail } from './usernameResolver';
 
 export const cleanupAuthState = () => {
   console.log('Cleaning up authentication state...');
@@ -50,6 +51,10 @@ export const handleAuthSignOut = async () => {
   }
 };
 
+/**
+ * Handles user sign-in with email/username and password
+ * Supports both email and username as the identifier
+ */
 export const handleAuthSignIn = async (credentials: { email: string; password: string }) => {
   try {
     console.log('Starting sign in process...');
@@ -64,8 +69,22 @@ export const handleAuthSignIn = async (credentials: { email: string; password: s
       console.log('Pre-signin cleanup failed, continuing:', err);
     }
     
-    // Sign in with email/password
-    const { data, error } = await supabase.auth.signInWithPassword(credentials);
+    // Resolve username to email if needed
+    const { email, error: resolveError } = await resolveUsernameToEmail(credentials.email);
+    
+    if (resolveError || !email) {
+      console.error('Failed to resolve identifier:', resolveError);
+      return { 
+        data: null, 
+        error: { message: 'Invalid credentials' }
+      };
+    }
+    
+    // Sign in with the resolved email and password
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password: credentials.password,
+    });
     
     if (error) {
       throw error;

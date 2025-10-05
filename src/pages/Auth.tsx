@@ -186,6 +186,7 @@ const Auth = () => {
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">
                   {isForgotPassword ? 'Email' : isLogin ? 'Email or Username' : 'Email'}
+                  {!isLogin && <span className="text-red-500"> *</span>}
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -203,7 +204,7 @@ const Auth = () => {
 
               {!isForgotPassword && (
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Password</label>
+                  <label className="text-sm font-medium text-gray-700">Password <span className="text-red-500">*</span></label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input

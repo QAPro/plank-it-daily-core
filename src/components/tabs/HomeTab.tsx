@@ -19,6 +19,7 @@ import XPMultiplierNotification from "@/components/xp/XPMultiplierNotification";
 import { useLevelProgression } from "@/hooks/useLevelProgression";
 import { useRewardTiming } from "@/hooks/useRewardTiming";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
+import { useUserProfile } from "@/hooks/useUserProfile";
 import { logger } from '@/utils/productionLogger';
 import FirstTimeOverlay from '@/components/FirstTimeOverlay';
 
@@ -37,6 +38,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
   const { userLevel, loading: levelLoading } = useLevelProgression();
   const rewardTiming = useRewardTiming();
   const { preferences, loading: preferencesLoading, updatePreferences } = useUserPreferences();
+  const { username } = useUserProfile();
   const [communityExpanded, setCommunityExpanded] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState<string>('');
   const [selectedDuration, setSelectedDuration] = useState<number>(60);
@@ -143,22 +145,16 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     }
   ];
 
-  // Get the user's full name from user_metadata or email
+  // Get the username from database or return empty string
   const getUserDisplayName = () => {
     if (!user) return '';
     
-    // Try to get full_name from user_metadata
-    const fullName = user.user_metadata?.full_name;
-    if (fullName) {
-      return `, ${fullName.split(' ')[0]}`;
+    // Use username from database if available
+    if (username) {
+      return `, ${username}`;
     }
     
-    // Fallback to email username
-    if (user.email) {
-      const emailUsername = user.email.split('@')[0];
-      return `, ${emailUsername}`;
-    }
-    
+    // No fallback - return empty string
     return '';
   };
 

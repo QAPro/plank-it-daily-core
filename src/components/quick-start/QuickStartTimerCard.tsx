@@ -121,13 +121,11 @@ const QuickStartTimerCard = ({
       {/* Mobile Layout - Side Badges (< 768px) */}
       <div className="md:hidden">
         {/* Welcome Header - Above timer */}
-        {userDisplayName && (
-          <div className="text-center mb-6">
-            <h2 className="text-lg font-bold text-foreground">
-              Hello{userDisplayName}!
-            </h2>
-          </div>
-        )}
+        <div className="text-center mb-6">
+          <h2 className="text-lg font-bold text-foreground">
+            {userDisplayName ? `Hello${userDisplayName}!` : 'Welcome'}
+          </h2>
+        </div>
 
         {/* Timer with Side Badges using CSS Grid */}
         <div className="grid grid-cols-3 items-center gap-12 mx-auto w-fit">
@@ -253,13 +251,11 @@ const QuickStartTimerCard = ({
       <div className="hidden md:block lg:hidden">
         <div className="max-w-4xl mx-auto">
           {/* Welcome Header - Above timer */}
-          {userDisplayName && (
-            <div className="text-center mb-8">
-              <h2 className="text-xl font-bold text-foreground">
-                Hello{userDisplayName}!
-              </h2>
-            </div>
-          )}
+          <div className="text-center mb-8">
+            <h2 className="text-xl font-bold text-foreground">
+              {userDisplayName ? `Hello${userDisplayName}!` : 'Welcome'}
+            </h2>
+          </div>
 
           {/* Timer with Side Badges using CSS Grid */}
           <div className="grid grid-cols-3 items-center gap-18 mx-auto w-fit">
@@ -378,13 +374,11 @@ const QuickStartTimerCard = ({
       <div className="hidden lg:block">
         <div className="max-w-2xl mx-auto space-y-8">
           {/* Welcome Header - Centered above timer */}
-          {userDisplayName && (
-            <div className="text-center">
-              <h2 className="text-xl font-bold text-foreground">
-                Hello{userDisplayName}!
-              </h2>
-            </div>
-          )}
+          <div className="text-center">
+            <h2 className="text-xl font-bold text-foreground">
+              {userDisplayName ? `Hello${userDisplayName}!` : 'Welcome'}
+            </h2>
+          </div>
 
           {/* Timer with Side Badges using CSS Grid */}
           <div className="grid grid-cols-3 items-center gap-24 mx-auto w-fit">

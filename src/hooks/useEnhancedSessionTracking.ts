@@ -131,17 +131,21 @@ export const useEnhancedSessionTracking = () => {
         isNewStreak = true;
       }
 
-      // Update streak
-      const updates = {
-        user_id: user.id,
+      // Update streak - separate data for INSERT and UPDATE
+      const updateData = {
         current_streak: newStreak,
         last_workout_date: todayMidnight.toISOString().split('T')[0],
         longest_streak: Math.max(newStreak, userStreak?.longest_streak || 0),
       };
 
+      const insertData = {
+        user_id: user.id,
+        ...updateData,
+      };
+
       const { error: updateError } = userStreak
-        ? await supabase.from('user_streaks').update(updates).eq('user_id', user.id)
-        : await supabase.from('user_streaks').insert(updates);
+        ? await supabase.from('user_streaks').update(updateData).eq('user_id', user.id)
+        : await supabase.from('user_streaks').insert(insertData);
 
       if (updateError) {
         logError("Error updating user streak", { error: updateError.message }, updateError);

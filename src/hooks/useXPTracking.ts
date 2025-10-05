@@ -6,9 +6,16 @@ import { EnhancedXPService } from '@/services/enhancedXPService';
 import { HiddenAchievementEngine } from '@/services/hiddenAchievementService';
 import { SeasonalAchievementEngine } from '@/services/seasonalAchievementService';
 import { useLevelProgression } from './useLevelProgression';
+import { toast } from '@/hooks/use-toast';
+
+export interface XPTrackingResult {
+  success: boolean;
+  error?: string;
+  xpAwarded?: number;
+}
 
 export const useXPTracking = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { refetch } = useLevelProgression();
   
   const [xpNotification, setXpNotification] = useState<{
@@ -32,14 +39,29 @@ export const useXPTracking = () => {
     unlocks: []
   });
 
-  const trackXP = useCallback(async (source: string, data: any) => {
-    console.log('trackXP called - User object:', user);
-    console.log('trackXP called - User ID:', user?.id);
-    if (!user) {
-      console.error('trackXP FAILED: No user object available');
-      return;
+  const trackXP = useCallback(async (source: string, data: any): Promise<XPTrackingResult> => {
+    console.log('🎯 trackXP called', { source, data, hasUser: !!user, userId: user?.id, loading });
+    
+    // Check if user is available
+    if (!user?.id) {
+      const errorMsg = 'XP tracking failed: User not authenticated';
+      console.error('❌ trackXP FAILED:', errorMsg, { 
+        hasUser: !!user, 
+        userId: user?.id, 
+        loading 
+      });
+      
+      // Show error toast to user
+      toast({
+        title: "XP Award Failed",
+        description: "Unable to award XP. Please ensure you're logged in.",
+        variant: "destructive"
+      });
+      
+      return { success: false, error: errorMsg };
     }
-    console.log('trackXP proceeding with user:', user.id);
+    
+    console.log('✅ trackXP proceeding with user:', user.id);
 
     try {
       // Calculate enhanced XP with bonuses
@@ -100,11 +122,33 @@ export const useXPTracking = () => {
 
         // Refresh level data
         await refetch();
+        
+        console.log('✅ XP tracking completed successfully', { 
+          source, 
+          xpAwarded: enhancedXP.totalXP 
+        });
+        
+        return { 
+          success: true, 
+          xpAwarded: enhancedXP.totalXP 
+        };
+      } else {
+        console.log('⚠️ No XP awarded (0 XP calculated)', { source, data });
+        return { success: true, xpAwarded: 0 };
       }
     } catch (error) {
-      console.error('Error tracking XP:', error);
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error tracking XP';
+      console.error('❌ Error tracking XP:', error, { source, data });
+      
+      toast({
+        title: "XP Award Error",
+        description: "Something went wrong while awarding XP. We'll try to fix this automatically.",
+        variant: "destructive"
+      });
+      
+      return { success: false, error: errorMsg };
     }
-  }, [user, refetch]);
+  }, [user, refetch, loading]);
 
   const hideXPNotification = useCallback(() => {
     setXpNotification(prev => ({ ...prev, isVisible: false }));

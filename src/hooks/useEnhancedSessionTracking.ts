@@ -247,6 +247,11 @@ const completeSession = async (duration: number, notes?: string) => {
     });
     
     console.log('🎖️ WORKOUT XP RESULT:', workoutXPResult);
+    
+    if (!workoutXPResult?.success) {
+      console.error('❌ Failed to award workout XP:', workoutXPResult?.error);
+      toast.error("Session saved, but there was an issue awarding XP. We'll fix this automatically.");
+    }
 
     // Award streak bonus XP if applicable
     if (streakResult.isNewStreak && streakResult.streak > 1) {

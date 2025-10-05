@@ -6,7 +6,7 @@ import XPGainNotification from './XPGainNotification';
 import LevelUpCelebration from './LevelUpCelebration';
 
 interface LevelProgressionContextType {
-  trackXP: (source: string, data: any) => Promise<void>;
+  trackXP: (source: string, data: any) => Promise<{ success: boolean; error?: string; xpAwarded?: number }>;
   userLevel: any;
   isFeatureUnlocked: (featureName: string) => boolean;
   getFeatureUnlockLevel: (featureName: string) => number | null;

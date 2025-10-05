@@ -17,7 +17,7 @@ const WelcomeStep = ({ onNext }: WelcomeStepProps) => {
     {
       icon: TrendingUp,
       title: 'Track Progress',
-      description: 'Watch your health improve day by day'
+      description: 'Feel your health improve day by day'
     },
     {
       icon: Users,

@@ -245,9 +245,14 @@ const completeSession = async (duration: number, notes?: string) => {
     }
 
     // Update user streak and get streak info for XP calculation
-    logDebug('Updating streak...');
+    console.log('📊 Updating streak...');
     const streakResult = await updateStreak();
-    logDebug('Streak result', { streak: streakResult.streak, isNewStreak: streakResult.isNewStreak });
+    console.log('📊 Streak result:', { streak: streakResult.streak, isNewStreak: streakResult.isNewStreak });
+    
+    if (!streakResult) {
+      console.error('⚠️ Streak update returned nothing');
+      toast.error('Failed to update streak');
+    }
 
     // Award workout XP
     console.log('🎖️ AWARDING WORKOUT XP', {
@@ -259,17 +264,24 @@ const completeSession = async (duration: number, notes?: string) => {
       }
     });
     
-    const workoutXPResult = await trackXP('workout', {
-      duration_seconds: duration,
-      difficulty_level: selectedExercise.difficulty_level || 1,
-      exercise_name: selectedExercise.name
-    });
-    
-    console.log('🎖️ WORKOUT XP RESULT:', workoutXPResult);
-    
-    if (!workoutXPResult?.success) {
-      console.error('❌ Failed to award workout XP:', workoutXPResult?.error);
-      toast.error("Session saved, but there was an issue awarding XP. We'll fix this automatically.");
+    try {
+      const workoutXPResult = await trackXP('workout', {
+        duration_seconds: duration,
+        difficulty_level: selectedExercise.difficulty_level || 1,
+        exercise_name: selectedExercise.name
+      });
+      
+      console.log('🎖️ WORKOUT XP RESULT:', workoutXPResult);
+      
+      if (!workoutXPResult?.success) {
+        console.error('❌ Failed to award workout XP:', workoutXPResult?.error);
+        toast.error("Session saved, but XP award failed - we'll investigate!");
+      } else {
+        toast.success(`+${workoutXPResult.xpAwarded || 0} XP earned!`);
+      }
+    } catch (xpError) {
+      console.error('❌ EXCEPTION awarding workout XP:', xpError);
+      toast.error('Session saved but XP system is offline');
     }
 
     // Award streak bonus XP if applicable
@@ -281,11 +293,19 @@ const completeSession = async (duration: number, notes?: string) => {
         }
       });
       
-      const streakXPResult = await trackXP('streak', {
-        streak_length: streakResult.streak
-      });
-      
-      console.log('🔥 STREAK XP RESULT:', streakXPResult);
+      try {
+        const streakXPResult = await trackXP('streak', {
+          streak_length: streakResult.streak
+        });
+        
+        console.log('🔥 STREAK XP RESULT:', streakXPResult);
+        
+        if (streakXPResult?.success) {
+          toast.success(`🔥 ${streakResult.streak}-day streak bonus!`);
+        }
+      } catch (streakError) {
+        console.error('❌ EXCEPTION awarding streak XP:', streakError);
+      }
     } else {
       console.log('⏭️ SKIPPING STREAK XP', { 
         isNewStreak: streakResult.isNewStreak, 

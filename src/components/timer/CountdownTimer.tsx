@@ -1,11 +1,11 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { logDebug } from '@/utils/productionLogger';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Play, Pause, Square, RotateCcw, Volume2, VolumeX, Settings } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 import TimerSetup from '@/components/TimerSetup';
 import CircularProgressTimer from './CircularProgressTimer';
 import EnhancedConfetti from '@/components/celebration/EnhancedConfetti';
@@ -25,6 +25,23 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
   const [showSetup, setShowSetup] = useState(true);
   const [showCelebration, setShowCelebration] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<string>('');
+  const [user, setUser] = useState<any>(null);
+
+  // Track auth state
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      console.log('🔐 AUTH STATE:', session?.user ? `Logged in as ${session.user.id}` : 'NOT LOGGED IN');
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+      console.log('🔐 AUTH CHANGED:', event, session?.user ? `User ${session.user.id}` : 'No user');
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
   
   const {
     soundEnabled,
@@ -61,12 +78,32 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
   } = useCountdownTimer({
     initialDuration: 60,
     onComplete: async (wasCompleted: boolean) => {
-      logDebug('CountdownTimer: Timer completed, wasCompleted', { wasCompleted });
+      console.log('🎯 TIMER COMPLETED:', { wasCompleted, duration, user: user?.id });
+      setDebugInfo(`⏱️ Timer finished! Calling completeSession...`);
+      
       if (wasCompleted) {
         setShowConfetti(true);
-        logDebug('CountdownTimer: About to call completeSession');
-        await completeSession(duration, sessionNotes);
-        logDebug('CountdownTimer: completeSession finished');
+        console.log('🎉 CALLING completeSession()');
+        setDebugInfo(`📞 Calling completeSession(${duration}, "${sessionNotes}")`);
+        
+        try {
+          await completeSession(duration, sessionNotes);
+          console.log('✅ completeSession() FINISHED SUCCESSFULLY');
+          setDebugInfo('✅ Session saved!');
+          
+          // Force celebration regardless of completeSession result
+          setTimeout(() => {
+            console.log('🎊 FORCING celebration dialog');
+            setShowCelebration(true);
+          }, 500);
+        } catch (error) {
+          console.error('❌ completeSession() FAILED:', error);
+          setDebugInfo(`❌ Error: ${error}`);
+          toast.error('Failed to save session, but great work!');
+          
+          // Still show celebration even on error
+          setShowCelebration(true);
+        }
       }
     },
     onPlayCompletionSound: playCompletionSound,
@@ -92,28 +129,28 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
 
   // Show celebration when session completes
   useEffect(() => {
-    logDebug('CountdownTimer: completedSession changed', { completedSession });
+    console.log('🎊 completedSession changed:', completedSession);
     if (completedSession) {
-      logDebug('CountdownTimer: Setting showCelebration to true');
+      console.log('🎊 Setting showCelebration to true');
       setShowCelebration(true);
     }
   }, [completedSession]);
 
   const handleSetDuration = (newDuration: number) => {
-    logDebug('CountdownTimer: handleSetDuration called with:', { newDuration });
+    console.log('⏰ handleSetDuration:', newDuration);
     setTimerDuration(newDuration);
     setShowSetup(false);
     toast.success(`Timer set for ${Math.floor(newDuration / 60)}:${(newDuration % 60).toString().padStart(2, '0')}`);
   };
 
   const handleStartTimer = () => {
-    logDebug('CountdownTimer: handleStartTimer called');
+    console.log('▶️ Timer STARTED');
     handleStart();
     toast.success('Timer started! You can do this!');
   };
 
   const handlePauseTimer = () => {
-    logDebug('CountdownTimer: handlePauseTimer called');
+    console.log('⏸️ Timer PAUSED');
     handlePause();
     toast.info('Timer paused');
     
@@ -128,13 +165,13 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
   };
 
   const handleResumeTimer = () => {
-    logDebug('CountdownTimer: handleResumeTimer called');
+    console.log('▶️ Timer RESUMED');
     handleResume();
     toast.success('Timer resumed');
   };
 
   const handleStopTimer = () => {
-    logDebug('CountdownTimer: handleStopTimer called');
+    console.log('⏹️ Timer STOPPED');
     handleStop();
     toast.info('Timer stopped');
     
@@ -147,15 +184,16 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
   };
 
   const handleResetTimer = () => {
-    logDebug('CountdownTimer: handleResetTimer called');
+    console.log('🔄 Timer RESET');
     handleReset();
     setShowConfetti(false);
     setShowCelebration(false);
     clearCompletedSession();
+    setDebugInfo('');
   };
 
   const handleCloseCelebration = () => {
-    logDebug('CountdownTimer: handleCloseCelebration called');
+    console.log('❌ Closing celebration');
     setShowCelebration(false);
     setShowConfetti(false);
     clearCompletedSession();
@@ -169,7 +207,7 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
         onStart={handleSetDuration}
         onBack={onBack}
         onComplete={async (duration) => {
-          logDebug('CountdownTimer: Timer completed in TimerSetup with duration:', { duration });
+          console.log('🎯 Timer completed in TimerSetup:', duration);
           setShowSetup(false);
           setShowConfetti(true);
           await completeSession(duration, sessionNotes || '');
@@ -181,6 +219,18 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
   return (
     <>
       <div className="w-full max-w-md mx-auto space-y-6 relative">
+        {/* Debug Banner - Always Visible */}
+        {debugInfo && (
+          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg font-mono text-sm max-w-md">
+            {debugInfo}
+          </div>
+        )}
+
+        {/* Auth Status Indicator */}
+        <div className={`text-center text-xs py-2 px-4 rounded-lg ${user ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+          {user ? `✅ Logged in: ${user.id?.substring(0, 8)}...` : '⚠️ NOT LOGGED IN - Progress will not be saved!'}
+        </div>
+
         {/* Enhanced Confetti */}
         <EnhancedConfetti 
           isActive={showConfetti} 

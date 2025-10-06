@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -64,6 +64,12 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
     autoLogFriction
   } = useEnhancedSessionTracking();
 
+  const durationRef = useRef(60);
+  const sessionNotesRef = useRef('');
+  
+  // Keep refs in sync
+  sessionNotesRef.current = sessionNotes;
+
   const {
     duration,
     timeLeft,
@@ -77,17 +83,16 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
     handleReset,
   } = useCountdownTimer({
     initialDuration: 60,
-    onComplete: async (wasCompleted: boolean) => {
-      console.log('🎯 TIMER COMPLETED:', { wasCompleted, duration, user: user?.id });
+    onComplete: useCallback(async (wasCompleted: boolean) => {
+      console.log('🎯 TIMER COMPLETED:', { wasCompleted, user: user?.id });
       setDebugInfo(`⏱️ Timer finished! Calling completeSession...`);
       
       if (wasCompleted) {
         setShowConfetti(true);
         console.log('🎉 CALLING completeSession()');
-        setDebugInfo(`📞 Calling completeSession(${duration}, "${sessionNotes}")`);
         
         try {
-          await completeSession(duration, sessionNotes);
+          await completeSession(durationRef.current, sessionNotesRef.current);
           console.log('✅ completeSession() FINISHED SUCCESSFULLY');
           setDebugInfo('✅ Session saved!');
           
@@ -105,10 +110,15 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
           setShowCelebration(true);
         }
       }
-    },
+    }, [user?.id, completeSession]),
     onPlayCompletionSound: playCompletionSound,
     onPlayCountdownSound: countdownSoundsEnabled ? playCountdownSound : undefined,
   });
+  
+  // Keep duration ref in sync
+  useEffect(() => {
+    durationRef.current = duration;
+  }, [duration]);
 
   // If quickStartDuration is provided, bypass setup and auto-start
   useEffect(() => {

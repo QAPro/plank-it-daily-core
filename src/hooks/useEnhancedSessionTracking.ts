@@ -177,7 +177,7 @@ export const useEnhancedSessionTracking = () => {
     }
   }, [user, showMilestone]);
 
-const completeSession = async (duration: number, notes?: string) => {
+const completeSession = useCallback(async (duration: number, notes?: string) => {
   console.log('🎯 COMPLETE SESSION CALLED', { 
     userId: user?.id, 
     exerciseId: selectedExercise?.id, 
@@ -416,7 +416,7 @@ const completeSession = async (duration: number, notes?: string) => {
   } finally {
     setIsCompleting(false);
   }
-};
+}, [user, selectedExercise, trackXP, currentHookCycleId, autoCompleteWorkoutCycle, updateStreak]);
 
   const handleFeedbackSubmission = useCallback(async (feedback: WorkoutFeedback) => {
     if (completedSession?.id) {

@@ -94,10 +94,14 @@ export class MotivationalMilestoneEngine {
     // Generate health milestones
     milestones.push(...this.generateHealthMilestones(consistencyScore, strengthGain));
 
-    return milestones.filter(m => m.isAchieved).sort((a, b) => {
+    // Create a stable sorted copy to prevent infinite re-renders
+    const achievedMilestones = milestones.filter(m => m.isAchieved);
+    const sortedMilestones = [...achievedMilestones];
+    sortedMilestones.sort((a, b) => {
       const levelOrder = { 'legendary': 3, 'major': 2, 'minor': 1 };
       return levelOrder[b.celebrationLevel] - levelOrder[a.celebrationLevel];
     });
+    return sortedMilestones;
   }
 
   private static generateTimeMilestones(totalHours: number, daysActive: number): MotivationalMilestone[] {

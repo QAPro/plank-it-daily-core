@@ -18,6 +18,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { PersonalProgressService, ProgressMetrics, HabitMilestone } from '@/services/personalProgressService';
 import { MotivationalMilestoneEngine, MotivationalMilestone } from '@/services/motivationalMilestoneEngine';
 import { motion } from 'framer-motion';
+import { useMemo } from 'react';
 import { Progress } from '@/components/ui/progress';
 import ImprovementCalculator from './ImprovementCalculator';
 import ValuePropositionCard from './ValuePropositionCard';
@@ -44,6 +45,8 @@ const PersonalSatisfactionDashboard = () => {
     queryKey: ['motivational-milestones', user?.id],
     queryFn: () => MotivationalMilestoneEngine.generateMilestones(user!.id),
     enabled: !!user,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 
   if (metricsLoading || milestonesLoading || motivationalLoading) {
@@ -70,6 +73,11 @@ const PersonalSatisfactionDashboard = () => {
     );
   }
 
+  // Memoize the top milestones to prevent unnecessary re-renders
+  const topMilestones = useMemo(() => {
+    return motivationalMilestones?.slice(0, 4) || [];
+  }, [motivationalMilestones]);
+
   return (
     <div className="space-y-6">
       {/* Header with key metrics */}
@@ -81,13 +89,13 @@ const PersonalSatisfactionDashboard = () => {
       </div>
 
       {/* Quick Wins Overview */}
-      {motivationalMilestones && motivationalMilestones.length > 0 && (
+      {topMilestones.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
         >
-          {motivationalMilestones.slice(0, 4).map((milestone, index) => (
+          {topMilestones.map((milestone, index) => (
             <motion.div
               key={milestone.id}
               initial={{ opacity: 0, scale: 0.9 }}

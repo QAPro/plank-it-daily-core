@@ -178,7 +178,7 @@ export const useEnhancedSessionTracking = () => {
   }, [user, showMilestone]);
 
 const completeSession = async (duration: number, notes?: string) => {
-  logError('🎯 COMPLETE SESSION CALLED', { 
+  console.log('🎯 COMPLETE SESSION CALLED', { 
     userId: user?.id, 
     exerciseId: selectedExercise?.id, 
     duration, 
@@ -246,12 +246,19 @@ const completeSession = async (duration: number, notes?: string) => {
 
     // Update user streak and get streak info for XP calculation
     console.log('📊 Updating streak...');
-    const streakResult = await updateStreak();
-    console.log('📊 Streak result:', { streak: streakResult.streak, isNewStreak: streakResult.isNewStreak });
-    
-    if (!streakResult) {
-      console.error('⚠️ Streak update returned nothing');
-      toast.error('Failed to update streak');
+    let streakResult;
+    try {
+      streakResult = await updateStreak();
+      console.log('📊 Streak result:', { streak: streakResult.streak, isNewStreak: streakResult.isNewStreak });
+      
+      if (!streakResult) {
+        console.error('⚠️ Streak update returned nothing');
+        toast.error('Failed to update streak');
+      }
+    } catch (streakError) {
+      console.error('❌ EXCEPTION updating streak:', streakError);
+      toast.error('Session saved but streak update failed');
+      streakResult = { streak: 0, isNewStreak: false };
     }
 
     // Award workout XP

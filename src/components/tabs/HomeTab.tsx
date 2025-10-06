@@ -7,11 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useSessionStats } from "@/hooks/useSessionHistory";
 import { useAuth } from "@/contexts/AuthContext";
-import { useTimerState } from "@/hooks/useTimerState";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import QuickStartTimerCard from "@/components/quick-start/QuickStartTimerCard";
+import CountdownTimer from "@/components/timer/CountdownTimer";
 import CompactProgressBar from "@/components/quick-start/CompactProgressBar";
+import { useExercises } from "@/hooks/useExercises";
 import GatedRecommendationsDashboard from "@/components/recommendations/GatedRecommendationsDashboard";
 import CommunityStatsWidget from "@/components/social/CommunityStatsWidget";
 import UserRankingDisplay from "@/components/social/UserRankingDisplay";
@@ -49,55 +49,9 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
 
   const FOREARM_PLANK_ID = '92f98556-b5cf-4bdf-b941-95520f7e148a';
 
-  // Timer state management
-  const timerState = useTimerState({
-    duration: selectedDuration,
-    onComplete: handleTimerComplete,
-    onPlayCompletionSound: () => {
-      // Play completion sound
-      const audio = new Audio('/notification.mp3');
-      audio.play().catch(() => {
-        // Fallback if audio fails
-        logger.debug('Timer completed!');
-      });
-    }
-  });
-
-  async function handleTimerComplete(timeElapsed: number) {
-    if (!user) return;
-    
-    try {
-      // Save workout session
-      await supabase.from('user_sessions').insert({
-        user_id: user.id,
-        duration_seconds: timeElapsed,
-        exercise_id: selectedExercise,
-        notes: 'Quick start workout from home',
-        user_agent: navigator.userAgent,
-        completed_at: new Date().toISOString(),
-      });
-
-      // Save preferences for next time
-      if (selectedExercise && selectedDuration) {
-        await updatePreferences({
-          last_exercise_id: selectedExercise,
-          last_duration: selectedDuration,
-          last_workout_timestamp: new Date().toISOString()
-        }, false);
-      }
-
-      toast({
-        title: "Workout Complete!",
-        description: `Great job! You completed ${Math.floor(timeElapsed / 60)}:${(timeElapsed % 60).toString().padStart(2, '0')} of exercise.`,
-      });
-    } catch (error) {
-      console.error('Error saving workout session:', error);
-      toast({
-        title: "Workout Complete!",
-        description: "Great job! Your workout has been completed.",
-      });
-    }
-  }
+  // Get exercises for CountdownTimer
+  const { data: exercises } = useExercises();
+  const selectedExerciseObj = exercises?.find(ex => ex.id === selectedExercise);
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -170,8 +124,6 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         last_workout_timestamp: new Date().toISOString()
       }, false);
     }
-    
-    timerState.handleStart();
     
     // Notify parent that workout has been started (not just prepared)
     onWorkoutStarted?.();
@@ -315,23 +267,29 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
       {/* Welcome Header removed - moved to timer card for desktop */}
 
       {/* Hero Section - Quick Start Timer */}
-      <QuickStartTimerCard 
-        onStartWorkout={handleStartWorkout}
-        timerState={timerState.state}
-        timeLeft={timerState.timeLeft}
-        duration={selectedDuration}
-        onDurationChange={handleDurationChange}
-        onTimerControl={{
-          start: timerState.handleStart,
-          pause: timerState.handlePause,
-          resume: timerState.handleResume,
-          stop: timerState.handleStop,
-          reset: timerState.handleReset
-        }}
-        selectedWorkout={selectedWorkout}
-        selectedExercise={selectedExercise}
-        userDisplayName={getUserDisplayName()}
-      />
+      {selectedExerciseObj ? (
+        <CountdownTimer
+          selectedExercise={selectedExerciseObj}
+          onBack={() => {
+            setSelectedExercise('');
+          }}
+          onExerciseChange={async (exercise) => {
+            setSelectedExercise(exercise.id);
+            // Save preference when exercise changes
+            await updatePreferences({
+              last_exercise_id: exercise.id,
+              last_workout_timestamp: new Date().toISOString()
+            }, false);
+          }}
+          quickStartDuration={selectedDuration}
+        />
+      ) : (
+        <Card className="p-6 bg-white/60 backdrop-blur-sm border-orange-100">
+          <p className="text-center text-muted-foreground">
+            Select an exercise to get started
+          </p>
+        </Card>
+      )}
 
       {/* Compact Progress Bar */}
       {!levelLoading && userLevel && (

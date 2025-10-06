@@ -267,29 +267,21 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
       {/* Welcome Header removed - moved to timer card for desktop */}
 
       {/* Hero Section - Quick Start Timer */}
-      {selectedExerciseObj ? (
-        <CountdownTimer
-          selectedExercise={selectedExerciseObj}
-          onBack={() => {
-            setSelectedExercise('');
-          }}
-          onExerciseChange={async (exercise) => {
-            setSelectedExercise(exercise.id);
-            // Save preference when exercise changes
-            await updatePreferences({
-              last_exercise_id: exercise.id,
-              last_workout_timestamp: new Date().toISOString()
-            }, false);
-          }}
-          quickStartDuration={selectedDuration}
-        />
-      ) : (
-        <Card className="p-6 bg-white/60 backdrop-blur-sm border-orange-100">
-          <p className="text-center text-muted-foreground">
-            Select an exercise to get started
-          </p>
-        </Card>
-      )}
+      <CountdownTimer
+        selectedExercise={selectedExerciseObj ?? null}
+        onBack={() => {
+          setSelectedExercise('');
+        }}
+        onExerciseChange={async (exercise) => {
+          setSelectedExercise(exercise.id);
+          // Save preference when exercise changes
+          await updatePreferences({
+            last_exercise_id: exercise.id,
+            last_workout_timestamp: new Date().toISOString()
+          }, false);
+        }}
+        quickStartDuration={selectedDuration}
+      />
 
       {/* Compact Progress Bar */}
       {!levelLoading && userLevel && (

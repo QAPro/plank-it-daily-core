@@ -50,8 +50,16 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
   const FOREARM_PLANK_ID = '92f98556-b5cf-4bdf-b941-95520f7e148a';
 
   // Get exercises for CountdownTimer
-  const { data: exercises } = useExercises();
+  const { data: exercises, isLoading: exercisesLoading } = useExercises();
   const selectedExerciseObj = exercises?.find(ex => ex.id === selectedExercise);
+  
+  // If no exercise selected yet, default to Forearm Plank when exercises load
+  useEffect(() => {
+    if (exercises && exercises.length > 0 && !selectedExercise) {
+      const defaultExercise = exercises.find(ex => ex.id === FOREARM_PLANK_ID) || exercises[0];
+      setSelectedExercise(defaultExercise.id);
+    }
+  }, [exercises, selectedExercise]);
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -267,21 +275,33 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
       {/* Welcome Header removed - moved to timer card for desktop */}
 
       {/* Hero Section - Quick Start Timer */}
-      <CountdownTimer
-        selectedExercise={selectedExerciseObj ?? null}
-        onBack={() => {
-          setSelectedExercise('');
-        }}
-        onExerciseChange={async (exercise) => {
-          setSelectedExercise(exercise.id);
-          // Save preference when exercise changes
-          await updatePreferences({
-            last_exercise_id: exercise.id,
-            last_workout_timestamp: new Date().toISOString()
-          }, false);
-        }}
-        quickStartDuration={selectedDuration}
-      />
+      {exercisesLoading ? (
+        <Card className="p-6 bg-white/60 backdrop-blur-sm border-orange-100">
+          <p className="text-center text-muted-foreground">Loading exercises...</p>
+        </Card>
+      ) : selectedExerciseObj ? (
+        <CountdownTimer
+          selectedExercise={selectedExerciseObj}
+          onBack={() => {
+            setSelectedExercise('');
+          }}
+          onExerciseChange={async (exercise) => {
+            setSelectedExercise(exercise.id);
+            // Save preference when exercise changes
+            await updatePreferences({
+              last_exercise_id: exercise.id,
+              last_workout_timestamp: new Date().toISOString()
+            }, false);
+          }}
+          quickStartDuration={selectedDuration}
+        />
+      ) : (
+        <Card className="p-6 bg-white/60 backdrop-blur-sm border-orange-100">
+          <p className="text-center text-muted-foreground">
+            Select an exercise to get started
+          </p>
+        </Card>
+      )}
 
       {/* Compact Progress Bar */}
       {!levelLoading && userLevel && (

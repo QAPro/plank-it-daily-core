@@ -84,12 +84,20 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
   } = useCountdownTimer({
     initialDuration: 60,
     onComplete: useCallback(async (wasCompleted: boolean) => {
-      console.log('🎯 TIMER COMPLETED:', { wasCompleted, user: user?.id });
+      console.log('🎯 TIMER COMPLETED:', { 
+        wasCompleted, 
+        user: user?.id,
+        timestamp: new Date().toISOString()
+      });
       setDebugInfo(`⏱️ Timer finished! Calling completeSession...`);
       
       if (wasCompleted) {
         setShowConfetti(true);
-        console.log('🎉 CALLING completeSession()');
+        console.log('🎉 CALLING completeSession()', {
+          duration: durationRef.current,
+          notes: sessionNotesRef.current,
+          timestamp: new Date().toISOString()
+        });
         
         try {
           await completeSession(durationRef.current, sessionNotesRef.current);
@@ -110,7 +118,7 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
           setShowCelebration(true);
         }
       }
-    }, [user?.id, completeSession]),
+    }, [user?.id, completeSession, durationRef, sessionNotesRef, setDebugInfo, setShowConfetti, setShowCelebration]),
     onPlayCompletionSound: playCompletionSound,
     onPlayCountdownSound: countdownSoundsEnabled ? playCountdownSound : undefined,
   });

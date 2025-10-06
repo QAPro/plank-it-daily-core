@@ -20,9 +20,9 @@ export const useCountdownTimer = ({
   const [timeLeft, setTimeLeft] = useState(initialDuration);
   const [state, setState] = useState<CountdownTimerState>('setup');
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const hasCompletedRef = useRef(false);
 
   useEffect(() => {
-    
     if (state === 'running' && timeLeft > 0) {
       intervalRef.current = setInterval(() => {
         setTimeLeft((prev) => {
@@ -34,9 +34,9 @@ export const useCountdownTimer = ({
           }
           
           if (newTime <= 0) {
-            setState('completed');
+            console.log('⏰ Timer reached 0, marking completion');
+            hasCompletedRef.current = true;
             onPlayCompletionSound();
-            onComplete(true); // true means timer completed naturally
             return 0;
           }
           
@@ -55,7 +55,17 @@ export const useCountdownTimer = ({
         clearInterval(intervalRef.current);
       }
     };
-  }, [state, timeLeft, onComplete, onPlayCompletionSound, onPlayCountdownSound]);
+  }, [state, timeLeft, onPlayCompletionSound, onPlayCountdownSound]);
+
+  // Separate effect to handle completion - runs AFTER timer cleanup
+  useEffect(() => {
+    if (timeLeft === 0 && state === 'running' && hasCompletedRef.current) {
+      console.log('⏰ Timer completion effect triggered at', new Date().toISOString());
+      hasCompletedRef.current = false; // Prevent double-firing
+      onComplete(true);
+      setState('completed');
+    }
+  }, [timeLeft, state, onComplete]);
 
   const setTimerDuration = useCallback((newDuration: number) => {
     

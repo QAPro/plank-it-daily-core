@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, Target, Zap } from 'lucide-react';
@@ -44,9 +44,9 @@ const StrengthProgressionChart = ({ userId }: StrengthProgressionChartProps) => 
   }
 
   // Process data for visualization
-  const chartData = useMemo(() => {
-    if (sessions.length === 0) return [];
-
+  let chartData: any[] = [];
+  
+  if (sessions.length > 0) {
     // Group sessions by week for smoother visualization
     const weeklyData = new Map<string, { duration: number; count: number; date: string }>();
     
@@ -89,8 +89,8 @@ const StrengthProgressionChart = ({ userId }: StrengthProgressionChartProps) => 
       } as any);
     }
 
-    return processedData;
-  }, [sessions, prediction]);
+    chartData = processedData;
+  }
 
   if (chartData.length === 0) {
     return (

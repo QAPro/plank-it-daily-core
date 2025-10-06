@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -36,17 +35,9 @@ const ImprovementCalculator = ({ metrics }: ImprovementCalculatorProps) => {
     ],
   };
 
-  // Stabilize message selection to prevent render inconsistencies
-  const selectedMessages = useMemo(() => {
-    const messageIndex = Math.abs(metrics.improvementPercentage + metrics.strengthGainPercentage) % 3;
-    return {
-      improvement: motivationalMessages.improvement[messageIndex],
-      strength: motivationalMessages.strength[messageIndex]
-    };
-  }, [metrics.improvementPercentage, metrics.strengthGainPercentage]);
-
   const getRandomMessage = (type: 'improvement' | 'strength') => {
-    return selectedMessages[type];
+    const messageIndex = Math.abs(metrics.improvementPercentage + metrics.strengthGainPercentage) % 3;
+    return motivationalMessages[type][messageIndex];
   };
 
   return (

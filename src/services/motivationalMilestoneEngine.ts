@@ -38,11 +38,30 @@ export class MotivationalMilestoneEngine {
     }
 
     const firstSession = sessions[0];
-    const recentSessions = sessions.slice(-10);
-    const now = new Date();
-    const daysActive = Math.max(1, Math.ceil((now.getTime() - new Date(firstSession.completed_at).getTime()) / (1000 * 60 * 60 * 24)));
+    
+    // Validate first session date
+    const firstSessionDate = firstSession?.completed_at ? new Date(firstSession.completed_at) : new Date();
+    if (isNaN(firstSessionDate.getTime())) {
+      console.error('Invalid first session date');
+      return [];
+    }
 
-    // Calculate metrics
+    const recentSessions = sessions.slice(-10);
+    if (recentSessions.length === 0) {
+      console.error('No recent sessions found');
+      return [];
+    }
+
+    const now = new Date();
+    const daysActive = Math.max(1, Math.ceil((now.getTime() - firstSessionDate.getTime()) / (1000 * 60 * 60 * 24)));
+    
+    // Validate daysActive
+    if (isNaN(daysActive) || !isFinite(daysActive)) {
+      console.error('Invalid daysActive calculation');
+      return [];
+    }
+
+    // Calculate metrics with validation
     const initialDuration = firstSession.duration_seconds || 0;
     const currentAvg = recentSessions.reduce((sum, s) => sum + (s.duration_seconds || 0), 0) / recentSessions.length;
     const improvementPercent = initialDuration > 0 ? ((currentAvg - initialDuration) / initialDuration) * 100 : 0;
@@ -50,6 +69,15 @@ export class MotivationalMilestoneEngine {
     const consistencyScore = (sessions.length / daysActive) * 100;
     const costSavings = Math.floor((daysActive / 30) * 50); // $50/month gym cost
     const strengthGain = Math.min(improvementPercent * 0.7 + consistencyScore * 0.3, 100);
+
+    // Validate all metrics
+    const metrics = { improvementPercent, totalHours, consistencyScore, costSavings, strengthGain };
+    for (const [key, value] of Object.entries(metrics)) {
+      if (isNaN(value) || !isFinite(value)) {
+        console.error(`Invalid metric ${key}: ${value}`);
+        return [];
+      }
+    }
 
     // Generate improvement milestones
     milestones.push(...this.generateImprovementMilestones(improvementPercent, initialDuration, currentAvg));

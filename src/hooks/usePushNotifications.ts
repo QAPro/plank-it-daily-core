@@ -388,7 +388,11 @@ export const usePushNotifications = () => {
             .replace(/\-/g, '+')
             .replace(/_/g, '/');
           const rawData = atob(base64);
-          return new Uint8Array([...rawData].map(char => char.charCodeAt(0)));
+          const outputArray = new Uint8Array(rawData.length);
+          for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+          }
+          return outputArray;
         } catch (error) {
           console.error('[PushNotifications] Error converting VAPID key:', error);
           throw new Error('Invalid VAPID key format');
@@ -406,7 +410,7 @@ export const usePushNotifications = () => {
       
       const pushSubscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: applicationServerKey
+        applicationServerKey: applicationServerKey as BufferSource
       });
 
       console.log('[PushNotifications] Push subscription created successfully');

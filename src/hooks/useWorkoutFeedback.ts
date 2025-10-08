@@ -8,7 +8,15 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 export const useWorkoutFeedback = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+  
+  // Defensive check for QueryClient availability (handles iframe timing issues)
+  let queryClient;
+  try {
+    queryClient = useQueryClient();
+  } catch (error) {
+    console.warn('QueryClient not available yet, feedback features will be limited');
+    queryClient = null;
+  }
 
   // Submit workout feedback
   const submitFeedback = useCallback(async (
@@ -27,9 +35,11 @@ export const useWorkoutFeedback = () => {
     try {
       await WorkoutFeedbackService.storeFeedback(user.id, sessionId, feedback);
       
-      // Invalidate related queries
-      queryClient.invalidateQueries({ queryKey: ['workout-feedback', user.id] });
-      queryClient.invalidateQueries({ queryKey: ['feedback-insights', user.id] });
+      // Invalidate related queries if QueryClient is available
+      if (queryClient) {
+        queryClient.invalidateQueries({ queryKey: ['workout-feedback', user.id] });
+        queryClient.invalidateQueries({ queryKey: ['feedback-insights', user.id] });
+      }
       
       toast({
         title: "Feedback saved!",
@@ -45,18 +55,18 @@ export const useWorkoutFeedback = () => {
     }
   }, [user, toast, queryClient]);
 
-  // Get recent feedback
-  const { data: recentFeedback, isLoading: isLoadingFeedback } = useQuery({
+  // Get recent feedback - only if QueryClient is available
+  const { data: recentFeedback, isLoading: isLoadingFeedback } = queryClient ? useQuery({
     queryKey: ['workout-feedback', user?.id],
     queryFn: async () => {
       if (!user) return [];
       return WorkoutFeedbackService.getRecentFeedback(user.id, 10);
     },
     enabled: !!user,
-  });
+  }) : { data: [], isLoading: false };
 
-  // Get feedback insights
-  const { data: insights, isLoading: isLoadingInsights } = useQuery({
+  // Get feedback insights - only if QueryClient is available
+  const { data: insights, isLoading: isLoadingInsights } = queryClient ? useQuery({
     queryKey: ['feedback-insights', user?.id],
     queryFn: async (): Promise<FeedbackInsights | null> => {
       if (!user) return null;
@@ -64,7 +74,7 @@ export const useWorkoutFeedback = () => {
     },
     enabled: !!user,
     staleTime: 1000 * 60 * 30, // 30 minutes
-  });
+  }) : { data: null, isLoading: false };
 
   // Log rest day
   const logRestDay = useCallback(async (activities: string[] = []) => {
@@ -80,8 +90,10 @@ export const useWorkoutFeedback = () => {
     try {
       await WorkoutFeedbackService.logRestDay(user.id, activities);
       
-      // Invalidate related queries
-      queryClient.invalidateQueries({ queryKey: ['rest-day', user.id] });
+      // Invalidate related queries if QueryClient is available
+      if (queryClient) {
+        queryClient.invalidateQueries({ queryKey: ['rest-day', user.id] });
+      }
       
       toast({
         title: "Rest day logged!",
@@ -97,15 +109,15 @@ export const useWorkoutFeedback = () => {
     }
   }, [user, toast, queryClient]);
 
-  // Get last rest day
-  const { data: lastRestDay } = useQuery({
+  // Get last rest day - only if QueryClient is available
+  const { data: lastRestDay } = queryClient ? useQuery({
     queryKey: ['rest-day', user?.id],
     queryFn: async () => {
       if (!user) return null;
       return WorkoutFeedbackService.getLastRestDay(user.id);
     },
     enabled: !!user,
-  });
+  }) : { data: null };
 
   return {
     submitFeedback,

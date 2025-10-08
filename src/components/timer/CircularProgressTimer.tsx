@@ -73,7 +73,7 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress }: Circular
   const remainingProgress = 100 - progress;
 
   return (
-    <div className="relative w-[200px] h-[200px] sm:w-[320px] sm:h-[320px] flex items-center justify-center">
+    <div className="relative w-[200px] h-[200px] sm:w-[320px] sm:h-[320px] flex items-center justify-center mx-auto">
       {/* Background Circle with Gradient */}
       <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${colors.bg} shadow-lg`} />
       

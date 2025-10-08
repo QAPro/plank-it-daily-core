@@ -145,7 +145,7 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress }: Circular
         </svg>
         
         {/* Timer Display - Absolutely centered */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-white z-20">
           <motion.div
             key={timeLeft}
             initial={{ scale: 1.1 }}

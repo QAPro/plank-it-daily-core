@@ -17,7 +17,7 @@ const FirstTimeOverlay = ({ visible, onGoToWorkouts, onDismiss }: FirstTimeOverl
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.3 }}
-          className="relative w-full rounded-lg bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 px-6 py-4 shadow-sm"
+          className="relative w-full md:w-1/4 mx-auto rounded-lg bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 px-6 py-4 shadow-sm"
         >
           <button
             onClick={onDismiss}

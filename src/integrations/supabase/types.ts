@@ -340,6 +340,39 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_coach_insights: {
+        Row: {
+          created_at: string
+          id: string
+          insight_category: string
+          is_active: boolean
+          priority_level: number
+          template_text: string
+          tier_required: string
+          trigger_conditions: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          insight_category: string
+          is_active?: boolean
+          priority_level?: number
+          template_text: string
+          tier_required?: string
+          trigger_conditions?: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          insight_category?: string
+          is_active?: boolean
+          priority_level?: number
+          template_text?: string
+          tier_required?: string
+          trigger_conditions?: Json
+        }
+        Relationships: []
+      }
       analytics_insights: {
         Row: {
           action_required: boolean | null
@@ -1075,6 +1108,33 @@ export type Database = {
         }
         Relationships: []
       }
+      exercise_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number
+          icon_name: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          icon_name: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          icon_name?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       exercise_families: {
         Row: {
           created_at: string | null
@@ -1155,6 +1215,65 @@ export type Database = {
           validation_data?: Json | null
         }
         Relationships: []
+      }
+      exercises: {
+        Row: {
+          benefits: string[] | null
+          category_id: string
+          cautions: string[] | null
+          created_at: string
+          description: string | null
+          difficulty_level: number
+          display_order: number
+          duration_seconds: number
+          id: string
+          instructions: string | null
+          is_active: boolean
+          modifications: string[] | null
+          name: string
+          tier_required: string
+        }
+        Insert: {
+          benefits?: string[] | null
+          category_id: string
+          cautions?: string[] | null
+          created_at?: string
+          description?: string | null
+          difficulty_level: number
+          display_order?: number
+          duration_seconds: number
+          id?: string
+          instructions?: string | null
+          is_active?: boolean
+          modifications?: string[] | null
+          name: string
+          tier_required?: string
+        }
+        Update: {
+          benefits?: string[] | null
+          category_id?: string
+          cautions?: string[] | null
+          created_at?: string
+          description?: string | null
+          difficulty_level?: number
+          display_order?: number
+          duration_seconds?: number
+          id?: string
+          instructions?: string | null
+          is_active?: boolean
+          modifications?: string[] | null
+          name?: string
+          tier_required?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercises_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       feature_cohorts: {
         Row: {
@@ -1883,6 +2002,41 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      momentum_score_components: {
+        Row: {
+          component_type: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          momentum_score_id: string
+          points_earned: number
+        }
+        Insert: {
+          component_type: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          momentum_score_id: string
+          points_earned?: number
+        }
+        Update: {
+          component_type?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          momentum_score_id?: string
+          points_earned?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "momentum_score_components_momentum_score_id_fkey"
+            columns: ["momentum_score_id"]
+            isOneToOne: false
+            referencedRelation: "user_momentum_scores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notification_interactions: {
         Row: {
@@ -3165,6 +3319,50 @@ export type Database = {
         }
         Relationships: []
       }
+      user_category_progress: {
+        Row: {
+          category_id: string
+          created_at: string
+          highest_difficulty_reached: number
+          id: string
+          total_duration_seconds: number
+          updated_at: string
+          user_id: string
+          week_start_date: string
+          workouts_this_week: number
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          highest_difficulty_reached?: number
+          id?: string
+          total_duration_seconds?: number
+          updated_at?: string
+          user_id: string
+          week_start_date: string
+          workouts_this_week?: number
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          highest_difficulty_reached?: number
+          id?: string
+          total_duration_seconds?: number
+          updated_at?: string
+          user_id?: string
+          week_start_date?: string
+          workouts_this_week?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_category_progress_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_cohort_memberships: {
         Row: {
           assigned_at: string | null
@@ -3478,6 +3676,82 @@ export type Database = {
         }
         Relationships: []
       }
+      user_insight_views: {
+        Row: {
+          dismissed_at: string | null
+          id: string
+          insight_history_id: string
+          user_id: string
+          viewed_at: string
+        }
+        Insert: {
+          dismissed_at?: string | null
+          id?: string
+          insight_history_id: string
+          user_id: string
+          viewed_at?: string
+        }
+        Update: {
+          dismissed_at?: string | null
+          id?: string
+          insight_history_id?: string
+          user_id?: string
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_insight_views_insight_history_id_fkey"
+            columns: ["insight_history_id"]
+            isOneToOne: false
+            referencedRelation: "user_insights_history"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_insights_history: {
+        Row: {
+          generated_at: string
+          generated_text: string
+          id: string
+          insight_category: string
+          insight_template_id: string | null
+          metadata: Json | null
+          priority_level: number
+          user_id: string
+          week_start_date: string
+        }
+        Insert: {
+          generated_at?: string
+          generated_text: string
+          id?: string
+          insight_category: string
+          insight_template_id?: string | null
+          metadata?: Json | null
+          priority_level?: number
+          user_id: string
+          week_start_date: string
+        }
+        Update: {
+          generated_at?: string
+          generated_text?: string
+          id?: string
+          insight_category?: string
+          insight_template_id?: string | null
+          metadata?: Json | null
+          priority_level?: number
+          user_id?: string
+          week_start_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_insights_history_insight_template_id_fkey"
+            columns: ["insight_template_id"]
+            isOneToOne: false
+            referencedRelation: "ai_coach_insights"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_investment_weaving: {
         Row: {
           composite_score: number
@@ -3514,6 +3788,51 @@ export type Database = {
           status_weight?: number
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_momentum_scores: {
+        Row: {
+          category_diversity_score: number
+          consistency_bonus: number
+          created_at: string
+          difficulty_progression_score: number
+          id: string
+          momentum_score: number
+          personal_bests_count: number
+          updated_at: string
+          user_id: string
+          week_start_date: string
+          weekly_goal_met: boolean
+          workouts_completed: number
+        }
+        Insert: {
+          category_diversity_score?: number
+          consistency_bonus?: number
+          created_at?: string
+          difficulty_progression_score?: number
+          id?: string
+          momentum_score?: number
+          personal_bests_count?: number
+          updated_at?: string
+          user_id: string
+          week_start_date: string
+          weekly_goal_met?: boolean
+          workouts_completed?: number
+        }
+        Update: {
+          category_diversity_score?: number
+          consistency_bonus?: number
+          created_at?: string
+          difficulty_progression_score?: number
+          id?: string
+          momentum_score?: number
+          personal_bests_count?: number
+          updated_at?: string
+          user_id?: string
+          week_start_date?: string
+          weekly_goal_met?: boolean
+          workouts_completed?: number
         }
         Relationships: []
       }
@@ -3716,6 +4035,8 @@ export type Database = {
           id: string
           last_duration: number | null
           last_exercise_id: string | null
+          last_selected_exercise_id: string | null
+          last_timer_duration: number | null
           last_workout_timestamp: string | null
           music_auto_start: string | null
           music_volume: number | null
@@ -3755,6 +4076,8 @@ export type Database = {
           id?: string
           last_duration?: number | null
           last_exercise_id?: string | null
+          last_selected_exercise_id?: string | null
+          last_timer_duration?: number | null
           last_workout_timestamp?: string | null
           music_auto_start?: string | null
           music_volume?: number | null
@@ -3794,6 +4117,8 @@ export type Database = {
           id?: string
           last_duration?: number | null
           last_exercise_id?: string | null
+          last_selected_exercise_id?: string | null
+          last_timer_duration?: number | null
           last_workout_timestamp?: string | null
           music_auto_start?: string | null
           music_volume?: number | null
@@ -3817,7 +4142,15 @@ export type Database = {
           weekly_goal?: number
           workout_reminders?: boolean | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_preferences_last_selected_exercise_id_fkey"
+            columns: ["last_selected_exercise_id"]
+            isOneToOne: false
+            referencedRelation: "exercises"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_reminder_slots: {
         Row: {
@@ -3988,31 +4321,40 @@ export type Database = {
       }
       user_sessions: {
         Row: {
+          category: string | null
           completed_at: string | null
           duration_seconds: number
           exercise_id: string | null
           id: string
+          momentum_points_earned: number | null
           notes: string | null
           user_agent: string | null
           user_id: string | null
+          was_personal_best: boolean | null
         }
         Insert: {
+          category?: string | null
           completed_at?: string | null
           duration_seconds: number
           exercise_id?: string | null
           id?: string
+          momentum_points_earned?: number | null
           notes?: string | null
           user_agent?: string | null
           user_id?: string | null
+          was_personal_best?: boolean | null
         }
         Update: {
+          category?: string | null
           completed_at?: string | null
           duration_seconds?: number
           exercise_id?: string | null
           id?: string
+          momentum_points_earned?: number | null
           notes?: string | null
           user_agent?: string | null
           user_id?: string | null
+          was_personal_best?: boolean | null
         }
         Relationships: [
           {
@@ -4249,6 +4591,42 @@ export type Database = {
           playlist_name?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_weekly_goals: {
+        Row: {
+          created_at: string
+          goal_adjustment_reason: string | null
+          id: string
+          previous_week_momentum: number | null
+          previous_week_workouts: number | null
+          target_momentum_score: number
+          target_workouts: number
+          user_id: string
+          week_start_date: string
+        }
+        Insert: {
+          created_at?: string
+          goal_adjustment_reason?: string | null
+          id?: string
+          previous_week_momentum?: number | null
+          previous_week_workouts?: number | null
+          target_momentum_score?: number
+          target_workouts?: number
+          user_id: string
+          week_start_date: string
+        }
+        Update: {
+          created_at?: string
+          goal_adjustment_reason?: string | null
+          id?: string
+          previous_week_momentum?: number | null
+          previous_week_workouts?: number | null
+          target_momentum_score?: number
+          target_workouts?: number
+          user_id?: string
+          week_start_date?: string
         }
         Relationships: []
       }
@@ -4813,6 +5191,10 @@ export type Database = {
         }
         Returns: number
       }
+      calculate_momentum_components: {
+        Args: { _user_id: string; _week_start_date: string }
+        Returns: Json
+      }
       can_modify_user_roles: {
         Args: { _admin_id: string; _target_user_id: string }
         Returns: boolean
@@ -5115,6 +5497,10 @@ export type Database = {
           transaction_id: string
         }[]
       }
+      get_user_current_streak: {
+        Args: { _user_id: string }
+        Returns: number
+      }
       get_user_display_info: {
         Args: { target_user_id: string }
         Returns: {
@@ -5178,6 +5564,10 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_user_momentum_score: {
+        Args: { _user_id: string; _week_start_date: string }
+        Returns: number
+      }
       get_user_push_subscription_count: {
         Args: Record<PropertyKey, never>
         Returns: number
@@ -5216,6 +5606,10 @@ export type Database = {
           plan_name: string
           status: string
         }[]
+      }
+      get_user_weekly_workout_count: {
+        Args: { _user_id: string; _week_start_date: string }
+        Returns: number
       }
       get_workout_completion_analytics: {
         Args: { days_back?: number }

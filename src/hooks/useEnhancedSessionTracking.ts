@@ -1,6 +1,7 @@
 
 import { logInfo, logError, logDebug } from '@/utils/productionLogger';
 import { useState, useEffect, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useNewExercises, type ExerciseWithCategory } from './useNewExercises';
@@ -24,6 +25,7 @@ interface CompletedSession {
 
 export const useEnhancedSessionTracking = () => {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const { data: exercises, isLoading: isLoadingExercises } = useNewExercises();
   const [selectedExercise, setSelectedExercise] = useState<ExerciseWithCategory | null>(null);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
@@ -352,15 +354,16 @@ const completeSession = useCallback(async (duration: number, notes?: string) => 
       }
     }
 
-    // Update momentum score (async, don't block)
+    // Update momentum score
     console.log('📊 Updating momentum score...');
     try {
       const { updateMomentumScore } = await import('@/services/momentumScoreService');
-      updateMomentumScore(user.id).catch((error) => {
-        console.error('Error updating momentum score:', error);
-      });
+      await updateMomentumScore(user.id);
+      // Invalidate momentum query to trigger refetch
+      queryClient.invalidateQueries({ queryKey: ['momentum-score'] });
+      console.log('✅ Momentum score updated and cache invalidated');
     } catch (error) {
-      console.error('Error importing momentum service:', error);
+      console.error('Failed to update momentum score:', error);
     }
 
     // Check for new achievements using expanded engine

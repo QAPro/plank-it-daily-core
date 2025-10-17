@@ -47,6 +47,9 @@ export const useMomentumScore = () => {
         }
       };
     },
-    enabled: !!user
+    enabled: !!user,
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false
   });
 };

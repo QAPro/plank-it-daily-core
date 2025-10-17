@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// Create a simple client
+// Query client configuration
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

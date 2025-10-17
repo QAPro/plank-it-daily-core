@@ -44,17 +44,29 @@ export const ExerciseDetailsModal = ({ exercise, isOpen, onClose, onStart, isLoc
               <h3 className="font-semibold mb-2">Instructions</h3>
               <ul className="list-disc list-inside space-y-2 text-muted-foreground">
                 {(() => {
-                  try {
-                    const instructionsArray = typeof exercise.instructions === 'string' 
-                      ? JSON.parse(exercise.instructions) 
-                      : exercise.instructions;
+                  const parseInstructions = (instructions: string | string[]): string[] => {
+                    if (Array.isArray(instructions)) return instructions;
                     
-                    return instructionsArray.map((instruction: string, index: number) => (
-                      <li key={index} className="leading-relaxed">{instruction}</li>
-                    ));
-                  } catch {
-                    return <p className="text-muted-foreground">{exercise.instructions}</p>;
-                  }
+                    // PostgreSQL array format: {"item1","item2"}
+                    if (instructions.startsWith('{') && instructions.endsWith('}')) {
+                      return instructions
+                        .slice(1, -1)
+                        .split('","')
+                        .map(item => item.replace(/^"|"$/g, ''));
+                    }
+                    
+                    // JSON array format: ["item1","item2"]
+                    try {
+                      return JSON.parse(instructions);
+                    } catch {
+                      return [instructions];
+                    }
+                  };
+
+                  const instructionsArray = parseInstructions(exercise.instructions);
+                  return instructionsArray.map((instruction: string, index: number) => (
+                    <li key={index} className="leading-relaxed">{instruction}</li>
+                  ));
                 })()}
               </ul>
             </div>

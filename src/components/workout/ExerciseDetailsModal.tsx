@@ -42,7 +42,21 @@ export const ExerciseDetailsModal = ({ exercise, isOpen, onClose, onStart, isLoc
           {exercise.instructions && (
             <div>
               <h3 className="font-semibold mb-2">Instructions</h3>
-              <p className="text-muted-foreground whitespace-pre-line">{exercise.instructions}</p>
+              <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                {(() => {
+                  try {
+                    const instructionsArray = typeof exercise.instructions === 'string' 
+                      ? JSON.parse(exercise.instructions) 
+                      : exercise.instructions;
+                    
+                    return instructionsArray.map((instruction: string, index: number) => (
+                      <li key={index} className="leading-relaxed">{instruction}</li>
+                    ));
+                  } catch {
+                    return <p className="text-muted-foreground">{exercise.instructions}</p>;
+                  }
+                })()}
+              </ul>
             </div>
           )}
 

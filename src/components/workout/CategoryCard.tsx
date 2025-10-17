@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
-import { ChevronRight, Zap, Dumbbell, Wind, Target, Scale, Activity, LucideIcon } from "lucide-react";
+import { ChevronRight, Zap, Dumbbell, Target, Armchair, PersonStanding, Layers, Activity, LucideIcon } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
 type ExerciseCategory = Tables<'exercise_categories'>;
@@ -15,11 +15,11 @@ interface CategoryCardProps {
 
 const iconMap: Record<string, LucideIcon> = {
   'Zap': Zap,
-  'Dumbbell': Dumbbell,
-  'Wind': Wind,
   'Target': Target,
-  'Scale': Scale,
-  'Activity': Activity,
+  'Dumbbell': Dumbbell,
+  'Armchair': Armchair,
+  'PersonStanding': PersonStanding,
+  'Layers': Layers,
 };
 
 export const CategoryCard = ({ category, exerciseCount, onClick, index }: CategoryCardProps) => {

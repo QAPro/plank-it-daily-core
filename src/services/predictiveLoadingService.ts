@@ -121,7 +121,7 @@ export class PredictiveLoadingService {
 
       // Get exercise details
       const { data: exercises } = await supabase
-        .from('plank_exercises')
+        .from('exercises')
         .select('id, name, difficulty_level');
 
       const exerciseMap = new Map(

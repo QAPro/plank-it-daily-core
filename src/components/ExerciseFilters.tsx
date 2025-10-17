@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import FlagGuard from '@/components/access/FlagGuard';
 import type { Tables } from '@/integrations/supabase/types';
 
-type Exercise = Tables<'plank_exercises'>;
+type Exercise = Tables<'exercises'>;
 
 export interface FilterState {
   search: string;

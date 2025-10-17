@@ -34,7 +34,7 @@ const CondensedPerformanceDashboard: React.FC = () => {
     const loadExercises = async () => {
       setIsLoadingExercises(true);
       const { data, error } = await supabase
-        .from('plank_exercises')
+        .from('exercises')
         .select('id,name,difficulty_level');
 
       if (error) {

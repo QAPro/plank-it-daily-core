@@ -46,7 +46,7 @@ const UserDetailDrillDown: React.FC<UserDetailDrillDownProps> = ({ userId, metad
         .from('user_sessions')
         .select(`
           *,
-          plank_exercises (name, category)
+          exercises (name)
         `)
         .eq('user_id', userId)
         .order('completed_at', { ascending: false })
@@ -72,7 +72,7 @@ const UserDetailDrillDown: React.FC<UserDetailDrillDownProps> = ({ userId, metad
         .from('user_exercise_performance')
         .select(`
           *,
-          plank_exercises (name)
+          exercises (name)
         `)
         .eq('user_id', userId)
         .order('total_sessions', { ascending: false })
@@ -231,7 +231,7 @@ const UserDetailDrillDown: React.FC<UserDetailDrillDownProps> = ({ userId, metad
                 {exercisePerformance.map((exercise, index) => (
                   <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div>
-                      <p className="font-medium">{exercise.plank_exercises?.name || 'Unknown Exercise'}</p>
+                      <p className="font-medium">{exercise.exercises?.name || 'Unknown Exercise'}</p>
                       <p className="text-sm text-muted-foreground">
                         {exercise.total_sessions} sessions • Best: {Math.round(exercise.best_duration_seconds / 60)}min
                       </p>
@@ -287,7 +287,7 @@ const UserDetailDrillDown: React.FC<UserDetailDrillDownProps> = ({ userId, metad
                 {recentSessions.slice(0, 5).map((session, index) => (
                   <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                     <div>
-                      <p className="font-medium">{session.plank_exercises?.name || 'Unknown Exercise'}</p>
+                      <p className="font-medium">{session.exercises?.name || 'Unknown Exercise'}</p>
                       <p className="text-sm text-muted-foreground">
                         {new Date(session.completed_at).toLocaleDateString()} at{' '}
                         {new Date(session.completed_at).toLocaleTimeString()}

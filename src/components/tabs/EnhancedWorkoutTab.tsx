@@ -6,7 +6,7 @@ import ExerciseFamilyList from "@/components/exercise-families/ExerciseFamilyLis
 import CustomWorkoutsCard from "@/components/CustomWorkoutsCard";
 import type { Tables } from '@/integrations/supabase/types';
 
-type Exercise = Tables<'plank_exercises'>;
+type Exercise = Tables<'exercises'>;
 
 interface EnhancedWorkoutTabProps {
   onStartWorkout: (exerciseId: string, duration: number) => void;

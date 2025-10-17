@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import FlagGuard from '@/components/access/FlagGuard';
 import type { Tables } from '@/integrations/supabase/types';
 
-type Exercise = Tables<'plank_exercises'>;
+type Exercise = Tables<'exercises'>;
 type ExercisePerformance = Tables<'user_exercise_performance'>;
 
 interface EnhancedExerciseCardProps {

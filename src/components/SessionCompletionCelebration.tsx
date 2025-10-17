@@ -17,7 +17,7 @@ import CelebrationActions from "@/components/celebration/CelebrationActions";
 import { SocialSharingService } from "@/services/socialSharingService";
 import InAppPostDialog from "@/components/social/InAppPostDialog";
 
-type Exercise = Tables<'plank_exercises'>;
+type Exercise = Tables<'exercises'>;
 
 interface SessionCompletionCelebrationProps {
   isVisible: boolean;

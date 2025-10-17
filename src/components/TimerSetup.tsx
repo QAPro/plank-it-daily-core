@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 import type { Tables } from '@/integrations/supabase/types';
 
-type Exercise = Tables<'plank_exercises'>;
+type Exercise = Tables<'exercises'>;
 
 interface TimerSetupProps {
   exercise: Exercise;

@@ -38,7 +38,7 @@ const ExerciseDetailDrillDown: React.FC<ExerciseDetailDrillDownProps> = ({ exerc
     try {
       // Load exercise details
       const { data: exercise } = await supabase
-        .from('plank_exercises')
+        .from('exercises')
         .select('*')
         .eq('id', exerciseId)
         .single();

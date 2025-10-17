@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import FlagGuard from '@/components/access/FlagGuard';
 import type { Tables } from '@/integrations/supabase/types';
 
-type Exercise = Tables<'plank_exercises'>;
+type Exercise = Tables<'exercises'>;
 
 interface ExerciseCardProps {
   exercise: Exercise;

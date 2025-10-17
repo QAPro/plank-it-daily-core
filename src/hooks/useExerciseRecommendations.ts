@@ -7,11 +7,11 @@ import { SmartRecommendationsService } from '@/services/smartRecommendationsServ
 import { isAIEnabled } from '@/constants/featureGating';
 import type { Tables } from '@/integrations/supabase/types';
 
-type Exercise = Tables<'plank_exercises'>;
+type Exercise = Tables<'exercises'>;
 type UserPreferences = Tables<'user_preferences'>;
 type ExercisePerformance = Tables<'user_exercise_performance'>;
 type ExerciseRecommendation = Tables<'user_exercise_recommendations'> & {
-  plank_exercises: Exercise | null;
+  exercises: Exercise | null;
 };
 
 export const useExerciseRecommendations = () => {
@@ -44,7 +44,7 @@ export const useExerciseRecommendations = () => {
       // Then get the exercises for these recommendations
       const exerciseIds = recommendationsData.map(rec => rec.exercise_id);
       const { data: exercisesData, error: exercisesError } = await supabase
-        .from('plank_exercises')
+        .from('exercises')
         .select('*')
         .in('id', exerciseIds);
 
@@ -58,7 +58,7 @@ export const useExerciseRecommendations = () => {
       
       return recommendationsData.map(rec => ({
         ...rec,
-        plank_exercises: exercisesMap.get(rec.exercise_id) || null
+        exercises: exercisesMap.get(rec.exercise_id) || null
       }));
     },
     enabled: !!user && isAIEnabled(),
@@ -147,7 +147,7 @@ export const useExerciseRecommendations = () => {
       let reasoning = '';
 
       // Beginner-friendly recommendation
-      if (preferences.difficulty_preference === 'beginner' && exercise.is_beginner_friendly) {
+      if (preferences.difficulty_preference === 'beginner' && exercise.tier_required === 'free') {
         recommendationType = 'beginner_friendly';
         confidenceScore = 0.8;
         reasoning = 'Perfect for your current fitness level';
@@ -171,12 +171,12 @@ export const useExerciseRecommendations = () => {
         reasoning = 'Add variety to your workout routine';
       }
 
-      // Skill building
-      if (exercise.primary_muscles && exercise.primary_muscles.includes('core')) {
-        recommendationType = 'skill_building';
-        confidenceScore = 0.7;
-        reasoning = 'Excellent for core strength development';
-      }
+      // Skill building - exercises table doesn't have primary_muscles, skip this
+      // if (exercise.primary_muscles && exercise.primary_muscles.includes('core')) {
+      //   recommendationType = 'skill_building';
+      //   confidenceScore = 0.7;
+      //   reasoning = 'Excellent for core strength development';
+      // }
 
       // Favorite boost
       if (isFavorite) {

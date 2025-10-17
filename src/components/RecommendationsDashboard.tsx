@@ -207,8 +207,8 @@ const RecommendationsDashboard = ({ onExerciseSelect }: RecommendationsDashboard
             ) : (
               <div className="space-y-4">
                 {recommendations.slice(0, 5).map((recommendation, index) => {
-                  // Handle the case where plank_exercises might be null or an error
-                  const exercise = recommendation.plank_exercises;
+                  // Handle the case where exercises might be null or an error
+                  const exercise = recommendation.exercises;
                   if (!exercise || typeof exercise !== 'object' || !('id' in exercise)) {
                     console.warn('Invalid exercise data:', exercise);
                     return null;

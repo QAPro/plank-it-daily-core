@@ -1453,9 +1453,9 @@ export class ExpandedAchievementEngine {
     
     // Get sessions for the specific category
     const { data: exercises } = await supabase
-      .from('plank_exercises')
+      .from('exercises')
       .select('id')
-      .eq('category', category);
+      .eq('category_id', category);
     
     const exerciseIds = exercises?.map(e => e.id) || [];
     if (exerciseIds.length === 0) return false;

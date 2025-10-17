@@ -39,7 +39,7 @@ export class OfflineCapabilityService {
 
       // Get exercises (cache all for offline access)
       const { data: exercises } = await supabase
-        .from('plank_exercises')
+        .from('exercises')
         .select('*')
         .order('difficulty_level', { ascending: true });
 

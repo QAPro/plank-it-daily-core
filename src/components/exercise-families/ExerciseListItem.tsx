@@ -3,7 +3,7 @@ import { Play, Info, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Tables } from '@/integrations/supabase/types';
 
-type Exercise = Tables<'plank_exercises'>;
+type Exercise = Tables<'exercises'>;
 
 interface ExerciseListItemProps {
   exercise: Exercise;

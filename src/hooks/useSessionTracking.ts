@@ -7,7 +7,7 @@ import { useChallengeTracking } from '@/hooks/useChallengeTracking';
 import type { Tables } from '@/integrations/supabase/types';
 import type { UserAchievement } from '@/hooks/useUserAchievements';
 
-type Exercise = Tables<'plank_exercises'>;
+type Exercise = Tables<'exercises'>;
 
 interface SessionResult {
   milestoneEvent: MilestoneEvent | null;

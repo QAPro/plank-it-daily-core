@@ -4361,7 +4361,7 @@ export type Database = {
             foreignKeyName: "user_sessions_exercise_id_fkey"
             columns: ["exercise_id"]
             isOneToOne: false
-            referencedRelation: "plank_exercises"
+            referencedRelation: "exercises"
             referencedColumns: ["id"]
           },
           {

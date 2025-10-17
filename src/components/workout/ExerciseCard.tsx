@@ -1,8 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Play, Info, Lock } from "lucide-react";
+import { Play, Info, Lock, Star } from "lucide-react";
 import type { ExerciseWithCategory } from "@/hooks/useNewExercises";
 
 interface ExerciseCardProps {
@@ -13,25 +12,18 @@ interface ExerciseCardProps {
   isLocked?: boolean;
 }
 
-const difficultyColors: Record<number, string> = {
-  1: "bg-green-100 text-green-800",
-  2: "bg-blue-100 text-blue-800",
-  3: "bg-yellow-100 text-yellow-800",
-  4: "bg-orange-100 text-orange-800",
-  5: "bg-red-100 text-red-800",
-};
-
-const difficultyLabels: Record<number, string> = {
-  1: "Beginner",
-  2: "Easy",
-  3: "Moderate",
-  4: "Challenging",
-  5: "Advanced",
+const getDifficultyStars = (level: number) => {
+  return Array.from({ length: 5 }, (_, i) => (
+    <Star
+      key={i}
+      className={`w-4 h-4 ${
+        i < level ? "text-yellow-400 fill-yellow-400" : "text-muted-foreground/30"
+      }`}
+    />
+  ));
 };
 
 export const ExerciseCard = ({ exercise, onStart, onViewDetails, index, isLocked }: ExerciseCardProps) => {
-  const difficultyColor = difficultyColors[exercise.difficulty_level] || difficultyColors[3];
-  const difficultyLabel = difficultyLabels[exercise.difficulty_level] || "Moderate";
 
   return (
     <motion.div
@@ -47,10 +39,8 @@ export const ExerciseCard = ({ exercise, onStart, onViewDetails, index, isLocked
                 <h3 className="text-lg font-semibold">{exercise.name}</h3>
                 {isLocked && <Lock className="h-4 w-4 text-muted-foreground" />}
               </div>
-              <div className="flex flex-wrap gap-2 mb-3">
-                <Badge className={difficultyColor}>
-                  {difficultyLabel}
-                </Badge>
+              <div className="flex items-center gap-1 mb-3">
+                {getDifficultyStars(exercise.difficulty_level)}
               </div>
               {exercise.description && (
                 <p className="text-sm text-muted-foreground line-clamp-2 mb-4">

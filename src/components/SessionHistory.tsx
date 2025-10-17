@@ -119,7 +119,7 @@ const SessionHistory = () => {
                     </div>
                     <div>
                       <p className="font-medium text-gray-800">
-                        {session.plank_exercises?.name || 'Unknown Exercise'}
+                        {session.exercises?.name || 'Unknown Exercise'}
                       </p>
                       <div className="flex items-center space-x-2 text-sm text-gray-500">
                         <span className="flex items-center">
@@ -135,9 +135,9 @@ const SessionHistory = () => {
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    {session.plank_exercises?.difficulty_level && (
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(session.plank_exercises.difficulty_level)}`}>
-                        Level {session.plank_exercises.difficulty_level}
+                    {session.exercises?.difficulty_level && (
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(session.exercises.difficulty_level)}`}>
+                        Level {session.exercises.difficulty_level}
                       </span>
                     )}
                     

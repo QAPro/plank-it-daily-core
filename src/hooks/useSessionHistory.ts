@@ -6,7 +6,7 @@ import type { Tables } from '@/integrations/supabase/types';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
 
 type SessionWithExercise = Tables<'user_sessions'> & {
-  plank_exercises: Tables<'plank_exercises'> | null;
+  exercises: Tables<'exercises'> | null;
 };
 
 export const useSessionHistory = (limit = 10) => {
@@ -21,7 +21,7 @@ export const useSessionHistory = (limit = 10) => {
         .from('user_sessions')
         .select(`
           *,
-          plank_exercises (
+          exercises (
             id,
             name,
             difficulty_level

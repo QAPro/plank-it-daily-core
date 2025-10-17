@@ -1475,15 +1475,12 @@ export class ExpandedAchievementEngine {
     // Get all user sessions with exercise category info
     const { data: sessions } = await supabase
       .from('user_sessions')
-      .select(`
-        *,
-        plank_exercises!inner(category)
-      `)
+      .select('*')
       .eq('user_id', this.userId);
 
     if (!sessions?.length) return false;
 
-    const categories = new Set(sessions.map(s => s.plank_exercises.category));
+    const categories = new Set(sessions.map(s => s.category).filter(Boolean));
     return categories.size >= conditions.minimum_categories;
   }
 

@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
 
 type SessionWithExercise = Tables<'user_sessions'> & {
-  plank_exercises: Tables<'plank_exercises'> | null;
+  exercises: Tables<'exercises'> | null;
 };
 
 export const useExtendedSessionHistory = (days = 30) => {
@@ -20,11 +20,10 @@ export const useExtendedSessionHistory = (days = 30) => {
         .from('user_sessions')
         .select(`
           *,
-          plank_exercises (
+          exercises (
             id,
             name,
-            difficulty_level,
-            category
+            difficulty_level
           )
         `)
         .eq('user_id', user.id)

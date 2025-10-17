@@ -287,7 +287,7 @@ export class SocialRewardsService {
           duration_seconds,
           exercise_id,
           users!inner(username),
-          plank_exercises!inner(name)
+          exercises!inner(name)
         `)
         .gte('completed_at', yesterdayStr)
         .lt('completed_at', new Date().toISOString().split('T')[0])
@@ -305,7 +305,7 @@ export class SocialRewardsService {
       return {
         userId: selectedWorkout.user_id,
         username: (selectedWorkout.users as any)?.username || 'Anonymous Athlete',
-        exerciseName: (selectedWorkout.plank_exercises as any)?.name || 'Workout',
+        exerciseName: (selectedWorkout.exercises as any)?.name || 'Workout',
         duration: selectedWorkout.duration_seconds,
         achievement: 'Outstanding Performance',
         stats: {

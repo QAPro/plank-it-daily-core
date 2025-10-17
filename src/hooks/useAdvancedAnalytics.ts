@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
 
 type SessionWithExercise = Tables<'user_sessions'> & {
-  plank_exercises: Tables<'plank_exercises'> | null;
+  exercises: Tables<'exercises'> | null;
 };
 
 interface AdvancedMetrics {
@@ -97,11 +97,10 @@ class AdvancedAnalyticsEngine {
       .from('user_sessions')
       .select(`
         *,
-        plank_exercises (
+        exercises (
           id,
           name,
-          difficulty_level,
-          category
+          difficulty_level
         )
       `)
       .eq('user_id', userId)
@@ -302,7 +301,7 @@ class AdvancedAnalyticsEngine {
     const exerciseCounts = new Map<string, number>();
 
     sessions.forEach(session => {
-      const exerciseName = session.plank_exercises?.name || 'Unknown';
+      const exerciseName = session.exercises?.name || 'Unknown';
       exerciseCounts.set(exerciseName, (exerciseCounts.get(exerciseName) || 0) + 1);
     });
 

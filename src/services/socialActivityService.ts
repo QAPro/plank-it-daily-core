@@ -221,7 +221,7 @@ export class SocialActivityManager {
   private async getExerciseName(exerciseId: string): Promise<string> {
     try {
       const { data: exercise } = await supabase
-        .from('plank_exercises')
+        .from('exercises')
         .select('name')
         .eq('id', exerciseId)
         .single();

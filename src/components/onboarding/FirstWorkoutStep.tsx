@@ -41,14 +41,15 @@ const FirstWorkoutStep = ({ data, onNext, onBack }: FirstWorkoutStepProps) => {
     difficulty_level: data.fitnessLevel || 1,
     description: 'Your first plank workout',
     created_at: new Date().toISOString(),
-    image_url: null,
-    instructions: ['Hold plank position', 'Keep core tight', 'Breathe steadily'],
-    category: 'core_strength',
-    equipment_needed: [],
-    estimated_calories_per_minute: 2.5,
-    is_beginner_friendly: true,
-    primary_muscles: ['core', 'abdominals'],
-    tags: ['beginner', 'core']
+    instructions: 'Hold plank position. Keep core tight. Breathe steadily.',
+    category_id: '00000000-0000-0000-0000-000000000000',
+    benefits: ['Builds core strength', 'Improves posture'],
+    modifications: ['On knees for easier version'],
+    cautions: ['Avoid if experiencing wrist pain'],
+    tier_required: 'free',
+    is_active: true,
+    display_order: 0,
+    duration_seconds: targetTime
   };
 
   const handleComplete = () => {

@@ -26,7 +26,7 @@ export class QuickStartService {
 
       // Then get exercise details separately
       const { data: exerciseData, error: exerciseError } = await supabase
-        .from('plank_exercises')
+        .from('exercises')
         .select('id, name, difficulty_level')
         .eq('id', sessionData.exercise_id)
         .single();

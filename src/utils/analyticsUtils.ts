@@ -77,8 +77,8 @@ export const generateExerciseDistribution = (sessions: any[]): ExerciseDistribut
   const exerciseMap = new Map<string, { count: number; duration: number; difficulty: number }>();
   
   sessions.forEach(session => {
-    const name = session.plank_exercises?.name || 'Unknown Exercise';
-    const difficulty = session.plank_exercises?.difficulty_level || 1;
+    const name = session.exercises?.name || 'Unknown Exercise';
+    const difficulty = session.exercises?.difficulty_level || 1;
     const existing = exerciseMap.get(name) || { count: 0, duration: 0, difficulty };
     
     exerciseMap.set(name, {
@@ -106,7 +106,7 @@ export const findPersonalRecords = (sessions: any[]): PersonalRecord[] => {
   const recordMap = new Map<string, { duration: number; date: string }>();
   
   sessions.forEach(session => {
-    const exerciseName = session.plank_exercises?.name || 'Unknown Exercise';
+    const exerciseName = session.exercises?.name || 'Unknown Exercise';
     const existing = recordMap.get(exerciseName);
     
     if (!existing || session.duration_seconds > existing.duration) {

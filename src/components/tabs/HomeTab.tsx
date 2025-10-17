@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import CountdownTimer from "@/components/timer/CountdownTimer";
 import CompactProgressBar from "@/components/quick-start/CompactProgressBar";
 import { useNewExercises, type ExerciseWithCategory } from "@/hooks/useNewExercises";
-import GatedRecommendationsDashboard from "@/components/recommendations/GatedRecommendationsDashboard";
+
 import CommunityStatsWidget from "@/components/social/CommunityStatsWidget";
 import UserRankingDisplay from "@/components/social/UserRankingDisplay";
 import XPMultiplierNotification from "@/components/xp/XPMultiplierNotification";

@@ -34,7 +34,7 @@ export class PredictiveLoadingService {
           exercise_id,
           duration_seconds,
           completed_at,
-          plank_exercises (
+          exercises (
             name,
             difficulty_level
           )
@@ -210,7 +210,7 @@ export class PredictiveLoadingService {
         const exerciseIds = predictions.map(p => p.exercise_id);
         
         const { data: exerciseDetails } = await supabase
-          .from('plank_exercises')
+          .from('exercises')
           .select('*')
           .in('id', exerciseIds);
         

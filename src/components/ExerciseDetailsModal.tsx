@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { Tables } from '@/integrations/supabase/types';
 
-type Exercise = Tables<'plank_exercises'>;
+type Exercise = Tables<'exercises'>;
 
 interface ExerciseDetailsModalProps {
   exercise: Exercise | null;
@@ -72,20 +72,10 @@ const ExerciseDetailsModal = ({ exercise, isOpen, onClose, onStart }: ExerciseDe
             <p className="text-gray-700 leading-relaxed">{exercise.description}</p>
           </div>
 
-          {/* Instructions */}
-          {exercise.instructions && exercise.instructions.length > 0 && (
+          {exercise.instructions && typeof exercise.instructions === 'string' && exercise.instructions.length > 0 && (
             <div className="mb-6">
               <h3 className="text-lg font-semibold mb-3">Instructions</h3>
-              <ol className="space-y-2">
-                {exercise.instructions.map((instruction, index) => (
-                  <li key={index} className="flex items-start">
-                    <span className="flex-shrink-0 w-6 h-6 bg-orange-500 text-white text-xs rounded-full flex items-center justify-center mr-3 mt-0.5">
-                      {index + 1}
-                    </span>
-                    <span className="text-gray-700">{instruction}</span>
-                  </li>
-                ))}
-              </ol>
+              <p className="text-gray-700 whitespace-pre-line">{exercise.instructions}</p>
             </div>
           )}
 

@@ -2,7 +2,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { isAIEnabled } from '@/constants/featureGating';
 import type { Tables } from '@/integrations/supabase/types';
 
-type Exercise = Tables<'plank_exercises'>;
+type Exercise = Tables<'exercises'>;
 type UserPreferences = Tables<'user_preferences'>;
 type ExercisePerformance = Tables<'user_exercise_performance'>;
 type UserStreak = Tables<'user_streaks'>;
@@ -71,7 +71,7 @@ export class SmartRecommendationsService {
     const [prefsResult, performanceResult, exercisesResult, streakResult, sessionsResult] = await Promise.all([
       supabase.from('user_preferences').select('*').eq('user_id', this.userId).single(),
       supabase.from('user_exercise_performance').select('*').eq('user_id', this.userId),
-      supabase.from('plank_exercises').select('*').order('difficulty_level'),
+      supabase.from('exercises').select('*').order('difficulty_level'),
       supabase.from('user_streaks').select('*').eq('user_id', this.userId).maybeSingle(),
       supabase.from('user_sessions').select('*').eq('user_id', this.userId).order('completed_at', { ascending: false }).limit(14)
     ]);
@@ -202,7 +202,7 @@ export class SmartRecommendationsService {
     // Streak recovery recommendations
     if (streak && streak.current_streak === 0) {
       const easyExercises = exercises.filter(e => 
-        e.is_beginner_friendly && 
+        e.difficulty_level <= 2 && 
         !preferences.avoided_exercises?.includes(e.id)
       );
 
@@ -246,8 +246,7 @@ export class SmartRecommendationsService {
     const lastSession = recentSessions[0];
     if (lastSession && lastSession.duration_seconds > preferences.preferred_workout_duration * 1.5) {
       const recoveryExercises = exercises.filter(e => 
-        e.difficulty_level <= 2 && 
-        e.is_beginner_friendly &&
+        e.difficulty_level <= 2 &&
         !preferences.avoided_exercises?.includes(e.id)
       );
 

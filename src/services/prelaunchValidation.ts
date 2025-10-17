@@ -89,25 +89,25 @@ export class PreLaunchValidationService extends ValidationService {
       const { supabase } = await import('@/integrations/supabase/client');
       
       // Test key tables exist and are accessible - using explicit table names
-      // Test plank_exercises table
+      // Test exercises table
       try {
         const { data, error } = await supabase
-          .from('plank_exercises')
+          .from('exercises')
           .select('*')
           .limit(1);
         
         results.push({
           category: 'Database',
-          test: 'Table: plank_exercises',
+          test: 'Table: exercises',
           status: error ? 'warning' : 'pass',
-          message: error ? `Table access issue: ${error.message}` : 'Table plank_exercises accessible',
+          message: error ? `Table access issue: ${error.message}` : 'Table exercises accessible',
         });
       } catch (error) {
         results.push({
           category: 'Database',
-          test: 'Table: plank_exercises',
+          test: 'Table: exercises',
           status: 'fail',
-          message: 'Failed to access table plank_exercises',
+          message: 'Failed to access table exercises',
           details: error,
         });
       }
@@ -160,7 +160,7 @@ export class PreLaunchValidationService extends ValidationService {
 
       // Test if exercises data exists
       const { data: exercises, error: exercisesError } = await supabase
-        .from('plank_exercises')
+        .from('exercises')
         .select('count');
         
       results.push({

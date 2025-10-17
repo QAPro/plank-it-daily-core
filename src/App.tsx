@@ -14,7 +14,6 @@ import ProductionCheck from "@/pages/ProductionCheck";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfService from "@/pages/TermsOfService";
 
-import ExerciseMasteryHub from "@/pages/ExerciseMasteryHub";
 import NotFound from "@/pages/NotFound";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { InstallPrompt } from "@/components/notifications/InstallPrompt";
@@ -69,7 +68,6 @@ function App() {
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/terms-of-service" element={<TermsOfService />} />
               
-              <Route path="/exercise-mastery" element={<ExerciseMasteryHub />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <Toaster />

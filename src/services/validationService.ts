@@ -36,7 +36,7 @@ export class ValidationService {
 
     try {
       // Test basic connectivity
-      const { data, error } = await supabase.from('plank_exercises').select('count').limit(1);
+      const { data, error } = await supabase.from('exercises').select('count').limit(1);
       
       if (error) {
         results.push({

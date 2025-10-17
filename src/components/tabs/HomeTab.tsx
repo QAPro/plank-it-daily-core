@@ -22,6 +22,7 @@ import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { logger } from '@/utils/productionLogger';
 import FirstTimeOverlay from '@/components/FirstTimeOverlay';
+import MomentumScoreWidget from "@/components/momentum/MomentumScoreWidget";
 
 interface HomeTabProps {
   onExerciseSelect?: (exerciseId: string) => void;
@@ -329,6 +330,8 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         ))}
       </motion.div>
 
+      {/* Momentum Score Widget */}
+      <MomentumScoreWidget />
 
       {/* Community Section - Collapsible */}
       <motion.div

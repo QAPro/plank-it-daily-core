@@ -3804,6 +3804,7 @@ export type Database = {
           user_id: string
           week_start_date: string
           weekly_goal_met: boolean
+          workout_count: number
           workouts_completed: number
         }
         Insert: {
@@ -3818,6 +3819,7 @@ export type Database = {
           user_id: string
           week_start_date: string
           weekly_goal_met?: boolean
+          workout_count?: number
           workouts_completed?: number
         }
         Update: {
@@ -3832,6 +3834,7 @@ export type Database = {
           user_id?: string
           week_start_date?: string
           weekly_goal_met?: boolean
+          workout_count?: number
           workouts_completed?: number
         }
         Relationships: []

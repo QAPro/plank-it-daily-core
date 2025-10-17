@@ -6,7 +6,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Play, Clock, AlertTriangle, CheckCircle, Lightbulb } from "lucide-react";
+import { Play, Clock, AlertTriangle, CheckCircle, Lightbulb, Lock, Crown } from "lucide-react";
+import { motion } from "framer-motion";
 import type { ExerciseWithCategory } from "@/hooks/useNewExercises";
 
 interface ExerciseDetailsModalProps {
@@ -14,6 +15,7 @@ interface ExerciseDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   onStart: (exercise: ExerciseWithCategory) => void;
+  isLocked?: boolean;
 }
 
 const difficultyLabels: Record<number, string> = {
@@ -24,7 +26,7 @@ const difficultyLabels: Record<number, string> = {
   5: "Advanced",
 };
 
-export const ExerciseDetailsModal = ({ exercise, isOpen, onClose, onStart }: ExerciseDetailsModalProps) => {
+export const ExerciseDetailsModal = ({ exercise, isOpen, onClose, onStart, isLocked = false }: ExerciseDetailsModalProps) => {
   if (!exercise) return null;
 
   const difficultyLabel = difficultyLabels[exercise.difficulty_level] || "Moderate";
@@ -128,9 +130,19 @@ export const ExerciseDetailsModal = ({ exercise, isOpen, onClose, onStart }: Exe
             <Button 
               className="flex-1" 
               onClick={() => onStart(exercise)}
+              disabled={isLocked}
             >
-              <Play className="h-4 w-4 mr-2" />
-              Start Exercise
+              {isLocked ? (
+                <>
+                  <Lock className="h-4 w-4 mr-2" />
+                  Upgrade to Premium
+                </>
+              ) : (
+                <>
+                  <Play className="h-4 w-4 mr-2" />
+                  Start Exercise
+                </>
+              )}
             </Button>
             <Button 
               variant="outline"
@@ -138,6 +150,34 @@ export const ExerciseDetailsModal = ({ exercise, isOpen, onClose, onStart }: Exe
             >
               Close
             </Button>
+          </div>
+
+          {/* Premium Upgrade Message */}
+          {isLocked && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="mt-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border border-amber-200"
+            >
+              <div className="flex items-start gap-3">
+                <Crown className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  <h4 className="font-semibold text-amber-900 mb-1">Premium Exercise</h4>
+                  <p className="text-sm text-amber-800">
+                    This advanced exercise is available with a Premium subscription. 
+                    Upgrade to unlock all difficulty levels and achieve your fitness goals faster.
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Exercise Disclaimer */}
+          <div className="mt-6 pt-4 border-t">
+            <p className="text-xs text-muted-foreground text-center">
+              Consult a physician before starting any exercise program. Stop if you feel pain.
+            </p>
           </div>
         </div>
       </DialogContent>

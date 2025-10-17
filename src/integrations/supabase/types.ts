@@ -885,13 +885,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "fk_custom_workout_exercises_exercise"
-            columns: ["exercise_id"]
-            isOneToOne: false
-            referencedRelation: "plank_exercises"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "fk_custom_workout_exercises_workout"
             columns: ["custom_workout_id"]
             isOneToOne: false
@@ -1132,36 +1125,6 @@ export type Database = {
           icon_name?: string
           id?: string
           name?: string
-        }
-        Relationships: []
-      }
-      exercise_families: {
-        Row: {
-          created_at: string | null
-          description: string | null
-          display_order: number
-          family_key: string
-          family_name: string
-          icon_name: string | null
-          id: string
-        }
-        Insert: {
-          created_at?: string | null
-          description?: string | null
-          display_order?: number
-          family_key: string
-          family_name: string
-          icon_name?: string | null
-          id?: string
-        }
-        Update: {
-          created_at?: string | null
-          description?: string | null
-          display_order?: number
-          family_key?: string
-          family_name?: string
-          icon_name?: string | null
-          id?: string
         }
         Relationships: []
       }
@@ -2242,54 +2205,6 @@ export type Database = {
           percentile_data?: Json
           sample_size?: number
           user_segment?: string
-        }
-        Relationships: []
-      }
-      plank_exercises: {
-        Row: {
-          category: string | null
-          created_at: string | null
-          description: string | null
-          difficulty_level: number
-          equipment_needed: string[] | null
-          estimated_calories_per_minute: number | null
-          id: string
-          image_url: string | null
-          instructions: string[] | null
-          is_beginner_friendly: boolean | null
-          name: string
-          primary_muscles: string[] | null
-          tags: string[] | null
-        }
-        Insert: {
-          category?: string | null
-          created_at?: string | null
-          description?: string | null
-          difficulty_level: number
-          equipment_needed?: string[] | null
-          estimated_calories_per_minute?: number | null
-          id?: string
-          image_url?: string | null
-          instructions?: string[] | null
-          is_beginner_friendly?: boolean | null
-          name: string
-          primary_muscles?: string[] | null
-          tags?: string[] | null
-        }
-        Update: {
-          category?: string | null
-          created_at?: string | null
-          description?: string | null
-          difficulty_level?: number
-          equipment_needed?: string[] | null
-          estimated_calories_per_minute?: number | null
-          id?: string
-          image_url?: string | null
-          instructions?: string[] | null
-          is_beginner_friendly?: boolean | null
-          name?: string
-          primary_muscles?: string[] | null
-          tags?: string[] | null
         }
         Relationships: []
       }

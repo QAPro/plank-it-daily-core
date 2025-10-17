@@ -5,6 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useNewExercises, type ExerciseWithCategory } from './useNewExercises';
+import { getLastCompletedDuration } from '@/utils/exerciseDuration';
 import { toast } from 'sonner';
 import { useStreak } from '@/components/StreakProvider';
 import { ExpandedAchievementEngine } from '@/services/expandedAchievementService';

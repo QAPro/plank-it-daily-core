@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Play, Info, Clock, Lock } from "lucide-react";
+import { Play, Info, Lock } from "lucide-react";
 import type { ExerciseWithCategory } from "@/hooks/useNewExercises";
 
 interface ExerciseCardProps {
@@ -50,10 +50,6 @@ export const ExerciseCard = ({ exercise, onStart, onViewDetails, index, isLocked
               <div className="flex flex-wrap gap-2 mb-3">
                 <Badge className={difficultyColor}>
                   {difficultyLabel}
-                </Badge>
-                <Badge variant="outline" className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  {Math.floor(exercise.duration_seconds / 60)}:{(exercise.duration_seconds % 60).toString().padStart(2, '0')}
                 </Badge>
               </div>
               {exercise.description && (

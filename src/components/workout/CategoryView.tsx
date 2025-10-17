@@ -97,6 +97,7 @@ export const CategoryView = ({ category, onBack, onStartExercise }: CategoryView
         isOpen={showDetailsModal}
         onClose={handleCloseDetails}
         onStart={handleStartFromDetails}
+        isLocked={selectedExercise ? selectedExercise.tier_required === 'premium' && !isPremiumUser : false}
       />
     </div>
   );

@@ -51,7 +51,7 @@ describe('useSessionTracking', () => {
   });
 
   it('should save session successfully', async () => {
-    const mockExercise = createMockExercise();
+    const mockExercise = createMockExercise() as any;
     const duration = 45;
 
     // Mock successful database operations with proper return types
@@ -85,7 +85,7 @@ describe('useSessionTracking', () => {
   });
 
   it('should handle session save error', async () => {
-    const mockExercise = createMockExercise();
+    const mockExercise = createMockExercise() as any;
     const duration = 45;
 
     // Mock database error

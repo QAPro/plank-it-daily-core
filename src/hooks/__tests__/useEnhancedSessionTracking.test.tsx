@@ -13,8 +13,8 @@ vi.mock('@/contexts/AuthContext', () => ({
   useAuth: () => ({ user: createMockUser() }),
 }));
 
-vi.mock('@/hooks/useExercises', () => ({
-  useExercises: () => ({
+vi.mock('@/hooks/useNewExercises', () => ({
+  useNewExercises: () => ({
     data: [createMockExercise()],
     isLoading: false,
   }),

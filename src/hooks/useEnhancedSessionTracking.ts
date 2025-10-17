@@ -3,7 +3,7 @@ import { logInfo, logError, logDebug } from '@/utils/productionLogger';
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { useExercises } from './useExercises';
+import { useNewExercises, type ExerciseWithCategory } from './useNewExercises';
 import { toast } from 'sonner';
 import { useStreak } from '@/components/StreakProvider';
 import { ExpandedAchievementEngine } from '@/services/expandedAchievementService';
@@ -24,8 +24,8 @@ interface CompletedSession {
 
 export const useEnhancedSessionTracking = () => {
   const { user } = useAuth();
-  const { data: exercises, isLoading: isLoadingExercises } = useExercises();
-  const [selectedExercise, setSelectedExercise] = useState<any>(null);
+  const { data: exercises, isLoading: isLoadingExercises } = useNewExercises();
+  const [selectedExercise, setSelectedExercise] = useState<ExerciseWithCategory | null>(null);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [sessionDuration, setSessionDuration] = useState(0);
   const [completedSession, setCompletedSession] = useState<CompletedSession | null>(null);
@@ -49,7 +49,7 @@ export const useEnhancedSessionTracking = () => {
     return () => clearInterval(intervalId);
   }, [isTimerRunning]);
 
-  const startSession = async (exercise: any) => {
+  const startSession = async (exercise: ExerciseWithCategory) => {
     setSelectedExercise(exercise);
     setSessionDuration(0);
     setIsTimerRunning(true);
@@ -78,7 +78,7 @@ export const useEnhancedSessionTracking = () => {
     setIsTimerRunning(false);
   };
 
-  const selectExercise = (exercise: any) => {
+  const selectExercise = (exercise: ExerciseWithCategory) => {
     setSelectedExercise(exercise);
   };
 
@@ -221,6 +221,7 @@ const completeSession = useCallback(async (duration: number, notes?: string) => 
         user_id: user.id,
         exercise_id: selectedExercise.id,
         duration_seconds: duration,
+        category: selectedExercise.exercise_categories?.name || 'Uncategorized',
         notes: notes || null,
       })
       .select()

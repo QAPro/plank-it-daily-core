@@ -46,6 +46,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
   const [initializedFromPreferences, setInitializedFromPreferences] = useState(false);
   const [showFirstTimeOverlay, setShowFirstTimeOverlay] = useState(false);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
+  const [lastWorkout, setLastWorkout] = useState<{exerciseName: string, duration: number} | null>(null);
   const { toast } = useToast();
 
   // Get exercises for CountdownTimer (from new exercises table)
@@ -150,6 +151,37 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
       // Don't call onWorkoutStarted here - only call it when user actually starts the workout
     }
   }, [selectedWorkout, onWorkoutStarted]);
+
+  // Fetch last workout
+  useEffect(() => {
+    const fetchLastWorkout = async () => {
+      if (!user) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('user_sessions')
+          .select('duration_seconds, exercise_id, exercises(name)')
+          .eq('user_id', user.id)
+          .order('completed_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (error) throw error;
+
+        if (data && data.exercises) {
+          setLastWorkout({
+            exerciseName: (data.exercises as any).name,
+            duration: data.duration_seconds
+          });
+        }
+      } catch (error) {
+        // No sessions yet - this is fine
+        console.log('No previous sessions found');
+      }
+    };
+
+    fetchLastWorkout();
+  }, [user]);
 
   // Check if this is the user's first time on home tab
   useEffect(() => {
@@ -309,6 +341,30 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
           transition={{ delay: 0.2, duration: 0.5 }}
         >
           <CompactProgressBar userLevel={userLevel} />
+        </motion.div>
+      )}
+
+      {/* Last Workout Display */}
+      {lastWorkout && (
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.25, duration: 0.5 }}
+        >
+          <Card className="bg-white/60 backdrop-blur-sm border-orange-100">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Last Workout</p>
+                  <p className="font-semibold text-foreground">{lastWorkout.exerciseName}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-muted-foreground mb-1">Duration</p>
+                  <p className="font-bold text-primary">{formatDuration(lastWorkout.duration)}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
       )}
 

@@ -54,19 +54,32 @@ export const useEnhancedSessionTracking = () => {
 
   const startSession = async (exercise: ExerciseWithCategory) => {
     setSelectedExercise(exercise);
-    setSessionDuration(0);
     setIsTimerRunning(true);
     setCompletedSession(null);
     setSessionNotes('');
+    
+    // Get last completed duration for this exercise
+    if (user?.id) {
+      try {
+        const lastDuration = await getLastCompletedDuration(user.id, exercise.id);
+        setSessionDuration(lastDuration);
+        logInfo('Loaded last duration', { exerciseId: exercise.id, duration: lastDuration });
+      } catch (error) {
+        logError('Failed to load last duration', { exerciseId: exercise.id, error: error.message }, error);
+        setSessionDuration(30); // Fallback to 30
+      }
+    } else {
+      setSessionDuration(30); // Default for non-authenticated
+    }
     
     // Start hook cycle tracking
     try {
       const cycleId = await autoStartWorkoutCycle(exercise.id);
       setCurrentHookCycleId(cycleId);
       logInfo('Hook cycle started', { cycleId });
-      } catch (error) {
-        logError('Failed to start hook cycle', { exerciseId: exercise.id, error: error.message }, error);
-      }
+    } catch (error) {
+      logError('Failed to start hook cycle', { exerciseId: exercise.id, error: error.message }, error);
+    }
   };
 
   const pauseSession = () => {

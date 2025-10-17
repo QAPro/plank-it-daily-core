@@ -352,6 +352,17 @@ const completeSession = useCallback(async (duration: number, notes?: string) => 
       }
     }
 
+    // Update momentum score (async, don't block)
+    console.log('📊 Updating momentum score...');
+    try {
+      const { updateMomentumScore } = await import('@/services/momentumScoreService');
+      updateMomentumScore(user.id).catch((error) => {
+        console.error('Error updating momentum score:', error);
+      });
+    } catch (error) {
+      console.error('Error importing momentum service:', error);
+    }
+
     // Check for new achievements using expanded engine
     console.log('🏆 Checking for achievements...');
     const achievementEngine = new ExpandedAchievementEngine(user.id);

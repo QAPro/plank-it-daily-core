@@ -31,7 +31,10 @@ export const ExerciseCard = ({ exercise, onStart, onViewDetails, index, isLocked
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.05 * index, duration: 0.3 }}
     >
-      <Card className={`group hover:shadow-lg transition-all duration-300 ${isLocked ? 'opacity-75' : 'hover:-translate-y-1'}`}>
+      <Card 
+        onClick={onViewDetails}
+        className={`group hover:shadow-lg transition-all duration-300 cursor-pointer ${isLocked ? 'opacity-75' : 'hover:-translate-y-1'}`}
+      >
         <CardContent className="p-6">
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
@@ -53,7 +56,10 @@ export const ExerciseCard = ({ exercise, onStart, onViewDetails, index, isLocked
           <div className="flex gap-2">
             <Button 
               className="flex-1" 
-              onClick={onStart}
+              onClick={(e) => {
+                e.stopPropagation();
+                onStart();
+              }}
               disabled={isLocked}
             >
               {isLocked ? (
@@ -71,7 +77,10 @@ export const ExerciseCard = ({ exercise, onStart, onViewDetails, index, isLocked
             <Button 
               variant="outline" 
               size="icon"
-              onClick={onViewDetails}
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewDetails();
+              }}
             >
               <Info className="h-4 w-4" />
             </Button>

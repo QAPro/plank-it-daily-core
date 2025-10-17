@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import CountdownTimer from "@/components/timer/CountdownTimer";
 import CompactProgressBar from "@/components/quick-start/CompactProgressBar";
-import { useExercises } from "@/hooks/useExercises";
+import { useNewExercises, type ExerciseWithCategory } from "@/hooks/useNewExercises";
 import GatedRecommendationsDashboard from "@/components/recommendations/GatedRecommendationsDashboard";
 import CommunityStatsWidget from "@/components/social/CommunityStatsWidget";
 import UserRankingDisplay from "@/components/social/UserRankingDisplay";
@@ -47,16 +47,14 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const { toast } = useToast();
 
-  const FOREARM_PLANK_ID = '92f98556-b5cf-4bdf-b941-95520f7e148a';
-
-  // Get exercises for CountdownTimer
-  const { data: exercises, isLoading: exercisesLoading } = useExercises();
+  // Get exercises for CountdownTimer (from new exercises table)
+  const { data: exercises, isLoading: exercisesLoading } = useNewExercises();
   const selectedExerciseObj = exercises?.find(ex => ex.id === selectedExercise);
   
-  // If no exercise selected yet, default to Forearm Plank when exercises load
+  // If no exercise selected yet, default to first available exercise when exercises load
   useEffect(() => {
     if (exercises && exercises.length > 0 && !selectedExercise) {
-      const defaultExercise = exercises.find(ex => ex.id === FOREARM_PLANK_ID) || exercises[0];
+      const defaultExercise = exercises[0];
       setSelectedExercise(defaultExercise.id);
     }
   }, [exercises, selectedExercise]);
@@ -175,8 +173,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         if (!sessions || sessions.length === 0) {
           setIsFirstTimeUser(true);
           setShowFirstTimeOverlay(true);
-          // Set default exercise to forearm plank and duration to 30 seconds
-          setSelectedExercise(FOREARM_PLANK_ID);
+          // Set default duration to 30 seconds (exercise will be set from exercises load)
           setSelectedDuration(30);
         }
       } catch (error) {

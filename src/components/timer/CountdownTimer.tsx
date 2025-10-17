@@ -286,7 +286,8 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
             </CardTitle>
             {selectedExercise && (
               <p className="text-sm text-gray-600">
-                Level {selectedExercise.difficulty_level} • {selectedExercise.primary_muscles?.join(', ')}
+                Level {selectedExercise.difficulty_level}
+                {selectedExercise.exercise_categories && ` • ${selectedExercise.exercise_categories.name}`}
               </p>
             )}
           </CardHeader>

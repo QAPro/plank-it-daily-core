@@ -4242,7 +4242,7 @@ export type Database = {
           category: string | null
           completed_at: string | null
           duration_seconds: number
-          exercise_id: string | null
+          exercise_id: string
           id: string
           momentum_points_earned: number | null
           notes: string | null
@@ -4254,7 +4254,7 @@ export type Database = {
           category?: string | null
           completed_at?: string | null
           duration_seconds: number
-          exercise_id?: string | null
+          exercise_id: string
           id?: string
           momentum_points_earned?: number | null
           notes?: string | null
@@ -4266,7 +4266,7 @@ export type Database = {
           category?: string | null
           completed_at?: string | null
           duration_seconds?: number
-          exercise_id?: string | null
+          exercise_id?: string
           id?: string
           momentum_points_earned?: number | null
           notes?: string | null

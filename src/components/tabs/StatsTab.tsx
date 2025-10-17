@@ -1,11 +1,9 @@
 
 import { motion } from "framer-motion";
-import StatsDashboard from "@/components/StatsDashboard";
+import StatsDashboard from "@/components/tabs/stats/StatsDashboard";
 import SessionHistory from "@/components/SessionHistory";
-import AdvancedAnalyticsDashboard from "@/components/analytics/AdvancedAnalyticsDashboard";
-import PersonalSatisfactionDashboard from "@/components/analytics/PersonalSatisfactionDashboard";
+import DeepDiveAnalytics from "@/components/tabs/stats/DeepDiveAnalytics";
 import FeatureGuard from "@/components/access/FeatureGuard";
-import AIFeatureGuard from "@/components/access/AIFeatureGuard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -61,52 +59,27 @@ const StatsTab = () => {
       </div>
 
       {/* Statistics Tabs */}
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="progress">Progress</TabsTrigger>
+      <Tabs defaultValue="dashboard" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+          <TabsTrigger value="deepdive">Deep Dive</TabsTrigger>
           <TabsTrigger value="history">History</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-6">
-          {/* Basic Statistics Dashboard */}
+        <TabsContent value="dashboard" className="space-y-6">
           <StatsDashboard />
         </TabsContent>
 
-        <TabsContent value="analytics" className="space-y-6">
-          {/* Advanced Analytics - Premium Feature (Only show if AI is enabled) */}
-          <AIFeatureGuard>
-            <FeatureGuard 
-              feature="advanced_stats"
-              fallback={
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3, duration: 0.5 }}
-                >
-                  <PremiumUpgradePrompt />
-                </motion.div>
-              }
-            >
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
-              >
-                <AdvancedAnalyticsDashboard />
-              </motion.div>
-            </FeatureGuard>
-          </AIFeatureGuard>
-        </TabsContent>
-
-        <TabsContent value="progress" className="space-y-6">
-          {/* Personal Satisfaction Dashboard - Phase 4 */}
-          <PersonalSatisfactionDashboard />
+        <TabsContent value="deepdive" className="space-y-6">
+          <FeatureGuard 
+            feature="advanced_stats"
+            fallback={<PremiumUpgradePrompt />}
+          >
+            <DeepDiveAnalytics />
+          </FeatureGuard>
         </TabsContent>
 
         <TabsContent value="history" className="space-y-6">
-          {/* Session History */}
           <SessionHistory />
         </TabsContent>
       </Tabs>

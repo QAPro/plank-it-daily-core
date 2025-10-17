@@ -150,10 +150,15 @@ export class WorkoutFeedbackService {
       // For now, we'll create a simple session entry to track rest days
       const today = new Date().toISOString();
       
+      // Get a default exercise for rest day logging
+      const { data: exercises } = await supabase.from('exercises').select('id').limit(1).single();
+      const exerciseId = exercises?.id || 'default-exercise-id';
+      
       const { error } = await supabase
         .from('user_sessions')
         .insert({
           user_id: userId,
+          exercise_id: exerciseId,
           duration_seconds: 0,
           completed_at: today,
           notes: `Rest Day - Activities: ${activities.join(', ') || 'General rest'}`

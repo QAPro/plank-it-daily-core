@@ -1,8 +1,8 @@
 
 import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import TabNavigation from './TabNavigation';
-import MobileBottomNav from './MobileBottomNav';
+import NewBottomNav from './navigation/NewBottomNav';
+import DashboardHeader from './navigation/DashboardHeader';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 import HomeTab from './tabs/HomeTab';
@@ -96,9 +96,12 @@ const Dashboard = () => {
         <VapidKeyManager onClose={() => setShowVapidManager(false)} />
       )}
       
+      {/* Header with Settings */}
+      <DashboardHeader onSettingsClick={() => handleTabChange('profile')} />
+      
       <div className="flex flex-col h-screen">        
         {/* Main Content */}
-        <div className={`flex-1 overflow-y-auto ${isMobile ? 'pb-28' : ''}`}>
+        <div className="flex-1 overflow-y-auto pt-16 pb-24">
           <div className="h-full">
             <AnimatePresence mode="wait">
               {renderTabContent()}
@@ -107,17 +110,7 @@ const Dashboard = () => {
         </div>
 
         {/* Navigation */}
-        {isMobile ? (
-          <MobileBottomNav 
-            activeTab={activeTab} 
-            onTabChange={handleTabChange} 
-          />
-        ) : (
-          <TabNavigation 
-            activeTab={activeTab} 
-            onTabChange={handleTabChange} 
-          />
-        )}
+        <NewBottomNav activeTab={activeTab} onTabChange={handleTabChange} />
       </div>
     </div>
   );

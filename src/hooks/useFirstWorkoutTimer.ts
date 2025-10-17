@@ -57,8 +57,13 @@ export const useFirstWorkoutTimer = ({ targetTime, onComplete }: UseFirstWorkout
     
     try {
       // Save the workout session with user agent and explicit timestamp
+      // Get any exercise ID for the session (we need this due to NOT NULL constraint)
+      const { data: exercises } = await supabase.from('exercises').select('id').limit(1).single();
+      const exerciseId = exercises?.id || 'default-exercise-id';
+      
       await supabase.from('user_sessions').insert({
         user_id: user.id,
+        exercise_id: exerciseId,
         duration_seconds: time,
         notes: 'First onboarding workout',
         user_agent: navigator.userAgent,

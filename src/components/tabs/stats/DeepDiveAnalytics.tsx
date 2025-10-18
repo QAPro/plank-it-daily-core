@@ -19,7 +19,7 @@ const METRIC_LABELS: Record<MetricType, { label: string; unit: string; yAxisLabe
   duration: { label: 'Workout Duration', unit: 'min', yAxisLabel: 'Minutes' },
   momentum: { label: 'Momentum Score', unit: 'pts', yAxisLabel: 'Points' },
   workouts: { label: 'Workouts per Week', unit: 'workouts', yAxisLabel: 'Count' },
-  avg_duration: { label: 'Average Duration', unit: 'min', yAxisLabel: 'Minutes' },
+  avg_duration: { label: 'Average Duration', unit: '', yAxisLabel: 'Duration' },
   variety: { label: 'Variety Score', unit: 'unique exercises', yAxisLabel: 'Unique Exercises' },
 };
 
@@ -28,6 +28,23 @@ const DeepDiveAnalytics = () => {
   const [selectedMetric, setSelectedMetric] = useState<MetricType>('duration');
   const { performanceTrends, aiInsights, exerciseBreakdown, isLoading } = useDeepDiveAnalytics(timeRange, selectedMetric);
   const { toast } = useToast();
+
+  const formatDuration = (minutes: number): string => {
+    const totalSeconds = Math.round(minutes * 60);
+    
+    if (totalSeconds < 60) {
+      return `${totalSeconds} sec`;
+    }
+    
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    
+    if (secs === 0) {
+      return `${mins} min`;
+    }
+    
+    return `${mins} min ${secs} sec`;
+  };
 
   const handleExport = async () => {
     try {
@@ -120,7 +137,12 @@ const DeepDiveAnalytics = () => {
                   border: '1px solid hsl(var(--border))',
                   borderRadius: '8px'
                 }}
-                formatter={(value: number) => [`${value} ${METRIC_LABELS[selectedMetric].unit}`, METRIC_LABELS[selectedMetric].label]}
+                formatter={(value: number) => {
+                  const displayValue = selectedMetric === 'avg_duration' 
+                    ? formatDuration(value)
+                    : `${value} ${METRIC_LABELS[selectedMetric].unit}`;
+                  return [displayValue, METRIC_LABELS[selectedMetric].label];
+                }}
               />
               <Line 
                 type="monotone" 

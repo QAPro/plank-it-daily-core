@@ -67,7 +67,7 @@ export const useDeepDiveAnalytics = (days: DateRange = 30, metric: MetricType = 
               value = stats.momentum;
               break;
             case 'avg_duration':
-              value = Math.round(stats.duration / stats.count / 60); // Average in minutes
+              value = Math.round((stats.duration / stats.count / 60) * 10) / 10; // Average in minutes with 1 decimal place
               break;
             case 'variety':
               value = stats.exercises.size; // Count unique exercises

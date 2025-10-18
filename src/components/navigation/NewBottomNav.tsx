@@ -79,20 +79,20 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
               <motion.button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
-                className="flex flex-col items-center justify-center gap-1 min-w-[60px]"
+                className="flex flex-col items-center justify-center gap-2 min-w-[70px]"
                 whileTap={{ scale: 0.95 }}
               >
                 <motion.div
                   animate={{
-                    scale: isActive ? (isHomeTab ? 1.3 : 1.1) : isHomeTab ? 1.2 : 1,
+                    scale: isActive ? (isHomeTab ? 1.1 : 1.05) : isHomeTab ? 1.08 : 1,
                   }}
                   transition={{ duration: 0.2 }}
-                  className="relative"
+                  className="relative flex items-center justify-center h-[52px]"
                 >
                   <img
                     src={isActive ? tab.activeIcon : tab.inactiveIcon}
                     alt={tab.label}
-                    className={`${isHomeTab ? "w-[42px] h-[42px]" : "w-8 h-8"} object-contain`}
+                    className={`${isHomeTab ? "w-[52px] h-[52px]" : "w-10 h-10"} object-contain`}
                   />
                 </motion.div>
                 <span

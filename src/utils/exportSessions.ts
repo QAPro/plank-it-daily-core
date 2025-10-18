@@ -1,6 +1,21 @@
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 
+const formatDuration = (seconds: number): string => {
+  if (seconds < 60) {
+    return `${seconds} sec`;
+  }
+  
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  
+  if (secs === 0) {
+    return `${mins} min`;
+  }
+  
+  return `${mins} min ${secs} sec`;
+};
+
 export const exportSessionsToCSV = async () => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('User not authenticated');
@@ -28,7 +43,7 @@ export const exportSessionsToCSV = async () => {
     'Date', 
     'Exercise', 
     'Category', 
-    'Duration (minutes)', 
+    'Duration', 
     'Momentum Score Earned',
     'Personal Best',
     'Difficulty Level',
@@ -38,7 +53,7 @@ export const exportSessionsToCSV = async () => {
     format(new Date(session.completed_at!), 'yyyy-MM-dd HH:mm'),
     session.exercises?.name || 'Unknown',
     session.category || 'N/A',
-    Math.round(session.duration_seconds / 60).toString(),
+    formatDuration(session.duration_seconds),
     session.momentum_points_earned?.toString() || '0',
     session.was_personal_best ? 'Yes' : 'No',
     session.exercises?.difficulty_level?.toString() || 'N/A',

@@ -79,7 +79,7 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
               <motion.button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
-                className="flex flex-col items-center justify-center gap-2 min-w-[70px]"
+                className="flex flex-col items-center justify-center gap-1 min-w-[70px]"
                 whileTap={{ scale: 0.95 }}
               >
                 <motion.div

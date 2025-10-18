@@ -68,7 +68,7 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
   const visibleTabs = tabs.filter((tab) => tab.visible);
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50">
+    <nav className="fixed bottom-0 left-0 right-0 bg-[#1a2332] border-t border-border z-50">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-around h-20">
           {visibleTabs.map((tab) => {

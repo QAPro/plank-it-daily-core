@@ -1,15 +1,15 @@
 import { motion } from "framer-motion";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
-import homeActive from "@/assets/nav-icons/icon_home_active_v3.png";
-import homeInactive from "@/assets/nav-icons/icon_home_inactive_final_v2.png";
-import statsActive from "@/assets/nav-icons/icon_stats_active_v2.png";
-import statsInactive from "@/assets/nav-icons/icon_stats_inactive_final_v2.png";
-import workoutsActive from "@/assets/nav-icons/icon_workouts_active_v2.png";
-import workoutsInactive from "@/assets/nav-icons/icon_workouts_inactive_final_v2.png";
-import friendsActive from "@/assets/nav-icons/icon_friends_active_v3.png";
-import friendsInactive from "@/assets/nav-icons/icon_friends_inactive_final_v2.png";
-import achievementsActive from "@/assets/nav-icons/icon_achievements_active_v3.png";
-import achievementsInactive from "@/assets/nav-icons/icon_achievements_inactive_final_v3.png";
+import homeActive from "@/assets/nav-icons/icon_home_active.svg";
+import homeInactive from "@/assets/nav-icons/icon_home_inactive.svg";
+import statsActive from "@/assets/nav-icons/icon_stats_active.svg";
+import statsInactive from "@/assets/nav-icons/icon_stats_inactive.svg";
+import workoutsActive from "@/assets/nav-icons/icon_workouts_active.svg";
+import workoutsInactive from "@/assets/nav-icons/icon_workouts_inactive.svg";
+import friendsActive from "@/assets/nav-icons/icon_friends_active.svg";
+import friendsInactive from "@/assets/nav-icons/icon_friends_inactive.svg";
+import achievementsActive from "@/assets/nav-icons/icon_achievements_active.svg";
+import achievementsInactive from "@/assets/nav-icons/icon_achievements_inactive.svg";
 
 type TabId = "stats" | "workout" | "home" | "achievements" | "friends";
 
@@ -92,12 +92,12 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
                   <img
                     src={isActive ? tab.activeIcon : tab.inactiveIcon}
                     alt={tab.label}
-                    className={`${isHomeTab ? "w-10 h-10" : "w-8 h-8"} object-contain`}
+                    className={`${isHomeTab ? "w-[42px] h-[42px]" : "w-8 h-8"} object-contain`}
                   />
                 </motion.div>
                 <span
                   className={`text-xs font-medium transition-colors ${
-                    isActive ? "text-primary" : "text-muted-foreground"
+                    isActive ? "text-[#FF6B35]" : "text-[#A9B4C2]"
                   }`}
                 >
                   {tab.label}

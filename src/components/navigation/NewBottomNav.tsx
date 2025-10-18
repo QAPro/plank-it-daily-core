@@ -84,15 +84,15 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
               >
                 <motion.div
                   animate={{
-                    scale: isActive ? (isHomeTab ? 1.1 : 1.05) : isHomeTab ? 1.08 : 1,
+                    scale: isActive ? (isHomeTab ? 1.08 : 1.03) : isHomeTab ? 1.05 : 1,
                   }}
                   transition={{ duration: 0.2 }}
-                  className="relative flex items-center justify-center h-[52px]"
+                  className="relative flex items-center justify-center h-[44px]"
                 >
                   <img
                     src={isActive ? tab.activeIcon : tab.inactiveIcon}
                     alt={tab.label}
-                    className={`${isHomeTab ? "w-[52px] h-[52px]" : "w-10 h-10"} object-contain`}
+                    className={`${isHomeTab ? "w-[60px] h-[60px]" : "w-12 h-12"} object-contain`}
                   />
                 </motion.div>
                 <span

@@ -1,15 +1,15 @@
 import { motion } from "framer-motion";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
-import homeActive from "@/assets/nav-icons/icon_home_active.svg";
-import homeInactive from "@/assets/nav-icons/icon_home_inactive.svg";
-import statsActive from "@/assets/nav-icons/icon_stats_active.svg";
-import statsInactive from "@/assets/nav-icons/icon_stats_inactive.svg";
-import workoutsActive from "@/assets/nav-icons/icon_workouts_active.svg";
-import workoutsInactive from "@/assets/nav-icons/icon_workouts_inactive.svg";
-import friendsActive from "@/assets/nav-icons/icon_friends_active.svg";
-import friendsInactive from "@/assets/nav-icons/icon_friends_inactive.svg";
-import achievementsActive from "@/assets/nav-icons/icon_achievements_active.svg";
-import achievementsInactive from "@/assets/nav-icons/icon_achievements_inactive.svg";
+import homeActive from "@/assets/nav-icons/icon_home_active.png";
+import homeInactive from "@/assets/nav-icons/icon_home_inactive.png";
+import statsActive from "@/assets/nav-icons/icon_stats_active.png";
+import statsInactive from "@/assets/nav-icons/icon_stats_inactive.png";
+import workoutsActive from "@/assets/nav-icons/icon_workouts_active.png";
+import workoutsInactive from "@/assets/nav-icons/icon_workouts_inactive.png";
+import friendsActive from "@/assets/nav-icons/icon_friends_active.png";
+import friendsInactive from "@/assets/nav-icons/icon_friends_inactive.png";
+import achievementsActive from "@/assets/nav-icons/icon_achievements_active.png";
+import achievementsInactive from "@/assets/nav-icons/icon_achievements_inactive.png";
 
 type TabId = "stats" | "workout" | "home" | "achievements" | "friends";
 

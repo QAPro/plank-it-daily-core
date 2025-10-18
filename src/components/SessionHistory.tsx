@@ -6,7 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSessionHistory } from "@/hooks/useSessionHistory";
 import { formatDistanceToNow } from "date-fns";
-import FlagGuard from '@/components/access/FlagGuard';
+
 
 const SessionHistory = () => {
   const { data: sessions, isLoading, error } = useSessionHistory(10);
@@ -94,8 +94,7 @@ const SessionHistory = () => {
   }
 
   return (
-    <FlagGuard featureName="session_history">
-      <Card className="bg-white/80 backdrop-blur-sm border-orange-100">
+    <Card className="bg-white/80 backdrop-blur-sm border-orange-100">
         <CardHeader>
           <CardTitle className="flex items-center">
             <Clock className="w-5 h-5 mr-2 text-orange-500" />
@@ -148,7 +147,6 @@ const SessionHistory = () => {
           </ScrollArea>
         </CardContent>
       </Card>
-    </FlagGuard>
   );
 };
 

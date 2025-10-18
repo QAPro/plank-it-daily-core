@@ -6,14 +6,27 @@ import { Download, TrendingUp, Brain, PieChart as PieChartIcon } from "lucide-re
 import { useDeepDiveAnalytics } from "@/hooks/useDeepDiveAnalytics";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { exportSessionsToCSV } from "@/utils/exportSessions";
 import { useToast } from "@/hooks/use-toast";
 
 const COLORS = ['#F97316', '#DC2626', '#EA580C', '#FB923C', '#FDBA74'];
 
+type DateRange = 7 | 30 | 90 | 180 | 'all';
+type MetricType = 'duration' | 'momentum' | 'workouts' | 'avg_duration' | 'variety';
+
+const METRIC_LABELS: Record<MetricType, { label: string; unit: string; yAxisLabel: string }> = {
+  duration: { label: 'Workout Duration', unit: 'min', yAxisLabel: 'Minutes' },
+  momentum: { label: 'Momentum Score', unit: 'pts', yAxisLabel: 'Points' },
+  workouts: { label: 'Workouts per Week', unit: 'workouts', yAxisLabel: 'Count' },
+  avg_duration: { label: 'Average Duration', unit: 'min', yAxisLabel: 'Minutes' },
+  variety: { label: 'Variety Score', unit: 'categories', yAxisLabel: 'Unique Categories' },
+};
+
 const DeepDiveAnalytics = () => {
-  const [timeRange, setTimeRange] = useState<7 | 30 | 90>(30);
-  const { performanceTrends, aiInsights, exerciseBreakdown, isLoading } = useDeepDiveAnalytics(timeRange);
+  const [timeRange, setTimeRange] = useState<DateRange>(30);
+  const [selectedMetric, setSelectedMetric] = useState<MetricType>('duration');
+  const { performanceTrends, aiInsights, exerciseBreakdown, isLoading } = useDeepDiveAnalytics(timeRange, selectedMetric);
   const { toast } = useToast();
 
   const handleExport = async () => {
@@ -53,20 +66,39 @@ const DeepDiveAnalytics = () => {
     >
       {/* Performance Trends */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              Performance Trends
-            </CardTitle>
+        <CardHeader>
+          <div className="flex flex-col space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                Performance Trends
+              </CardTitle>
+              <Tabs value={timeRange.toString()} onValueChange={(v) => setTimeRange(v === 'all' ? 'all' : Number(v) as DateRange)}>
+                <TabsList>
+                  <TabsTrigger value="7">7 Days</TabsTrigger>
+                  <TabsTrigger value="30">30 Days</TabsTrigger>
+                  <TabsTrigger value="90">90 Days</TabsTrigger>
+                  <TabsTrigger value="180">6 Months</TabsTrigger>
+                  <TabsTrigger value="all">All Time</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Metric:</span>
+              <Select value={selectedMetric} onValueChange={(v) => setSelectedMetric(v as MetricType)}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="duration">Workout Duration</SelectItem>
+                  <SelectItem value="momentum">Momentum Score</SelectItem>
+                  <SelectItem value="workouts">Workouts per Week</SelectItem>
+                  <SelectItem value="avg_duration">Average Duration</SelectItem>
+                  <SelectItem value="variety">Variety Score</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <Tabs value={timeRange.toString()} onValueChange={(v) => setTimeRange(Number(v) as 7 | 30 | 90)}>
-            <TabsList>
-              <TabsTrigger value="7">7 Days</TabsTrigger>
-              <TabsTrigger value="30">30 Days</TabsTrigger>
-              <TabsTrigger value="90">90 Days</TabsTrigger>
-            </TabsList>
-          </Tabs>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={320}>
@@ -80,6 +112,7 @@ const DeepDiveAnalytics = () => {
               <YAxis 
                 stroke="#64748B"
                 style={{ fontSize: '12px' }}
+                label={{ value: METRIC_LABELS[selectedMetric].yAxisLabel, angle: -90, position: 'insideLeft', style: { fontSize: '12px' } }}
               />
               <Tooltip 
                 contentStyle={{ 
@@ -87,10 +120,11 @@ const DeepDiveAnalytics = () => {
                   border: '1px solid hsl(var(--border))',
                   borderRadius: '8px'
                 }}
+                formatter={(value: number) => [`${value} ${METRIC_LABELS[selectedMetric].unit}`, METRIC_LABELS[selectedMetric].label]}
               />
               <Line 
                 type="monotone" 
-                dataKey="duration" 
+                dataKey="value" 
                 stroke="#F97316" 
                 strokeWidth={2}
                 dot={{ fill: '#F97316', r: 4 }}
@@ -161,7 +195,7 @@ const DeepDiveAnalytics = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Top Exercises</CardTitle>
+            <CardTitle>Most Frequent</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">

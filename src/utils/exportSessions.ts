@@ -12,7 +12,9 @@ export const exportSessionsToCSV = async () => {
       duration_seconds,
       category,
       notes,
-      exercises (name)
+      momentum_points_earned,
+      was_personal_best,
+      exercises (name, difficulty_level)
     `)
     .eq('user_id', user.id)
     .order('completed_at', { ascending: false });
@@ -22,12 +24,24 @@ export const exportSessionsToCSV = async () => {
   }
 
   // Convert to CSV
-  const headers = ['Date', 'Exercise', 'Category', 'Duration (minutes)', 'Notes'];
+  const headers = [
+    'Date', 
+    'Exercise', 
+    'Category', 
+    'Duration (minutes)', 
+    'Momentum Score Earned',
+    'Personal Best',
+    'Difficulty Level',
+    'Notes'
+  ];
   const rows = sessions.map(session => [
     format(new Date(session.completed_at!), 'yyyy-MM-dd HH:mm'),
     session.exercises?.name || 'Unknown',
     session.category || 'N/A',
     Math.round(session.duration_seconds / 60).toString(),
+    session.momentum_points_earned?.toString() || '0',
+    session.was_personal_best ? 'Yes' : 'No',
+    session.exercises?.difficulty_level?.toString() || 'N/A',
     session.notes || '',
   ]);
 

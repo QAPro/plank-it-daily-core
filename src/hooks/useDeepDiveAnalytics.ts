@@ -1,37 +1,80 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { format, subDays, startOfDay } from 'date-fns';
+import { format, subDays, startOfDay, startOfWeek, eachWeekOfInterval } from 'date-fns';
 
-export const useDeepDiveAnalytics = (days: 7 | 30 | 90 = 30) => {
+type DateRange = 7 | 30 | 90 | 180 | 'all';
+type MetricType = 'duration' | 'momentum' | 'workouts' | 'avg_duration' | 'variety';
+
+export const useDeepDiveAnalytics = (days: DateRange = 30, metric: MetricType = 'duration') => {
   const { user } = useAuth();
 
   // Performance Trends
   const { data: performanceTrends = [], isLoading: trendsLoading } = useQuery({
-    queryKey: ['deep-dive-trends', user?.id, days],
+    queryKey: ['deep-dive-trends', user?.id, days, metric],
     queryFn: async () => {
       if (!user) return [];
 
-      const startDate = startOfDay(subDays(new Date(), days - 1)).toISOString();
-      const { data } = await supabase
+      // Build query with date filter
+      let query = supabase
         .from('user_sessions')
-        .select('completed_at, duration_seconds')
+        .select('completed_at, duration_seconds, momentum_points_earned, category')
         .eq('user_id', user.id)
-        .gte('completed_at', startDate)
         .order('completed_at', { ascending: true });
 
-      // Group by date
-      const dateMap = new Map<string, number>();
-      data?.forEach(session => {
-        const date = format(new Date(session.completed_at!), 'MMM d');
-        const current = dateMap.get(date) || 0;
-        dateMap.set(date, current + (session.duration_seconds || 0));
-      });
+      if (days !== 'all') {
+        const startDate = startOfDay(subDays(new Date(), days - 1)).toISOString();
+        query = query.gte('completed_at', startDate);
+      }
 
-      return Array.from(dateMap.entries()).map(([date, duration]) => ({
-        date,
-        duration: Math.round(duration / 60), // Convert to minutes
-      }));
+      const { data } = await query;
+
+      if (!data || data.length === 0) return [];
+
+      // Group by date based on metric type
+      if (metric === 'workouts') {
+        // For workouts per week, group by week
+        const weekMap = new Map<string, number>();
+        data.forEach(session => {
+          const weekStart = format(startOfWeek(new Date(session.completed_at!)), 'MMM d');
+          weekMap.set(weekStart, (weekMap.get(weekStart) || 0) + 1);
+        });
+        return Array.from(weekMap.entries()).map(([date, count]) => ({
+          date,
+          value: count,
+        }));
+      } else {
+        // For other metrics, group by day
+        const dateMap = new Map<string, { duration: number; momentum: number; count: number; categories: Set<string> }>();
+        data.forEach(session => {
+          const date = format(new Date(session.completed_at!), 'MMM d');
+          const current = dateMap.get(date) || { duration: 0, momentum: 0, count: 0, categories: new Set() };
+          current.duration += session.duration_seconds || 0;
+          current.momentum += session.momentum_points_earned || 0;
+          current.count += 1;
+          if (session.category) current.categories.add(session.category);
+          dateMap.set(date, current);
+        });
+
+        return Array.from(dateMap.entries()).map(([date, stats]) => {
+          let value = 0;
+          switch (metric) {
+            case 'duration':
+              value = Math.round(stats.duration / 60); // Convert to minutes
+              break;
+            case 'momentum':
+              value = stats.momentum;
+              break;
+            case 'avg_duration':
+              value = Math.round(stats.duration / stats.count / 60); // Average in minutes
+              break;
+            case 'variety':
+              value = stats.categories.size;
+              break;
+          }
+          return { date, value };
+        });
+      }
     },
     enabled: !!user,
     staleTime: 5 * 60 * 1000,
@@ -121,15 +164,23 @@ export const useDeepDiveAnalytics = (days: 7 | 30 | 90 = 30) => {
 
   // Exercise Breakdown
   const { data: exerciseBreakdown = [], isLoading: breakdownLoading } = useQuery({
-    queryKey: ['deep-dive-breakdown', user?.id],
+    queryKey: ['deep-dive-breakdown', user?.id, days],
     queryFn: async () => {
       if (!user) return [];
 
-      const { data } = await supabase
+      // Build query with date filter
+      let query = supabase
         .from('user_sessions')
         .select('category')
         .eq('user_id', user.id)
         .not('category', 'is', null);
+
+      if (days !== 'all') {
+        const startDate = startOfDay(subDays(new Date(), days - 1)).toISOString();
+        query = query.gte('completed_at', startDate);
+      }
+
+      const { data } = await query;
 
       if (!data || data.length === 0) return [];
 

@@ -20,7 +20,7 @@ const METRIC_LABELS: Record<MetricType, { label: string; unit: string; yAxisLabe
   momentum: { label: 'Momentum Score', unit: 'pts', yAxisLabel: 'Points' },
   workouts: { label: 'Workouts per Week', unit: 'workouts', yAxisLabel: 'Count' },
   avg_duration: { label: 'Average Duration', unit: 'min', yAxisLabel: 'Minutes' },
-  variety: { label: 'Variety Score', unit: 'categories', yAxisLabel: 'Unique Categories' },
+  variety: { label: 'Variety Score', unit: 'unique exercises', yAxisLabel: 'Unique Exercises' },
 };
 
 const DeepDiveAnalytics = () => {

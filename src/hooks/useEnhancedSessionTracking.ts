@@ -230,6 +230,12 @@ const completeSession = useCallback(async (duration: number, notes?: string) => 
   try {
     console.log('💾 Creating session record...');
     
+    // Calculate per-session momentum points
+    const baseMomentum = 10; // Base points per workout
+    const difficultyBonus = (selectedExercise.difficulty_level || 1) * 2; // 2-10 points based on difficulty
+    const durationBonus = Math.floor(duration / 60); // 1 point per minute
+    const sessionMomentum = baseMomentum + difficultyBonus + durationBonus;
+    
     // Create session record
     const { data: session, error: sessionError } = await supabase
       .from('user_sessions')
@@ -239,6 +245,7 @@ const completeSession = useCallback(async (duration: number, notes?: string) => 
         duration_seconds: duration,
         category: selectedExercise.exercise_categories?.name || 'Uncategorized',
         notes: notes || null,
+        momentum_points_earned: sessionMomentum,
       })
       .select()
       .single();

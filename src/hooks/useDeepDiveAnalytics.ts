@@ -18,7 +18,7 @@ export const useDeepDiveAnalytics = (days: DateRange = 30, metric: MetricType = 
       // Build query with date filter
       let query = supabase
         .from('user_sessions')
-        .select('completed_at, duration_seconds, momentum_points_earned, category')
+        .select('completed_at, duration_seconds, momentum_points_earned, category, exercise_id')
         .eq('user_id', user.id)
         .order('completed_at', { ascending: true });
 
@@ -45,14 +45,15 @@ export const useDeepDiveAnalytics = (days: DateRange = 30, metric: MetricType = 
         }));
       } else {
         // For other metrics, group by day
-        const dateMap = new Map<string, { duration: number; momentum: number; count: number; categories: Set<string> }>();
+        const dateMap = new Map<string, { duration: number; momentum: number; count: number; categories: Set<string>; exercises: Set<string> }>();
         data.forEach(session => {
           const date = format(new Date(session.completed_at!), 'MMM d');
-          const current = dateMap.get(date) || { duration: 0, momentum: 0, count: 0, categories: new Set() };
+          const current = dateMap.get(date) || { duration: 0, momentum: 0, count: 0, categories: new Set(), exercises: new Set() };
           current.duration += session.duration_seconds || 0;
           current.momentum += session.momentum_points_earned || 0;
           current.count += 1;
           if (session.category) current.categories.add(session.category);
+          if (session.exercise_id) current.exercises.add(session.exercise_id);
           dateMap.set(date, current);
         });
 
@@ -69,7 +70,7 @@ export const useDeepDiveAnalytics = (days: DateRange = 30, metric: MetricType = 
               value = Math.round(stats.duration / stats.count / 60); // Average in minutes
               break;
             case 'variety':
-              value = stats.categories.size;
+              value = stats.exercises.size; // Count unique exercises
               break;
           }
           return { date, value };

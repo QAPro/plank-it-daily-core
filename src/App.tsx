@@ -19,6 +19,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { InstallPrompt } from "@/components/notifications/InstallPrompt";
 import { DevToolsNotifications } from "@/components/DevToolsNotifications";
 import ServiceWorkerMessageHandler from "@/components/notifications/ServiceWorkerMessageHandler";
+import AdminAchievements from "@/pages/AdminAchievements";
 import { Settings } from "lucide-react";
 import { logger } from '@/utils/productionLogger';
 import { PerformanceMonitor } from '@/utils/performanceOptimization';
@@ -67,6 +68,7 @@ function App() {
               <Route path="/production-check" element={<ProductionCheck />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/terms-of-service" element={<TermsOfService />} />
+              <Route path="/admin/achievements" element={<AdminAchievements />} />
               
               <Route path="*" element={<NotFound />} />
             </Routes>

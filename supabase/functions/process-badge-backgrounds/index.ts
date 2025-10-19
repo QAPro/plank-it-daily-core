@@ -174,6 +174,59 @@ async function processBadge(
   }
 }
 
+// Replace original badge with transparent version
+async function replaceBadgeOriginal(
+  supabase: any,
+  badgeFileName: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const transparentFileName = badgeFileName.replace('.png', '_transparent.png');
+    
+    console.log(`Replacing original: ${badgeFileName} with ${transparentFileName}`);
+    
+    // 1. Verify transparent version exists
+    const { data: transparentFile, error: checkError } = await supabase.storage
+      .from('achievement-badges')
+      .download(transparentFileName);
+    
+    if (checkError || !transparentFile) {
+      throw new Error(`Transparent version not found: ${transparentFileName}`);
+    }
+    
+    // 2. Download the transparent version
+    const arrayBuffer = await transparentFile.arrayBuffer();
+    const uint8Array = new Uint8Array(arrayBuffer);
+    
+    // 3. Upload with original filename (overwrite)
+    const { error: uploadError } = await supabase.storage
+      .from('achievement-badges')
+      .upload(badgeFileName, uint8Array, {
+        contentType: 'image/png',
+        upsert: true, // This overwrites the original
+      });
+    
+    if (uploadError) {
+      throw new Error(`Failed to replace original: ${uploadError.message}`);
+    }
+    
+    // 4. Delete the _transparent version (cleanup)
+    const { error: deleteError } = await supabase.storage
+      .from('achievement-badges')
+      .remove([transparentFileName]);
+    
+    if (deleteError) {
+      console.warn(`Warning: Could not delete ${transparentFileName}:`, deleteError);
+      // Don't fail the operation, just log the warning
+    }
+    
+    console.log(`Successfully replaced: ${badgeFileName}`);
+    return { success: true };
+  } catch (error) {
+    console.error(`Error replacing ${badgeFileName}:`, error);
+    return { success: false, error: error.message };
+  }
+}
+
 Deno.serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -225,9 +278,58 @@ Deno.serve(async (req) => {
       // Process all badges
       badgesToProcess = allBadges;
     } else if (requestData.action === 'replace_originals') {
+      // Get list of badges that have _transparent versions
+      const { data: storageFiles, error: listError } = await supabase.storage
+        .from('achievement-badges')
+        .list('', { limit: 1000 });
+      
+      if (listError) {
+        throw new Error(`Failed to list storage: ${listError.message}`);
+      }
+      
+      // Find badges that have _transparent versions ready
+      const transparentFiles = storageFiles
+        .filter((f: any) => f.name.includes('_transparent.png'))
+        .map((f: any) => f.name.replace('_transparent.png', '.png'));
+      
+      badgesToProcess = transparentFiles;
+      console.log(`Found ${badgesToProcess.length} badges with transparent versions ready to replace`);
+      
+      // Use replaceBadgeOriginal instead of processBadge
+      const results: ProcessingResult = {
+        success: true,
+        processed: 0,
+        total: badgesToProcess.length,
+        errors: [],
+        badges: [],
+      };
+      
+      for (let i = 0; i < badgesToProcess.length; i++) {
+        const badge = badgesToProcess[i];
+        const result = await replaceBadgeOriginal(supabase, badge);
+        
+        if (result.success) {
+          results.processed++;
+          results.badges.push({
+            original: badge,
+            processed: badge,
+            status: 'replaced',
+          });
+        } else {
+          results.errors.push(`${badge}: ${result.error}`);
+          results.badges.push({
+            original: badge,
+            processed: '',
+            status: 'error',
+          });
+        }
+      }
+      
+      results.success = results.errors.length === 0;
+      
       return new Response(
-        JSON.stringify({ error: 'Not yet implemented' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 501 }
+        JSON.stringify(results),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 

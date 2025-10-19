@@ -144,9 +144,68 @@ export const useBadgeProcessing = () => {
     }
   };
 
+  const replaceOriginals = async () => {
+    setStatus({
+      isProcessing: true,
+      progress: 0,
+      completed: 0,
+      total: 0,
+      errors: [],
+    });
+
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        "process-badge-backgrounds",
+        {
+          body: { action: "replace_originals" },
+        }
+      );
+
+      if (error) throw error;
+
+      const result = data as ProcessingResult;
+      
+      setStatus({
+        isProcessing: false,
+        progress: 100,
+        completed: result.processed,
+        total: result.total,
+        errors: result.errors,
+      });
+
+      if (result.success) {
+        toast({
+          title: "Originals Replaced",
+          description: `Successfully replaced ${result.processed} original badges with transparent versions!`,
+        });
+      } else {
+        toast({
+          title: "Replacement Completed with Errors",
+          description: `Replaced ${result.processed}/${result.total} badges. ${result.errors.length} errors.`,
+          variant: "destructive",
+        });
+      }
+
+      return result;
+    } catch (error) {
+      console.error("Badge replacement error:", error);
+      setStatus((prev) => ({
+        ...prev,
+        isProcessing: false,
+      }));
+      toast({
+        title: "Replacement Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
   return {
     status,
     processTestBatch,
     processAllBadges,
+    replaceOriginals,
   };
 };

@@ -23,7 +23,7 @@ export const AchievementDebugPanel = () => {
   const [premiumFilter, setPremiumFilter] = useState<string>('all');
   const [verificationReport, setVerificationReport] = useState<BadgeVerificationReport | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
-  const { status, processTestBatch, processAllBadges } = useBadgeProcessing();
+  const { status, processTestBatch, processAllBadges, replaceOriginals } = useBadgeProcessing();
 
   // Filter achievements based on search and filters
   useEffect(() => {
@@ -181,6 +181,14 @@ export const AchievementDebugPanel = () => {
                 disabled={status.isProcessing}
               >
                 {status.isProcessing ? 'Processing...' : 'Process All Badges'}
+              </Button>
+              
+              <Button 
+                onClick={replaceOriginals}
+                disabled={status.isProcessing}
+                variant="destructive"
+              >
+                {status.isProcessing ? 'Replacing...' : 'Replace Originals with Transparent'}
               </Button>
             </div>
             

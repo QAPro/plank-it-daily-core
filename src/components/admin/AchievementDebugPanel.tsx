@@ -7,13 +7,13 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { getBadgeUrl } from '@/utils/badgeAssets';
 import { verifyBadgeAssets, getVerificationSummary, type BadgeVerificationReport } from '@/services/badgeVerificationService';
-import { NEW_ACHIEVEMENT_DEFINITIONS, type NewAchievement } from '@/services/newAchievementDefinitions';
+import { ALL_ACHIEVEMENTS, type Achievement } from '@/services/allAchievements';
 import { Search, Filter, AlertTriangle, CheckCircle, Info } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 export const AchievementDebugPanel = () => {
-  const [achievements] = useState<NewAchievement[]>(NEW_ACHIEVEMENT_DEFINITIONS);
-  const [filteredAchievements, setFilteredAchievements] = useState<NewAchievement[]>(achievements);
+  const [achievements] = useState<Achievement[]>(ALL_ACHIEVEMENTS);
+  const [filteredAchievements, setFilteredAchievements] = useState<Achievement[]>(achievements);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [rarityFilter, setRarityFilter] = useState<string>('all');

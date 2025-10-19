@@ -1,0 +1,13 @@
+{
+  "name": "badge-processing-scripts",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Scripts for processing achievement badge images",
+  "scripts": {
+    "remove-backgrounds": "node remove-badge-backgrounds.js --test",
+    "remove-backgrounds:all": "node remove-badge-backgrounds.js --all"
+  },
+  "dependencies": {
+    "sharp": "^0.33.0"
+  }
+}

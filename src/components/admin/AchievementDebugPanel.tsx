@@ -9,9 +9,10 @@ import { Progress } from '@/components/ui/progress';
 import { getBadgeUrl } from '@/utils/badgeAssets';
 import { verifyBadgeAssets, getVerificationSummary, type BadgeVerificationReport } from '@/services/badgeVerificationService';
 import { ALL_ACHIEVEMENTS, type Achievement } from '@/services/allAchievements';
-import { Search, Filter, AlertTriangle, CheckCircle, Info, Wand2 } from 'lucide-react';
+import { Search, Filter, AlertTriangle, CheckCircle, Info, Wand2, LogOut } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useBadgeProcessing } from '@/hooks/useBadgeProcessing';
+import { handleAuthSignOut } from '@/utils/authCleanup';
 
 export const AchievementDebugPanel = () => {
   const [achievements] = useState<Achievement[]>(ALL_ACHIEVEMENTS);
@@ -96,16 +97,38 @@ export const AchievementDebugPanel = () => {
     }
   };
 
+  const handleSignOut = async () => {
+    try {
+      toast({
+        title: "Signing out...",
+        description: "Please wait."
+      });
+      await handleAuthSignOut();
+    } catch (error) {
+      console.error('Sign out error:', error);
+      toast({
+        title: "Sign out failed",
+        description: "Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-6 pb-24">
       {/* Header & Stats */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <span>🏆 Achievement Debug Panel</span>
-            <Button onClick={handleVerification} disabled={isVerifying}>
-              {isVerifying ? 'Verifying...' : 'Run Verification'}
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={handleVerification} disabled={isVerifying}>
+                {isVerifying ? 'Verifying...' : 'Run Verification'}
+              </Button>
+              <Button onClick={handleSignOut} variant="outline" size="icon">
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>

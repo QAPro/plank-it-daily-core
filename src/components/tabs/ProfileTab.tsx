@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Settings, CreditCard, LogOut, Trophy, File, Shield } from 'lucide-react';
+import { User, Settings, CreditCard, LogOut, Trophy, File, Shield, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -19,16 +19,19 @@ import { NotificationPreferences } from '@/components/notifications/Notification
 import { PushNotificationDebugger } from '@/components/debug/PushNotificationDebugger';
 import RichNotificationTester from '@/components/debug/RichNotificationTester';
 import StatusTracksDashboard from '@/components/status/StatusTracksDashboard';
+import { useAdmin } from '@/hooks/useAdmin';
 
 interface ProfileTabProps {
   initialView?: 'overview' | 'subscription-plans';
   onOpenVapidManager?: () => void;
+  onNavigateToAdmin?: () => void;
 }
 
-const ProfileTab = ({ initialView = 'overview', onOpenVapidManager }: ProfileTabProps) => {
+const ProfileTab = ({ initialView = 'overview', onOpenVapidManager, onNavigateToAdmin }: ProfileTabProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { isAdmin } = useAdmin();
   const [activeTab, setActiveTab] = useState('overview');
 
   // Set initial tab based on prop
@@ -125,7 +128,35 @@ const ProfileTab = ({ initialView = 'overview', onOpenVapidManager }: ProfileTab
         <TabsContent value="settings" className="space-y-6">
           <PreferencesSettings />
           
-          
+          {/* Admin Section - Only visible to admins */}
+          {isAdmin && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5" />
+                  Admin Access
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={onNavigateToAdmin}
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  Admin Dashboard
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => navigate('/admin/achievements')}
+                >
+                  <Trophy className="w-4 h-4 mr-2" />
+                  Admin Achievements
+                </Button>
+              </CardContent>
+            </Card>
+          )}
           
           {/* Push Notification Management */}
           <PushNotificationManager />

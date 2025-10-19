@@ -5,11 +5,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Progress } from '@/components/ui/progress';
 import { getBadgeUrl } from '@/utils/badgeAssets';
 import { verifyBadgeAssets, getVerificationSummary, type BadgeVerificationReport } from '@/services/badgeVerificationService';
 import { ALL_ACHIEVEMENTS, type Achievement } from '@/services/allAchievements';
-import { Search, Filter, AlertTriangle, CheckCircle, Info } from 'lucide-react';
+import { Search, Filter, AlertTriangle, CheckCircle, Info, Wand2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { useBadgeProcessing } from '@/hooks/useBadgeProcessing';
 
 export const AchievementDebugPanel = () => {
   const [achievements] = useState<Achievement[]>(ALL_ACHIEVEMENTS);
@@ -20,6 +22,7 @@ export const AchievementDebugPanel = () => {
   const [premiumFilter, setPremiumFilter] = useState<string>('all');
   const [verificationReport, setVerificationReport] = useState<BadgeVerificationReport | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
+  const { status, processTestBatch, processAllBadges } = useBadgeProcessing();
 
   // Filter achievements based on search and filters
   useEffect(() => {
@@ -123,6 +126,62 @@ export const AchievementDebugPanel = () => {
               <div className="text-3xl font-bold">{filteredAchievements.length}</div>
               <div className="text-sm text-muted-foreground">Filtered</div>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Badge Background Processing */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Wand2 className="w-5 h-5" />
+            Badge Background Removal
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Remove colored square backgrounds from badge PNGs, making them transparent for better display in trophy case.
+            </p>
+            
+            <div className="flex gap-4">
+              <Button 
+                onClick={processTestBatch}
+                disabled={status.isProcessing}
+                variant="outline"
+              >
+                {status.isProcessing ? 'Processing...' : 'Test Batch (10 badges)'}
+              </Button>
+              
+              <Button 
+                onClick={processAllBadges}
+                disabled={status.isProcessing}
+              >
+                {status.isProcessing ? 'Processing...' : 'Process All Badges'}
+              </Button>
+            </div>
+            
+            {status.isProcessing && (
+              <div className="space-y-2">
+                <Progress value={status.progress} />
+                <p className="text-sm text-muted-foreground">
+                  Processed: {status.completed} / {status.total}
+                </p>
+              </div>
+            )}
+            
+            {status.errors.length > 0 && (
+              <div className="bg-destructive/10 border border-destructive rounded-lg p-4">
+                <p className="text-sm font-medium text-destructive mb-2">
+                  {status.errors.length} errors occurred:
+                </p>
+                <ul className="text-xs text-destructive space-y-1 max-h-32 overflow-auto">
+                  {status.errors.map((error, i) => (
+                    <li key={i}>• {error}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

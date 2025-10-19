@@ -1,5 +1,8 @@
 project_id = "kgwmplptoctmoaefnpfg"
 
+[functions.process-badge-backgrounds]
+verify_jwt = true
+
 [functions.notification-events]
 verify_jwt = true
 

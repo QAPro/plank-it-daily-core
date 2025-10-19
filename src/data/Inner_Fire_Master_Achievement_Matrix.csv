@@ -1,12 +1,4 @@
-/**
- * Complete Achievement Definitions - All 346 Achievements
- * Loaded from CSV data
- */
-
-import { NewAchievement, parseAchievementsFromCSV } from './newAchievementDefinitions';
-
-// Complete CSV data for all 346 achievements
-const CSV_DATA = `Achievement_ID,Achievement Name,Description,Category,Rarity,Points,Criteria,Premium_Required,Secret_Achievement,Related_Exercise_Categories,Badge_File_Name,Icon
+Achievement_ID,Achievement Name,Description,Category,Rarity,Points,Criteria,Premium_Required,Secret_Achievement,Related_Exercise_Categories,Badge_File_Name,Icon
 ACH_001,First Steps,Log your very first workout,Milestones,Common,10,Complete 1 session,No,No,,badge_milestones_first_steps_common.png,Trophy
 ACH_002,Streak Starter,Complete 3 workouts in a row,Consistency,Common,25,3-day streak,No,No,,badge_consistency_streak_starter_common.png,Flame
 ACH_003,Week Warrior,Complete 7 workouts in a row,Milestones,Uncommon,50,7-day streak,No,No,,badge_milestones_week_warrior_uncommon.png,Calendar
@@ -352,12 +344,4 @@ ACH_342,Weekday Champion,Complete 50 workouts on weekdays,Special,Uncommon,50,Co
 ACH_343,Hidden Gem,Unlock your first secret achievement,Special,Uncommon,30,Unlock 1 secret achievement,No,Yes,,badge_special_hidden_gem_uncommon.png,Eye
 ACH_344,Secret Collector,Unlock 5 secret achievements,Special,Rare,100,Unlock 5 secret achievements,No,Yes,,badge_special_secret_collector_rare.png,Eye
 ACH_345,Perfect Timing,Complete a workout at exactly 12:00 PM,Special,Uncommon,30,Complete workout with start time = 12:00:00 PM,No,Yes,,badge_special_perfect_timing_uncommon.png,Clock
-ACH_346,Midnight Warrior,Complete a workout at exactly 12:00 AM,Special,Rare,50,Complete workout with start time = 12:00:00 AM,No,Yes,,badge_special_midnight_warrior_rare.png,Moon`;
-
-// Parse all 346 achievements from the uploaded CSV
-export const ALL_ACHIEVEMENTS: NewAchievement[] = parseAchievementsFromCSV(CSV_DATA);
-
-// Type alias for backward compatibility
-export type Achievement = NewAchievement;
-
-console.log(`✅ Loaded ${ALL_ACHIEVEMENTS.length} achievement definitions from CSV`);
+ACH_346,Midnight Warrior,Complete a workout at exactly 12:00 AM,Special,Rare,50,Complete workout with start time = 12:00:00 AM,No,Yes,,badge_special_midnight_warrior_rare.png,Moon

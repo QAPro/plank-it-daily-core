@@ -4,7 +4,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
-import { NEW_ACHIEVEMENT_DEFINITIONS } from './newAchievementDefinitions';
+import { ALL_ACHIEVEMENTS } from './allAchievements';
 
 export interface BadgeVerificationReport {
   totalAchievements: number;
@@ -27,7 +27,7 @@ export interface BadgeVerificationReport {
  */
 export const verifyBadgeAssets = async (): Promise<BadgeVerificationReport> => {
   const report: BadgeVerificationReport = {
-    totalAchievements: NEW_ACHIEVEMENT_DEFINITIONS.length,
+    totalAchievements: ALL_ACHIEVEMENTS.length,
     totalBadgesInStorage: 0,
     missingBadges: [],
     extraBadges: [],
@@ -60,11 +60,11 @@ export const verifyBadgeAssets = async (): Promise<BadgeVerificationReport> => {
 
     // Create a Set of required badge file names from achievements
     const requiredBadges = new Set(
-      NEW_ACHIEVEMENT_DEFINITIONS.map(a => a.badgeFileName)
+      ALL_ACHIEVEMENTS.map(a => a.badgeFileName)
     );
 
     // Find missing badges (in achievements but not uploaded)
-    NEW_ACHIEVEMENT_DEFINITIONS.forEach(achievement => {
+    ALL_ACHIEVEMENTS.forEach(achievement => {
       if (!uploadedBadges.has(achievement.badgeFileName)) {
         report.missingBadges.push({
           achievementId: achievement.id,
@@ -82,7 +82,7 @@ export const verifyBadgeAssets = async (): Promise<BadgeVerificationReport> => {
     });
 
     // Validate achievement data integrity
-    NEW_ACHIEVEMENT_DEFINITIONS.forEach(achievement => {
+    ALL_ACHIEVEMENTS.forEach(achievement => {
       // Check for required fields
       if (!achievement.id || !achievement.name) {
         report.validationErrors.push({

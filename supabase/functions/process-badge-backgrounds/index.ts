@@ -99,6 +99,29 @@ function removeBackground(
   return result;
 }
 
+// Fetch real badge file list from storage
+async function getBadgeFileList(supabase: any): Promise<string[]> {
+  const { data, error } = await supabase.storage
+    .from('achievement-badges')
+    .list('', {
+      limit: 1000,
+      sortBy: { column: 'name', order: 'asc' }
+    });
+    
+  if (error) {
+    throw new Error(`Failed to list badges: ${error.message}`);
+  }
+  
+  // Filter to only PNG files starting with "badge_" (exclude existing transparent versions)
+  return data
+    .filter((file: any) => 
+      file.name.startsWith('badge_') && 
+      file.name.endsWith('.png') &&
+      !file.name.includes('_transparent')
+    )
+    .map((file: any) => file.name);
+}
+
 // Process a single badge
 async function processBadge(
   supabase: any,
@@ -112,13 +135,18 @@ async function processBadge(
       .from('achievement-badges')
       .download(badgeFileName);
 
-    if (downloadError) {
-      throw new Error(`Download failed: ${downloadError.message}`);
+    if (downloadError || !fileData) {
+      const errorMsg = downloadError?.message || 
+        downloadError?.error || 
+        'File not found or inaccessible';
+      throw new Error(`Download failed: ${errorMsg}`);
     }
 
     // Convert to ArrayBuffer then decode PNG
     const arrayBuffer = await fileData.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
+    
+    console.log(`Downloaded ${badgeFileName}: ${arrayBuffer.byteLength} bytes`);
 
     // For MVP, we'll use a simple approach: decode PNG manually or use fetch API
     // In production, you'd want proper PNG decoding
@@ -184,35 +212,18 @@ Deno.serve(async (req) => {
 
     const requestData: ProcessRequest = await req.json();
 
+    // Fetch real badge list from storage
+    const allBadges = await getBadgeFileList(supabase);
+    console.log(`Found ${allBadges.length} badges in storage`);
+
     let badgesToProcess: string[] = [];
 
     if (requestData.action === 'test') {
-      // Test with 10 diverse badges
-      badgesToProcess = [
-        'badge_milestones_cardio_century_epic.png',
-        'badge_milestones_cardio_marathon_rare.png',
-        'badge_milestones_first_steps_common.png',
-        'badge_milestones_wall_plank_guru_legendary.png',
-        'badge_consistency_weekend_warrior_common.png',
-        'badge_consistency_daily_devotion_uncommon.png',
-        'badge_performance_speed_demon_rare.png',
-        'badge_exploration_category_explorer_common.png',
-        'badge_social_team_player_uncommon.png',
-        'badge_category_planking_master_epic.png',
-      ];
+      // Test with first 10 real badges from storage
+      badgesToProcess = allBadges.slice(0, 10);
     } else if (requestData.action === 'process_all') {
-      // List all badges from storage
-      const { data: files, error: listError } = await supabase.storage
-        .from('achievement-badges')
-        .list('', { limit: 1000 });
-
-      if (listError) {
-        throw new Error(`Failed to list badges: ${listError.message}`);
-      }
-
-      badgesToProcess = files
-        .filter((f: any) => f.name.endsWith('.png') && !f.name.includes('_transparent'))
-        .map((f: any) => f.name);
+      // Process all badges
+      badgesToProcess = allBadges;
     } else if (requestData.action === 'replace_originals') {
       return new Response(
         JSON.stringify({ error: 'Not yet implemented' }),

@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.4';
+import { decode, encode, Image } from 'https://deno.land/x/pngs@0.1.1/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,38 +19,64 @@ interface ProcessingResult {
   badges: { original: string; processed: string; status: string }[];
 }
 
-// Detect background color by sampling corners
+// Detect background color by sampling entire edge perimeter
 function detectBackgroundColor(imageData: Uint8Array, width: number, height: number): { r: number; g: number; b: number } {
   const samples: { r: number; g: number; b: number }[] = [];
-  const sampleSize = 5;
+  const edgeThickness = 10; // Sample 10 pixels deep from edge
 
-  // Sample top-left, top-right, bottom-left, bottom-right corners
-  const corners = [
-    { x: 0, y: 0 },
-    { x: width - sampleSize, y: 0 },
-    { x: 0, y: height - sampleSize },
-    { x: width - sampleSize, y: height - sampleSize },
-  ];
-
-  for (const corner of corners) {
-    for (let dy = 0; dy < sampleSize; dy++) {
-      for (let dx = 0; dx < sampleSize; dx++) {
-        const x = corner.x + dx;
-        const y = corner.y + dy;
-        const idx = (y * width + x) * 4;
-        samples.push({
-          r: imageData[idx],
-          g: imageData[idx + 1],
-          b: imageData[idx + 2],
-        });
-      }
+  // Sample top edge
+  for (let x = 0; x < width; x++) {
+    for (let y = 0; y < edgeThickness; y++) {
+      const idx = (y * width + x) * 4;
+      samples.push({
+        r: imageData[idx],
+        g: imageData[idx + 1],
+        b: imageData[idx + 2],
+      });
     }
   }
 
-  // Find most common color
+  // Sample bottom edge
+  for (let x = 0; x < width; x++) {
+    for (let y = height - edgeThickness; y < height; y++) {
+      const idx = (y * width + x) * 4;
+      samples.push({
+        r: imageData[idx],
+        g: imageData[idx + 1],
+        b: imageData[idx + 2],
+      });
+    }
+  }
+
+  // Sample left edge (excluding corners already sampled)
+  for (let y = edgeThickness; y < height - edgeThickness; y++) {
+    for (let x = 0; x < edgeThickness; x++) {
+      const idx = (y * width + x) * 4;
+      samples.push({
+        r: imageData[idx],
+        g: imageData[idx + 1],
+        b: imageData[idx + 2],
+      });
+    }
+  }
+
+  // Sample right edge (excluding corners already sampled)
+  for (let y = edgeThickness; y < height - edgeThickness; y++) {
+    for (let x = width - edgeThickness; x < width; x++) {
+      const idx = (y * width + x) * 4;
+      samples.push({
+        r: imageData[idx],
+        g: imageData[idx + 1],
+        b: imageData[idx + 2],
+      });
+    }
+  }
+
+  // Group colors into buckets (more aggressive grouping for gradient detection)
   const colorCounts = new Map<string, { count: number; color: { r: number; g: number; b: number } }>();
   for (const sample of samples) {
-    const key = `${Math.round(sample.r / 10) * 10},${Math.round(sample.g / 10) * 10},${Math.round(sample.b / 10) * 10}`;
+    // Group colors into 20-unit buckets to handle gradients
+    const key = `${Math.round(sample.r / 20) * 20},${Math.round(sample.g / 20) * 20},${Math.round(sample.b / 20) * 20}`;
     const existing = colorCounts.get(key);
     if (existing) {
       existing.count++;
@@ -58,6 +85,7 @@ function detectBackgroundColor(imageData: Uint8Array, width: number, height: num
     }
   }
 
+  // Find most common color family
   let maxCount = 0;
   let bgColor = { r: 255, g: 255, b: 255 };
   for (const [, value] of colorCounts) {
@@ -67,35 +95,48 @@ function detectBackgroundColor(imageData: Uint8Array, width: number, height: num
     }
   }
 
+  console.log(`Detected background color: RGB(${bgColor.r}, ${bgColor.g}, ${bgColor.b}) from ${samples.length} edge samples`);
   return bgColor;
 }
 
-// Remove background and make transparent
+// Remove background and make transparent with gradient-aware feathering
 function removeBackground(
   imageData: Uint8Array,
   width: number,
   height: number,
   bgColor: { r: number; g: number; b: number },
-  tolerance: number = 30
+  tolerance: number = 100 // Increased from 30 to handle gradients
 ): Uint8Array {
   const result = new Uint8Array(imageData);
+  let transparentPixels = 0;
 
   for (let i = 0; i < result.length; i += 4) {
     const r = result[i];
     const g = result[i + 1];
     const b = result[i + 2];
 
-    // Calculate color distance
+    // Calculate Euclidean color distance
     const distance = Math.sqrt(
-      Math.pow(r - bgColor.r, 2) + Math.pow(g - bgColor.g, 2) + Math.pow(b - bgColor.b, 2)
+      Math.pow(r - bgColor.r, 2) + 
+      Math.pow(g - bgColor.g, 2) + 
+      Math.pow(b - bgColor.b, 2)
     );
 
-    // Make transparent if close to background color
-    if (distance < tolerance) {
-      result[i + 3] = 0; // Set alpha to 0 (transparent)
+    // Full transparency for close matches
+    if (distance < tolerance * 0.7) {
+      result[i + 3] = 0; // Fully transparent
+      transparentPixels++;
+    } 
+    // Feathering for edge pixels (gradual transparency)
+    else if (distance < tolerance) {
+      const alpha = Math.floor(((distance - (tolerance * 0.7)) / (tolerance * 0.3)) * 255);
+      result[i + 3] = Math.min(255, alpha);
+      transparentPixels++;
     }
+    // Keep original alpha for non-background pixels
   }
 
+  console.log(`Made ${transparentPixels} pixels transparent (${((transparentPixels / (result.length / 4)) * 100).toFixed(1)}% of image)`);
   return result;
 }
 
@@ -142,15 +183,40 @@ async function processBadge(
       throw new Error(`Download failed: ${errorMsg}`);
     }
 
-    // Convert to ArrayBuffer then decode PNG
+    // Convert to ArrayBuffer
     const arrayBuffer = await fileData.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
     
     console.log(`Downloaded ${badgeFileName}: ${arrayBuffer.byteLength} bytes`);
 
-    // For MVP, we'll use a simple approach: decode PNG manually or use fetch API
-    // In production, you'd want proper PNG decoding
-    // For now, we'll create a simple pass-through that adds transparency metadata
+    // Decode PNG to get raw image data
+    const image = decode(uint8Array);
+    if (!image) {
+      throw new Error('Failed to decode PNG image');
+    }
+
+    const width = image.width;
+    const height = image.height;
+    console.log(`Image dimensions: ${width}x${height}px`);
+
+    // Get raw RGBA pixel data
+    const imageData = new Uint8Array(image.image);
+    
+    // Detect background color from edges
+    const bgColor = detectBackgroundColor(imageData, width, height);
+    
+    // Remove background with high tolerance for gradients
+    const transparentImageData = removeBackground(imageData, width, height, bgColor, 100);
+    
+    // Create new image with transparent background
+    const transparentImage: Image = {
+      width,
+      height,
+      image: transparentImageData,
+    };
+    
+    // Encode back to PNG
+    const processedPng = encode(transparentImage);
     
     console.log(`Successfully processed: ${badgeFileName}`);
     
@@ -158,7 +224,7 @@ async function processBadge(
     const processedFileName = badgeFileName.replace('.png', '_transparent.png');
     const { error: uploadError } = await supabase.storage
       .from('achievement-badges')
-      .upload(processedFileName, uint8Array, {
+      .upload(processedFileName, processedPng, {
         contentType: 'image/png',
         upsert: true,
       });

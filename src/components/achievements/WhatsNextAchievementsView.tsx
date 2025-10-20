@@ -9,11 +9,7 @@ import { useWhatsNextRecommendations } from "@/hooks/useWhatsNextRecommendations
 import { useRecommendationRefresh } from "@/hooks/useRecommendationRefresh";
 import { getActiveAchievements, getAchievementById } from "@/services/achievementHelpers";
 
-interface WhatsNextAchievementsViewProps {
-  onViewAllClick: () => void;
-}
-
-const WhatsNextAchievementsView = ({ onViewAllClick }: WhatsNextAchievementsViewProps) => {
+const WhatsNextAchievementsView = () => {
   const [selectedAchievement, setSelectedAchievement] = useState<any>(null);
   const [previousAchievementCount, setPreviousAchievementCount] = useState(0);
   
@@ -74,7 +70,6 @@ const WhatsNextAchievementsView = ({ onViewAllClick }: WhatsNextAchievementsView
         recentAchievements={achievements}
         loading={achievementsLoading}
         onAchievementClick={setSelectedAchievement}
-        onViewAllClick={onViewAllClick}
       />
 
       {selectedAchievement && (

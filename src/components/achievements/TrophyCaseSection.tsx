@@ -1,7 +1,5 @@
 import { motion } from "framer-motion";
-import { ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getBadgeUrl } from "@/utils/badgeAssets";
 import { getAchievementById } from "@/services/achievementHelpers";
@@ -11,25 +9,23 @@ interface TrophyCaseSectionProps {
   recentAchievements: any[];
   loading: boolean;
   onAchievementClick: (achievement: any) => void;
-  onViewAllClick: () => void;
 }
 
 const TrophyCaseSection = ({ 
   recentAchievements, 
   loading, 
-  onAchievementClick, 
-  onViewAllClick 
+  onAchievementClick
 }: TrophyCaseSectionProps) => {
   if (loading) {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-2xl font-bold text-foreground mb-2">🏆 Recent Trophies</h3>
-            <p className="text-muted-foreground">Your latest achievements</p>
+            <h3 className="text-2xl font-bold text-foreground mb-2">🏆 Trophy Case</h3>
+            <p className="text-muted-foreground">All your earned achievements</p>
           </div>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {[...Array(6)].map((_, i) => (
             <Skeleton key={i} className="h-48 w-full" />
           ))}
@@ -43,8 +39,8 @@ const TrophyCaseSection = ({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-2xl font-bold text-foreground mb-2">🏆 Recent Trophies</h3>
-            <p className="text-muted-foreground">Your latest achievements</p>
+            <h3 className="text-2xl font-bold text-foreground mb-2">🏆 Trophy Case</h3>
+            <p className="text-muted-foreground">All your earned achievements</p>
           </div>
         </div>
         <Card className="border-dashed">
@@ -62,21 +58,13 @@ const TrophyCaseSection = ({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-2xl font-bold text-foreground mb-2">🏆 Recent Trophies</h3>
-          <p className="text-muted-foreground">Your latest achievements</p>
+          <h3 className="text-2xl font-bold text-foreground mb-2">🏆 Trophy Case</h3>
+          <p className="text-muted-foreground">All your earned achievements</p>
         </div>
-        <Button 
-          variant="ghost" 
-          onClick={onViewAllClick}
-          className="flex items-center gap-1 text-primary hover:text-primary/80"
-        >
-          View All
-          <ChevronRight className="w-4 h-4" />
-        </Button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        {recentAchievements.slice(0, 6).map((userAchievement, index) => {
+      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        {recentAchievements.map((userAchievement, index) => {
           // Find the full achievement definition
           const achievement = getAchievementById(userAchievement.achievement_type);
           if (!achievement) return null;

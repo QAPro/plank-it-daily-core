@@ -6,15 +6,19 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getBadgeUrl } from '@/utils/badgeAssets';
 import { verifyBadgeAssets, getVerificationSummary, type BadgeVerificationReport } from '@/services/badgeVerificationService';
 import { ALL_ACHIEVEMENTS, type Achievement } from '@/services/allAchievements';
-import { Search, Filter, AlertTriangle, CheckCircle, Info, Wand2, LogOut } from 'lucide-react';
+import { getWhatsNextRecommendations, validateRecommendations, type RecommendedAchievement } from '@/services/whatsNextRecommendations';
+import { Search, Filter, AlertTriangle, CheckCircle, Info, Wand2, LogOut, Sparkles, Target } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useBadgeProcessing } from '@/hooks/useBadgeProcessing';
 import { handleAuthSignOut } from '@/utils/authCleanup';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const AchievementDebugPanel = () => {
+  const { user } = useAuth();
   const [achievements] = useState<Achievement[]>(ALL_ACHIEVEMENTS);
   const [filteredAchievements, setFilteredAchievements] = useState<Achievement[]>(achievements);
   const [searchTerm, setSearchTerm] = useState('');
@@ -25,6 +29,13 @@ export const AchievementDebugPanel = () => {
   const [verificationReport, setVerificationReport] = useState<BadgeVerificationReport | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const { status, processTestBatch, processAllBadges, replaceOriginals } = useBadgeProcessing();
+  
+  // Recommendations testing state
+  const [testUserId, setTestUserId] = useState(user?.id || '');
+  const [testAsPremium, setTestAsPremium] = useState(false);
+  const [recommendations, setRecommendations] = useState<RecommendedAchievement[]>([]);
+  const [isGeneratingRecs, setIsGeneratingRecs] = useState(false);
+  const [validationReport, setValidationReport] = useState<ReturnType<typeof validateRecommendations> | null>(null);
 
   // Filter achievements based on search and filters
   useEffect(() => {
@@ -122,8 +133,72 @@ export const AchievementDebugPanel = () => {
     }
   };
 
+  // Generate test recommendations
+  const handleGenerateRecommendations = async () => {
+    if (!testUserId) {
+      toast({
+        title: "Error",
+        description: "Please enter a user ID",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsGeneratingRecs(true);
+    try {
+      const recs = await getWhatsNextRecommendations(testUserId, 5);
+      setRecommendations(recs);
+      
+      const validation = validateRecommendations(recs, testUserId, testAsPremium);
+      setValidationReport(validation);
+
+      toast({
+        title: validation.isValid ? "✅ Recommendations Generated" : "⚠️ Validation Issues",
+        description: validation.isValid 
+          ? `Generated ${recs.length} recommendations` 
+          : `${validation.issues.length} issues found`,
+        variant: validation.isValid ? "default" : "destructive"
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to generate recommendations",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingRecs(false);
+    }
+  };
+
+  const getReasonColor = (reason: RecommendedAchievement['recommendationReason']) => {
+    switch (reason) {
+      case 'almost_complete': return 'bg-green-500';
+      case 'next_tier': return 'bg-blue-500';
+      case 'category_diversity': return 'bg-purple-500';
+      case 'seasonal_timely': return 'bg-orange-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
+  const getReasonLabel = (reason: RecommendedAchievement['recommendationReason']) => {
+    switch (reason) {
+      case 'almost_complete': return 'Almost Complete';
+      case 'next_tier': return 'Next Tier';
+      case 'category_diversity': return 'Variety';
+      case 'seasonal_timely': return 'Timely';
+      default: return reason;
+    }
+  };
+
   return (
     <div className="space-y-6 p-6 pb-24">
+      <Tabs defaultValue="gallery" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="gallery">Achievement Gallery</TabsTrigger>
+          <TabsTrigger value="recommendations">Test Recommendations</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="gallery" className="space-y-6 mt-6">
       {/* Header & Stats */}
       <Card>
         <CardHeader>
@@ -402,6 +477,162 @@ export const AchievementDebugPanel = () => {
           </ScrollArea>
         </CardContent>
       </Card>
+        </TabsContent>
+
+        <TabsContent value="recommendations" className="space-y-6 mt-6">
+          {/* Test Recommendations Panel */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5" />
+                Test "What's Next?" Recommendations
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">User ID</label>
+                    <Input
+                      placeholder="Enter user ID to test"
+                      value={testUserId}
+                      onChange={(e) => setTestUserId(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex items-end">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={testAsPremium}
+                        onChange={(e) => setTestAsPremium(e.target.checked)}
+                        className="w-4 h-4"
+                      />
+                      <span className="text-sm font-medium">Test as Premium User</span>
+                    </label>
+                  </div>
+                </div>
+
+                <Button 
+                  onClick={handleGenerateRecommendations}
+                  disabled={isGeneratingRecs || !testUserId}
+                  className="w-full"
+                >
+                  {isGeneratingRecs ? 'Generating...' : 'Generate Recommendations'}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Validation Report */}
+          {validationReport && (
+            <Card className={validationReport.isValid ? 'border-green-500' : 'border-red-500'}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  {validationReport.isValid ? (
+                    <><CheckCircle className="w-5 h-5 text-green-500" /> Validation Passed</>
+                  ) : (
+                    <><AlertTriangle className="w-5 h-5 text-red-500" /> Validation Issues</>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {validationReport.isValid ? (
+                  <p className="text-sm text-green-600">All validation checks passed!</p>
+                ) : (
+                  <div className="space-y-2">
+                    {validationReport.issues.map((issue, i) => (
+                      <p key={i} className="text-sm text-red-600">• {issue}</p>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Recommendations Results */}
+          {recommendations.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="w-5 h-5" />
+                  Recommended Achievements ({recommendations.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[600px]">
+                  <div className="space-y-4">
+                    {recommendations.map((rec) => (
+                      <div key={rec.achievement.id} className="flex items-start gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                        {/* Badge Image */}
+                        <div className="w-20 h-20 flex-shrink-0">
+                          <img
+                            src={getBadgeUrl(rec.achievement.badgeFileName)}
+                            alt={rec.achievement.name}
+                            className="w-full h-full object-contain"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = '/placeholder.svg';
+                            }}
+                          />
+                        </div>
+
+                        {/* Achievement Info */}
+                        <div className="flex-1 space-y-2">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <h3 className="font-semibold text-lg">{rec.achievement.name}</h3>
+                              <p className="text-sm text-muted-foreground">{rec.achievement.id}</p>
+                            </div>
+                            <div className="flex gap-2 flex-wrap justify-end">
+                              <Badge className={getRarityColor(rec.achievement.rarity)}>
+                                {rec.achievement.rarity}
+                              </Badge>
+                              <Badge variant="outline">{rec.achievement.points} pts</Badge>
+                              <Badge className={getReasonColor(rec.recommendationReason)}>
+                                {getReasonLabel(rec.recommendationReason)}
+                              </Badge>
+                              <Badge variant="secondary">Priority: {rec.priority}</Badge>
+                            </div>
+                          </div>
+
+                          <p className="text-sm">{rec.achievement.description}</p>
+                          
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-muted-foreground">Progress</span>
+                              <span className="font-medium">{Math.round(rec.progress.percentage)}%</span>
+                            </div>
+                            <Progress value={rec.progress.percentage} className="h-2" />
+                            <div className="flex items-center justify-between text-xs text-muted-foreground">
+                              <span>{rec.progress.current} / {rec.progress.required}</span>
+                              {rec.progress.estimatedCompletion && (
+                                <span>{rec.progress.estimatedCompletion}</span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            <span>Category: {rec.achievement.category}</span>
+                            <span>•</span>
+                            <span>Criteria: {rec.achievement.criteria}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          )}
+
+          {recommendations.length === 0 && !isGeneratingRecs && validationReport && (
+            <Card>
+              <CardContent className="py-12 text-center text-muted-foreground">
+                No recommendations generated. Try testing with a different user ID.
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

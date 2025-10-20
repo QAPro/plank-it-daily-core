@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Trophy, Clock, Star, Target, Award, Search, RefreshCw, Heart, Dumbbell, Activity, Zap, User, Gauge, TrendingUp } from "lucide-react";
+import { Trophy, Clock, Star, Target, Award, Search, RefreshCw, Heart, Dumbbell, Activity, Zap, User, Gauge, TrendingUp, ArrowLeft } from "lucide-react";
 import { useOptimizedAchievementProgress } from "@/hooks/useOptimizedAchievementProgress";
 import { EXPANDED_ACHIEVEMENTS } from "@/services/expandedAchievementService";
 import EnhancedAchievementCard from "./EnhancedAchievementCard";
@@ -18,7 +18,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
-const OptimizedAchievementsGallery = () => {
+interface EarnedAchievementsGalleryProps {
+  onBackClick?: () => void;
+}
+
+const EarnedAchievementsGallery = ({ onBackClick }: EarnedAchievementsGalleryProps = {}) => {
   const { 
     achievementProgress, 
     loading, 
@@ -246,6 +250,18 @@ const OptimizedAchievementsGallery = () => {
         />
       )}
 
+      {/* Back Button */}
+      {onBackClick && (
+        <Button 
+          variant="ghost" 
+          onClick={onBackClick}
+          className="flex items-center gap-2 mb-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to What's Next
+        </Button>
+      )}
+
       {/* Stats Overview */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
@@ -391,4 +407,4 @@ const OptimizedAchievementsGallery = () => {
   );
 };
 
-export default OptimizedAchievementsGallery;
+export default EarnedAchievementsGallery;

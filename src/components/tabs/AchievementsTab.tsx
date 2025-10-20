@@ -2,7 +2,8 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import OptimizedAchievementsGallery from "@/components/achievements/OptimizedAchievementsGallery";
+import WhatsNextAchievementsView from "@/components/achievements/WhatsNextAchievementsView";
+import EarnedAchievementsGallery from "@/components/achievements/EarnedAchievementsGallery";
 import SkillTreeDisplay from "@/components/achievements/SkillTreeDisplay";
 import SeasonalAchievementsBanner from "@/components/achievements/SeasonalAchievementsBanner";
 import HiddenAchievementCelebration from "@/components/achievements/HiddenAchievementCelebration";
@@ -10,6 +11,7 @@ import { Trophy, TreePine, Calendar, Eye } from "lucide-react";
 
 const AchievementsTab = () => {
   const [celebratingAchievement, setCelebratingAchievement] = useState<any>(null);
+  const [galleryView, setGalleryView] = useState<'whats-next' | 'all-earned'>('whats-next');
 
   return (
     <motion.div
@@ -46,7 +48,11 @@ const AchievementsTab = () => {
         </TabsList>
 
         <TabsContent value="gallery">
-          <OptimizedAchievementsGallery />
+          {galleryView === 'whats-next' ? (
+            <WhatsNextAchievementsView onViewAllClick={() => setGalleryView('all-earned')} />
+          ) : (
+            <EarnedAchievementsGallery onBackClick={() => setGalleryView('whats-next')} />
+          )}
         </TabsContent>
 
         <TabsContent value="seasonal">

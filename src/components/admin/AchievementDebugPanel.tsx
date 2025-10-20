@@ -21,6 +21,7 @@ export const AchievementDebugPanel = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [rarityFilter, setRarityFilter] = useState<string>('all');
   const [premiumFilter, setPremiumFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('active');
   const [verificationReport, setVerificationReport] = useState<BadgeVerificationReport | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const { status, processTestBatch, processAllBadges, replaceOriginals } = useBadgeProcessing();
@@ -54,8 +55,15 @@ export const AchievementDebugPanel = () => {
       filtered = filtered.filter(a => a.isPremium === isPremium);
     }
 
+    // Status filter (active/disabled)
+    if (statusFilter === 'active') {
+      filtered = filtered.filter(a => !(a as any).isDisabled);
+    } else if (statusFilter === 'disabled') {
+      filtered = filtered.filter(a => (a as any).isDisabled);
+    }
+
     setFilteredAchievements(filtered);
-  }, [searchTerm, categoryFilter, rarityFilter, premiumFilter, achievements]);
+  }, [searchTerm, categoryFilter, rarityFilter, premiumFilter, statusFilter, achievements]);
 
   // Run badge verification
   const handleVerification = async () => {
@@ -144,6 +152,10 @@ export const AchievementDebugPanel = () => {
             <div className="text-center">
               <div className="text-3xl font-bold">{achievements.filter(a => a.isSecret).length}</div>
               <div className="text-sm text-muted-foreground">Secret</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-red-500">{achievements.filter(a => (a as any).isDisabled).length}</div>
+              <div className="text-sm text-muted-foreground">Disabled</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold">{filteredAchievements.length}</div>
@@ -240,7 +252,7 @@ export const AchievementDebugPanel = () => {
       {/* Filters */}
       <Card>
         <CardContent className="pt-6">
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-5 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
               <Input
@@ -289,6 +301,17 @@ export const AchievementDebugPanel = () => {
                 <SelectItem value="premium">Premium Only</SelectItem>
               </SelectContent>
             </Select>
+
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="active">Active Only</SelectItem>
+                <SelectItem value="disabled">Disabled Only</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
@@ -332,6 +355,7 @@ export const AchievementDebugPanel = () => {
                         <Badge variant="outline">{achievement.points} pts</Badge>
                         {achievement.isPremium && <Badge variant="secondary">Premium</Badge>}
                         {achievement.isSecret && <Badge variant="destructive">Secret</Badge>}
+                        {(achievement as any).isDisabled && <Badge variant="destructive" className="bg-red-600">DISABLED</Badge>}
                       </div>
                     </div>
 
@@ -346,6 +370,21 @@ export const AchievementDebugPanel = () => {
                     <div className="text-xs text-muted-foreground">
                       Badge File: {achievement.badgeFileName}
                     </div>
+
+                    {(achievement as any).isDisabled && (
+                      <div className="text-xs text-red-500 font-medium bg-red-50 dark:bg-red-950 p-2 rounded">
+                        ⚠️ Disabled: {(achievement as any).disabledReason}
+                      </div>
+                    )}
+
+                    {(achievement as any).unlockCriteria && (
+                      <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
+                        <span className="font-medium">Unlock Logic:</span> {(achievement as any).unlockCriteria.type}
+                        {(achievement as any).unlockCriteria.conditions?.description && (
+                          <span className="ml-2">- {(achievement as any).unlockCriteria.conditions.description}</span>
+                        )}
+                      </div>
+                    )}
 
                     {achievement.relatedExerciseCategories.length > 0 && (
                       <div className="flex gap-2">

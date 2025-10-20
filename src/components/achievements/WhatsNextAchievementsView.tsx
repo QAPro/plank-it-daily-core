@@ -31,8 +31,8 @@ const WhatsNextAchievementsView = ({ onViewAllClick }: WhatsNextAchievementsView
   const completionPercentage = totalCount > 0 ? Math.round((earnedCount / totalCount) * 100) : 0;
 
   return (
-    <div className="space-y-8">
-      <QuickStatsSection 
+    <div className="space-y-8 pb-24">
+      <QuickStatsSection
         earnedCount={earnedCount}
         totalCount={totalCount}
         totalPoints={totalPoints}

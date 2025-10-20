@@ -240,7 +240,7 @@ const EarnedAchievementsGallery = ({ onBackClick }: EarnedAchievementsGalleryPro
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24">
       {/* Progressive Loading Indicator */}
       {progressiveLoading && needsRefresh && (
         <ProgressiveLoadingIndicator 

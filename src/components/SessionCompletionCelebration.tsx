@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import FlagGuard from '@/components/access/FlagGuard';
 import type { Tables } from '@/integrations/supabase/types';
 import type { UserAchievement } from '@/hooks/useUserAchievements';
+import { useAchievementEvents } from '@/contexts/AchievementEventContext';
 
 // Enhanced components
 import EnhancedConfetti from "@/components/celebration/EnhancedConfetti";
@@ -57,6 +58,20 @@ const SessionCompletionCelebration = ({
   const [showAchievements, setShowAchievements] = useState(false);
   const [showInAppPost, setShowInAppPost] = useState(false);
   const { toast } = useToast();
+  const { broadcastEvent } = useAchievementEvents();
+  
+  // Broadcast session completion event when celebration shows
+  useEffect(() => {
+    if (isVisible) {
+      broadcastEvent({
+        type: 'session_completed',
+        metadata: {
+          exerciseName: exercise.name,
+          hasNewAchievements: newAchievements.length > 0
+        }
+      });
+    }
+  }, [isVisible, exercise.name, newAchievements.length, broadcastEvent]);
 
   const completionPercentage = Math.min((timeElapsed / duration) * 100, 100);
   const isFullCompletion = timeElapsed >= duration;

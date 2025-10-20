@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import QuickStatsSection from "./QuickStatsSection";
 import WhatsNextSection from "./WhatsNextSection";
 import TrophyCaseSection from "./TrophyCaseSection";
 import EnhancedAchievementCelebration from "./EnhancedAchievementCelebration";
 import { useUserAchievements } from "@/hooks/useUserAchievements";
 import { useWhatsNextRecommendations } from "@/hooks/useWhatsNextRecommendations";
+import { useRecommendationRefresh } from "@/hooks/useRecommendationRefresh";
 import { getActiveAchievements, getAchievementById } from "@/services/achievementHelpers";
 
 interface WhatsNextAchievementsViewProps {
@@ -13,10 +14,22 @@ interface WhatsNextAchievementsViewProps {
 
 const WhatsNextAchievementsView = ({ onViewAllClick }: WhatsNextAchievementsViewProps) => {
   const [selectedAchievement, setSelectedAchievement] = useState<any>(null);
+  const [previousAchievementCount, setPreviousAchievementCount] = useState(0);
   
   // Data fetching
   const { achievements, loading: achievementsLoading } = useUserAchievements();
   const { data: recommendations, isLoading: recommendationsLoading } = useWhatsNextRecommendations(5);
+  
+  // Auto-refresh recommendations when component mounts or achievements change
+  useRecommendationRefresh({ enabled: true });
+  
+  // Track achievement count changes for visual updates
+  useEffect(() => {
+    if (achievements.length > previousAchievementCount && previousAchievementCount > 0) {
+      // New achievement earned - recommendations will auto-refresh via event system
+    }
+    setPreviousAchievementCount(achievements.length);
+  }, [achievements.length, previousAchievementCount]);
 
   // Calculate stats
   const earnedCount = achievements.length;

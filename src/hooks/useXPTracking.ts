@@ -7,6 +7,7 @@ import { HiddenAchievementEngine } from '@/services/hiddenAchievementService';
 import { SeasonalAchievementEngine } from '@/services/seasonalAchievementService';
 import { useLevelProgression } from './useLevelProgression';
 import { toast } from '@/hooks/use-toast';
+import { useAchievementEvents } from '@/contexts/AchievementEventContext';
 
 export interface XPTrackingResult {
   success: boolean;
@@ -17,6 +18,7 @@ export interface XPTrackingResult {
 export const useXPTracking = () => {
   const { user, loading } = useAuth();
   const { refetch } = useLevelProgression();
+  const { broadcastEvent } = useAchievementEvents();
   
   const [xpNotification, setXpNotification] = useState<{
     amount: number;
@@ -111,11 +113,26 @@ export const useXPTracking = () => {
         const hiddenEngine = new HiddenAchievementEngine(user.id);
         const seasonalEngine = new SeasonalAchievementEngine(user.id);
         
+        let totalAchievementsEarned = 0;
         try {
-          await Promise.all([
+          const [hiddenResults, seasonalResults] = await Promise.all([
             hiddenEngine.checkHiddenAchievements(),
             seasonalEngine.checkSeasonalAchievements()
           ]);
+          
+          // Count newly earned achievements (results are arrays of achievements)
+          totalAchievementsEarned = (hiddenResults?.length || 0) + (seasonalResults?.length || 0);
+          
+          // Broadcast achievement event if any were earned
+          if (totalAchievementsEarned > 0) {
+            broadcastEvent({
+              type: 'earned',
+              metadata: { 
+                count: totalAchievementsEarned,
+                source 
+              }
+            });
+          }
         } catch (error) {
           console.error('Error checking special achievements:', error);
         }

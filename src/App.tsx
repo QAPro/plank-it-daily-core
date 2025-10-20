@@ -3,6 +3,7 @@ import { ProductionDiagnostics } from "@/components/ProductionDiagnostics";
 import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { AchievementEventProvider } from "@/contexts/AchievementEventContext";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,7 @@ function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
+        <AchievementEventProvider>
           <Router>
             <ServiceWorkerMessageHandler />
             <InstallPrompt />
@@ -76,7 +78,8 @@ function App() {
             <SonnerToaster />
             <ProductionDiagnostics />
           </Router>
-        </AuthProvider>
+        </AchievementEventProvider>
+      </AuthProvider>
     </ErrorBoundary>
   );
 }

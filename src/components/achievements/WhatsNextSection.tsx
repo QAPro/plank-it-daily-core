@@ -120,10 +120,19 @@ const WhatsNextSection = ({ recommendations, loading, onAchievementClick }: What
                         {rec.achievement.description}
                       </p>
 
-                      {/* Progress Bar */}
+                      {/* Progress Bar with animation */}
                       {!rec.progress.isComplete && (
                         <div className="space-y-2">
-                          <Progress value={progressPercent} className="h-2" />
+                          <motion.div
+                            key={`${rec.achievement.id}-${progressPercent}`}
+                            initial={{ scale: 1 }}
+                            animate={{ 
+                              scale: progressPercent > 50 ? [1, 1.02, 1] : 1 
+                            }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <Progress value={progressPercent} className="h-2" />
+                          </motion.div>
                           <div className="flex items-center justify-between text-xs">
                             <span className="text-muted-foreground">
                               {rec.progress.current} / {rec.progress.required} ({progressPercent}%)

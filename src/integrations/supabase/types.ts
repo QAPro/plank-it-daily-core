@@ -206,6 +206,66 @@ export type Database = {
           },
         ]
       }
+      achievements: {
+        Row: {
+          badge_file_name: string
+          category: Database["public"]["Enums"]["achievement_category"]
+          created_at: string
+          criteria: string
+          description: string
+          disabled_reason: string | null
+          icon: string
+          id: string
+          is_disabled: boolean | null
+          is_premium: boolean
+          is_secret: boolean
+          name: string
+          points: number
+          rarity: Database["public"]["Enums"]["achievement_rarity"]
+          related_exercise_categories: string[] | null
+          unlock_criteria: Json | null
+          updated_at: string
+        }
+        Insert: {
+          badge_file_name: string
+          category: Database["public"]["Enums"]["achievement_category"]
+          created_at?: string
+          criteria: string
+          description: string
+          disabled_reason?: string | null
+          icon: string
+          id: string
+          is_disabled?: boolean | null
+          is_premium?: boolean
+          is_secret?: boolean
+          name: string
+          points?: number
+          rarity: Database["public"]["Enums"]["achievement_rarity"]
+          related_exercise_categories?: string[] | null
+          unlock_criteria?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          badge_file_name?: string
+          category?: Database["public"]["Enums"]["achievement_category"]
+          created_at?: string
+          criteria?: string
+          description?: string
+          disabled_reason?: string | null
+          icon?: string
+          id?: string
+          is_disabled?: boolean | null
+          is_premium?: boolean
+          is_secret?: boolean
+          name?: string
+          points?: number
+          rarity?: Database["public"]["Enums"]["achievement_rarity"]
+          related_exercise_categories?: string[] | null
+          unlock_criteria?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       activity_comments: {
         Row: {
           activity_id: string
@@ -5656,6 +5716,14 @@ export type Database = {
       }
     }
     Enums: {
+      achievement_category:
+        | "Milestones"
+        | "Consistency"
+        | "Momentum"
+        | "Performance"
+        | "Social"
+        | "Special"
+      achievement_rarity: "Common" | "Uncommon" | "Rare" | "Epic"
       app_role:
         | "admin"
         | "moderator"
@@ -5792,6 +5860,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      achievement_category: [
+        "Milestones",
+        "Consistency",
+        "Momentum",
+        "Performance",
+        "Social",
+        "Special",
+      ],
+      achievement_rarity: ["Common", "Uncommon", "Rare", "Epic"],
       app_role: [
         "admin",
         "moderator",

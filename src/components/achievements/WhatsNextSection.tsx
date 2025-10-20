@@ -109,7 +109,7 @@ const WhatsNextSection = ({ recommendations, loading, onAchievementClick }: What
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <h4 className="font-semibold text-foreground text-lg">
-                          {rec.achievement.icon} {rec.achievement.name}
+                          {rec.achievement.name}
                         </h4>
                         <span className="text-sm font-bold text-muted-foreground whitespace-nowrap">
                           {rec.achievement.points} pts

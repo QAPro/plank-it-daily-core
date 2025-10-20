@@ -29,11 +29,15 @@ export const getWhatsNextRecommendations = async (
   limit: number = 5
 ): Promise<RecommendedAchievement[]> => {
   try {
-    // Step 1: Get user context
-    const { data: earnedAchievements } = await supabase
+    // Step 1: Get user context with validation
+    const { data: earnedAchievements, error: earnedError } = await supabase
       .from('user_achievements')
       .select('achievement_type')
       .eq('user_id', userId);
+
+    if (earnedError) {
+      console.error('Error fetching earned achievements:', earnedError);
+    }
 
     const earnedIds = new Set((earnedAchievements || []).map(a => a.achievement_type));
 
@@ -60,11 +64,26 @@ export const getWhatsNextRecommendations = async (
       return [];
     }
 
-    // Step 2: Calculate progress for all available achievements
+    // Step 2: Calculate progress for all available achievements with error handling
     const progressData = await Promise.all(
       availableAchievements.map(async (achievement) => {
-        const progress = await calculateAchievementProgress(userId, achievement);
-        return { achievement, progress };
+        try {
+          const progress = await calculateAchievementProgress(userId, achievement);
+          return { achievement, progress };
+        } catch (error) {
+          console.warn(`Error calculating progress for ${achievement.id}:`, error);
+          return { 
+            achievement, 
+            progress: { 
+              achievementId: achievement.id,
+              current: 0, 
+              required: 1, 
+              percentage: 0, 
+              isComplete: false,
+              lastUpdated: new Date(),
+            } as AchievementProgress
+          };
+        }
       })
     );
 

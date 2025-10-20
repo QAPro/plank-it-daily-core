@@ -3,6 +3,7 @@ import QuickStatsSection from "./QuickStatsSection";
 import WhatsNextSection from "./WhatsNextSection";
 import TrophyCaseSection from "./TrophyCaseSection";
 import EnhancedAchievementCelebration from "./EnhancedAchievementCelebration";
+import { WhatsNextErrorBoundary } from "./WhatsNextErrorBoundary";
 import { useUserAchievements } from "@/hooks/useUserAchievements";
 import { useWhatsNextRecommendations } from "@/hooks/useWhatsNextRecommendations";
 import { useRecommendationRefresh } from "@/hooks/useRecommendationRefresh";
@@ -18,7 +19,12 @@ const WhatsNextAchievementsView = ({ onViewAllClick }: WhatsNextAchievementsView
   
   // Data fetching
   const { achievements, loading: achievementsLoading } = useUserAchievements();
-  const { data: recommendations, isLoading: recommendationsLoading } = useWhatsNextRecommendations(5);
+  const { 
+    data: recommendations, 
+    isLoading: recommendationsLoading,
+    error: recommendationsError,
+    isRefetching: recommendationsRefetching,
+  } = useWhatsNextRecommendations(5);
   
   // Auto-refresh recommendations when component mounts or achievements change
   useRecommendationRefresh({ enabled: true });
@@ -52,11 +58,17 @@ const WhatsNextAchievementsView = ({ onViewAllClick }: WhatsNextAchievementsView
         completionPercentage={completionPercentage}
       />
 
-      <WhatsNextSection 
-        recommendations={recommendations || []}
-        loading={recommendationsLoading}
-        onAchievementClick={setSelectedAchievement}
-      />
+      <WhatsNextErrorBoundary>
+        <WhatsNextSection 
+          recommendations={recommendations || []}
+          loading={recommendationsLoading}
+          onAchievementClick={setSelectedAchievement}
+          error={recommendationsError as Error | undefined}
+          isRefetching={recommendationsRefetching}
+          totalAchievements={totalCount}
+          earnedCount={earnedCount}
+        />
+      </WhatsNextErrorBoundary>
 
       <TrophyCaseSection 
         recentAchievements={achievements}

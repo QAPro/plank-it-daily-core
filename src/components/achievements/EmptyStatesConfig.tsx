@@ -11,8 +11,8 @@ interface EmptyStateConfig {
 export const EMPTY_STATES = {
   NEW_USER: {
     icon: <Sparkles className="h-16 w-16 text-primary" />,
-    title: "Welcome to Your Achievement Journey!",
-    message: "Complete meditation sessions, build streaks, and explore different categories to start earning achievements. Your first goal: complete your first session!",
+    title: "Welcome to Your Fitness Journey!",
+    message: "Complete exercise sessions, build streaks, and explore different categories to start earning achievements. Your first goal: complete your first session!",
   },
   
   ALL_EARNED: {

@@ -4,7 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Lock, CheckCircle } from "lucide-react";
-import { AchievementService, Achievement } from "@/services/achievementService";
+import type { Tables } from "@/integrations/supabase/types";
+
+type Achievement = Tables<'achievements'>;
 
 interface AchievementProgressCardProps {
   achievement: Achievement;
@@ -13,14 +15,27 @@ interface AchievementProgressCardProps {
   showProgress?: boolean;
 }
 
+const getRarityColor = (rarity: Achievement['rarity']): string => {
+  const colors = {
+    common: 'text-gray-600',
+    uncommon: 'text-green-600',
+    rare: 'text-blue-600',
+    epic: 'text-purple-600',
+    legendary: 'text-orange-600'
+  };
+  return colors[rarity as keyof typeof colors] || colors.common;
+};
+
 const AchievementProgressCard = ({ 
   achievement, 
   isEarned = false, 
   currentProgress = 0,
   showProgress = true 
 }: AchievementProgressCardProps) => {
-  const progressPercentage = Math.min((currentProgress / achievement.condition.value) * 100, 100);
-  const rarityColor = AchievementService.getRarityColor(achievement.rarity);
+  const criteria = (achievement.unlock_criteria as any) || {};
+  const targetValue = criteria.value || 100;
+  const progressPercentage = Math.min((currentProgress / targetValue) * 100, 100);
+  const rarityColor = getRarityColor(achievement.rarity);
 
   return (
     <motion.div
@@ -53,7 +68,7 @@ const AchievementProgressCard = ({
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Progress</span>
-                <span className="font-medium">{currentProgress}/{achievement.condition.value}</span>
+                <span className="font-medium">{currentProgress}/{targetValue}</span>
               </div>
               <Progress value={progressPercentage} className="h-2" />
             </div>
@@ -62,7 +77,7 @@ const AchievementProgressCard = ({
           <div className="flex justify-between items-center mt-3">
             <div className="flex items-center space-x-2">
               <Badge variant="outline" className="text-xs">
-                {achievement.type}
+                {achievement.category}
               </Badge>
               <Badge variant="outline" className="text-xs">
                 {achievement.points} pts

@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Trophy, X } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AchievementService } from "@/services/achievementService";
 import FlagGuard from '@/components/access/FlagGuard';
 import type { UserAchievement } from "@/hooks/useUserAchievements";
 

@@ -92,19 +92,19 @@ export const useExpandedAchievementProgress = () => {
       case 'streak':
         return await calculateStreakProgress();
       case 'duration':
-        return await calculateDurationProgress(achievement.requirement.value);
+        return await calculateDurationProgress(criteria.value);
       case 'count':
         return await calculateCountProgress();
       case 'variety':
-        return await calculateVarietyProgress(achievement.requirement.value, achievement.requirement.conditions);
+        return await calculateVarietyProgress(criteria.value, criteria.conditions);
       case 'time_based':
-        return await calculateTimeBasedProgress(achievement.requirement.value, achievement.requirement.conditions);
+        return await calculateTimeBasedProgress(criteria.value, criteria.conditions);
       case 'improvement':
-        return await calculateImprovementProgress(achievement.requirement.conditions);
+        return await calculateImprovementProgress(criteria.conditions);
       case 'category_specific':
-        return await calculateCategorySpecificProgress(achievement.requirement.value, achievement.requirement.conditions);
+        return await calculateCategorySpecificProgress(criteria.value, criteria.conditions);
       case 'cross_category':
-        return await calculateCrossCategoryProgress(achievement.requirement.value, achievement.requirement.conditions);
+        return await calculateCrossCategoryProgress(criteria.value, criteria.conditions);
       default:
         return 0;
     }
@@ -266,10 +266,11 @@ export const useExpandedAchievementProgress = () => {
   const calculateEstimatedCompletion = (achievement: any, currentProgress: number): string => {
     if (currentProgress === 0) return 'Start working out to make progress!';
     
-    const remaining = achievement.requirement.value - currentProgress;
+    const criteria = (achievement.unlock_criteria as any) || {};
+    const remaining = criteria.value - currentProgress;
     if (remaining <= 0) return 'Almost there!';
 
-    switch (achievement.requirement.type) {
+    switch (criteria.type) {
       case 'streak':
         return `${remaining} more consecutive days`;
       case 'duration':
@@ -279,14 +280,14 @@ export const useExpandedAchievementProgress = () => {
       case 'variety':
         return `Try ${remaining} more exercise types`;
       case 'time_based':
-        if (achievement.requirement.conditions?.time_of_day) {
-          return `${remaining} more ${achievement.requirement.conditions.time_of_day} workouts`;
+        if (criteria.conditions?.time_of_day) {
+          return `${remaining} more ${criteria.conditions.time_of_day} workouts`;
         }
         return `${Math.ceil(remaining / 60)} more minutes to accumulate`;
       case 'category_specific':
-        return `${remaining} more ${achievement.requirement.conditions?.exercise_categories?.[0] || 'category'} exercises`;
+        return `${remaining} more ${criteria.conditions?.exercise_categories?.[0] || 'category'} exercises`;
       case 'cross_category':
-        if (achievement.requirement.conditions?.minimum_categories) {
+        if (criteria.conditions?.minimum_categories) {
           return `Try exercises from ${remaining} more categories`;
         }
         return 'Keep exploring different exercise types!';

@@ -184,36 +184,46 @@ export const getWhatsNextRecommendations = async (
         priority: 7,
       }));
 
-    // Step 6: Strategy 3 - Category Diversity
-    const { data: categoryCounts } = await supabase
-      .from('user_sessions')
-      .select('category')
+    // Step 6: Strategy 3 - Category Diversity (Achievement Categories)
+    const { data: earnedAchievementsWithCategory } = await supabase
+      .from('user_achievements')
+      .select('achievement_type')
       .eq('user_id', userId);
 
     let diversityCandidates: RecommendedAchievement[] = [];
     
-    if (categoryCounts && categoryCounts.length > 0) {
-      const categoryFrequency = categoryCounts.reduce((acc, { category }) => {
-        if (category) {
-          acc[category] = (acc[category] || 0) + 1;
+    if (earnedAchievementsWithCategory && earnedAchievementsWithCategory.length > 0) {
+      // Get full achievement details to access categories
+      const earnedAchIds = earnedAchievementsWithCategory.map(a => a.achievement_type);
+      const { data: earnedAchDetails } = await supabase
+        .from('achievements')
+        .select('id, category')
+        .in('id', earnedAchIds.length > 0 ? earnedAchIds : ['']);
+
+      // Count achievements earned by category
+      const categoryFrequency = (earnedAchDetails || []).reduce((acc, ach) => {
+        if (ach.category) {
+          acc[ach.category] = (acc[ach.category] || 0) + 1;
         }
         return acc;
       }, {} as Record<string, number>);
 
-      const leastUsedCategory = Object.entries(categoryFrequency)
-        .sort((a, b) => a[1] - b[1])[0]?.[0];
+      // Find least-explored achievement category
+      const achievementCategories = ['Milestones', 'Consistency', 'Momentum', 'Performance', 'Social', 'Special'];
+      const leastEarnedCategory = achievementCategories
+        .map(cat => ({ category: cat, count: categoryFrequency[cat] || 0 }))
+        .sort((a, b) => a.count - b.count)[0]?.category;
 
-      if (leastUsedCategory) {
+      if (leastEarnedCategory) {
         diversityCandidates = progressData
-          .filter(({ achievement }) => 
-            achievement.related_exercise_categories?.includes(leastUsedCategory)
-          )
-          .slice(0, 1)
+          .filter(({ achievement }) => achievement.category === leastEarnedCategory)
+          .sort((a, b) => b.progress.percentage - a.progress.percentage)
+          .slice(0, 2) // Recommend 2 from underexplored category
           .map(({ achievement, progress }) => ({
             achievement,
             progress,
             recommendationReason: 'category_diversity' as const,
-            priority: 5,
+            priority: 6,
           }));
       }
     }

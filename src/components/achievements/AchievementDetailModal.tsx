@@ -69,49 +69,52 @@ const AchievementDetailModal = ({ achievement, onClose, isVisible }: Achievement
                 <X size={24} />
               </button>
 
+              {/* Circular Points Pill - Top Left */}
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className={`absolute top-4 left-4 w-16 h-16 rounded-full ${pillStyle} flex items-center justify-center`}
+              >
+                <div className="text-center">
+                  <div className="text-lg font-bold">{achievement.points}</div>
+                  <div className="text-[10px] leading-none">pts</div>
+                </div>
+              </motion.div>
+
               {/* Content */}
               <div className="flex flex-col items-center text-center space-y-6">
-                {/* Large Badge Image */}
-                {badgeUrl && (
-                  <motion.img
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.2, type: "spring", duration: 0.6 }}
-                    src={badgeUrl}
-                    alt={achievement.name}
-                    className="w-64 h-64 object-contain drop-shadow-2xl"
-                  />
-                )}
-
-                {/* Achievement Name */}
+                {/* Achievement Name - Top */}
                 <motion.h2
-                  initial={{ y: 20, opacity: 0 }}
+                  initial={{ y: -20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.3 }}
-                  className={`text-3xl font-bold ${textColor}`}
+                  className={`text-3xl font-bold ${textColor} mt-8`}
                 >
                   {achievement.name}
                 </motion.h2>
 
-                {/* Achievement Description */}
+                {/* Large Badge Image - Center */}
+                {badgeUrl && (
+                  <motion.img
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.4, type: "spring", duration: 0.6 }}
+                    src={badgeUrl}
+                    alt={achievement.name}
+                    className="w-80 h-80 object-contain drop-shadow-2xl"
+                  />
+                )}
+
+                {/* Achievement Description - Below Badge */}
                 <motion.p
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.4 }}
+                  transition={{ delay: 0.5 }}
                   className={`text-base ${textColor} opacity-90 max-w-lg`}
                 >
                   {achievement.description}
                 </motion.p>
-
-                {/* Points Pill */}
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                  className={`py-2 px-4 rounded-full ${pillStyle} text-sm font-semibold`}
-                >
-                  {achievement.points} points
-                </motion.div>
               </div>
             </motion.div>
           </motion.div>

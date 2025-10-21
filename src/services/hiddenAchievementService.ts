@@ -19,7 +19,7 @@ export interface HiddenAchievement {
 export const HIDDEN_ACHIEVEMENTS: HiddenAchievement[] = [
   // TIME-BASED HIDDEN ACHIEVEMENTS
   {
-    id: 'night_owl',
+    id: 'ACH_HIDDEN_001',
     name: 'Night Owl',
     description: 'Complete a workout after 10 PM',
     icon: '🦉',
@@ -41,7 +41,7 @@ export const HIDDEN_ACHIEVEMENTS: HiddenAchievement[] = [
     shareMessage: 'Unlocked the Night Owl achievement! 🦉 Working out when the world sleeps! #PlankCoach'
   },
   {
-    id: 'early_riser',
+    id: 'ACH_HIDDEN_002',
     name: 'Early Riser',
     description: 'Complete a workout before 6 AM',
     icon: '🌅',
@@ -65,7 +65,7 @@ export const HIDDEN_ACHIEVEMENTS: HiddenAchievement[] = [
 
   // BEHAVIOR-BASED HIDDEN ACHIEVEMENTS
   {
-    id: 'weekend_warrior',
+    id: 'ACH_HIDDEN_003',
     name: 'Weekend Warrior',
     description: 'Complete 5 weekend workouts in a row',
     icon: '⚔️',
@@ -96,7 +96,7 @@ export const HIDDEN_ACHIEVEMENTS: HiddenAchievement[] = [
     shareMessage: 'Weekend Warrior unlocked! ⚔️ 5 weekend workouts conquered! #PlankCoach'
   },
   {
-    id: 'perfectionist',
+    id: 'ACH_HIDDEN_004',
     name: 'Perfectionist',
     description: 'Complete 10 sessions without pausing',
     icon: '💎',
@@ -121,7 +121,7 @@ export const HIDDEN_ACHIEVEMENTS: HiddenAchievement[] = [
 
   // DISCOVERY HIDDEN ACHIEVEMENTS
   {
-    id: 'explorer',
+    id: 'ACH_HIDDEN_005',
     name: 'Explorer',
     description: 'Try 15 different exercise variations',
     icon: '🗺️',
@@ -143,7 +143,7 @@ export const HIDDEN_ACHIEVEMENTS: HiddenAchievement[] = [
 
   // SURPRISE HIDDEN ACHIEVEMENTS
   {
-    id: 'lucky_seven',
+    id: 'ACH_HIDDEN_006',
     name: 'Lucky Seven',
     description: 'Complete your 7th workout of the month on the 7th day',
     icon: '🍀',
@@ -171,7 +171,7 @@ export const HIDDEN_ACHIEVEMENTS: HiddenAchievement[] = [
     shareMessage: 'Lucky Seven achievement unlocked! 🍀 The universe smiled on my workout! #PlankCoach'
   },
   {
-    id: 'birthday_dedication',
+    id: 'ACH_HIDDEN_007',
     name: 'Birthday Dedication',
     description: 'Complete a workout on your birthday',
     icon: '🎂',
@@ -243,7 +243,7 @@ export class HiddenAchievementEngine {
         .from('user_achievements')
         .insert({
           user_id: this.userId,
-          achievement_type: achievement.category,
+          achievement_type: achievement.id,
           achievement_name: achievement.name,
           description: achievement.description,
           rarity: achievement.rarity,

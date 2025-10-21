@@ -14,6 +14,15 @@ import EmailVerify from "@/pages/EmailVerify";
 import ProductionCheck from "@/pages/ProductionCheck";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfService from "@/pages/TermsOfService";
+import Settings from "@/pages/Settings";
+import Profile from "@/pages/Profile";
+import AppSettings from "@/pages/AppSettings";
+import HelpSupport from "@/pages/HelpSupport";
+import Legal from "@/pages/Legal";
+import About from "@/pages/About";
+import PrivacySettings from "@/pages/PrivacySettings";
+import SubscriptionPage from "@/pages/SubscriptionPage";
+import NotificationsPage from "@/pages/NotificationsPage";
 
 import NotFound from "@/pages/NotFound";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -21,7 +30,7 @@ import { InstallPrompt } from "@/components/notifications/InstallPrompt";
 import { DevToolsNotifications } from "@/components/DevToolsNotifications";
 import ServiceWorkerMessageHandler from "@/components/notifications/ServiceWorkerMessageHandler";
 import AdminAchievements from "@/pages/AdminAchievements";
-import { Settings } from "lucide-react";
+import { Settings as SettingsIcon } from "lucide-react";
 import { logger } from '@/utils/productionLogger';
 import { PerformanceMonitor } from '@/utils/performanceOptimization';
 
@@ -57,7 +66,7 @@ function App() {
                   variant="outline"
                   className="fixed bottom-4 right-4 z-40 h-10 w-10 p-0"
                 >
-                  <Settings className="h-4 w-4" />
+                  <SettingsIcon className="h-4 w-4" />
                 </Button>
               </>
             )}
@@ -70,6 +79,15 @@ function App() {
               <Route path="/production-check" element={<ProductionCheck />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/terms-of-service" element={<TermsOfService />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/settings/profile" element={<Profile />} />
+              <Route path="/settings/app-settings" element={<AppSettings />} />
+              <Route path="/settings/subscription" element={<SubscriptionPage />} />
+              <Route path="/settings/notifications" element={<NotificationsPage />} />
+              <Route path="/settings/privacy-settings" element={<PrivacySettings />} />
+              <Route path="/settings/help-support" element={<HelpSupport />} />
+              <Route path="/settings/legal" element={<Legal />} />
+              <Route path="/settings/about" element={<About />} />
               <Route path="/admin/achievements" element={<AdminAchievements />} />
               
               <Route path="*" element={<NotFound />} />

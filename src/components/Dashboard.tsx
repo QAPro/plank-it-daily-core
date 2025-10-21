@@ -15,7 +15,6 @@ import ProgressTab from './tabs/ProgressTab';
 import GatedCompeteTab from './tabs/GatedCompeteTab';
 import FriendsTab from './tabs/FriendsTab';
 import EventsTab from './tabs/EventsTab';
-import ProfileTab from './tabs/ProfileTab';
 import AdminDashboard from './admin/AdminDashboard';
 import { useAuth } from '@/contexts/AuthContext';
 import { EnhancedPushNotificationTest } from '@/components/EnhancedPushNotificationTest';

@@ -66,7 +66,10 @@ const Profile = () => {
   };
 
   const totalWorkouts = sessions?.length || 0;
-  const totalTime = sessions?.reduce((acc, session) => acc + (session.duration || 0), 0) || 0;
+  const totalTime = sessions?.reduce((acc, session) => {
+    const duration = session.duration_seconds || 0;
+    return acc + duration;
+  }, 0) || 0;
   const totalMinutes = Math.round(totalTime / 60);
 
   const stats = [

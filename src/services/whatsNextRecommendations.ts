@@ -1,12 +1,26 @@
 /**
- * "What's Next?" Hybrid Recommendation Algorithm
- * Generates personalized achievement recommendations
+ * "What's Next?" Database-Driven Recommendation Algorithm
+ * Generates personalized achievement recommendations from database
  */
 
 import { supabase } from '@/integrations/supabase/client';
-import { getActiveAchievements, getAchievementById } from './achievementHelpers';
 import { calculateAchievementProgress, type AchievementProgress } from './achievementProgressService';
-import type { Achievement } from './achievementDefinitions';
+
+// Database achievement type
+interface Achievement {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  rarity: string;
+  points: number;
+  badge_file_name: string;
+  is_secret: boolean;
+  is_premium: boolean;
+  is_disabled: boolean;
+  unlock_criteria?: any;
+  related_exercise_categories?: string[];
+}
 
 export interface RecommendedAchievement {
   achievement: Achievement;
@@ -22,7 +36,7 @@ export interface ValidationReport {
 }
 
 /**
- * Main recommendation function
+ * Main recommendation function - fully database-driven
  */
 export const getWhatsNextRecommendations = async (
   userId: string,
@@ -41,9 +55,25 @@ export const getWhatsNextRecommendations = async (
 
     const earnedIds = new Set((earnedAchievements || []).map(a => a.achievement_type));
 
-    // Get active achievements (not disabled, not earned, not secret)
-    const activeAchievements = getActiveAchievements().filter(
-      ach => !earnedIds.has(ach.id) && !ach.isSecret
+    // Step 2: Fetch ALL active achievements from database
+    const { data: allAchievements, error: achievementsError } = await supabase
+      .from('achievements')
+      .select('*')
+      .eq('is_disabled', false)
+      .eq('is_secret', false);
+
+    if (achievementsError) {
+      console.error('Error fetching achievements:', achievementsError);
+      return [];
+    }
+
+    if (!allAchievements || allAchievements.length === 0) {
+      return [];
+    }
+
+    // Filter out earned achievements
+    const unearnedAchievements = allAchievements.filter(
+      ach => !earnedIds.has(ach.id)
     );
 
     // Check premium status
@@ -56,19 +86,24 @@ export const getWhatsNextRecommendations = async (
     const isPremium = userData?.subscription_tier === 'premium';
 
     // Filter out premium achievements for free users
-    const availableAchievements = activeAchievements.filter(
-      ach => !ach.isPremium || isPremium
+    const availableAchievements = unearnedAchievements.filter(
+      ach => !ach.is_premium || isPremium
     );
 
     if (availableAchievements.length === 0) {
       return [];
     }
 
-    // Step 2: Calculate progress for all available achievements with error handling
+    // Step 3: Calculate progress for all available achievements with error handling
     const progressData = await Promise.all(
       availableAchievements.map(async (achievement) => {
         try {
-          const progress = await calculateAchievementProgress(userId, achievement);
+          // Cast achievement to compatible type for progress calculation
+          const achievementForProgress = {
+            id: achievement.id,
+            unlock_criteria: achievement.unlock_criteria as any,
+          };
+          const progress = await calculateAchievementProgress(userId, achievementForProgress);
           return { achievement, progress };
         } catch (error) {
           console.warn(`Error calculating progress for ${achievement.id}:`, error);
@@ -87,7 +122,7 @@ export const getWhatsNextRecommendations = async (
       })
     );
 
-    // Step 3: Strategy 1 - Almost Complete (Top Priority)
+    // Step 4: Strategy 1 - Almost Complete (Top Priority)
     const almostComplete = progressData
       .filter(({ progress }) => progress.percentage >= 50 && progress.percentage < 100)
       .sort((a, b) => b.progress.percentage - a.progress.percentage)
@@ -99,36 +134,40 @@ export const getWhatsNextRecommendations = async (
         priority: 10 - Math.floor((100 - progress.percentage) / 10),
       }));
 
-    // Step 4: Strategy 2 - Next Tier Challenges
+    // Step 5: Strategy 2 - Next Tier Challenges
+    const { data: earnedWithRarity } = await supabase
+      .from('user_achievements')
+      .select('achievement_type')
+      .eq('user_id', userId);
+
+    // Get rarity info for earned achievements from database
+    const earnedAchievementIds = (earnedWithRarity || []).map(a => a.achievement_type);
+    const { data: earnedAchievementDetails } = await supabase
+      .from('achievements')
+      .select('id, rarity')
+      .in('id', earnedAchievementIds.length > 0 ? earnedAchievementIds : ['']);
+
     const rarityCount = {
-      Common: (earnedAchievements || []).filter(a => 
-        getAchievementById(a.achievement_type)?.rarity === 'Common'
-      ).length,
-      Uncommon: (earnedAchievements || []).filter(a => 
-        getAchievementById(a.achievement_type)?.rarity === 'Uncommon'
-      ).length,
-      Rare: (earnedAchievements || []).filter(a => 
-        getAchievementById(a.achievement_type)?.rarity === 'Rare'
-      ).length,
-      Epic: (earnedAchievements || []).filter(a => 
-        getAchievementById(a.achievement_type)?.rarity === 'Epic'
-      ).length,
+      common: (earnedAchievementDetails || []).filter(a => a.rarity?.toLowerCase() === 'common').length,
+      uncommon: (earnedAchievementDetails || []).filter(a => a.rarity?.toLowerCase() === 'uncommon').length,
+      rare: (earnedAchievementDetails || []).filter(a => a.rarity?.toLowerCase() === 'rare').length,
+      epic: (earnedAchievementDetails || []).filter(a => a.rarity?.toLowerCase() === 'epic').length,
     };
 
     // Determine next logical tier
-    let targetRarity: 'Common' | 'Uncommon' | 'Rare' | 'Epic';
-    if (rarityCount.Common < 5) {
-      targetRarity = 'Common';
-    } else if (rarityCount.Common >= 5 && rarityCount.Uncommon < 5) {
-      targetRarity = 'Uncommon';
-    } else if (rarityCount.Uncommon >= 5 && rarityCount.Rare < 5) {
-      targetRarity = 'Rare';
+    let targetRarity: string;
+    if (rarityCount.common < 5) {
+      targetRarity = 'common';
+    } else if (rarityCount.common >= 5 && rarityCount.uncommon < 5) {
+      targetRarity = 'uncommon';
+    } else if (rarityCount.uncommon >= 5 && rarityCount.rare < 5) {
+      targetRarity = 'rare';
     } else {
-      targetRarity = 'Epic';
+      targetRarity = 'epic';
     }
 
     const nextTierCandidates = progressData
-      .filter(({ achievement }) => achievement.rarity === targetRarity)
+      .filter(({ achievement }) => achievement.rarity?.toLowerCase() === targetRarity)
       .sort((a, b) => b.progress.percentage - a.progress.percentage)
       .slice(0, 2)
       .map(({ achievement, progress }) => ({
@@ -138,7 +177,7 @@ export const getWhatsNextRecommendations = async (
         priority: 7,
       }));
 
-    // Step 5: Strategy 3 - Category Diversity
+    // Step 6: Strategy 3 - Category Diversity
     const { data: categoryCounts } = await supabase
       .from('user_sessions')
       .select('category')
@@ -160,7 +199,7 @@ export const getWhatsNextRecommendations = async (
       if (leastUsedCategory) {
         diversityCandidates = progressData
           .filter(({ achievement }) => 
-            achievement.relatedExerciseCategories.includes(leastUsedCategory)
+            achievement.related_exercise_categories?.includes(leastUsedCategory)
           )
           .slice(0, 1)
           .map(({ achievement, progress }) => ({
@@ -172,22 +211,25 @@ export const getWhatsNextRecommendations = async (
       }
     }
 
-    // Step 6: Strategy 4 - Seasonal/Timely
+    // Step 7: Strategy 4 - Seasonal/Timely
     const currentMonth = new Date().getMonth() + 1;
     const currentDate = new Date();
     
     const seasonalAchievements = progressData
       .filter(({ achievement }) => {
-        const { unlockCriteria } = achievement;
-        if (!unlockCriteria) return false;
+        const unlockCriteria = achievement.unlock_criteria;
+        if (!unlockCriteria || typeof unlockCriteria !== 'object') return false;
 
-        if (unlockCriteria.type === 'seasonal_sessions') {
-          const months = unlockCriteria.conditions?.months || [];
+        const criteriaObj = unlockCriteria as { type?: string; conditions?: any };
+        
+        if (criteriaObj.type === 'seasonal_sessions') {
+          const months = criteriaObj.conditions?.months || [];
           return months.includes(currentMonth);
         }
 
-        if (unlockCriteria.type === 'date_range_sessions') {
-          const { startMonth, endMonth, startDay = 1, endDay = 31 } = unlockCriteria.conditions || {};
+        if (criteriaObj.type === 'date_range_sessions') {
+          const conditions = criteriaObj.conditions || {};
+          const { startMonth, endMonth, startDay = 1, endDay = 31 } = conditions;
           if (!startMonth || !endMonth) return false;
           
           const inRange = isDateInRange(currentDate, startMonth, startDay, endMonth, endDay);
@@ -204,7 +246,7 @@ export const getWhatsNextRecommendations = async (
         priority: 8,
       }));
 
-    // Step 7: Combine & Prioritize
+    // Step 8: Combine & Prioritize
     const allRecommendations = [
       ...almostComplete,
       ...nextTierCandidates,
@@ -270,17 +312,17 @@ export const validateRecommendations = (
   }
 
   // Check for secret achievements
-  if (recommendations.some(r => r.achievement.isSecret)) {
+  if (recommendations.some(r => r.achievement.is_secret)) {
     issues.push('Secret achievement shown in recommendations');
   }
 
   // Check premium gating
-  if (!isPremium && recommendations.some(r => r.achievement.isPremium)) {
+  if (!isPremium && recommendations.some(r => r.achievement.is_premium)) {
     issues.push('Premium achievement shown to free user');
   }
 
   // Check disabled achievements
-  if (recommendations.some(r => r.achievement.isDisabled)) {
+  if (recommendations.some(r => r.achievement.is_disabled)) {
     issues.push('Disabled achievement in recommendations');
   }
 

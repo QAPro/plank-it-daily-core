@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getBadgeUrl } from "@/utils/badgeAssets";
-import { getAchievementById } from "@/services/achievementHelpers";
+import { useAchievementById } from "@/hooks/useAchievements";
 import { formatDistanceToNow } from "date-fns";
 
 interface TrophyCaseSectionProps {
@@ -10,6 +10,58 @@ interface TrophyCaseSectionProps {
   loading: boolean;
   onAchievementClick: (achievement: any) => void;
 }
+
+// Individual trophy card component that fetches its own achievement data
+const TrophyCard = ({ 
+  userAchievement, 
+  index, 
+  onAchievementClick 
+}: { 
+  userAchievement: any; 
+  index: number; 
+  onAchievementClick: (achievement: any) => void;
+}) => {
+  const { data: achievement, isLoading } = useAchievementById(userAchievement.achievement_type);
+
+  if (isLoading || !achievement) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: index * 0.05 }}
+    >
+      <Card 
+        className="hover:shadow-lg transition-all cursor-pointer border-border/50"
+        onClick={() => onAchievementClick(achievement)}
+      >
+        <CardContent className="p-4 text-center space-y-3">
+          {/* Badge Image */}
+          <div className="flex justify-center">
+            <img 
+              src={getBadgeUrl(achievement.badge_file_name)}
+              alt={achievement.name}
+              className="w-20 h-20 object-contain"
+            />
+          </div>
+
+          {/* Achievement Info */}
+          <div>
+            <h4 className="font-semibold text-foreground text-sm mb-1 line-clamp-2">
+              {achievement.name}
+            </h4>
+            <p className="text-xs text-muted-foreground mb-2">
+              {formatDistanceToNow(new Date(userAchievement.earned_at), { addSuffix: true })}
+            </p>
+            <p className="text-xs font-bold text-primary">
+              {achievement.points} pts
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+};
 
 const TrophyCaseSection = ({ 
   recentAchievements, 
@@ -64,49 +116,14 @@ const TrophyCaseSection = ({
       </div>
 
       <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {recentAchievements.map((userAchievement, index) => {
-          // Find the full achievement definition
-          const achievement = getAchievementById(userAchievement.achievement_type);
-          if (!achievement) return null;
-
-          return (
-            <motion.div
-              key={userAchievement.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.05 }}
-            >
-              <Card 
-                className="hover:shadow-lg transition-all cursor-pointer border-border/50"
-                onClick={() => onAchievementClick(achievement)}
-              >
-                <CardContent className="p-4 text-center space-y-3">
-                  {/* Badge Image */}
-                  <div className="flex justify-center">
-                    <img 
-                      src={getBadgeUrl(achievement.badgeFileName)}
-                      alt={achievement.name}
-                      className="w-20 h-20 object-contain"
-                    />
-                  </div>
-
-                  {/* Achievement Info */}
-                  <div>
-                    <h4 className="font-semibold text-foreground text-sm mb-1 line-clamp-2">
-                      {achievement.name}
-                    </h4>
-                    <p className="text-xs text-muted-foreground mb-2">
-                      {formatDistanceToNow(new Date(userAchievement.earned_at), { addSuffix: true })}
-                    </p>
-                    <p className="text-xs font-bold text-primary">
-                      {achievement.points} pts
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          );
-        })}
+        {recentAchievements.map((userAchievement, index) => (
+          <TrophyCard 
+            key={userAchievement.id}
+            userAchievement={userAchievement}
+            index={index}
+            onAchievementClick={onAchievementClick}
+          />
+        ))}
       </div>
     </div>
   );

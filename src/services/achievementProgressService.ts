@@ -4,7 +4,16 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
-import type { Achievement } from './achievementDefinitions';
+
+// Generic achievement type for progress calculation
+interface Achievement {
+  id: string;
+  unlock_criteria?: {
+    type: string;
+    value?: number;
+    conditions?: Record<string, any>;
+  };
+}
 
 export interface AchievementProgress {
   achievementId: string;
@@ -23,7 +32,7 @@ export const calculateAchievementProgress = async (
   userId: string,
   achievement: Achievement
 ): Promise<AchievementProgress> => {
-  const { unlockCriteria } = achievement;
+  const { unlock_criteria: unlockCriteria } = achievement;
   
   if (!unlockCriteria) {
     return {

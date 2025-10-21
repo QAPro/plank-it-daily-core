@@ -562,11 +562,11 @@ export const AchievementDebugPanel = () => {
                 <ScrollArea className="h-[600px]">
                   <div className="space-y-4">
                     {recommendations.map((rec) => (
-                      <div key={rec.achievement.id} className="flex items-start gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                        <div key={rec.achievement.id} className="flex items-start gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                         {/* Badge Image */}
                         <div className="w-20 h-20 flex-shrink-0">
                           <img
-                            src={getBadgeUrl(rec.achievement.badgeFileName)}
+                            src={getBadgeUrl(rec.achievement.badge_file_name)}
                             alt={rec.achievement.name}
                             className="w-full h-full object-contain"
                             onError={(e) => {
@@ -613,7 +613,7 @@ export const AchievementDebugPanel = () => {
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">
                             <span>Category: {rec.achievement.category}</span>
                             <span>•</span>
-                            <span>Criteria: {rec.achievement.criteria}</span>
+                            <span>Progress: {rec.progress.percentage.toFixed(1)}%</span>
                           </div>
                         </div>
                       </div>

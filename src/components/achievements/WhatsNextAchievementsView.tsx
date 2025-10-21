@@ -7,7 +7,7 @@ import { WhatsNextErrorBoundary } from "./WhatsNextErrorBoundary";
 import { useUserAchievements } from "@/hooks/useUserAchievements";
 import { useWhatsNextRecommendations } from "@/hooks/useWhatsNextRecommendations";
 import { useRecommendationRefresh } from "@/hooks/useRecommendationRefresh";
-import { getActiveAchievements, getAchievementById } from "@/services/achievementHelpers";
+import { useActiveAchievements, useAchievementById } from "@/hooks/useAchievements";
 
 const WhatsNextAchievementsView = () => {
   const [selectedAchievement, setSelectedAchievement] = useState<any>(null);
@@ -15,6 +15,7 @@ const WhatsNextAchievementsView = () => {
   
   // Data fetching
   const { achievements, loading: achievementsLoading } = useUserAchievements();
+  const { data: activeAchievements = [], isLoading: activeLoading } = useActiveAchievements();
   const { 
     data: recommendations, 
     isLoading: recommendationsLoading,
@@ -35,13 +36,25 @@ const WhatsNextAchievementsView = () => {
 
   // Calculate stats
   const earnedCount = achievements.length;
-  const totalCount = getActiveAchievements().length;
+  const totalCount = activeAchievements.length;
   
-  // Calculate total points from earned achievements
-  const totalPoints = achievements.reduce((sum, userAchievement) => {
-    const achievement = getAchievementById(userAchievement.achievement_type);
-    return sum + (achievement?.points || 0);
-  }, 0);
+  // Calculate total points from earned achievements using database lookups
+  const [totalPoints, setTotalPoints] = useState(0);
+  
+  useEffect(() => {
+    const calculatePoints = async () => {
+      let points = 0;
+      for (const userAchievement of achievements) {
+        const achievement = activeAchievements.find(a => a.id === userAchievement.achievement_type);
+        points += achievement?.points || 0;
+      }
+      setTotalPoints(points);
+    };
+    
+    if (achievements.length > 0 && activeAchievements.length > 0) {
+      calculatePoints();
+    }
+  }, [achievements, activeAchievements]);
   
   const completionPercentage = totalCount > 0 ? Math.round((earnedCount / totalCount) * 100) : 0;
 

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { DatabaseAchievementService } from '@/services/databaseAchievementService';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface AchievementFilters {
   category?: string;
@@ -28,6 +29,53 @@ export const useAchievements = (filters?: AchievementFilters) => {
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     enabled: !!user
+  });
+};
+
+/**
+ * Get all active (non-disabled) achievements
+ */
+export const useActiveAchievements = () => {
+  return useQuery({
+    queryKey: ['achievements', 'active'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('achievements')
+        .select('*')
+        .eq('is_disabled', false)
+        .order('points', { ascending: true });
+      
+      if (error) throw error;
+      return data || [];
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes cache
+  });
+};
+
+/**
+ * Get a single achievement by ID
+ */
+export const useAchievementById = (achievementId?: string) => {
+  return useQuery({
+    queryKey: ['achievement', achievementId],
+    queryFn: async () => {
+      if (!achievementId) return null;
+      
+      const { data, error } = await supabase
+        .from('achievements')
+        .select('*')
+        .eq('id', achievementId)
+        .eq('is_disabled', false)
+        .single();
+      
+      if (error) {
+        if (error.code === 'PGRST116') return null; // Not found
+        throw error;
+      }
+      return data;
+    },
+    enabled: !!achievementId,
+    staleTime: 5 * 60 * 1000,
   });
 };
 

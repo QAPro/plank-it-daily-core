@@ -117,7 +117,7 @@ const WhatsNextSection: React.FC<WhatsNextSectionProps> = ({
                   name: rec.achievement.name,
                   description: rec.achievement.description,
                   points: rec.achievement.points,
-                  badge_image_url: rec.achievement.badgeFileName,
+                  badge_image_url: rec.achievement.badge_file_name,
                   rarity: rec.achievement.rarity,
                 }}
                 progress={progressPercent}

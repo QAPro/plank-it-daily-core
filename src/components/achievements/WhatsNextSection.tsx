@@ -125,7 +125,6 @@ const WhatsNextSection: React.FC<WhatsNextSectionProps> = ({
                 }}
                 progress={progressPercent}
                 recommendationReason={rec.recommendationReason}
-                onClick={() => onAchievementClick(rec.achievement)}
                 index={index}
               />
             );

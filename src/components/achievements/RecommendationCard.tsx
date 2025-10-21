@@ -15,7 +15,6 @@ interface RecommendationCardProps {
   };
   progress: number;
   recommendationReason: string;
-  onClick: () => void;
   index: number;
 }
 
@@ -50,7 +49,7 @@ const getReasonColor = (reason: string) => {
 };
 
 export const RecommendationCard = React.memo<RecommendationCardProps>(
-  ({ achievement, progress, recommendationReason, onClick, index }) => {
+  ({ achievement, progress, recommendationReason, index }) => {
     const isNearCompletion = progress > 90;
 
     return (
@@ -60,14 +59,7 @@ export const RecommendationCard = React.memo<RecommendationCardProps>(
         transition={{ delay: index * 0.1 }}
         className="relative"
       >
-        <div
-          onClick={onClick}
-          className="p-6 rounded-lg border bg-card hover:bg-accent/50 transition-all cursor-pointer group hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && onClick()}
-          aria-label={`View details for ${achievement.name}`}
-        >
+        <div className="p-6 rounded-lg border bg-card transition-all">
           <div className="flex items-start gap-4">
             <div className="relative flex-shrink-0">
               {achievement.badge_image_url ? (
@@ -95,7 +87,7 @@ export const RecommendationCard = React.memo<RecommendationCardProps>(
 
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-2 mb-2">
-                <h4 className="font-semibold text-base group-hover:text-primary transition-colors">
+                <h4 className="font-semibold text-base">
                   {achievement.name}
                 </h4>
                 <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">

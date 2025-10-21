@@ -3,11 +3,12 @@ import { supabase } from '@/integrations/supabase/client';
 export interface EnhancedActivity {
   id: string;
   user_id: string;
-  activity_type: 'workout' | 'achievement' | 'level_up' | 'streak_milestone' | 'personal_best' | 'challenge_complete';
+  activity_type: 'workout' | 'achievement' | 'level_up' | 'streak_milestone' | 'personal_best' | 'challenge_complete' | 'weekly_goal';
   activity_data: ActivityData;
   created_at: string;
   visibility: 'public' | 'friends' | 'private';
   shares_count: number;
+  cheer_count: number;
   users: {
     id: string;
     username: string;
@@ -50,6 +51,10 @@ export interface ActivityData {
   challenge_name?: string;
   challenge_type?: string;
   completion_time?: number;
+  
+  // Weekly goal activity
+  workouts_completed?: number;
+  goal_target?: number;
 }
 
 export interface ActivityComment {
@@ -133,6 +138,15 @@ export class SocialActivityManager {
     };
     
     await this.createActivity(userId, 'streak_milestone', activityData);
+  }
+
+  async createWeeklyGoalActivity(userId: string, goalData: any): Promise<void> {
+    const activityData: ActivityData = {
+      workouts_completed: goalData.workouts_completed,
+      goal_target: goalData.goal_target || 5
+    };
+    
+    await this.createActivity(userId, 'weekly_goal', activityData);
   }
   
   private async createActivity(userId: string, type: string, data: ActivityData): Promise<void> {
@@ -233,78 +247,52 @@ export class SocialActivityManager {
     }
   }
 
-  async getFriendActivities(userId: string, filters: ActivityFilters = { type: 'all', timeframe: 'week', friends: 'all' }): Promise<EnhancedActivity[]> {
+  async getFriendActivities(userId: string): Promise<EnhancedActivity[]> {
     try {
-      // For now, return mock data until the tables are properly synced
-      const mockActivities: EnhancedActivity[] = [
-        {
-          id: '1',
-          user_id: 'user1',
-          activity_type: 'workout',
-          activity_data: {
-            exercise_name: 'Standard Plank',
-            duration: 60,
-            difficulty_level: 2,
-            calories_burned: 8
-          },
-          created_at: new Date().toISOString(),
-          visibility: 'friends',
-          shares_count: 0,
-          users: {
-            id: 'user1',
-            username: 'fitness_buddy',
-            full_name: 'Fitness Buddy',
-            avatar_url: undefined
-          },
-          friend_reactions: [],
-          activity_comments: []
-        },
-        {
-          id: '2',
-          user_id: 'user2',
-          activity_type: 'achievement',
-          activity_data: {
-            achievement_name: 'First Week Complete',
-            achievement_description: 'Completed your first week of workouts!',
-            achievement_rarity: 'common'
-          },
-          created_at: new Date(Date.now() - 3600000).toISOString(),
-          visibility: 'friends',
-          shares_count: 2,
-          users: {
-            id: 'user2',
-            username: 'champion',
-            full_name: 'Workout Champion',
-            avatar_url: undefined
-          },
-          friend_reactions: [
-            {
-              id: 'reaction1',
-              user_id: userId,
-              activity_id: '2',
-              reaction_type: 'cheer',
-              created_at: new Date().toISOString()
-            }
-          ],
-          activity_comments: [
-            {
-              id: 'comment1',
-              user_id: userId,
-              activity_id: '2',
-              content: 'Great work! Keep it up! 💪',
-              created_at: new Date().toISOString(),
-              users: {
-                id: userId,
-                username: 'you',
-                full_name: 'You',
-                avatar_url: undefined
-              }
-            }
-          ]
-        }
-      ];
+      // Get user's friends
+      const { data: friendships, error: friendsError } = await supabase
+        .from('friends')
+        .select('user_id, friend_id')
+        .or(`user_id.eq.${userId},friend_id.eq.${userId}`)
+        .eq('status', 'accepted');
 
-      return mockActivities;
+      if (friendsError) throw friendsError;
+
+      // Get friend IDs
+      const friendIds = friendships?.map(f => 
+        f.user_id === userId ? f.friend_id : f.user_id
+      ) || [];
+
+      if (friendIds.length === 0) {
+        return [];
+      }
+
+      // Fetch activities from friends - only 4 types: workout, achievement, weekly_goal, level_up
+      const { data: activities, error: activitiesError } = await supabase
+        .from('friend_activities')
+        .select(`
+          *,
+          users:user_id (
+            id,
+            username,
+            full_name,
+            avatar_url
+          )
+        `)
+        .in('user_id', friendIds)
+        .in('activity_type', ['workout', 'achievement', 'weekly_goal', 'level_up'])
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (activitiesError) throw activitiesError;
+
+      return (activities || []).map(activity => ({
+        ...activity,
+        users: Array.isArray(activity.users) ? activity.users[0] : activity.users,
+        friend_reactions: [],
+        activity_comments: [],
+        cheer_count: activity.cheer_count || 0
+      })) as EnhancedActivity[];
     } catch (error) {
       console.error('Error getting friend activities:', error);
       return [];

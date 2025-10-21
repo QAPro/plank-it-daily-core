@@ -1,13 +1,12 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
-import { Heart, MessageCircle, Share2, Trophy, Flame, Zap, Clock, Target } from 'lucide-react';
+import { Share2, Trophy, Flame, Zap, Target } from 'lucide-react';
 import { EnhancedActivity } from '@/services/socialActivityService';
-import { socialActivityManager } from '@/services/socialActivityService';
+import { cheerService } from '@/services/cheerService';
+import CheerButton from './CheerButton';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -18,71 +17,48 @@ interface EnhancedActivityCardProps {
 }
 
 const EnhancedActivityCard = ({ activity, currentUserId, onUpdate }: EnhancedActivityCardProps) => {
-  const [showComments, setShowComments] = useState(false);
-  const [newComment, setNewComment] = useState('');
-  const [isCommenting, setIsCommenting] = useState(false);
+  const [hasUserCheered, setHasUserCheered] = useState(false);
+  const [cheerCount, setCheerCount] = useState(activity.cheer_count || 0);
 
-  const userReaction = activity.friend_reactions?.find(r => r.user_id === currentUserId);
-  const reactionCounts = activity.friend_reactions?.reduce((acc, reaction) => {
-    acc[reaction.reaction_type] = (acc[reaction.reaction_type] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>) || {};
+  useEffect(() => {
+    checkUserCheer();
+  }, [activity.id, currentUserId]);
 
-  const handleReaction = async (reactionType: string) => {
-    try {
-      if (userReaction?.reaction_type === reactionType) {
-        await socialActivityManager.removeReaction(currentUserId, activity.id);
-        toast.success('Reaction removed');
-      } else {
-        await socialActivityManager.addReaction(currentUserId, activity.id, reactionType);
-        toast.success('Reaction added');
-      }
-      onUpdate();
-    } catch (error) {
-      toast.error('Failed to update reaction');
-    }
-  };
-
-  const handleComment = async () => {
-    if (!newComment.trim()) return;
-    
-    setIsCommenting(true);
-    try {
-      await socialActivityManager.addComment(currentUserId, activity.id, newComment.trim());
-      setNewComment('');
-      toast.success('Comment added');
-      onUpdate();
-    } catch (error) {
-      toast.error('Failed to add comment');
-    } finally {
-      setIsCommenting(false);
-    }
+  const checkUserCheer = async () => {
+    const cheered = await cheerService.hasUserCheered(currentUserId, activity.id);
+    setHasUserCheered(cheered);
   };
 
   const handleShare = async () => {
     try {
-      await socialActivityManager.incrementShareCount(activity.id);
-      toast.success('Activity shared!');
-      onUpdate();
+      if (navigator.share) {
+        await navigator.share({
+          title: `${activity.users.full_name}'s Activity`,
+          text: getActivityDescription(),
+          url: window.location.href
+        });
+        toast.success('Activity shared!');
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success('Link copied to clipboard!');
+      }
     } catch (error) {
-      toast.error('Failed to share activity');
+      console.error('Failed to share activity:', error);
     }
   };
 
   const getActivityIcon = () => {
     switch (activity.activity_type) {
       case 'workout':
-        return <Zap className="h-5 w-5 text-blue-500" />;
+        return <Zap className="h-5 w-5 text-primary" />;
       case 'achievement':
-        return <Trophy className="h-5 w-5 text-yellow-500" />;
-      case 'streak_milestone':
-        return <Flame className="h-5 w-5 text-orange-500" />;
+        return <Trophy className="h-5 w-5 text-primary" />;
+      case 'weekly_goal':
+        return <Target className="h-5 w-5 text-primary" />;
       case 'level_up':
-        return <Target className="h-5 w-5 text-green-500" />;
-      case 'personal_best':
-        return <Trophy className="h-5 w-5 text-purple-500" />;
+        return <Flame className="h-5 w-5 text-primary" />;
       default:
-        return <Clock className="h-5 w-5 text-gray-500" />;
+        return <Zap className="h-5 w-5 text-muted-foreground" />;
     }
   };
 
@@ -92,12 +68,10 @@ const EnhancedActivityCard = ({ activity, currentUserId, onUpdate }: EnhancedAct
         return `${activity.users.full_name} completed a workout`;
       case 'achievement':
         return `${activity.users.full_name} earned an achievement`;
-      case 'streak_milestone':
-        return `${activity.users.full_name} hit a streak milestone`;
+      case 'weekly_goal':
+        return `${activity.users.full_name} hit their weekly goal`;
       case 'level_up':
         return `${activity.users.full_name} leveled up`;
-      case 'personal_best':
-        return `${activity.users.full_name} set a personal best`;
       default:
         return `${activity.users.full_name} had an activity`;
     }
@@ -110,24 +84,14 @@ const EnhancedActivityCard = ({ activity, currentUserId, onUpdate }: EnhancedAct
         return `${data.exercise_name || 'Exercise'} for ${data.duration || 0} seconds (Level ${data.difficulty_level || 1})`;
       case 'achievement':
         return `${data.achievement_name || 'Achievement'}: ${data.achievement_description || 'Great job!'}`;
-      case 'streak_milestone':
-        return `${data.streak_length || 0} day ${data.streak_type || 'daily'} streak!`;
+      case 'weekly_goal':
+        return `Completed ${data.workouts_completed || 0} workouts this week!`;
       case 'level_up':
         return `Advanced from Level ${data.old_level || 1} to Level ${data.new_level || 2}`;
-      case 'personal_best':
-        return `New best: ${data.new_best || 0}s (improved by ${data.improvement || 0}s)`;
       default:
         return 'Activity completed';
     }
   };
-
-  const reactions = [
-    { type: 'cheer', emoji: '👏', label: 'Cheer' },
-    { type: 'fire', emoji: '🔥', label: 'Fire' },
-    { type: 'strong', emoji: '💪', label: 'Strong' },
-    { type: 'heart', emoji: '❤️', label: 'Love' },
-    { type: 'clap', emoji: '🎉', label: 'Celebrate' }
-  ];
 
   return (
     <Card className="w-full">
@@ -144,24 +108,20 @@ const EnhancedActivityCard = ({ activity, currentUserId, onUpdate }: EnhancedAct
             <div className="flex items-center space-x-2">
               {getActivityIcon()}
               <div>
-                <p className="font-semibold text-gray-900">{getActivityTitle()}</p>
-                <p className="text-sm text-gray-600">{getActivityDescription()}</p>
+                <p className="font-semibold">{getActivityTitle()}</p>
+                <p className="text-sm text-muted-foreground">{getActivityDescription()}</p>
               </div>
             </div>
             
-            <div className="flex items-center space-x-4 text-sm text-gray-500">
-              <span>{formatDistanceToNow(new Date(activity.created_at))} ago</span>
+            <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+              <span>{formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}</span>
               {activity.activity_data.calories_burned && (
-                <Badge variant="secondary" className="bg-green-100 text-green-800">
+                <Badge variant="secondary">
                   {activity.activity_data.calories_burned} cal
                 </Badge>
               )}
               {activity.activity_data.achievement_rarity && (
-                <Badge variant="secondary" className={
-                  activity.activity_data.achievement_rarity === 'rare' ? 'bg-purple-100 text-purple-800' :
-                  activity.activity_data.achievement_rarity === 'epic' ? 'bg-orange-100 text-orange-800' :
-                  'bg-gray-100 text-gray-800'
-                }>
+                <Badge variant="secondary">
                   {activity.activity_data.achievement_rarity}
                 </Badge>
               )}
@@ -171,87 +131,29 @@ const EnhancedActivityCard = ({ activity, currentUserId, onUpdate }: EnhancedAct
       </CardHeader>
 
       <CardContent className="pt-0">
-        <div className="flex items-center justify-between border-t border-gray-100 pt-3">
-          <div className="flex items-center space-x-1">
-            {reactions.map((reaction) => (
-              <Button
-                key={reaction.type}
-                variant={userReaction?.reaction_type === reaction.type ? "default" : "ghost"}
-                size="sm"
-                className="h-8 px-2 text-xs"
-                onClick={() => handleReaction(reaction.type)}
-              >
-                <span className="mr-1">{reaction.emoji}</span>
-                {reactionCounts[reaction.type] || 0}
-              </Button>
-            ))}
-          </div>
+        <div className="flex items-center justify-between border-t pt-3">
+          <CheerButton
+            activityId={activity.id}
+            toUserId={activity.user_id}
+            currentUserId={currentUserId}
+            hasUserCheered={hasUserCheered}
+            cheerCount={cheerCount}
+            onCheerUpdate={() => {
+              onUpdate();
+              checkUserCheer();
+            }}
+          />
 
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowComments(!showComments)}
-              className="h-8 px-2 text-xs"
-            >
-              <MessageCircle className="h-4 w-4 mr-1" />
-              {activity.activity_comments?.length || 0}
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleShare}
-              className="h-8 px-2 text-xs"
-            >
-              <Share2 className="h-4 w-4 mr-1" />
-              {activity.shares_count || 0}
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleShare}
+            className="gap-2 hover:bg-primary/10 transition-colors"
+          >
+            <Share2 className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">Share</span>
+          </Button>
         </div>
-
-        {showComments && (
-          <div className="mt-4 space-y-3 border-t border-gray-100 pt-3">
-            {activity.activity_comments?.map((comment) => (
-              <div key={comment.id} className="flex space-x-3">
-                <Avatar className="w-8 h-8">
-                  <AvatarImage src={comment.users.avatar_url} />
-                  <AvatarFallback>
-                    {comment.users.username?.charAt(0) || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <div className="bg-gray-50 rounded-lg px-3 py-2">
-                    <p className="font-semibold text-sm text-gray-900">
-                      {comment.users.username}
-                    </p>
-                    <p className="text-sm text-gray-700">{comment.content}</p>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {formatDistanceToNow(new Date(comment.created_at))} ago
-                  </p>
-                </div>
-              </div>
-            ))}
-
-            <div className="flex space-x-2">
-              <Textarea
-                placeholder="Write a comment..."
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                className="flex-1 min-h-[60px] resize-none"
-                disabled={isCommenting}
-              />
-              <Button
-                onClick={handleComment}
-                disabled={!newComment.trim() || isCommenting}
-                size="sm"
-              >
-                Post
-              </Button>
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
   );

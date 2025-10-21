@@ -734,6 +734,38 @@ export type Database = {
           },
         ]
       }
+      cheers: {
+        Row: {
+          activity_id: string
+          created_at: string
+          from_user_id: string
+          id: string
+          to_user_id: string
+        }
+        Insert: {
+          activity_id: string
+          created_at?: string
+          from_user_id: string
+          id?: string
+          to_user_id: string
+        }
+        Update: {
+          activity_id?: string
+          created_at?: string
+          from_user_id?: string
+          id?: string
+          to_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cheers_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "friend_activities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coaching_messages: {
         Row: {
           content: string
@@ -1586,6 +1618,7 @@ export type Database = {
         Row: {
           activity_data: Json
           activity_type: string
+          cheer_count: number
           created_at: string
           id: string
           shares_count: number
@@ -1596,6 +1629,7 @@ export type Database = {
         Insert: {
           activity_data?: Json
           activity_type: string
+          cheer_count?: number
           created_at?: string
           id?: string
           shares_count?: number
@@ -1606,6 +1640,7 @@ export type Database = {
         Update: {
           activity_data?: Json
           activity_type?: string
+          cheer_count?: number
           created_at?: string
           id?: string
           shares_count?: number
@@ -2301,6 +2336,36 @@ export type Database = {
           updated_at?: string | null
           user_agent?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          referral_code: string
+          referred_user_id: string | null
+          referrer_user_id: string
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code: string
+          referred_user_id?: string | null
+          referrer_user_id: string
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code?: string
+          referred_user_id?: string | null
+          referrer_user_id?: string
+          status?: string
         }
         Relationships: []
       }
@@ -4350,6 +4415,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_social_stats: {
+        Row: {
+          cheers_given: number
+          cheers_received: number
+          friends_count: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cheers_given?: number
+          cheers_received?: number
+          friends_count?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cheers_given?: number
+          cheers_received?: number
+          friends_count?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_status_tracks: {
         Row: {

@@ -26,9 +26,9 @@ export const useWhatsNextRecommendations = (limit: number = 5) => {
       return recommendations.filter(rec => {
         const isValid = rec?.achievement?.name && 
                        rec?.achievement?.description &&
-                       typeof rec?.progress === 'number' &&
-                       rec?.progress >= 0 && 
-                       rec?.progress <= 100;
+                       typeof rec?.progress?.percentage === 'number' &&
+                       rec?.progress?.percentage >= 0 && 
+                       rec?.progress?.percentage <= 100;
         
         if (!isValid) {
           console.warn('Filtering out invalid recommendation:', rec);

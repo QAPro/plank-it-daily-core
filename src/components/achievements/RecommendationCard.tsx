@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, TrendingUp, Target, Calendar } from 'lucide-react';
+import { Sparkles, TrendingUp, Target, Calendar, Lock } from 'lucide-react';
 import { getBadgeUrl } from '@/utils/badgeAssets';
 
 interface RecommendationCardProps {
@@ -12,10 +12,12 @@ interface RecommendationCardProps {
     points: number;
     badge_image_url?: string;
     rarity: string;
+    is_premium?: boolean;
   };
   progress: number;
   recommendationReason: string;
   index: number;
+  isPremiumUser?: boolean;
 }
 
 const getReasonIcon = (reason: string) => {
@@ -49,7 +51,7 @@ const getReasonColor = (reason: string) => {
 };
 
 export const RecommendationCard = React.memo<RecommendationCardProps>(
-  ({ achievement, progress, recommendationReason, index }) => {
+  ({ achievement, progress, recommendationReason, index, isPremiumUser = false }) => {
     const isNearCompletion = progress > 90;
 
     return (
@@ -74,6 +76,15 @@ export const RecommendationCard = React.memo<RecommendationCardProps>(
                   <Target className="h-8 w-8 text-primary" />
                 </div>
               )}
+              
+              {/* Premium Lock Icon */}
+              {achievement.is_premium && !isPremiumUser && (
+                <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                  <Lock className="h-6 w-6 text-yellow-500" />
+                </div>
+              )}
+              
+              {/* Near completion sparkle */}
               {isNearCompletion && (
                 <motion.div
                   initial={{ scale: 0 }}

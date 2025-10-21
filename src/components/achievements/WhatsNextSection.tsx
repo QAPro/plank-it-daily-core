@@ -4,6 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { RecommendedAchievement } from '@/services/whatsNextRecommendations';
 import { RecommendationCard } from './RecommendationCard';
 import { EmptyStateDisplay, EMPTY_STATES } from './EmptyStatesConfig';
+import { useFeatureAccess } from '@/hooks/useFeatureAccess';
 
 interface WhatsNextSectionProps {
   recommendations: RecommendedAchievement[];
@@ -24,6 +25,9 @@ const WhatsNextSection: React.FC<WhatsNextSectionProps> = ({
   totalAchievements = 0,
   earnedCount = 0,
 }) => {
+  const { tier } = useFeatureAccess();
+  const isPremiumUser = tier === 'premium';
+  
   // Memoize filtered recommendations to prevent unnecessary recalculations
   const validRecommendations = useMemo(() => {
     return recommendations.filter(rec => 
@@ -122,10 +126,12 @@ const WhatsNextSection: React.FC<WhatsNextSectionProps> = ({
                   points: rec.achievement.points,
                   badge_image_url: rec.achievement.badge_file_name,
                   rarity: rec.achievement.rarity,
+                  is_premium: rec.achievement.is_premium,
                 }}
                 progress={progressPercent}
                 recommendationReason={rec.recommendationReason}
                 index={index}
+                isPremiumUser={isPremiumUser}
               />
             );
           })}

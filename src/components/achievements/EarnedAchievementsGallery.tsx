@@ -3,9 +3,6 @@ import { motion } from "framer-motion";
 import { Trophy, Clock, Star, Target, Award, Search, RefreshCw, Heart, Dumbbell, Activity, Zap, User, Gauge, TrendingUp, ArrowLeft } from "lucide-react";
 import { useOptimizedAchievementProgress } from "@/hooks/useOptimizedAchievementProgress";
 import { useAchievements } from "@/hooks/useAchievements";
-
-const EarnedAchievementsGallery = () => {
-  const { data: allAchievements = [] } = useAchievements();
 import EnhancedAchievementCard from "./EnhancedAchievementCard";
 import EnhancedAchievementCelebration from "./EnhancedAchievementCelebration";
 import { 
@@ -26,7 +23,8 @@ interface EarnedAchievementsGalleryProps {
 }
 
 const EarnedAchievementsGallery = ({ onBackClick }: EarnedAchievementsGalleryProps = {}) => {
-  const { 
+  const { data: allAchievements = [] } = useAchievements();
+  const {
     achievementProgress, 
     loading, 
     earnedCount, 
@@ -104,7 +102,7 @@ const EarnedAchievementsGallery = ({ onBackClick }: EarnedAchievementsGalleryPro
     const exerciseCategoryData = exerciseCategories.map(categoryId => {
       const categoryAchievements = allAchievements.filter((a: any) => 
         a.category === 'category_specific' && 
-        a.requirement.conditions?.exercise_categories?.includes(categoryId)
+        (a.unlock_criteria as any)?.category === categoryId
       );
       const earnedCount = categoryAchievements.filter(a => earnedSet.has(a.name)).length;
       
@@ -133,7 +131,7 @@ const EarnedAchievementsGallery = ({ onBackClick }: EarnedAchievementsGalleryPro
       ...categoryData,
       ...exerciseCategoryData
     ];
-  }, [achievementProgress, earnedCount, totalCount]);
+  }, [achievementProgress, earnedCount, totalCount, allAchievements]);
 
   const filteredProgress = useMemo(() => {
     let filtered;

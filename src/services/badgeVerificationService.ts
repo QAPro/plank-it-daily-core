@@ -4,7 +4,11 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
-import { ALL_ACHIEVEMENTS } from './allAchievements';
+import { DatabaseAchievementService } from './databaseAchievementService';
+
+export interface BadgeVerificationReport {
+  // ... keep existing code
+}
 
 export interface BadgeVerificationReport {
   totalAchievements: number;
@@ -26,8 +30,11 @@ export interface BadgeVerificationReport {
  * Verify all badge assets are uploaded and match achievement definitions
  */
 export const verifyBadgeAssets = async (): Promise<BadgeVerificationReport> => {
+  const service = new DatabaseAchievementService('');
+  const allAchievements = await service.getAllAchievements();
+  
   const report: BadgeVerificationReport = {
-    totalAchievements: ALL_ACHIEVEMENTS.length,
+    totalAchievements: allAchievements.length,
     totalBadgesInStorage: 0,
     missingBadges: [],
     extraBadges: [],
@@ -60,16 +67,16 @@ export const verifyBadgeAssets = async (): Promise<BadgeVerificationReport> => {
 
     // Create a Set of required badge file names from achievements
     const requiredBadges = new Set(
-      ALL_ACHIEVEMENTS.map(a => a.badgeFileName)
+      allAchievements.map(a => a.badge_file_name)
     );
 
     // Find missing badges (in achievements but not uploaded)
-    ALL_ACHIEVEMENTS.forEach(achievement => {
-      if (!uploadedBadges.has(achievement.badgeFileName)) {
+    allAchievements.forEach(achievement => {
+      if (!uploadedBadges.has(achievement.badge_file_name)) {
         report.missingBadges.push({
           achievementId: achievement.id,
           achievementName: achievement.name,
-          expectedBadgeFile: achievement.badgeFileName
+          expectedBadgeFile: achievement.badge_file_name
         });
       }
     });
@@ -82,7 +89,7 @@ export const verifyBadgeAssets = async (): Promise<BadgeVerificationReport> => {
     });
 
     // Validate achievement data integrity
-    ALL_ACHIEVEMENTS.forEach(achievement => {
+    allAchievements.forEach(achievement => {
       // Check for required fields
       if (!achievement.id || !achievement.name) {
         report.validationErrors.push({
@@ -92,10 +99,10 @@ export const verifyBadgeAssets = async (): Promise<BadgeVerificationReport> => {
       }
 
       // Check badge file name format
-      if (!achievement.badgeFileName.endsWith('.png')) {
+      if (!achievement.badge_file_name.endsWith('.png')) {
         report.validationErrors.push({
           achievementId: achievement.id,
-          error: `Badge file should be PNG: ${achievement.badgeFileName}`
+          error: `Badge file should be PNG: ${achievement.badge_file_name}`
         });
       }
 

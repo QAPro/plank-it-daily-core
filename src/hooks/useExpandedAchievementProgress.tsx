@@ -17,11 +17,15 @@ export interface AchievementWithProgress {
 
 export const useExpandedAchievementProgress = () => {
   const { user } = useAuth();
+  const { data: allAchievements = [] } = useAchievements();
   const [achievementProgress, setAchievementProgress] = useState<AchievementWithProgress[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchProgressData = async () => {
-    if (!user) return;
+    if (!user || allAchievements.length === 0) {
+      setLoading(false);
+      return;
+    }
 
     try {
       // Get earned achievements
@@ -45,9 +49,11 @@ export const useExpandedAchievementProgress = () => {
       // Combine achievement definitions with progress using complete list
       const progressWithData: AchievementWithProgress[] = [];
 
-      for (const achievement of ALL_ACHIEVEMENTS) {
+      for (const achievement of allAchievements) {
         const isEarned = earnedNames.has(achievement.name);
         const progress = progressMap.get(achievement.id);
+        const criteria = (achievement.unlock_criteria as any) || {};
+        const targetValue = criteria.value || 100;
         
         let currentProgress = 0;
         if (!isEarned) {
@@ -56,7 +62,7 @@ export const useExpandedAchievementProgress = () => {
           
           // Update progress in database if it's changed
           if (progress?.current_progress !== currentProgress) {
-            await updateProgressInDatabase(achievement.id, currentProgress, achievement.requirement.value);
+            await updateProgressInDatabase(achievement.id, currentProgress, targetValue);
           }
         }
 
@@ -65,8 +71,8 @@ export const useExpandedAchievementProgress = () => {
         progressWithData.push({
           achievement,
           isEarned,
-          currentProgress: isEarned ? achievement.requirement.value : currentProgress,
-          progressPercentage: isEarned ? 100 : Math.min((currentProgress / achievement.requirement.value) * 100, 100),
+          currentProgress: isEarned ? targetValue : currentProgress,
+          progressPercentage: isEarned ? 100 : Math.min((currentProgress / targetValue) * 100, 100),
           estimatedCompletion
         });
       }
@@ -80,9 +86,9 @@ export const useExpandedAchievementProgress = () => {
   };
 
   const calculateCurrentProgress = async (achievement: any) => {
-    const engine = new ExpandedAchievementEngine(user?.id || '');
+    const criteria = (achievement.unlock_criteria as any) || {};
     
-    switch (achievement.requirement.type) {
+    switch (criteria.type) {
       case 'streak':
         return await calculateStreakProgress();
       case 'duration':
@@ -309,7 +315,7 @@ export const useExpandedAchievementProgress = () => {
 
   useEffect(() => {
     fetchProgressData();
-  }, [user]);
+  }, [user, allAchievements]);
 
   return {
     achievementProgress,

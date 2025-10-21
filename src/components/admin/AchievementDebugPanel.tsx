@@ -19,8 +19,8 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export const AchievementDebugPanel = () => {
   const { user } = useAuth();
-  const [achievements] = useState<Achievement[]>(ALL_ACHIEVEMENTS);
-  const [filteredAchievements, setFilteredAchievements] = useState<Achievement[]>(achievements);
+  const { data: achievements = [] } = useAchievements();
+  const [filteredAchievements, setFilteredAchievements] = useState<any[]>(achievements);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [rarityFilter, setRarityFilter] = useState<string>('all');
@@ -63,7 +63,7 @@ export const AchievementDebugPanel = () => {
     // Premium filter
     if (premiumFilter !== 'all') {
       const isPremium = premiumFilter === 'premium';
-      filtered = filtered.filter(a => a.isPremium === isPremium);
+      filtered = filtered.filter(a => a.is_premium === isPremium);
     }
 
     // Status filter (active/disabled)
@@ -221,11 +221,11 @@ export const AchievementDebugPanel = () => {
               <div className="text-sm text-muted-foreground">Total Achievements</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold">{achievements.filter(a => a.isPremium).length}</div>
+              <div className="text-3xl font-bold">{achievements.filter(a => a.is_premium).length}</div>
               <div className="text-sm text-muted-foreground">Premium Only</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold">{achievements.filter(a => a.isSecret).length}</div>
+              <div className="text-3xl font-bold">{achievements.filter(a => a.is_secret).length}</div>
               <div className="text-sm text-muted-foreground">Secret</div>
             </div>
             <div className="text-center">
@@ -428,8 +428,8 @@ export const AchievementDebugPanel = () => {
                           {achievement.rarity}
                         </Badge>
                         <Badge variant="outline">{achievement.points} pts</Badge>
-                        {achievement.isPremium && <Badge variant="secondary">Premium</Badge>}
-                        {achievement.isSecret && <Badge variant="destructive">Secret</Badge>}
+                        {achievement.is_premium && <Badge variant="secondary">Premium</Badge>}
+                        {achievement.is_secret && <Badge variant="destructive">Secret</Badge>}
                         {(achievement as any).isDisabled && <Badge variant="destructive" className="bg-red-600">DISABLED</Badge>}
                       </div>
                     </div>

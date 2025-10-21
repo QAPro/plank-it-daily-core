@@ -9,6 +9,7 @@ export const useOptimizedAchievementProgress = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [progressiveLoading, setProgressiveLoading] = useState(true);
+  const { data: allAchievements = [] } = useAchievements();
 
   // Query for earned achievements (always fresh, loads quickly)
   const { data: earnedAchievements = [], isLoading: earnedLoading } = useQuery({
@@ -133,7 +134,8 @@ export const useOptimizedAchievementProgress = () => {
         if (!achievement) return { id, progress: 0 };
 
         let currentProgress = 0;
-        const { type, value, conditions } = achievement.requirement;
+        const criteria = (achievement.unlock_criteria as any) || {};
+        const { type, value, conditions } = criteria;
 
         switch (type) {
           case 'streak':
@@ -191,7 +193,7 @@ export const useOptimizedAchievementProgress = () => {
           user_id: user.id,
           achievement_id: id,
           current_progress: progress,
-          target_progress: EXPANDED_ACHIEVEMENTS.find(a => a.id === id)?.requirement.value || 0,
+          target_progress: ((allAchievements.find((a: any) => a.id === id)?.unlock_criteria as any)?.value) || 0,
           last_updated: new Date().toISOString()
         }));
 
@@ -218,12 +220,12 @@ export const useOptimizedAchievementProgress = () => {
       const results: AchievementWithProgress[] = [];
 
       // Phase 1: Show earned achievements immediately (no calculation needed)
-      const earnedResults = EXPANDED_ACHIEVEMENTS
-        .filter(achievement => earnedNames.has(achievement.name))
-        .map(achievement => ({
+      const earnedResults = allAchievements
+        .filter((achievement: any) => earnedNames.has(achievement.name))
+        .map((achievement: any) => ({
           achievement,
           isEarned: true,
-          currentProgress: achievement.requirement.value,
+          currentProgress: (achievement.unlock_criteria as any)?.value || 100,
           progressPercentage: 100,
           estimatedCompletion: undefined
         }));
@@ -231,7 +233,7 @@ export const useOptimizedAchievementProgress = () => {
       results.push(...earnedResults);
 
       // Phase 2: Show unearned with cached progress
-      const unearned = EXPANDED_ACHIEVEMENTS.filter(a => !earnedNames.has(a.name));
+      const unearned = allAchievements.filter((a: any) => !earnedNames.has(a.name));
       
       for (const achievement of unearned) {
         const cachedData = progressMap.get(achievement.id);
@@ -243,7 +245,9 @@ export const useOptimizedAchievementProgress = () => {
           currentProgress = freshProgress[0]?.progress || 0;
         }
 
-        const progressPercentage = Math.min((currentProgress / achievement.requirement.value) * 100, 100);
+        const criteria = (achievement.unlock_criteria as any) || {};
+        const targetValue = criteria.value || 100;
+        const progressPercentage = Math.min((currentProgress / targetValue) * 100, 100);
         const estimatedCompletion = calculateEstimatedCompletion(achievement, currentProgress);
 
         results.push({
@@ -307,7 +311,7 @@ export const useOptimizedAchievementProgress = () => {
   const refreshProgress = useCallback(async () => {
     if (!user) return;
     
-    const allIds = EXPANDED_ACHIEVEMENTS.map(a => a.id);
+    const allIds = allAchievements.map((a: any) => a.id);
     await calculateProgressBatch(allIds);
     
     // Invalidate all related queries
@@ -320,7 +324,7 @@ export const useOptimizedAchievementProgress = () => {
     achievementProgress,
     loading: isLoading || earnedLoading,
     earnedCount: earnedAchievements.length,
-    totalCount: EXPANDED_ACHIEVEMENTS.length,
+    totalCount: allAchievements.length,
     refetch: refreshProgress,
     needsRefresh,
     progressiveLoading

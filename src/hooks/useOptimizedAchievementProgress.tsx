@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { EXPANDED_ACHIEVEMENTS } from '@/services/expandedAchievementService';
+import { useAchievements } from "@/hooks/useAchievements";
 import type { AchievementWithProgress } from './useExpandedAchievementProgress';
 
 export const useOptimizedAchievementProgress = () => {
@@ -129,7 +129,7 @@ export const useOptimizedAchievementProgress = () => {
 
       // Calculate progress for each achievement
       const progressResults = achievementIds.map(id => {
-        const achievement = EXPANDED_ACHIEVEMENTS.find(a => a.id === id);
+        const achievement = allAchievements.find((a: any) => a.id === id);
         if (!achievement) return { id, progress: 0 };
 
         let currentProgress = 0;

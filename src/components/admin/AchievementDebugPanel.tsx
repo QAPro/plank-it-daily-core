@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getBadgeUrl } from '@/utils/badgeAssets';
 import { verifyBadgeAssets, getVerificationSummary, type BadgeVerificationReport } from '@/services/badgeVerificationService';
-import { ALL_ACHIEVEMENTS, type Achievement } from '@/services/allAchievements';
+import { useAchievements } from '@/hooks/useAchievements';
 import { getWhatsNextRecommendations, validateRecommendations, type RecommendedAchievement } from '@/services/whatsNextRecommendations';
 import { Search, Filter, AlertTriangle, CheckCircle, Info, Wand2, LogOut, Sparkles, Target } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';

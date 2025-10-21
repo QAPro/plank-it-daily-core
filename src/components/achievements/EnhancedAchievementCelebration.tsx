@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Share2, X } from "lucide-react";
-import { ExpandedAchievementEngine } from "@/services/expandedAchievementService";
+import { getRarityColor } from "@/utils/achievementDisplay";
 
 interface EnhancedAchievementCelebrationProps {
   achievement: any;
@@ -21,7 +21,7 @@ const EnhancedAchievementCelebration = ({
   isVisible 
 }: EnhancedAchievementCelebrationProps) => {
   const [showConfetti, setShowConfetti] = useState(false);
-  const rarityColors = ExpandedAchievementEngine.getRarityColor(achievement.rarity);
+  const rarityColors = getRarityColor(achievement.rarity as any);
 
   useEffect(() => {
     if (isVisible) {

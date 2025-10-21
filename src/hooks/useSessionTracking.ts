@@ -2,7 +2,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
-import { EnhancedAchievementService } from '@/services/enhancedAchievementService';
+import { DatabaseAchievementService } from '@/services/databaseAchievementService';
 import { useChallengeTracking } from '@/hooks/useChallengeTracking';
 import type { Tables } from '@/integrations/supabase/types';
 import type { UserAchievement } from '@/hooks/useUserAchievements';
@@ -73,11 +73,13 @@ export const useSessionTracking = () => {
       // Update streak and check for milestones
       const milestoneEvent = await updateStreak();
 
-      // Check for new achievements using enhanced service
-      const achievementService = new EnhancedAchievementService(user.id);
-      const regularAchievements = await achievementService.checkAchievements();
-      const specialAchievements = await achievementService.checkSpecialAchievements();
-      const newAchievements = [...regularAchievements, ...specialAchievements];
+      // Check for new achievements using database service
+      const achievementService = new DatabaseAchievementService(user.id);
+      const newAchievements = await achievementService.checkAllAchievements({
+        duration_seconds: durationSeconds,
+        exercise_id: exercise.id,
+        user_id: user.id
+      });
 
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: ['session-history'] });

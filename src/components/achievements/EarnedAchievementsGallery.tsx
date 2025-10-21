@@ -2,7 +2,10 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Trophy, Clock, Star, Target, Award, Search, RefreshCw, Heart, Dumbbell, Activity, Zap, User, Gauge, TrendingUp, ArrowLeft } from "lucide-react";
 import { useOptimizedAchievementProgress } from "@/hooks/useOptimizedAchievementProgress";
-import { EXPANDED_ACHIEVEMENTS } from "@/services/expandedAchievementService";
+import { useAchievements } from "@/hooks/useAchievements";
+
+const EarnedAchievementsGallery = () => {
+  const { data: allAchievements = [] } = useAchievements();
 import EnhancedAchievementCard from "./EnhancedAchievementCard";
 import EnhancedAchievementCelebration from "./EnhancedAchievementCelebration";
 import { 
@@ -81,7 +84,7 @@ const EarnedAchievementsGallery = ({ onBackClick }: EarnedAchievementsGalleryPro
     // Main achievement categories
     const mainCategories = ['consistency', 'performance', 'exploration', 'milestone', 'category_specific', 'cross_category'];
     const categoryData = mainCategories.map(categoryId => {
-      const categoryAchievements = EXPANDED_ACHIEVEMENTS.filter(a => a.category === categoryId);
+      const categoryAchievements = allAchievements.filter((a: any) => a.category === categoryId);
       const earnedCount = categoryAchievements.filter(a => earnedSet.has(a.name)).length;
       
       return {
@@ -99,7 +102,7 @@ const EarnedAchievementsGallery = ({ onBackClick }: EarnedAchievementsGalleryPro
     // Exercise categories for category_specific achievements
     const exerciseCategories = ['cardio', 'leg_lift', 'planking', 'seated_exercise', 'standing_movement', 'strength'];
     const exerciseCategoryData = exerciseCategories.map(categoryId => {
-      const categoryAchievements = EXPANDED_ACHIEVEMENTS.filter(a => 
+      const categoryAchievements = allAchievements.filter((a: any) => 
         a.category === 'category_specific' && 
         a.requirement.conditions?.exercise_categories?.includes(categoryId)
       );

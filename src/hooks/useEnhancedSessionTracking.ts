@@ -8,7 +8,7 @@ import { useNewExercises, type ExerciseWithCategory } from './useNewExercises';
 import { getLastCompletedDuration } from '@/utils/exerciseDuration';
 import { toast } from 'sonner';
 import { useStreak } from '@/components/StreakProvider';
-import { ExpandedAchievementEngine } from '@/services/expandedAchievementService';
+import { DatabaseAchievementService } from '@/services/databaseAchievementService';
 import { useXPTracking } from './useXPTracking';
 import { useWorkoutFeedback } from './useWorkoutFeedback';
 import { useAutoHookTracking } from './useHookModelTracking';
@@ -387,10 +387,10 @@ const completeSession = useCallback(async (duration: number, notes?: string) => 
       console.error('Failed to update momentum score:', error);
     }
 
-    // Check for new achievements using expanded engine
+    // Check for new achievements using database service
     console.log('🏆 Checking for achievements...');
-    const achievementEngine = new ExpandedAchievementEngine(user.id);
-    const newAchievements = await achievementEngine.checkAllAchievements({
+    const achievementService = new DatabaseAchievementService(user.id);
+    const newAchievements = await achievementService.checkAllAchievements({
       duration_seconds: duration,
       exercise_id: selectedExercise.id,
       user_id: user.id

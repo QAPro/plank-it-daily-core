@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { EXPANDED_ACHIEVEMENTS, ExpandedAchievementEngine, ALL_ACHIEVEMENTS } from '@/services/expandedAchievementService';
+import { useAchievements } from "@/hooks/useAchievements";
 import type { Tables } from '@/integrations/supabase/types';
 
 type UserAchievementProgress = Tables<'user_achievement_progress'>;

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Trophy, Target, Calendar, TrendingUp, Star, Award, Heart, Dumbbell, Activity, Zap, User, Gauge } from "lucide-react";
 import { useUserAchievements } from "@/hooks/useUserAchievements";
 import { useExpandedAchievementProgress } from "@/hooks/useExpandedAchievementProgress";
-import { EXPANDED_ACHIEVEMENTS } from "@/services/expandedAchievementService";
+import { useAchievements } from "@/hooks/useAchievements";
 import AchievementCategories, { AchievementCategory } from "@/components/achievements/AchievementCategories";
 import EnhancedAchievementCard from "@/components/achievements/EnhancedAchievementCard";
 import { Card, CardContent } from "@/components/ui/card";
@@ -48,14 +48,16 @@ const AchievementsGallery = () => {
     strength: 'bg-gradient-to-br from-gray-600 to-slate-700'
   };
 
+  const { data: allAchievements = [] } = useAchievements();
+
   const categories: AchievementCategory[] = useMemo(() => {
     const earnedSet = new Set(earnedAchievements?.map(a => a.achievement_name) || []);
     
     // Main achievement categories
     const mainCategories = ['consistency', 'performance', 'exploration', 'milestone', 'category_specific', 'cross_category'];
     const categoryData = mainCategories.map(categoryId => {
-      const categoryAchievements = EXPANDED_ACHIEVEMENTS.filter(a => a.category === categoryId);
-      const earnedCount = categoryAchievements.filter(a => earnedSet.has(a.name)).length;
+      const categoryAchievements = allAchievements.filter((a: any) => a.category === categoryId);
+      const earnedCount = categoryAchievements.filter((a: any) => earnedSet.has(a.name)).length;
       
       return {
         id: categoryId,
@@ -73,11 +75,11 @@ const AchievementsGallery = () => {
     // Exercise categories for category_specific achievements
     const exerciseCategories = ['cardio', 'leg_lift', 'planking', 'seated_exercise', 'standing_movement', 'strength'];
     const exerciseCategoryData = exerciseCategories.map(categoryId => {
-      const categoryAchievements = EXPANDED_ACHIEVEMENTS.filter(a => 
+      const categoryAchievements = allAchievements.filter((a: any) => 
         a.category === 'category_specific' && 
-        a.requirement.conditions?.exercise_categories?.includes(categoryId)
+        (a.unlock_criteria as any)?.category === categoryId
       );
-      const earnedCount = categoryAchievements.filter(a => earnedSet.has(a.name)).length;
+      const earnedCount = categoryAchievements.filter((a: any) => earnedSet.has(a.name)).length;
       
       return {
         id: categoryId,
@@ -95,7 +97,7 @@ const AchievementsGallery = () => {
 
     // Add "All" category
     const totalEarned = earnedAchievements?.length || 0;
-    const totalAvailable = EXPANDED_ACHIEVEMENTS.length;
+    const totalAvailable = allAchievements.length;
     
     return [
       {
@@ -110,7 +112,7 @@ const AchievementsGallery = () => {
       ...categoryData,
       ...exerciseCategoryData
     ];
-  }, [earnedAchievements]);
+  }, [earnedAchievements, allAchievements]);
 
   const filteredProgress = useMemo(() => {
     if (selectedCategory === 'all') {

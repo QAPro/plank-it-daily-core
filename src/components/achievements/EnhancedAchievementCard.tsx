@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Clock, Trophy, Star } from "lucide-react";
-import { ExpandedAchievementEngine } from "@/services/expandedAchievementService";
+import { getRarityColor, getRarityGlow } from "@/utils/achievementDisplay";
 import type { AchievementWithProgress } from "@/hooks/useExpandedAchievementProgress";
 
 interface EnhancedAchievementCardProps {
@@ -14,8 +14,8 @@ interface EnhancedAchievementCardProps {
 
 const EnhancedAchievementCard = ({ achievementProgress, onClick }: EnhancedAchievementCardProps) => {
   const { achievement, isEarned, currentProgress, progressPercentage, estimatedCompletion } = achievementProgress;
-  const rarityColors = ExpandedAchievementEngine.getRarityColor(achievement.rarity);
-  const rarityGlow = ExpandedAchievementEngine.getRarityGlow(achievement.rarity);
+  const rarityColors = getRarityColor(achievement.rarity as any);
+  const rarityGlow = getRarityGlow(achievement.rarity as any);
 
   const getCategoryIcon = () => {
     // Check if it's a category-specific achievement

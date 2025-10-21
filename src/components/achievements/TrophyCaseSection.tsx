@@ -4,7 +4,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getBadgeUrl } from "@/utils/badgeAssets";
 import { useActiveAchievements } from "@/hooks/useAchievements";
-import { formatDistanceToNow } from "date-fns";
 import { CategoryFilter, type AchievementCategory } from "./CategoryFilter";
 
 interface TrophyCaseSectionProps {
@@ -49,35 +48,24 @@ const TrophyCard = ({
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: index * 0.05 }}
+      className="hover:scale-105 transition-transform cursor-pointer"
+      onClick={() => onAchievementClick(achievement)}
     >
-      <Card 
-        className="hover:shadow-lg transition-all cursor-pointer border-border/50"
-        onClick={() => onAchievementClick(achievement)}
-      >
-        <CardContent className="p-4 text-center space-y-3">
-          {/* Badge Image */}
-          <div className="flex justify-center">
-            <img 
-              src={getBadgeUrl(achievement.badge_file_name)}
-              alt={achievement.name}
-              className="w-20 h-20 object-contain"
-            />
-          </div>
+      <div className="text-center space-y-2">
+        {/* Badge Image */}
+        <div className="flex justify-center">
+          <img 
+            src={getBadgeUrl(achievement.badge_file_name)}
+            alt={achievement.name}
+            className="w-32 h-32 object-contain"
+          />
+        </div>
 
-          {/* Achievement Info */}
-          <div>
-            <h4 className="font-semibold text-foreground text-sm mb-1 line-clamp-2">
-              {achievement.name}
-            </h4>
-            <p className="text-xs text-muted-foreground mb-2">
-              {formatDistanceToNow(new Date(userAchievement.earned_at), { addSuffix: true })}
-            </p>
-            <p className="text-xs font-bold text-primary">
-              {achievement.points} pts
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+        {/* Achievement Name */}
+        <h4 className="font-semibold text-foreground text-sm line-clamp-2 px-1">
+          {achievement.name}
+        </h4>
+      </div>
     </motion.div>
   );
 };

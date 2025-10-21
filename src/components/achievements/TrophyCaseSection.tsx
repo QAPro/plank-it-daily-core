@@ -23,7 +23,36 @@ const TrophyCard = ({
 }) => {
   const { data: achievement, isLoading } = useAchievementById(userAchievement.achievement_type);
 
-  if (isLoading || !achievement) return null;
+  // Show skeleton while loading
+  if (isLoading) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+      >
+        <Skeleton className="h-48 w-full" />
+      </motion.div>
+    );
+  }
+
+  // Handle missing achievement gracefully (old data or deleted achievement)
+  if (!achievement) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.5 }}
+      >
+        <Card className="border-dashed opacity-50">
+          <CardContent className="p-4 text-center">
+            <div className="text-2xl mb-2">❓</div>
+            <p className="text-xs text-muted-foreground">
+              Achievement unavailable
+            </p>
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div

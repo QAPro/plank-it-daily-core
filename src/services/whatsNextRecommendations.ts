@@ -43,6 +43,8 @@ export const getWhatsNextRecommendations = async (
   limit: number = 5
 ): Promise<RecommendedAchievement[]> => {
   try {
+    console.log('🎯 [WhatsNext] Starting recommendations for user:', userId);
+    
     // Step 1: Get user context with validation
     const { data: earnedAchievements, error: earnedError } = await supabase
       .from('user_achievements')
@@ -50,10 +52,12 @@ export const getWhatsNextRecommendations = async (
       .eq('user_id', userId);
 
     if (earnedError) {
-      console.error('Error fetching earned achievements:', earnedError);
+      console.error('❌ [WhatsNext] Error fetching earned achievements:', earnedError);
     }
 
     const earnedIds = new Set((earnedAchievements || []).map(a => a.achievement_type));
+    console.log('🏆 [WhatsNext] User earned achievements:', earnedAchievements?.length || 0);
+    console.log('🏆 [WhatsNext] Earned IDs:', Array.from(earnedIds));
 
     // Step 2: Fetch ALL active achievements from database
     const { data: allAchievements, error: achievementsError } = await supabase
@@ -63,11 +67,14 @@ export const getWhatsNextRecommendations = async (
       .eq('is_secret', false);
 
     if (achievementsError) {
-      console.error('Error fetching achievements:', achievementsError);
+      console.error('❌ [WhatsNext] Error fetching achievements:', achievementsError);
       return [];
     }
 
+    console.log('📊 [WhatsNext] Total available achievements:', allAchievements?.length || 0);
+
     if (!allAchievements || allAchievements.length === 0) {
+      console.warn('⚠️ [WhatsNext] No achievements found in database');
       return [];
     }
 

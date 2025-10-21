@@ -39,21 +39,24 @@ const WhatsNextSection: React.FC<WhatsNextSectionProps> = ({
       return EMPTY_STATES.ERROR_LOADING(() => window.location.reload());
     }
     
+    // Check if user has zero earned achievements (new user or clean slate)
     if (earnedCount === 0) {
       return EMPTY_STATES.NEW_USER;
     }
     
+    // Check if all achievements earned
     if (earnedCount >= totalAchievements && totalAchievements > 0) {
       return EMPTY_STATES.ALL_EARNED;
     }
     
-    // Check premium wall scenario
+    // Only show premium wall if user has earned achievements but no recommendations
+    // This means they've maxed out free achievements
     if (earnedCount > 0 && validRecommendations.length === 0) {
       return EMPTY_STATES.PREMIUM_WALL();
     }
     
     return null;
-  }, [error, earnedCount, totalAchievements, validRecommendations]);
+  }, [error, earnedCount, totalAchievements, validRecommendations.length]);
 
   return (
     <div className="space-y-4">

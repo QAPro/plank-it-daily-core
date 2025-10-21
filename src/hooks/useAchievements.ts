@@ -69,13 +69,18 @@ export const useAchievementById = (achievementId?: string) => {
         .single();
       
       if (error) {
-        if (error.code === 'PGRST116') return null; // Not found
+        // Don't throw for PGRST116 (not found) - just return null gracefully
+        if (error.code === 'PGRST116') {
+          console.warn(`Achievement ${achievementId} not found in database`);
+          return null;
+        }
         throw error;
       }
       return data;
     },
     enabled: !!achievementId,
     staleTime: 5 * 60 * 1000,
+    retry: false, // Don't retry on 404s
   });
 };
 

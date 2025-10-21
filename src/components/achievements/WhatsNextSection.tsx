@@ -74,7 +74,7 @@ const WhatsNextSection: React.FC<WhatsNextSectionProps> = ({
       </div>
 
       {loading ? (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
             <Card key={i} className="border-border/50 bg-card/50">
               <CardContent className="p-4">
@@ -107,7 +107,7 @@ const WhatsNextSection: React.FC<WhatsNextSectionProps> = ({
           </Card>
         )
       ) : (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {validRecommendations.map((rec, index) => {
             const progressPercent = rec.progress.isComplete 
               ? 100 

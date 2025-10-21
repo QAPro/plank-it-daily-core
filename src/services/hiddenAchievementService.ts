@@ -98,7 +98,7 @@ export const HIDDEN_ACHIEVEMENTS: HiddenAchievement[] = [
   {
     id: 'ACH_HIDDEN_004',
     name: 'Perfectionist',
-    description: 'Complete 10 sessions without pausing',
+    description: 'Complete 50 sessions without pausing',
     icon: '💎',
     rarity: 'epic',
     points: 250,
@@ -109,14 +109,14 @@ export const HIDDEN_ACHIEVEMENTS: HiddenAchievement[] = [
         .select('duration_seconds')
         .eq('user_id', userId)
         .order('completed_at', { ascending: false })
-        .limit(20);
+        .limit(60);
       
       // For now, assume sessions over 15 seconds are "complete"
       const completeSessions = data?.filter(s => s.duration_seconds >= 15) || [];
-      return completeSessions.length >= 10;
+      return completeSessions.length >= 50;
     },
     unlockMessage: 'Perfection achieved! Your focus and determination are unmatched.',
-    shareMessage: 'Perfectionist achievement unlocked! 💎 10 flawless sessions! #PlankCoach'
+    shareMessage: 'Perfectionist achievement unlocked! 💎 50 flawless sessions! #PlankCoach'
   },
 
   // DISCOVERY HIDDEN ACHIEVEMENTS

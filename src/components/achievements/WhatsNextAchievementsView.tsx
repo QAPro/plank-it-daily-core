@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import QuickStatsSection from "./QuickStatsSection";
 import WhatsNextSection from "./WhatsNextSection";
 import TrophyCaseSection from "./TrophyCaseSection";
-import EnhancedAchievementCelebration from "./EnhancedAchievementCelebration";
+import AchievementDetailModal from "./AchievementDetailModal";
 import { WhatsNextErrorBoundary } from "./WhatsNextErrorBoundary";
 import { useUserAchievements } from "@/hooks/useUserAchievements";
 import { useWhatsNextRecommendations } from "@/hooks/useWhatsNextRecommendations";
@@ -86,7 +86,7 @@ const WhatsNextAchievementsView = () => {
       />
 
       {selectedAchievement && (
-        <EnhancedAchievementCelebration
+        <AchievementDetailModal
           achievement={selectedAchievement}
           onClose={() => setSelectedAchievement(null)}
           isVisible={!!selectedAchievement}

@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import NewBottomNav from './navigation/NewBottomNav';
 import DashboardHeader from './navigation/DashboardHeader';
@@ -22,25 +23,18 @@ import { PushNotificationDebug } from '@/components/PushNotificationDebug';
 import { VapidKeyManager } from '@/components/VapidKeyManager';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('home');
-  const [profileView, setProfileView] = useState<'overview' | 'subscription-plans'>('overview');
-  const [showVapidManager, setShowVapidManager] = useState(false);
   const [selectedWorkout, setSelectedWorkout] = useState<{exerciseId: string, duration: number} | null>(null);
   const { user } = useAuth();
   const isMobile = useIsMobile();
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
-    // Reset profile view when switching tabs
-    if (tab !== 'profile') {
-      setProfileView('overview');
-    }
-    // Keep selectedWorkout state for persistence - don't clear when navigating
   };
 
   const handleUpgradeNavigation = () => {
-    setProfileView('subscription-plans');
-    setActiveTab('profile');
+    navigate('/settings/subscription');
   };
 
   const handleStartWorkout = (exerciseId: string, duration: number) => {
@@ -76,12 +70,6 @@ const Dashboard = () => {
         return <EventsTab />;
       case 'admin':
         return <AdminDashboard />;
-      case 'profile':
-        return <ProfileTab 
-          initialView={profileView} 
-          onOpenVapidManager={() => setShowVapidManager(true)}
-          onNavigateToAdmin={() => handleTabChange('admin')}
-        />;
       default:
         return <HomeTab onTabChange={handleTabChange} onUpgradeClick={handleUpgradeNavigation} onStartWorkout={handleStartWorkout} selectedWorkout={selectedWorkout} onWorkoutStarted={handleWorkoutStarted} />;
     }
@@ -95,13 +83,8 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
-      {/* Debug Components - VAPID Key Manager for troubleshooting */}
-      {showVapidManager && (
-        <VapidKeyManager onClose={() => setShowVapidManager(false)} />
-      )}
-      
       {/* Header with Settings */}
-      <DashboardHeader onSettingsClick={() => handleTabChange('profile')} />
+      <DashboardHeader onSettingsClick={() => navigate('/settings')} />
       
       <div className="flex flex-col h-screen">        
         {/* Main Content */}

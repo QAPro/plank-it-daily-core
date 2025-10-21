@@ -4740,6 +4740,7 @@ export type Database = {
           current_level: number | null
           email: string
           email_change_sent_at: string | null
+          first_name: string | null
           full_name: string | null
           id: string
           pending_new_email: string | null
@@ -4754,6 +4755,7 @@ export type Database = {
           current_level?: number | null
           email: string
           email_change_sent_at?: string | null
+          first_name?: string | null
           full_name?: string | null
           id: string
           pending_new_email?: string | null
@@ -4768,6 +4770,7 @@ export type Database = {
           current_level?: number | null
           email?: string
           email_change_sent_at?: string | null
+          first_name?: string | null
           full_name?: string | null
           id?: string
           pending_new_email?: string | null

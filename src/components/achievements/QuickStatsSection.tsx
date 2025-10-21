@@ -1,25 +1,21 @@
 import { motion } from "framer-motion";
-import { Trophy, Star, Target } from "lucide-react";
+import { Trophy, Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface QuickStatsSectionProps {
   earnedCount: number;
-  totalCount: number;
   totalPoints: number;
-  completionPercentage: number;
 }
 
 const QuickStatsSection = ({ 
   earnedCount, 
-  totalCount, 
-  totalPoints, 
-  completionPercentage 
+  totalPoints 
 }: QuickStatsSectionProps) => {
   const stats = [
     {
       icon: Trophy,
       label: "Achievements Earned",
-      value: `${earnedCount} / ${totalCount}`,
+      value: earnedCount.toLocaleString(),
       gradient: "from-orange-500/10 to-red-500/10",
       iconColor: "text-orange-500",
     },
@@ -30,17 +26,10 @@ const QuickStatsSection = ({
       gradient: "from-purple-500/10 to-pink-500/10",
       iconColor: "text-purple-500",
     },
-    {
-      icon: Target,
-      label: "Complete",
-      value: `${completionPercentage}%`,
-      gradient: "from-blue-500/10 to-cyan-500/10",
-      iconColor: "text-blue-500",
-    },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {stats.map((stat, index) => (
         <motion.div
           key={stat.label}

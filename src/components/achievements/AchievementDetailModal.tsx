@@ -83,13 +83,13 @@ const AchievementDetailModal = ({ achievement, onClose, isVisible }: Achievement
               </motion.div>
 
               {/* Content */}
-              <div className="flex flex-col items-center text-center space-y-6">
+              <div className="flex flex-col items-center text-center space-y-4">
                 {/* Achievement Name - Top */}
                 <motion.h2
                   initial={{ y: -20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.3 }}
-                  className={`text-3xl font-bold ${textColor} mt-8`}
+                  className={`text-3xl font-bold ${textColor} mt-3`}
                 >
                   {achievement.name}
                 </motion.h2>
@@ -102,7 +102,7 @@ const AchievementDetailModal = ({ achievement, onClose, isVisible }: Achievement
                     transition={{ delay: 0.4, type: "spring", duration: 0.6 }}
                     src={badgeUrl}
                     alt={achievement.name}
-                    className="w-80 h-80 object-contain drop-shadow-2xl"
+                    className="w-80 h-80 md:w-96 md:h-96 object-contain drop-shadow-2xl"
                   />
                 )}
 

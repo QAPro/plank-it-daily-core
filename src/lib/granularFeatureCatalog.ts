@@ -192,23 +192,6 @@ export const GRANULAR_FEATURE_CATALOG: Record<string, GranularFeature> = {
     impact: "low"
   },
 
-  // === AUDIO & MULTIMEDIA ===
-  background_music_player: {
-    name: "Background Music Player",
-    description: "Workout background music and audio controls",
-    category: "audio",
-    components: ["BackgroundMusicPlayer"],
-    impact: "low"
-  },
-  victory_playlists: {
-    name: "Victory Playlist Manager",
-    description: "Custom playlist management for workout completion",
-    category: "audio",
-    components: ["VictoryPlaylistManager"],
-    dependencies: ["background_music_player"],
-    impact: "low"
-  },
-
   // === COACHING & GUIDANCE ===
   timer_tips: {
     name: "Timer Tips",

@@ -6,8 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
 import { EnhancedNotificationPreferences } from '@/components/notifications/EnhancedNotificationPreferences';
-import { MusicPreferences } from '@/components/preferences/MusicPreferences';
-import FlagGuard from '@/components/access/FlagGuard';
 
 const AppSettings = () => {
   const navigate = useNavigate();
@@ -98,17 +96,6 @@ const AppSettings = () => {
             </CardContent>
           </Card>
         </motion.div>
-
-        {/* Music Preferences - Only show if feature is enabled */}
-        <FlagGuard featureName="background_music_player">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <MusicPreferences />
-          </motion.div>
-        </FlagGuard>
 
         {/* Enhanced Notification Preferences */}
         <motion.div

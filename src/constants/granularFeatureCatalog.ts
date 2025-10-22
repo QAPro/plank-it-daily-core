@@ -1,5 +1,4 @@
 export type FeatureCategory = 
-  | 'music_features'
   | 'ai_features'
   | 'social_features'
   | 'analytics_features'
@@ -20,10 +19,9 @@ export interface GranularFeatureCatalogItem {
   uiComponents?: string[];
 }
 
-import { Music, Brain, Users, BarChart3, Crown, Palette, Trophy } from 'lucide-react';
+import { Brain, Users, BarChart3, Crown, Palette, Trophy } from 'lucide-react';
 
 export const GRANULAR_FEATURE_CATEGORIES: Record<FeatureCategory, { label: string; icon: any; color: string }> = {
-  music_features: { label: 'Music & Audio', icon: Music, color: 'text-purple-600' },
   ai_features: { label: 'AI Features', icon: Brain, color: 'text-blue-600' },
   social_features: { label: 'Social Features', icon: Users, color: 'text-green-600' },
   analytics_features: { label: 'Analytics Features', icon: BarChart3, color: 'text-orange-600' },
@@ -33,53 +31,6 @@ export const GRANULAR_FEATURE_CATEGORIES: Record<FeatureCategory, { label: strin
 };
 
 export const GRANULAR_FEATURE_CATALOG: GranularFeatureCatalogItem[] = [
-  // Music & Audio Features
-  {
-    name: 'music_features',
-    displayName: 'Music & Audio Features',
-    description: 'All music and audio-related features',
-    category: 'music_features',
-    defaultAudience: 'all',
-    defaultRolloutPercentage: 100,
-  },
-  {
-    name: 'background_music',
-    displayName: 'Background Music Player',
-    description: 'Background music player during workouts',
-    category: 'music_features',
-    parentFeatureName: 'music_features',
-    defaultAudience: 'all',
-    defaultRolloutPercentage: 100,
-    componentPath: 'src/components/audio/BackgroundMusicPlayer.tsx',
-  },
-  {
-    name: 'victory_playlists',
-    displayName: 'Victory Playlists',
-    description: 'Special playlists for workout completion',
-    category: 'music_features',
-    parentFeatureName: 'music_features',
-    defaultAudience: 'premium',
-    defaultRolloutPercentage: 90,
-  },
-  {
-    name: 'playlist_sharing',
-    displayName: 'Playlist Sharing',
-    description: 'Share workout playlists with friends',
-    category: 'music_features',
-    parentFeatureName: 'music_features',
-    defaultAudience: 'all',
-    defaultRolloutPercentage: 85,
-  },
-  {
-    name: 'audio_coaching',
-    displayName: 'Audio Coaching',
-    description: 'Voice coaching and audio cues',
-    category: 'music_features',
-    parentFeatureName: 'music_features',
-    defaultAudience: 'premium',
-    defaultRolloutPercentage: 80,
-  },
-
   // AI Features
   {
     name: 'ai_features',

@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import AvatarSelector from './AvatarSelector';
+import CarouselAvatarSelector from './CarouselAvatarSelector';
 import UsernameInput from './UsernameInput';
 
 interface EditProfileDialogProps {
@@ -82,7 +82,7 @@ const EditProfileDialog = ({ open, onOpenChange, userData, onUpdate }: EditProfi
           {/* Avatar Selection */}
           <div className="space-y-2">
             <Label>Avatar</Label>
-            <AvatarSelector
+            <CarouselAvatarSelector
               selectedUrl={avatarUrl}
               onSelect={setAvatarUrl}
             />

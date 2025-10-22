@@ -79,7 +79,7 @@ const EditProfileDialog = ({ open, onOpenChange, userData, onUpdate }: EditProfi
           {/* Avatar Selection */}
           <div className="space-y-2">
             <Label>Avatar</Label>
-            <div className="h-96 md:h-[28rem]">
+            <div className="h-56 md:h-64">
               <CarouselAvatarSelector
                 selectedUrl={avatarUrl}
                 onSelect={setAvatarUrl}

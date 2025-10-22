@@ -73,12 +73,9 @@ const EditProfileDialog = ({ open, onOpenChange, userData, onUpdate }: EditProfi
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Profile</DialogTitle>
-          <DialogDescription>
-            Update your profile information
-          </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="space-y-4 py-4">
           {/* Avatar Selection */}
           <div className="space-y-2">
             <Label>Avatar</Label>
@@ -107,20 +104,6 @@ const EditProfileDialog = ({ open, onOpenChange, userData, onUpdate }: EditProfi
               onChange={setUsername}
               currentUsername={userData?.username}
             />
-          </div>
-
-          {/* Email (Read-only) */}
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              value={user?.email || ''}
-              disabled
-              className="bg-muted"
-            />
-            <p className="text-xs text-muted-foreground">
-              Email cannot be changed from here. Contact support if needed.
-            </p>
           </div>
         </div>
 

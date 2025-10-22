@@ -102,9 +102,9 @@ const CarouselAvatarSelector = ({ selectedUrl, onSelect, className }: CarouselAv
                   type="button"
                   onClick={() => handleAvatarClick(option.image_url)}
                   className={cn(
-                    "relative group w-full aspect-[3/4] rounded-3xl overflow-hidden transition-all duration-300",
+                    "relative group w-full aspect-square rounded-full overflow-hidden transition-all duration-300",
                     "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
-                    "hover:scale-105 hover:shadow-lg"
+                    "hover:scale-110 hover:shadow-lg"
                   )}
                   aria-label={`Select ${option.name} avatar`}
                   title={option.name}

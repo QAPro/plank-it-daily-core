@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { WorkoutHub } from "@/components/workout/WorkoutHub";
-import { BackgroundMusicPlayer } from '@/components/audio/BackgroundMusicPlayer';
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import type { ExerciseWithCategory } from "@/hooks/useNewExercises";
 
@@ -65,16 +64,6 @@ const WorkoutTab = ({ onStartWorkout }: WorkoutTabProps) => {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
         >
-          {/* Background Music Player */}
-          {preferences?.background_music && (
-            <div className="p-6 pb-0 flex justify-center">
-              <BackgroundMusicPlayer 
-                isWorkoutActive={showTimer}
-                className="w-full max-w-md"
-              />
-            </div>
-          )}
-
           {/* New Workout Hub */}
           <WorkoutHub onStartExercise={handleStartExercise} />
         </motion.div>

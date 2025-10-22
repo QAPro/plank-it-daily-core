@@ -519,7 +519,7 @@ export type Database = {
           accessing_user_id: string | null
           created_at: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           target_user_id: string | null
           user_agent: string | null
         }
@@ -530,7 +530,7 @@ export type Database = {
           accessing_user_id?: string | null
           created_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           target_user_id?: string | null
           user_agent?: string | null
         }
@@ -541,7 +541,7 @@ export type Database = {
           accessing_user_id?: string | null
           created_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           target_user_id?: string | null
           user_agent?: string | null
         }
@@ -3443,7 +3443,7 @@ export type Database = {
           accessing_user_id: string
           created_at: string | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           target_user_id: string
           user_agent: string | null
         }
@@ -3454,7 +3454,7 @@ export type Database = {
           accessing_user_id: string
           created_at?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           target_user_id: string
           user_agent?: string | null
         }
@@ -3465,7 +3465,7 @@ export type Database = {
           accessing_user_id?: string
           created_at?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           target_user_id?: string
           user_agent?: string | null
         }
@@ -4066,7 +4066,6 @@ export type Database = {
           adaptive_timing: boolean | null
           auto_progression: boolean | null
           avoided_exercises: string[] | null
-          background_music: boolean | null
           breathing_guidance: boolean | null
           coaching_voice: string | null
           created_at: string | null
@@ -4082,7 +4081,6 @@ export type Database = {
           last_timer_duration: number | null
           last_workout_timestamp: string | null
           music_auto_start: string | null
-          music_volume: number | null
           notification_frequency: string | null
           notification_types: Json | null
           preferred_music_genre: string | null
@@ -4107,7 +4105,6 @@ export type Database = {
           adaptive_timing?: boolean | null
           auto_progression?: boolean | null
           avoided_exercises?: string[] | null
-          background_music?: boolean | null
           breathing_guidance?: boolean | null
           coaching_voice?: string | null
           created_at?: string | null
@@ -4123,7 +4120,6 @@ export type Database = {
           last_timer_duration?: number | null
           last_workout_timestamp?: string | null
           music_auto_start?: string | null
-          music_volume?: number | null
           notification_frequency?: string | null
           notification_types?: Json | null
           preferred_music_genre?: string | null
@@ -4148,7 +4144,6 @@ export type Database = {
           adaptive_timing?: boolean | null
           auto_progression?: boolean | null
           avoided_exercises?: string[] | null
-          background_music?: boolean | null
           breathing_guidance?: boolean | null
           coaching_voice?: string | null
           created_at?: string | null
@@ -4164,7 +4159,6 @@ export type Database = {
           last_timer_duration?: number | null
           last_workout_timestamp?: string | null
           music_auto_start?: string | null
-          music_volume?: number | null
           notification_frequency?: string | null
           notification_types?: Json | null
           preferred_music_genre?: string | null
@@ -5135,7 +5129,7 @@ export type Database = {
         Returns: boolean
       }
       admin_get_subscription_analytics: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           active_subscriptions: number
           churn_rate: number
@@ -5153,7 +5147,7 @@ export type Database = {
         }[]
       }
       admin_get_user_summary: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           created_at: string
           current_level: number
@@ -5182,6 +5176,12 @@ export type Database = {
           reason: string | null
           updated_at: string
           user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "user_overrides"
+          isOneToOne: true
+          isSetofReturn: false
         }
       }
       admin_revoke_lifetime_access: {
@@ -5229,17 +5229,14 @@ export type Database = {
         Returns: boolean
       }
       audit_security_configuration: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           check_name: string
           details: string
           status: string
         }[]
       }
-      bootstrap_first_admin: {
-        Args: { user_email: string }
-        Returns: boolean
-      }
+      bootstrap_first_admin: { Args: { user_email: string }; Returns: boolean }
       calculate_ab_test_statistics: {
         Args: { _experiment_id: string }
         Returns: undefined
@@ -5277,10 +5274,7 @@ export type Database = {
         Args: { _experiment_id: string }
         Returns: string
       }
-      detect_leadership_candidates: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      detect_leadership_candidates: { Args: never; Returns: undefined }
       does_username_exist: {
         Args: { target_username: string }
         Returns: boolean
@@ -5321,7 +5315,7 @@ export type Database = {
         }[]
       }
       get_achievement_category_analytics: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           avg_completion_rate: number
           category: string
@@ -5333,7 +5327,7 @@ export type Database = {
         }[]
       }
       get_achievement_completion_analytics: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           achievement_name: string
           achievement_type: string
@@ -5345,7 +5339,7 @@ export type Database = {
         }[]
       }
       get_achievement_system_health: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           last_calculated: string
           metric_name: string
@@ -5364,7 +5358,7 @@ export type Database = {
         }[]
       }
       get_active_users_metrics: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           metric_type: string
           metric_value: number
@@ -5380,7 +5374,7 @@ export type Database = {
         }[]
       }
       get_admin_user_summary: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           created_at: string
           current_level: number
@@ -5401,10 +5395,7 @@ export type Database = {
           role_type: string
         }[]
       }
-      get_current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      get_current_user_role: { Args: never; Returns: string }
       get_device_platform_analytics: {
         Args: { days_back?: number }
         Returns: {
@@ -5443,7 +5434,7 @@ export type Database = {
         }[]
       }
       get_feature_flag_analytics: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           adoption_rate: number
           enabled_evaluations: number
@@ -5485,7 +5476,7 @@ export type Database = {
         }[]
       }
       get_pending_rollout_executions: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           feature_name: string
           schedule_id: string
@@ -5518,7 +5509,7 @@ export type Database = {
         }[]
       }
       get_security_monitoring_status: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           last_checked: string
           metric_category: string
@@ -5527,7 +5518,7 @@ export type Database = {
         }[]
       }
       get_security_status_report: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           category: string
           check_name: string
@@ -5567,10 +5558,7 @@ export type Database = {
           transaction_id: string
         }[]
       }
-      get_user_current_streak: {
-        Args: { _user_id: string }
-        Returns: number
-      }
+      get_user_current_streak: { Args: { _user_id: string }; Returns: number }
       get_user_display_info: {
         Args: { target_user_id: string }
         Returns: {
@@ -5581,7 +5569,7 @@ export type Database = {
         }[]
       }
       get_user_engagement_metrics: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           avg_session_duration: number
           engagement_score: number
@@ -5592,7 +5580,7 @@ export type Database = {
         }[]
       }
       get_user_engagement_summary: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           active_this_week: number
           active_today: number
@@ -5633,15 +5621,18 @@ export type Database = {
           updated_at: string
           user_id: string
         }[]
+        SetofOptions: {
+          from: "*"
+          to: "user_overrides"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       get_user_momentum_score: {
         Args: { _user_id: string; _week_start_date: string }
         Returns: number
       }
-      get_user_push_subscription_count: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
+      get_user_push_subscription_count: { Args: never; Returns: number }
       get_user_registration_trends: {
         Args: { days_back?: number }
         Returns: {
@@ -5662,10 +5653,7 @@ export type Database = {
           week_8_retention: number
         }[]
       }
-      get_user_role_level: {
-        Args: { _user_id?: string }
-        Returns: number
-      }
+      get_user_role_level: { Args: { _user_id?: string }; Returns: number }
       get_user_subscription_timeline: {
         Args: { target_user_id: string }
         Returns: {
@@ -5706,26 +5694,14 @@ export type Database = {
         Args: { challenge_id: string }
         Returns: undefined
       }
-      is_admin: {
-        Args: { _user_id?: string }
-        Returns: boolean
-      }
-      is_admin_with_audit: {
-        Args: { _user_id?: string }
-        Returns: boolean
-      }
+      is_admin: { Args: { _user_id?: string }; Returns: boolean }
+      is_admin_with_audit: { Args: { _user_id?: string }; Returns: boolean }
       is_feature_enabled_with_parents: {
         Args: { _feature_name: string }
         Returns: boolean
       }
-      is_superadmin: {
-        Args: { _user_id?: string }
-        Returns: boolean
-      }
-      is_user_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      is_superadmin: { Args: { _user_id?: string }; Returns: boolean }
+      is_user_admin: { Args: never; Returns: boolean }
       notify_via_edge_function: {
         Args: { p_payload: Json }
         Returns: undefined
@@ -5738,10 +5714,7 @@ export type Database = {
         Args: { _user_id: string }
         Returns: undefined
       }
-      refresh_user_engagement_metrics: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      refresh_user_engagement_metrics: { Args: never; Returns: undefined }
       resolve_login_identifier: {
         Args: { identifier: string }
         Returns: string
@@ -5784,6 +5757,12 @@ export type Database = {
           reason: string | null
           updated_at: string
           user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "user_feature_overrides"
+          isOneToOne: true
+          isSetofReturn: false
         }
       }
       should_refresh_achievement_progress: {

@@ -25,8 +25,6 @@ export interface UserPreferences {
   breathing_guidance: boolean;
   form_reminders: boolean;
   adaptive_timing: boolean;
-  background_music: boolean;
-  music_volume: number;
   vibration_intensity: number;
   // Push notification preferences
   push_notifications_enabled?: boolean;
@@ -92,8 +90,6 @@ export const useUserPreferences = () => {
           breathing_guidance: data.breathing_guidance ?? true,
           form_reminders: data.form_reminders ?? true,
           adaptive_timing: data.adaptive_timing ?? true,
-          background_music: data.background_music ?? false,
-          music_volume: Number(data.music_volume ?? 0.3),
           vibration_intensity: Number(data.vibration_intensity ?? 3),
           // Push notification fields with defaults
           push_notifications_enabled: data.push_notifications_enabled ?? true,

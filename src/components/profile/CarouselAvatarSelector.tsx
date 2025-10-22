@@ -79,7 +79,7 @@ const CarouselAvatarSelector = ({ selectedUrl, onSelect, className }: CarouselAv
   }
 
   return (
-    <div className={cn("w-full", className)}>
+    <div className={cn("w-full h-full", className)}>
       <Carousel
         setApi={setApi}
         opts={{

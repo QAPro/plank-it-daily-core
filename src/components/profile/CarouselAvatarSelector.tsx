@@ -102,7 +102,7 @@ const CarouselAvatarSelector = ({ selectedUrl, onSelect, className }: CarouselAv
                   type="button"
                   onClick={() => handleAvatarClick(option.image_url)}
                   className={cn(
-                    "relative group h-full w-auto aspect-square max-h-full rounded-full overflow-hidden transition-all duration-300",
+                    "relative group w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden transition-all duration-300",
                     "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
                     "hover:scale-110 hover:shadow-lg"
                   )}

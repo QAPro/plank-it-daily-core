@@ -22,7 +22,6 @@ const UsernameInput = ({
   placeholder = "Username (without @) — letters, numbers, underscores"
 }: UsernameInputProps) => {
   const [inputValue, setInputValue] = useState(value);
-  const [showHelp, setShowHelp] = useState(false);
 
   const formatValidation = validateUsernameFormat(inputValue);
   const availability = useUsernameAvailability(inputValue, currentUsername);
@@ -123,12 +122,8 @@ const UsernameInput = ({
       return `✗ @${inputValue} is already taken`;
     }
 
-    // Default help text
-    if (showHelp || !inputValue) {
-      return 'Username can contain letters, numbers, and underscores (3-30 characters)';
-    }
-
-    return '';
+    // Default help text - always show when no validation state is active
+    return 'Username can contain letters, numbers, and underscores (3-30 characters)';
   };
 
   const getHelperTextColor = () => {
@@ -174,8 +169,6 @@ const UsernameInput = ({
         <Input
           value={inputValue}
           onChange={handleInputChange}
-          onFocus={() => setShowHelp(true)}
-          onBlur={() => setShowHelp(false)}
           placeholder={placeholder}
           className={cn(
             "bg-white/20 text-white placeholder:text-orange-100 pr-10",

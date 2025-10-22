@@ -142,13 +142,6 @@ const CarouselAvatarSelector = ({ selectedUrl, onSelect, className }: CarouselAv
           variant="outline"
         />
       </Carousel>
-
-      {/* Selected Avatar Name */}
-      {selectedUrl && (
-        <p className="text-center mt-4 text-sm text-muted-foreground animate-fade-in">
-          {options.find(opt => opt.image_url === selectedUrl)?.name}
-        </p>
-      )}
     </div>
   );
 };

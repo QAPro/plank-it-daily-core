@@ -103,6 +103,7 @@ const EditProfileDialog = ({ open, onOpenChange, userData, onUpdate }: EditProfi
               value={username}
               onChange={setUsername}
               currentUsername={userData?.username}
+              className="bg-background text-foreground placeholder:text-muted-foreground"
             />
           </div>
         </div>

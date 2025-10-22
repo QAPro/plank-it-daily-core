@@ -112,7 +112,7 @@ const CarouselAvatarSelector = ({ selectedUrl, onSelect, className }: CarouselAv
                   <img
                     src={option.image_url}
                     alt={option.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                   
                   {/* Selected Indicator */}

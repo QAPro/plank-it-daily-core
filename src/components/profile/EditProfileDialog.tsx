@@ -79,12 +79,10 @@ const EditProfileDialog = ({ open, onOpenChange, userData, onUpdate }: EditProfi
           {/* Avatar Selection */}
           <div className="space-y-2">
             <Label>Avatar</Label>
-            <div className="h-60 md:h-72">
-              <CarouselAvatarSelector
-                selectedUrl={avatarUrl}
-                onSelect={setAvatarUrl}
-              />
-            </div>
+            <CarouselAvatarSelector
+              selectedUrl={avatarUrl}
+              onSelect={setAvatarUrl}
+            />
           </div>
 
           {/* First Name */}

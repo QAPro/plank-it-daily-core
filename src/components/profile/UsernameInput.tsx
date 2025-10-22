@@ -154,7 +154,7 @@ const UsernameInput = ({
       case 'error':
         return 'border-orange-500 focus:border-orange-500';
       default:
-        return 'border-white/30 focus:border-white';
+        return '';
     }
   };
 

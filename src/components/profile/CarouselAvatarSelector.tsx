@@ -87,22 +87,22 @@ const CarouselAvatarSelector = ({ selectedUrl, onSelect, className }: CarouselAv
           loop: true,
           slidesToScroll: 1,
         }}
-        className="w-full"
+        className="w-full h-full"
       >
-        <CarouselContent className="-ml-2 md:-ml-4">
+        <CarouselContent className="-ml-2 md:-ml-4 h-full">
           {options.map((option) => {
             const isSelected = option.image_url === selectedUrl;
             
             return (
               <CarouselItem 
                 key={option.id}
-                className="pl-2 md:pl-4 basis-1/2 md:basis-2/5"
+                className="pl-2 md:pl-4 basis-1/2 md:basis-2/5 h-full flex items-center justify-center"
               >
                 <button
                   type="button"
                   onClick={() => handleAvatarClick(option.image_url)}
                   className={cn(
-                    "relative group w-full aspect-square rounded-full overflow-hidden transition-all duration-300",
+                    "relative group h-full max-w-full aspect-square rounded-full overflow-hidden transition-all duration-300",
                     "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
                     "hover:scale-110 hover:shadow-lg"
                   )}

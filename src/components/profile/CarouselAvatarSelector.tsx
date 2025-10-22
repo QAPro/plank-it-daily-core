@@ -67,7 +67,7 @@ const CarouselAvatarSelector = ({ selectedUrl, onSelect, className }: CarouselAv
   }, [onSelect]);
 
   if (loading) {
-    return <Skeleton className="h-48 w-full rounded-lg" />;
+    return <Skeleton className="h-64 w-full rounded-lg" />;
   }
 
   if (options.length === 0) {
@@ -96,7 +96,7 @@ const CarouselAvatarSelector = ({ selectedUrl, onSelect, className }: CarouselAv
             return (
               <CarouselItem 
                 key={option.id}
-                className="pl-2 md:pl-4 basis-1/3 md:basis-1/5"
+                className="pl-2 md:pl-4 basis-1/2 md:basis-2/5"
               >
                 <button
                   type="button"

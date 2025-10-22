@@ -171,7 +171,7 @@ const UsernameInput = ({
           onChange={handleInputChange}
           placeholder={placeholder}
           className={cn(
-            "bg-white/20 text-white placeholder:text-orange-100 pr-10",
+            "pr-10",
             getBorderColor(),
             className
           )}

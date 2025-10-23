@@ -15,6 +15,7 @@ import { useSessionStats } from "@/hooks/useSessionHistory";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useMomentumScore } from "@/hooks/useMomentumScore";
+import { useStreakTracking } from "@/hooks/useStreakTracking";
 import CircularProgressTimer from '@/components/timer/CircularProgressTimer';
 import TimePickerModal from '@/components/timer/TimePickerModal';
 import SimpleCompletionOverlay from '@/components/timer/SimpleCompletionOverlay';
@@ -38,6 +39,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
   const { username, firstName } = useUserProfile();
   const { data: stats } = useSessionStats();
   const { data: momentumData } = useMomentumScore();
+  const { streak } = useStreakTracking();
   
   // State
   const [selectedExerciseId, setSelectedExerciseId] = useState<string>('');
@@ -239,9 +241,10 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
   const quickAdjustDisabled = state !== 'ready' && state !== 'setup';
 
   // Stats for cards
+  const currentStreak = streak?.current_streak || 0;
   const weeklyWorkouts = stats?.thisWeekSessions || 0;
-  const totalMinutes = stats?.totalTimeSpent ? Math.round(stats.totalTimeSpent / 60) : 0;
   const momentumScore = momentumData?.score || 0;
+  const momentumGoal = 200;
 
   if (exercisesLoading || !selectedExercise) {
     return (
@@ -461,9 +464,10 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         className="flex justify-center"
       >
         <QuickStatsCards
+          currentStreak={currentStreak}
           weeklyWorkouts={weeklyWorkouts}
-          totalMinutes={totalMinutes}
           momentumScore={momentumScore}
+          momentumGoal={momentumGoal}
         />
       </motion.div>
     </motion.div>

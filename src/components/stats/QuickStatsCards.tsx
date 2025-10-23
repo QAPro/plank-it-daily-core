@@ -1,36 +1,38 @@
 import { motion } from 'framer-motion';
-import { Calendar, Clock, TrendingUp } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface QuickStatsCardsProps {
+  currentStreak: number;
   weeklyWorkouts: number;
-  totalMinutes: number;
   momentumScore: number;
+  momentumGoal?: number;
 }
 
-const QuickStatsCards = ({ weeklyWorkouts, totalMinutes, momentumScore }: QuickStatsCardsProps) => {
+const QuickStatsCards = ({ 
+  currentStreak, 
+  weeklyWorkouts, 
+  momentumScore, 
+  momentumGoal = 200 
+}: QuickStatsCardsProps) => {
   const stats = [
     {
-      icon: Calendar,
-      label: 'This Week',
-      value: `${weeklyWorkouts}/7`,
-      description: 'days active',
+      emoji: '🔥',
+      number: `${currentStreak}`,
+      text: 'Day Streak',
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-50'
+    },
+    {
+      emoji: '📅',
+      number: `${weeklyWorkouts}/7`,
+      text: 'Workouts',
       color: 'text-blue-600',
       bgColor: 'bg-blue-50'
     },
     {
-      icon: Clock,
-      label: 'Total Time',
-      value: `${totalMinutes}m`,
-      description: 'this week',
-      color: 'text-green-600',
-      bgColor: 'bg-green-50'
-    },
-    {
-      icon: TrendingUp,
-      label: 'Momentum',
-      value: Math.round(momentumScore),
-      description: 'points',
+      emoji: '⚡',
+      number: `${Math.round(momentumScore)} / ${momentumGoal}`,
+      text: 'Weekly Momentum',
       color: 'text-purple-600',
       bgColor: 'bg-purple-50'
     }
@@ -40,7 +42,7 @@ const QuickStatsCards = ({ weeklyWorkouts, totalMinutes, momentumScore }: QuickS
     <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
       {stats.map((stat, index) => (
         <motion.div
-          key={stat.label}
+          key={stat.text}
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: index * 0.1 }}
@@ -49,17 +51,14 @@ const QuickStatsCards = ({ weeklyWorkouts, totalMinutes, momentumScore }: QuickS
           <Card className="bg-white/60 backdrop-blur-sm border-white/20 hover:shadow-md transition-shadow">
             <CardContent className="p-4 space-y-2">
               <div className={`w-10 h-10 rounded-full ${stat.bgColor} flex items-center justify-center`}>
-                <stat.icon className={`w-5 h-5 ${stat.color}`} />
+                <span className="text-2xl">{stat.emoji}</span>
               </div>
-              <div>
-                <div className="text-2xl font-bold text-foreground">
-                  {stat.value}
+              <div className="space-y-0.5">
+                <div className="text-xl font-bold text-foreground leading-tight">
+                  {stat.number}
                 </div>
-                <div className="text-xs text-muted-foreground">
-                  {stat.label}
-                </div>
-                <div className="text-xs text-muted-foreground opacity-70">
-                  {stat.description}
+                <div className="text-xs text-muted-foreground leading-tight">
+                  {stat.text}
                 </div>
               </div>
             </CardContent>

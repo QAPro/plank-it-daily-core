@@ -411,7 +411,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
               exit={{ opacity: 0, scale: 0.95 }}
               className="flex justify-center"
             >
-              <div className="flex gap-3 max-w-sm w-full">
+              <div className="flex gap-3 max-w-xs w-full">
                 <Button
                   onClick={handleResumeTimer}
                   size="lg"

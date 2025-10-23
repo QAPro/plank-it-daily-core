@@ -1,3 +1,4 @@
+import React from 'react';
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
@@ -7,26 +8,26 @@ import { applyCSPMetaTag } from './utils/contentSecurityPolicy'
 // Apply security headers
 applyCSPMetaTag();
 
-// Defer service worker registration for better performance
-import { deferServiceWorkerRegistration } from './utils/performanceOptimization';
-deferServiceWorkerRegistration();
+// Clear any existing reload counter
+localStorage.removeItem('reload-count');
 
-// Production error handling
+// Simple error logging without auto-reload
 window.addEventListener('error', (event) => {
   console.error('[Global Error]:', event.error);
-  if (event.error?.message?.includes('Cannot read properties of null')) {
-    // React hydration issue - reload once
-    const reloadCount = parseInt(localStorage.getItem('reload-count') || '0');
-    if (reloadCount < 2) {
-      localStorage.setItem('reload-count', String(reloadCount + 1));
-      window.location.reload();
-    }
-  }
 });
 
 window.addEventListener('unhandledrejection', (event) => {
   console.error('[Unhandled Promise Rejection]:', event.reason);
 });
+
+// Register service worker after React is ready
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw-secure.js')
+      .then(reg => console.log('[SW] Registered:', reg.scope))
+      .catch(err => console.error('[SW] Registration failed:', err));
+  });
+}
 
 createRoot(document.getElementById("root")!).render(
   <QueryProvider>

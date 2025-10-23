@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { 
   User, 
   Settings as SettingsIcon, 
@@ -10,8 +11,7 @@ import {
   FileText, 
   Info, 
   LogOut,
-  ChevronRight,
-  ArrowLeft
+  ChevronRight
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,11 +19,28 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAdmin } from '@/hooks/useAdmin';
+import NewBottomNav from '@/components/navigation/NewBottomNav';
 
 const Settings = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isAdmin } = useAdmin();
+  const [activeTab, setActiveTab] = useState('settings');
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    const routes: Record<string, string> = {
+      home: '/',
+      social: '/social',
+      events: '/events',
+      competition: '/competition',
+      friends: '/friends',
+      settings: '/settings'
+    };
+    if (routes[tabId]) {
+      navigate(routes[tabId]);
+    }
+  };
 
   const handleSignOut = async () => {
     try {
@@ -61,20 +78,10 @@ const Settings = () => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
+          className="space-y-2"
         >
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(-1)}
-            className="mb-4"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-          <div className="space-y-2">
-            <h1 className="text-3xl font-bold text-foreground">Settings</h1>
-            <p className="text-muted-foreground">Manage your account and preferences</p>
-          </div>
+          <h1 className="text-3xl font-bold text-foreground">Settings</h1>
+          <p className="text-muted-foreground">Manage your account and preferences</p>
         </motion.div>
 
         {/* Account & Preferences Section */}
@@ -197,6 +204,8 @@ const Settings = () => {
           </Card>
         </motion.div>
       </div>
+      
+      <NewBottomNav activeTab={activeTab} onTabChange={handleTabChange} />
     </div>
   );
 };

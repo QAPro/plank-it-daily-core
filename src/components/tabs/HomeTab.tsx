@@ -56,6 +56,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     timeLeft,
     state,
     progress,
+    setTimerDuration,
     handleStart,
     handlePause,
     handleResume,
@@ -94,7 +95,9 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     if (hasPreferences) {
       // Use saved preferences
       setSelectedExerciseId(preferences.last_exercise_id);
-      setDuration(preferences.last_duration);
+      const savedDuration = preferences.last_duration;
+      setDuration(savedDuration);
+      setTimerDuration(savedDuration); // Transition to 'ready' state
     } else {
       // First-time user: Find "Forearm Plank" or use first exercise
       const forearmPlank = exercises.find(ex => 
@@ -104,6 +107,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
       
       setSelectedExerciseId(defaultExercise.id);
       setDuration(30); // 30 seconds for first-time users
+      setTimerDuration(30); // Transition to 'ready' state
       
       // Save as preference
       updatePreferences({
@@ -113,7 +117,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     }
 
     setInitialized(true);
-  }, [exercises, preferences, initialized, updatePreferences]);
+  }, [exercises, preferences, initialized, updatePreferences, setTimerDuration]);
 
   // Greeting logic
   const getGreeting = () => {
@@ -132,6 +136,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
   const handleQuickAdjust = (adjustment: number) => {
     const newDuration = Math.max(0, Math.min(duration + adjustment, 5999)); // Max 99:59
     setDuration(newDuration);
+    setTimerDuration(newDuration); // Update timer hook state
     
     // Save to preferences
     updatePreferences({
@@ -141,7 +146,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
 
   // Time picker handlers
   const handleTimeClick = () => {
-    if (state === 'ready') {
+    if (state === 'ready' || state === 'setup') {
       setShowTimePicker(true);
     }
   };
@@ -149,6 +154,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
   const handleTimeSave = (minutes: number, seconds: number) => {
     const newDuration = minutes * 60 + seconds;
     setDuration(newDuration);
+    setTimerDuration(newDuration); // Update timer hook state
     
     // Save to preferences
     updatePreferences({
@@ -223,8 +229,8 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     handleReset();
   };
 
-  // Quick adjust buttons are disabled when not in ready state
-  const quickAdjustDisabled = state !== 'ready';
+  // Quick adjust buttons are disabled when not in ready or setup state
+  const quickAdjustDisabled = state !== 'ready' && state !== 'setup';
 
   // Stats for cards
   const weeklyWorkouts = stats?.thisWeekSessions || 0;
@@ -294,11 +300,12 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
           duration={duration}
           state={state}
           progress={progress}
+          onClick={handleTimeClick}
         />
       </motion.div>
 
-      {/* Quick Adjust Controls - Only visible when state='ready' */}
-      {state === 'ready' && (
+      {/* Quick Adjust Controls - Visible when ready or setup */}
+      {(state === 'ready' || state === 'setup') && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -378,7 +385,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         className="space-y-3"
       >
         <AnimatePresence mode="wait">
-          {state === 'ready' && (
+          {(state === 'ready' || state === 'setup') && (
             <motion.div
               key="start"
               initial={{ opacity: 0, scale: 0.95 }}

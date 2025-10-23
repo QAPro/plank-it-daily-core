@@ -9,9 +9,10 @@ interface CircularProgressTimerProps {
   duration: number;
   state: CountdownTimerState;
   progress: number;
+  onClick?: () => void;
 }
 
-const CircularProgressTimer = ({ timeLeft, duration, state, progress }: CircularProgressTimerProps) => {
+const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }: CircularProgressTimerProps) => {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -145,7 +146,10 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress }: Circular
         </svg>
         
         {/* Timer Display - Absolutely centered */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-white z-20">
+        <div 
+          className={`absolute inset-0 flex flex-col items-center justify-center text-white z-20 ${onClick ? 'cursor-pointer' : ''}`}
+          onClick={onClick}
+        >
           <motion.div
             key={timeLeft}
             initial={{ scale: 1.1 }}

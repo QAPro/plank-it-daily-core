@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Minus } from "lucide-react";
+import { format } from 'date-fns';
 import { Button } from "@/components/ui/button";
 
 import { useAuth } from "@/contexts/AuthContext";
@@ -122,6 +123,11 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
   const getGreeting = () => {
     const displayName = firstName || username || 'there';
     return `Hello, ${displayName}!`;
+  };
+
+  // Get current date
+  const getCurrentDate = () => {
+    return format(new Date(), 'EEEE, MMMM d');
   };
 
   // Format time for display
@@ -282,6 +288,9 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         className="space-y-2 text-center"
       >
         <h1 className="text-3xl font-bold text-foreground">{getGreeting()}</h1>
+        <p className="text-sm text-muted-foreground">
+          {getCurrentDate()}
+        </p>
         <p className="text-lg text-muted-foreground">
           {selectedExercise.name} • Level {selectedExercise.difficulty_level}
         </p>

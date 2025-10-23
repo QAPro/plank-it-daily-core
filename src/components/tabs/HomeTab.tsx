@@ -291,9 +291,6 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         <p className="text-sm text-muted-foreground">
           {getCurrentDate()}
         </p>
-        <p className="text-lg text-muted-foreground">
-          {selectedExercise.name} • Level {selectedExercise.difficulty_level}
-        </p>
       </motion.div>
 
       {/* Hero Timer Display */}
@@ -346,6 +343,20 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         </motion.div>
       )}
 
+      {/* Exercise Info Section - Below Quick Adjust Buttons */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="text-center space-y-1"
+      >
+        <h2 className="text-xl font-bold text-foreground">
+          {selectedExercise.name}
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Level {selectedExercise.difficulty_level} {'⭐'.repeat(selectedExercise.difficulty_level)}
+        </p>
+      </motion.div>
 
       {/* Primary Action Button */}
       <motion.div

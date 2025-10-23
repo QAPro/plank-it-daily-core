@@ -66,13 +66,10 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     initialDuration: duration,
     onComplete: async (wasCompleted: boolean) => {
       if (wasCompleted) {
-        // Show confetti first
+        // Show confetti for natural completion
         setShowConfetti(true);
         
-        // Complete the session
-        await completeSession(duration, '');
-        
-        // After 3 seconds, hide confetti and show simple overlay
+        // After 3 seconds, hide confetti and show overlay
         setTimeout(() => {
           setShowConfetti(false);
           setShowSimpleCompletion(true);
@@ -198,27 +195,15 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     });
   };
 
-  const handleSubmitTimer = async () => {
+  const handleStopTimer = () => {
     const timeElapsed = duration - timeLeft;
     
-    // Show confetti
-    setShowConfetti(true);
-    
-    // Complete session
-    await completeSession(timeElapsed, '');
-    
-    // Reset timer
-    handleReset();
-    
-    // After 3 seconds, hide confetti and show simple overlay
-    setTimeout(() => {
-      setShowConfetti(false);
-      setShowSimpleCompletion(true);
-    }, 3000);
+    // Show completion overlay immediately (no confetti for stopped workouts)
+    setShowSimpleCompletion(true);
     
     toast({
-      title: "Workout Submitted!",
-      description: `Great work on ${formatTime(timeElapsed)}!`,
+      title: "Workout Stopped",
+      description: `You completed ${formatTime(timeElapsed)}`,
     });
   };
 
@@ -232,6 +217,22 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
   const handleCloseCompletion = () => {
     setShowSimpleCompletion(false);
     handleReset();
+  };
+
+  const handleSubmitWorkout = async (notes: string) => {
+    const timeElapsed = duration - timeLeft;
+    
+    // Save the session with notes
+    await completeSession(timeElapsed, notes);
+    
+    // Close overlay and reset timer
+    setShowSimpleCompletion(false);
+    handleReset();
+    
+    toast({
+      title: "Workout Saved!",
+      description: `Great work on ${formatTime(timeElapsed)}!`,
+    });
   };
 
   // Quick adjust buttons are disabled when not in ready or setup state
@@ -279,6 +280,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         exerciseName={selectedExercise.name}
         duration={duration - timeLeft}
         onClose={handleCloseCompletion}
+        onSubmit={handleSubmitWorkout}
       />
 
       {/* Header Section */}
@@ -420,12 +422,12 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
                   Resume
                 </Button>
                 <Button
-                  onClick={handleSubmitTimer}
+                  onClick={handleStopTimer}
                   size="lg"
                   variant="outline"
                   className="flex-1 text-lg"
                 >
-                  Submit
+                  Stop
                 </Button>
               </div>
             </motion.div>

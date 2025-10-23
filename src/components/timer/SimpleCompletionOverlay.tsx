@@ -1,20 +1,30 @@
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
 
 interface SimpleCompletionOverlayProps {
   isOpen: boolean;
   exerciseName: string;
   duration: number;
   onClose: () => void;
+  onSubmit: (notes: string) => void;
 }
 
-const SimpleCompletionOverlay = ({ isOpen, exerciseName, duration, onClose }: SimpleCompletionOverlayProps) => {
+const SimpleCompletionOverlay = ({ isOpen, exerciseName, duration, onClose, onSubmit }: SimpleCompletionOverlayProps) => {
+  const [notes, setNotes] = useState('');
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleSubmit = () => {
+    onSubmit(notes);
+    setNotes(''); // Clear notes after submission
   };
 
   return (
@@ -84,14 +94,33 @@ const SimpleCompletionOverlay = ({ isOpen, exerciseName, duration, onClose }: Si
                   Every workout counts. Keep building your momentum!
                 </p>
 
-                {/* Done Button */}
-                <Button
-                  onClick={onClose}
-                  size="lg"
-                  className="w-full"
-                >
-                  Done
-                </Button>
+                {/* Notes Field */}
+                <Textarea
+                  placeholder="Add notes about your workout (optional)"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  rows={3}
+                  className="resize-none"
+                />
+
+                {/* Action Buttons */}
+                <div className="flex gap-3">
+                  <Button
+                    onClick={onClose}
+                    variant="outline"
+                    size="lg"
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleSubmit}
+                    size="lg"
+                    className="flex-1"
+                  >
+                    Submit
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </motion.div>

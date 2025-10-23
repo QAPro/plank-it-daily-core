@@ -118,6 +118,38 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     setInitialized(true);
   }, [exercises, preferences, initialized, updatePreferences, setTimerDuration]);
 
+  // Handle incoming workout selection from Workout Hub
+  useEffect(() => {
+    if (selectedWorkout && selectedWorkout.exerciseId) {
+      console.log('[HomeTab] Received selected workout:', selectedWorkout);
+      
+      // Update the selected exercise and duration
+      setSelectedExerciseId(selectedWorkout.exerciseId);
+      setDuration(selectedWorkout.duration);
+      setTimerDuration(selectedWorkout.duration);
+      
+      // Save to preferences
+      updatePreferences({
+        last_exercise_id: selectedWorkout.exerciseId,
+        last_duration: selectedWorkout.duration,
+      }, false);
+      
+      // Notify parent that we've processed the workout
+      if (onWorkoutStarted) {
+        onWorkoutStarted();
+      }
+      
+      // Show success toast
+      const exercise = exercises?.find(ex => ex.id === selectedWorkout.exerciseId);
+      if (exercise) {
+        toast({
+          title: "Exercise Selected",
+          description: `Ready to start ${exercise.name}!`,
+        });
+      }
+    }
+  }, [selectedWorkout, exercises, setTimerDuration, updatePreferences, onWorkoutStarted, toast]);
+
   // Greeting logic
   const getGreeting = () => {
     const displayName = firstName || username || 'there';

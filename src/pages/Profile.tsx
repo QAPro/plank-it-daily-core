@@ -116,9 +116,9 @@ const Profile = () => {
           transition={{ delay: 0.1 }}
         >
           <Card className="bg-gradient-to-br from-primary/10 to-primary/5">
-            <CardContent className="pt-3">
-              <div className="flex flex-col items-center text-center space-y-4">
-                <Avatar className="w-24 h-24 border-4 border-background shadow-lg">
+            <CardContent className="pt-8 pb-6">
+              <div className="flex flex-col items-center text-center space-y-3">
+                <Avatar className="w-36 h-36 border-4 border-background shadow-lg">
                   <AvatarImage src={userData?.avatar_url} />
                   <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
                     {getInitials()}

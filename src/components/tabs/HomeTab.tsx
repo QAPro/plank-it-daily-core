@@ -280,7 +280,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="space-y-2"
+        className="space-y-2 text-center"
       >
         <h1 className="text-3xl font-bold text-foreground">{getGreeting()}</h1>
         <p className="text-lg text-muted-foreground">
@@ -314,29 +314,26 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         >
           <Button
             variant="outline"
-            size="icon"
             onClick={() => handleQuickAdjust(-5)}
             disabled={quickAdjustDisabled || duration <= 0}
-            className="h-12 w-12"
+            className="h-12 px-4"
           >
-            <Minus className="h-5 w-5" />
+            <div className="flex items-center gap-2">
+              <Minus className="h-4 w-4" />
+              <span className="text-sm font-medium">5s</span>
+            </div>
           </Button>
-
-          <button
-            onClick={handleTimeClick}
-            className="text-4xl font-bold text-primary hover:text-primary/80 transition-colors px-4 py-2 rounded-lg hover:bg-primary/5"
-          >
-            {formatTime(duration)}
-          </button>
 
           <Button
             variant="outline"
-            size="icon"
             onClick={() => handleQuickAdjust(5)}
             disabled={quickAdjustDisabled || duration >= 5999}
-            className="h-12 w-12"
+            className="h-12 px-4"
           >
-            <Plus className="h-5 w-5" />
+            <div className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              <span className="text-sm font-medium">5s</span>
+            </div>
           </Button>
         </motion.div>
       )}
@@ -391,11 +388,12 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
+              className="flex justify-center"
             >
               <Button
                 onClick={handleStartTimer}
                 size="lg"
-                className="w-full text-lg"
+                className="max-w-md text-lg"
               >
                 Start Workout
               </Button>
@@ -408,12 +406,13 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
+              className="flex justify-center"
             >
               <Button
                 onClick={handlePauseTimer}
                 size="lg"
                 variant="secondary"
-                className="w-full text-lg"
+                className="max-w-md text-lg"
               >
                 Pause
               </Button>
@@ -426,23 +425,25 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="flex gap-3"
+              className="flex justify-center"
             >
-              <Button
-                onClick={handleResumeTimer}
-                size="lg"
-                className="flex-1 text-lg"
-              >
-                Resume
-              </Button>
-              <Button
-                onClick={handleSubmitTimer}
-                size="lg"
-                variant="outline"
-                className="flex-1 text-lg"
-              >
-                Submit
-              </Button>
+              <div className="flex gap-3 max-w-md w-full">
+                <Button
+                  onClick={handleResumeTimer}
+                  size="lg"
+                  className="flex-1 text-lg"
+                >
+                  Resume
+                </Button>
+                <Button
+                  onClick={handleSubmitTimer}
+                  size="lg"
+                  variant="outline"
+                  className="flex-1 text-lg"
+                >
+                  Submit
+                </Button>
+              </div>
             </motion.div>
           )}
 
@@ -452,11 +453,12 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
+              className="flex justify-center"
             >
               <Button
                 onClick={handleResetTimer}
                 size="lg"
-                className="w-full text-lg"
+                className="max-w-md text-lg"
               >
                 Start New Workout
               </Button>
@@ -470,6 +472,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
+        className="flex justify-center"
       >
         <QuickStatsCards
           weeklyWorkouts={weeklyWorkouts}

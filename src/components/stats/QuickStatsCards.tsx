@@ -32,7 +32,7 @@ const QuickStatsCards = ({
     {
       emoji: '⚡',
       number: `${Math.round(momentumScore)} / ${momentumGoal}`,
-      text: 'Weekly Momentum',
+      text: 'Momentum',
       color: 'text-purple-600',
       bgColor: 'bg-purple-50'
     }

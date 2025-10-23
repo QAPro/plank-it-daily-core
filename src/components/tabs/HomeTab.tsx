@@ -1,28 +1,24 @@
-
 import { useState, useEffect } from 'react';
-import { motion } from "framer-motion";
-import { Calendar, Trophy, Users, TrendingUp, ChevronRight } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronDown, Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { useSessionStats } from "@/hooks/useSessionHistory";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import CountdownTimer from "@/components/timer/CountdownTimer";
-import CompactProgressBar from "@/components/quick-start/CompactProgressBar";
-import { useNewExercises, type ExerciseWithCategory } from "@/hooks/useNewExercises";
-
-import CommunityStatsWidget from "@/components/social/CommunityStatsWidget";
-import UserRankingDisplay from "@/components/social/UserRankingDisplay";
-import XPMultiplierNotification from "@/components/xp/XPMultiplierNotification";
-import { useLevelProgression } from "@/hooks/useLevelProgression";
-import { useRewardTiming } from "@/hooks/useRewardTiming";
+import { useNewExercises } from "@/hooks/useNewExercises";
+import { useCountdownTimer } from "@/hooks/useCountdownTimer";
+import { useEnhancedTimerAudio } from '@/hooks/useEnhancedTimerAudio';
+import { useEnhancedSessionTracking } from '@/hooks/useEnhancedSessionTracking';
+import { useSessionStats } from "@/hooks/useSessionHistory";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { logger } from '@/utils/productionLogger';
-import FirstTimeOverlay from '@/components/FirstTimeOverlay';
-import MomentumScoreWidget from "@/components/momentum/MomentumScoreWidget";
+import { useMomentumScore } from "@/hooks/useMomentumScore";
+import CircularProgressTimer from '@/components/timer/CircularProgressTimer';
+import TimePickerModal from '@/components/timer/TimePickerModal';
+import SimpleCompletionOverlay from '@/components/timer/SimpleCompletionOverlay';
+import QuickStatsCards from '@/components/stats/QuickStatsCards';
+import EnhancedConfetti from '@/components/celebration/EnhancedConfetti';
 
 interface HomeTabProps {
   onExerciseSelect?: (exerciseId: string) => void;
@@ -34,426 +30,446 @@ interface HomeTabProps {
 }
 
 const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout, selectedWorkout, onWorkoutStarted }: HomeTabProps) => {
-  const { data: stats } = useSessionStats();
   const { user } = useAuth();
-  const { userLevel, loading: levelLoading } = useLevelProgression();
-  const rewardTiming = useRewardTiming();
-  const { preferences, loading: preferencesLoading, updatePreferences } = useUserPreferences();
-  const { username } = useUserProfile();
-  const [communityExpanded, setCommunityExpanded] = useState(false);
-  const [selectedExercise, setSelectedExercise] = useState<string>('');
-  const [selectedDuration, setSelectedDuration] = useState<number>(60);
-  const [initializedFromPreferences, setInitializedFromPreferences] = useState(false);
-  const [showFirstTimeOverlay, setShowFirstTimeOverlay] = useState(false);
-  const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
-  const [lastWorkout, setLastWorkout] = useState<{exerciseName: string, duration: number} | null>(null);
   const { toast } = useToast();
-
-  // Get exercises for CountdownTimer (from new exercises table)
   const { data: exercises, isLoading: exercisesLoading } = useNewExercises();
-  const selectedExerciseObj = exercises?.find(ex => ex.id === selectedExercise);
+  const { preferences, updatePreferences } = useUserPreferences();
+  const { username, firstName } = useUserProfile();
+  const { data: stats } = useSessionStats();
+  const { data: momentumData } = useMomentumScore();
   
-  // If no exercise selected yet, default to first available exercise when exercises load
-  useEffect(() => {
-    if (exercises && exercises.length > 0 && !selectedExercise) {
-      const defaultExercise = exercises[0];
-      setSelectedExercise(defaultExercise.id);
-    }
-  }, [exercises, selectedExercise]);
+  // State
+  const [selectedExerciseId, setSelectedExerciseId] = useState<string>('');
+  const [duration, setDuration] = useState<number>(30); // Default 30 seconds
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [showSimpleCompletion, setShowSimpleCompletion] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [aboutExpanded, setAboutExpanded] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
-  const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    
-    if (hours > 0) {
-      return `${hours}h ${minutes}m`;
-    }
-    return `${minutes}m`;
-  };
+  // Audio and session tracking
+  const { playCompletionSound } = useEnhancedTimerAudio();
+  const { completeSession } = useEnhancedSessionTracking();
 
-  const formatDuration = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
-
-  const handleManageSubscription = () => {
-    if (onTabChange) {
-      onTabChange('profile');
-    }
-  };
-
-  const handleUpgrade = () => {
-    if (onUpgradeClick) {
-      onUpgradeClick();
-    } else if (onTabChange) {
-      onTabChange('profile');
-    }
-  };
-
-  // Use real data if available, otherwise show placeholder
-  const displayStats = [
-    { 
-      icon: Calendar, 
-      label: "This Week", 
-      value: stats ? `${stats.thisWeekSessions}/${stats.weeklyGoal} days` : "0/7 days", 
-      color: "text-blue-500" 
+  // Timer hook
+  const {
+    timeLeft,
+    state,
+    progress,
+    handleStart,
+    handlePause,
+    handleResume,
+    handleStop,
+    handleReset,
+  } = useCountdownTimer({
+    initialDuration: duration,
+    onComplete: async (wasCompleted: boolean) => {
+      if (wasCompleted) {
+        // Show confetti first
+        setShowConfetti(true);
+        
+        // Complete the session
+        await completeSession(duration, '');
+        
+        // After 3 seconds, hide confetti and show simple overlay
+        setTimeout(() => {
+          setShowConfetti(false);
+          setShowSimpleCompletion(true);
+        }, 3000);
+      }
     },
-    { 
-      icon: Trophy, 
-      label: "Best Time", 
-      value: stats && stats.totalSessions > 0 ? formatDuration(stats.averageDuration) : "0:00", 
-      color: "text-yellow-500" 
-    }
-  ];
+    onPlayCompletionSound: playCompletionSound,
+  });
 
-  // Get the username from database or return empty string
-  const getUserDisplayName = () => {
-    if (!user) return '';
-    
-    // Use username from database if available
-    if (username) {
-      return `, ${username}`;
-    }
-    
-    // No fallback - return empty string
-    return '';
-  };
+  // Get selected exercise object
+  const selectedExercise = exercises?.find(ex => ex.id === selectedExerciseId);
 
-  const handleStartWorkout = async (exerciseId: string, duration: number) => {
-    setSelectedExercise(exerciseId);
-    setSelectedDuration(duration);
-    
-    // Save preferences for next time
-    if (exerciseId && duration) {
-      await updatePreferences({
-        last_exercise_id: exerciseId,
-        last_duration: duration,
-        last_workout_timestamp: new Date().toISOString()
+  // Initialize from preferences or defaults
+  useEffect(() => {
+    if (initialized || !exercises || exercises.length === 0) return;
+
+    // Check if user has preferences
+    const hasPreferences = preferences?.last_exercise_id && preferences?.last_duration;
+
+    if (hasPreferences) {
+      // Use saved preferences
+      setSelectedExerciseId(preferences.last_exercise_id);
+      setDuration(preferences.last_duration);
+    } else {
+      // First-time user: Find "Forearm Plank" or use first exercise
+      const forearmPlank = exercises.find(ex => 
+        ex.name.toLowerCase().includes('forearm') && ex.name.toLowerCase().includes('plank')
+      );
+      const defaultExercise = forearmPlank || exercises[0];
+      
+      setSelectedExerciseId(defaultExercise.id);
+      setDuration(30); // 30 seconds for first-time users
+      
+      // Save as preference
+      updatePreferences({
+        last_exercise_id: defaultExercise.id,
+        last_duration: 30,
       }, false);
     }
+
+    setInitialized(true);
+  }, [exercises, preferences, initialized, updatePreferences]);
+
+  // Greeting logic
+  const getGreeting = () => {
+    const displayName = firstName || username || 'there';
+    return `Hello, ${displayName}!`;
+  };
+
+  // Format time for display
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Quick adjust functions
+  const handleQuickAdjust = (adjustment: number) => {
+    const newDuration = Math.max(0, Math.min(duration + adjustment, 5999)); // Max 99:59
+    setDuration(newDuration);
     
-    // Notify parent that workout has been started (not just prepared)
+    // Save to preferences
+    updatePreferences({
+      last_duration: newDuration,
+    }, false);
+  };
+
+  // Time picker handlers
+  const handleTimeClick = () => {
+    if (state === 'ready') {
+      setShowTimePicker(true);
+    }
+  };
+
+  const handleTimeSave = (minutes: number, seconds: number) => {
+    const newDuration = minutes * 60 + seconds;
+    setDuration(newDuration);
+    
+    // Save to preferences
+    updatePreferences({
+      last_duration: newDuration,
+    }, false);
+    
+    toast({
+      title: "Timer Updated",
+      description: `Duration set to ${minutes}:${seconds.toString().padStart(2, '0')}`,
+    });
+  };
+
+  // Timer control handlers
+  const handleStartTimer = () => {
+    handleStart();
+    toast({
+      title: "Timer Started",
+      description: "Stay focused! You've got this!",
+    });
     onWorkoutStarted?.();
   };
 
-  const prepareWorkout = (exerciseId: string, duration: number) => {
-    setSelectedExercise(exerciseId);
-    setSelectedDuration(duration);
-    // Don't start the timer - just prepare it
+  const handlePauseTimer = () => {
+    handlePause();
+    toast({
+      title: "Timer Paused",
+      description: "Take a breath",
+    });
   };
 
-  // Handle external workout selection from WorkoutTab (priority over preferences)
-  useEffect(() => {
-    if (selectedWorkout) {
-      logger.debug('HomeTab: External workout selected', { selectedWorkout });
-      prepareWorkout(selectedWorkout.exerciseId, selectedWorkout.duration);
-      // Don't call onWorkoutStarted here - only call it when user actually starts the workout
-    }
-  }, [selectedWorkout, onWorkoutStarted]);
+  const handleResumeTimer = () => {
+    handleResume();
+    toast({
+      title: "Timer Resumed",
+      description: "Keep going!",
+    });
+  };
 
-  // Fetch last workout
-  useEffect(() => {
-    const fetchLastWorkout = async () => {
-      if (!user) return;
-
-      try {
-        const { data, error } = await supabase
-          .from('user_sessions')
-          .select('duration_seconds, exercise_id, exercises(name)')
-          .eq('user_id', user.id)
-          .order('completed_at', { ascending: false })
-          .limit(1)
-          .single();
-
-        if (error) throw error;
-
-        if (data && data.exercises) {
-          setLastWorkout({
-            exerciseName: (data.exercises as any).name,
-            duration: data.duration_seconds
-          });
-        }
-      } catch (error) {
-        // No sessions yet - this is fine
-        console.log('No previous sessions found');
-      }
-    };
-
-    fetchLastWorkout();
-  }, [user]);
-
-  // Check if this is the user's first time on home tab
-  useEffect(() => {
-    const checkFirstTimeUser = async () => {
-      if (!user) return;
-
-      // Check if overlay was already dismissed
-      const dismissed = localStorage.getItem('first-time-home-dismissed');
-      if (dismissed) return;
-
-      try {
-        // Check if user has any previous workout sessions
-        const { data: sessions, error } = await supabase
-          .from('user_sessions')
-          .select('id')
-          .eq('user_id', user.id)
-          .limit(1);
-
-        if (error) throw error;
-
-        // If no sessions found, this is a first-time user
-        if (!sessions || sessions.length === 0) {
-          setIsFirstTimeUser(true);
-          setShowFirstTimeOverlay(true);
-          // Set default duration to 30 seconds (exercise will be set from exercises load)
-          setSelectedDuration(30);
-        }
-      } catch (error) {
-        console.error('Error checking first-time user status:', error);
-      }
-    };
-
-    checkFirstTimeUser();
-  }, [user]);
-
-  // Initialize from user preferences when component loads (priority: selectedWorkout > first-time defaults > existing state > preferences)
-  useEffect(() => {
-    // If we have an external workout selection, prioritize that and skip preferences
-    if (selectedWorkout) {
-      logger.debug('HomeTab: Skipping preference load - external workout selected');
-      return;
-    }
-
-    // If this is a first-time user, don't load preferences (use first-time defaults)
-    if (isFirstTimeUser) {
-      logger.debug('HomeTab: Skipping preference load - first-time user');
-      return;
-    }
-
-    // Only initialize once from preferences
-    if (initializedFromPreferences) {
-      return;
-    }
-
-    // Initialize from preferences if they're loaded
-    if (!preferencesLoading && preferences) {
-      logger.debug('HomeTab: Initializing from preferences', {
-        last_exercise_id: preferences.last_exercise_id,
-        last_duration: preferences.last_duration,
-        currentExercise: selectedExercise,
-        currentDuration: selectedDuration
-      });
-      
-      // Set exercise from preferences
-      if (preferences.last_exercise_id) {
-        setSelectedExercise(preferences.last_exercise_id);
-        logger.debug('HomeTab: Set exercise from preferences: ' + preferences.last_exercise_id);
-      }
-      
-      // Set duration from preferences (default to 60 if no preference)
-      const preferredDuration = preferences.last_duration || 60;
-      setSelectedDuration(preferredDuration);
-      logger.debug('HomeTab: Set duration from preferences: ' + preferredDuration);
-      
-      setInitializedFromPreferences(true);
-    }
-  }, [preferences, preferencesLoading, selectedWorkout, isFirstTimeUser, initializedFromPreferences]);
-
-  const handleDurationChange = async (duration: number) => {
-    setSelectedDuration(duration);
+  const handleSubmitTimer = async () => {
+    const timeElapsed = duration - timeLeft;
     
-    // Only save to preferences when user manually changes duration (not during initialization)
-    if (initializedFromPreferences && selectedExercise) {
-      await updatePreferences({
-        last_duration: duration,
-        last_workout_timestamp: new Date().toISOString()
-      }, false);
-    }
+    // Show confetti
+    setShowConfetti(true);
+    
+    // Complete session
+    await completeSession(timeElapsed, '');
+    
+    // Reset timer
+    handleReset();
+    
+    // After 3 seconds, hide confetti and show simple overlay
+    setTimeout(() => {
+      setShowConfetti(false);
+      setShowSimpleCompletion(true);
+    }, 3000);
+    
+    toast({
+      title: "Workout Submitted!",
+      description: `Great work on ${formatTime(timeElapsed)}!`,
+    });
   };
 
-  const handleGoToWorkouts = () => {
-    localStorage.setItem('first-time-home-dismissed', 'true');
-    setShowFirstTimeOverlay(false);
-    if (onTabChange) {
-      onTabChange('workout');
-    }
+  const handleResetTimer = () => {
+    handleReset();
+    toast({
+      title: "Timer Reset",
+    });
   };
 
-  const handleDismissOverlay = () => {
-    localStorage.setItem('first-time-home-dismissed', 'true');
-    setShowFirstTimeOverlay(false);
+  const handleCloseCompletion = () => {
+    setShowSimpleCompletion(false);
+    handleReset();
   };
+
+  // Quick adjust buttons are disabled when not in ready state
+  const quickAdjustDisabled = state !== 'ready';
+
+  // Stats for cards
+  const weeklyWorkouts = stats?.thisWeekSessions || 0;
+  const totalMinutes = stats?.totalTimeSpent ? Math.round(stats.totalTimeSpent / 60) : 0;
+  const momentumScore = momentumData?.score || 0;
+
+  if (exercisesLoading || !selectedExercise) {
+    return (
+      <div className="p-6 flex items-center justify-center min-h-[50vh]">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="p-6 space-y-6 mb-6"
+      className="p-6 space-y-6 mb-6 max-w-2xl mx-auto"
     >
-      {/* XP Multiplier Notification */}
-      <XPMultiplierNotification />
-
-      {/* First Time User Overlay */}
-      <FirstTimeOverlay
-        visible={showFirstTimeOverlay}
-        onGoToWorkouts={handleGoToWorkouts}
-        onDismiss={handleDismissOverlay}
+      {/* Confetti */}
+      <EnhancedConfetti 
+        isActive={showConfetti} 
+        intensity="high"
+        duration={3000}
       />
 
-      {/* Welcome Header removed - moved to timer card for desktop */}
+      {/* Time Picker Modal */}
+      <TimePickerModal
+        isOpen={showTimePicker}
+        currentMinutes={Math.floor(duration / 60)}
+        currentSeconds={duration % 60}
+        onSave={handleTimeSave}
+        onClose={() => setShowTimePicker(false)}
+      />
 
-      {/* Hero Section - Quick Start Timer */}
-      {exercisesLoading ? (
-        <Card className="p-6 bg-white/60 backdrop-blur-sm border-orange-100">
-          <p className="text-center text-muted-foreground">Loading exercises...</p>
-        </Card>
-      ) : selectedExerciseObj ? (
-        <CountdownTimer
-          selectedExercise={selectedExerciseObj}
-          onBack={() => {
-            setSelectedExercise('');
-          }}
-          onExerciseChange={async (exercise) => {
-            setSelectedExercise(exercise.id);
-            // Save preference when exercise changes
-            await updatePreferences({
-              last_exercise_id: exercise.id,
-              last_workout_timestamp: new Date().toISOString()
-            }, false);
-          }}
-          quickStartDuration={selectedDuration}
-        />
-      ) : (
-        <Card className="p-6 bg-white/60 backdrop-blur-sm border-orange-100">
-          <p className="text-center text-muted-foreground">
-            Select an exercise to get started
-          </p>
-        </Card>
-      )}
+      {/* Simple Completion Overlay */}
+      <SimpleCompletionOverlay
+        isOpen={showSimpleCompletion}
+        exerciseName={selectedExercise.name}
+        duration={duration - timeLeft}
+        onClose={handleCloseCompletion}
+      />
 
-      {/* Compact Progress Bar */}
-      {!levelLoading && userLevel && (
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-        >
-          <CompactProgressBar userLevel={userLevel} />
-        </motion.div>
-      )}
-
-      {/* Last Workout Display */}
-      {lastWorkout && (
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.25, duration: 0.5 }}
-        >
-          <Card className="bg-white/60 backdrop-blur-sm border-orange-100">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Last Workout</p>
-                  <p className="font-semibold text-foreground">{lastWorkout.exerciseName}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs text-muted-foreground mb-1">Duration</p>
-                  <p className="font-bold text-primary">{formatDuration(lastWorkout.duration)}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      )}
-
-      {/* Quick Stats Row - Condensed */}
+      {/* Header Section */}
       <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.3, duration: 0.5 }}
-        className="grid grid-cols-2 gap-3"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-2"
       >
-        {displayStats.map((stat, index) => (
-          <Card key={stat.label} className="bg-white/60 backdrop-blur-sm border-orange-100">
-            <CardContent className="p-3 text-center">
-              <stat.icon className={`w-4 h-4 mx-auto mb-1 ${stat.color}`} />
-              <p className="text-sm font-bold text-foreground">{stat.value}</p>
-              <p className="text-xs text-muted-foreground">{stat.label}</p>
-            </CardContent>
-          </Card>
-        ))}
+        <h1 className="text-3xl font-bold text-foreground">{getGreeting()}</h1>
+        <p className="text-lg text-muted-foreground">
+          {selectedExercise.name} • Level {selectedExercise.difficulty_level}
+        </p>
       </motion.div>
 
-      {/* Momentum Score Widget */}
-      <MomentumScoreWidget />
-
-      {/* Community Section - Collapsible */}
+      {/* Hero Timer Display */}
       <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.5, duration: 0.5 }}
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.1 }}
+        className="py-4"
       >
-        <Collapsible open={communityExpanded} onOpenChange={setCommunityExpanded}>
+        <CircularProgressTimer
+          timeLeft={timeLeft}
+          duration={duration}
+          state={state}
+          progress={progress}
+        />
+      </motion.div>
+
+      {/* Quick Adjust Controls - Only visible when state='ready' */}
+      {state === 'ready' && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-center justify-center gap-4"
+        >
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => handleQuickAdjust(-5)}
+            disabled={quickAdjustDisabled || duration <= 0}
+            className="h-12 w-12"
+          >
+            <Minus className="h-5 w-5" />
+          </Button>
+
+          <button
+            onClick={handleTimeClick}
+            className="text-4xl font-bold text-primary hover:text-primary/80 transition-colors px-4 py-2 rounded-lg hover:bg-primary/5"
+          >
+            {formatTime(duration)}
+          </button>
+
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => handleQuickAdjust(5)}
+            disabled={quickAdjustDisabled || duration >= 5999}
+            className="h-12 w-12"
+          >
+            <Plus className="h-5 w-5" />
+          </Button>
+        </motion.div>
+      )}
+
+      {/* Exercise Info - Collapsible */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+      >
+        <Collapsible open={aboutExpanded} onOpenChange={setAboutExpanded}>
           <CollapsibleTrigger asChild>
             <Button
               variant="ghost"
-              className="w-full justify-between p-4 h-auto bg-white/40 hover:bg-white/60 border border-orange-100"
+              className="w-full justify-between text-muted-foreground hover:text-foreground"
             >
-              <div className="flex items-center space-x-3">
-                <Users className="h-4 w-4 text-blue-500" />
-                <div className="text-left">
-                  <p className="font-medium text-foreground">Community Pulse</p>
-                  <p className="text-sm text-muted-foreground">See rankings and stats</p>
-                </div>
-              </div>
+              <span>About this exercise</span>
               <motion.div
-                animate={{ rotate: communityExpanded ? 90 : 0 }}
+                animate={{ rotate: aboutExpanded ? 180 : 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                <ChevronDown className="h-4 w-4" />
               </motion.div>
             </Button>
           </CollapsibleTrigger>
-          <CollapsibleContent className="space-y-4 mt-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <CommunityStatsWidget />
-              <UserRankingDisplay />
+          <CollapsibleContent className="pt-2">
+            <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+              <p className="text-sm text-foreground">
+                {selectedExercise.description || 'No description available.'}
+              </p>
+              {selectedExercise.exercise_categories && (
+                <p className="text-xs text-muted-foreground">
+                  Category: {selectedExercise.exercise_categories.name}
+                </p>
+              )}
             </div>
           </CollapsibleContent>
         </Collapsible>
       </motion.div>
 
-      {/* Progress Summary - Compact */}
-      {stats && stats.totalSessions > 0 && (
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.6, duration: 0.5 }}
-        >
-          <Card className="bg-white/40 backdrop-blur-sm border-orange-100">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <TrendingUp className="h-4 w-4 text-green-500" />
-                  <span className="font-medium text-foreground">Progress</span>
-                </div>
-                <div className="flex items-center space-x-4 text-sm">
-                  <div className="text-center">
-                    <p className="font-bold text-foreground">{stats.totalSessions}</p>
-                    <p className="text-xs text-muted-foreground">Sessions</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="font-bold text-foreground">{formatTime(stats.totalTimeSpent)}</p>
-                    <p className="text-xs text-muted-foreground">Total Time</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      )}
+      {/* Primary Action Button */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="space-y-3"
+      >
+        <AnimatePresence mode="wait">
+          {state === 'ready' && (
+            <motion.div
+              key="start"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+            >
+              <Button
+                onClick={handleStartTimer}
+                size="lg"
+                className="w-full text-lg"
+              >
+                Start Workout
+              </Button>
+            </motion.div>
+          )}
+
+          {state === 'running' && (
+            <motion.div
+              key="pause"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+            >
+              <Button
+                onClick={handlePauseTimer}
+                size="lg"
+                variant="secondary"
+                className="w-full text-lg"
+              >
+                Pause
+              </Button>
+            </motion.div>
+          )}
+
+          {state === 'paused' && (
+            <motion.div
+              key="paused"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="flex gap-3"
+            >
+              <Button
+                onClick={handleResumeTimer}
+                size="lg"
+                className="flex-1 text-lg"
+              >
+                Resume
+              </Button>
+              <Button
+                onClick={handleSubmitTimer}
+                size="lg"
+                variant="outline"
+                className="flex-1 text-lg"
+              >
+                Submit
+              </Button>
+            </motion.div>
+          )}
+
+          {state === 'completed' && (
+            <motion.div
+              key="completed"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+            >
+              <Button
+                onClick={handleResetTimer}
+                size="lg"
+                className="w-full text-lg"
+              >
+                Start New Workout
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+
+      {/* Quick Stats Cards */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <QuickStatsCards
+          weeklyWorkouts={weeklyWorkouts}
+          totalMinutes={totalMinutes}
+          momentumScore={momentumScore}
+        />
+      </motion.div>
     </motion.div>
   );
 };

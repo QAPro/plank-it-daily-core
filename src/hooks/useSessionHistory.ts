@@ -80,15 +80,25 @@ export const useSessionStats = () => {
       const totalTimeSpent = sessions.reduce((sum, session) => sum + session.duration_seconds, 0);
       const averageDuration = Math.round(totalTimeSpent / totalSessions);
 
-      // Calculate this week's sessions
+      // Calculate this week's unique days with workouts (Monday-Sunday)
       const startOfWeek = new Date();
-      startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+      startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + (startOfWeek.getDay() === 0 ? -6 : 1)); // Monday
       startOfWeek.setHours(0, 0, 0, 0);
 
-      const thisWeekSessions = sessions.filter(session => {
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(endOfWeek.getDate() + 7); // Next Monday
+
+      // Get unique days with at least one workout this week
+      const uniqueDaysThisWeek = new Set<string>();
+      sessions.forEach(session => {
         const sessionDate = new Date(session.completed_at || '');
-        return sessionDate >= startOfWeek;
-      }).length;
+        if (sessionDate >= startOfWeek && sessionDate < endOfWeek) {
+          const dateKey = sessionDate.toISOString().split('T')[0]; // YYYY-MM-DD
+          uniqueDaysThisWeek.add(dateKey);
+        }
+      });
+
+      const thisWeekSessions = uniqueDaysThisWeek.size;
 
       // Calculate weekly progress (last 7 days)
       const weeklyProgress = [];

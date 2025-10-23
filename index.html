@@ -22,10 +22,51 @@
     <meta name="apple-mobile-web-app-title" content="Inner Fire" />
     <link rel="manifest" href="/manifest.json" />
     
+    <!-- Prevent caching issues -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    
     <title>Inner Fire - 5 Minutes a Day Just for You</title>
   </head>
   <body>
     <div id="root"></div>
+    
+    <!-- Cache busting script - runs before module loads -->
+    <script>
+      (function() {
+        const CACHE_KEY = 'vite-cache-v2';
+        const hasCacheCleared = sessionStorage.getItem(CACHE_KEY);
+        
+        if (!hasCacheCleared) {
+          console.log('[Cache] Clearing all caches and forcing reload...');
+          
+          // Mark as cleared FIRST to prevent infinite loop
+          sessionStorage.setItem(CACHE_KEY, Date.now().toString());
+          
+          // Clear everything
+          sessionStorage.removeItem('reload-count');
+          
+          // Clear caches asynchronously
+          if ('caches' in window) {
+            caches.keys().then(names => {
+              names.forEach(name => caches.delete(name));
+            });
+          }
+          
+          // Unregister service workers
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(regs => {
+              regs.forEach(reg => reg.unregister());
+            });
+          }
+          
+          // Hard reload with cache bypass
+          window.location.reload(true);
+        }
+      })();
+    </script>
+    
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

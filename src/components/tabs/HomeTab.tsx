@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Plus, Minus } from "lucide-react";
+import { Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,7 +44,6 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [showSimpleCompletion, setShowSimpleCompletion] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
-  const [aboutExpanded, setAboutExpanded] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
   // Audio and session tracking
@@ -338,41 +337,6 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         </motion.div>
       )}
 
-      {/* Exercise Info - Collapsible */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-      >
-        <Collapsible open={aboutExpanded} onOpenChange={setAboutExpanded}>
-          <CollapsibleTrigger asChild>
-            <Button
-              variant="ghost"
-              className="w-full justify-between text-muted-foreground hover:text-foreground"
-            >
-              <span>About this exercise</span>
-              <motion.div
-                animate={{ rotate: aboutExpanded ? 180 : 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                <ChevronDown className="h-4 w-4" />
-              </motion.div>
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="pt-2">
-            <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-              <p className="text-sm text-foreground">
-                {selectedExercise.description || 'No description available.'}
-              </p>
-              {selectedExercise.exercise_categories && (
-                <p className="text-xs text-muted-foreground">
-                  Category: {selectedExercise.exercise_categories.name}
-                </p>
-              )}
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-      </motion.div>
 
       {/* Primary Action Button */}
       <motion.div

@@ -88,11 +88,6 @@ export const useSessionTracking = () => {
       queryClient.invalidateQueries({ queryKey: ['user-achievements'] });
       queryClient.invalidateQueries({ queryKey: ['achievement-progress'] });
 
-      toast({
-        title: "Session Saved!",
-        description: `Your ${exercise.name} session has been recorded.`,
-      });
-
       return { milestoneEvent, newAchievements };
     } catch (error) {
       console.error('Error saving session:', error);

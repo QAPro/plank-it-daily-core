@@ -437,8 +437,6 @@ const completeSession = useCallback(async (duration: number, notes?: string) => 
       achievementsCount: newAchievements.length,
       streakInfo: streakResult
     });
-    
-    toast.success('Session completed successfully!');
   } catch (error) {
     console.error('❌ UNEXPECTED ERROR COMPLETING SESSION:', error);
     console.error('❌ Error details:', {

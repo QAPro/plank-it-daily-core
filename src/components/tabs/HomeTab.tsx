@@ -138,15 +138,6 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
       if (onWorkoutStarted) {
         onWorkoutStarted();
       }
-      
-      // Show success toast
-      const exercise = exercises?.find(ex => ex.id === selectedWorkout.exerciseId);
-      if (exercise) {
-        toast({
-          title: "Exercise Selected",
-          description: `Ready to start ${exercise.name}!`,
-        });
-      }
     }
   }, [selectedWorkout, exercises, setTimerDuration, updatePreferences, onWorkoutStarted, toast]);
 
@@ -196,37 +187,20 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     updatePreferences({
       last_duration: newDuration,
     }, false);
-    
-    toast({
-      title: "Timer Updated",
-      description: `Duration set to ${minutes}:${seconds.toString().padStart(2, '0')}`,
-    });
   };
 
   // Timer control handlers
   const handleStartTimer = () => {
     handleStart();
-    toast({
-      title: "Timer Started",
-      description: "Stay focused! You've got this!",
-    });
     onWorkoutStarted?.();
   };
 
   const handlePauseTimer = () => {
     handlePause();
-    toast({
-      title: "Timer Paused",
-      description: "Take a breath",
-    });
   };
 
   const handleResumeTimer = () => {
     handleResume();
-    toast({
-      title: "Timer Resumed",
-      description: "Keep going!",
-    });
   };
 
   const handleStopTimer = () => {
@@ -234,18 +208,10 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     
     // Show completion overlay immediately (no confetti for stopped workouts)
     setShowSimpleCompletion(true);
-    
-    toast({
-      title: "Workout Stopped",
-      description: `You completed ${formatTime(timeElapsed)}`,
-    });
   };
 
   const handleResetTimer = () => {
     handleReset();
-    toast({
-      title: "Timer Reset",
-    });
   };
 
   const handleCloseCompletion = () => {

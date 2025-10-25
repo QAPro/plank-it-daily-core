@@ -4,7 +4,7 @@ import innerFireLogo from "@/assets/inner-fire-logo.png";
 
 const DashboardHeader = () => {
   return (
-    <header className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm z-40 shadow-soft">
+    <header className="fixed top-0 left-0 right-0 bg-background backdrop-blur-sm z-40">
       <div className="max-w-7xl mx-auto px-4 py-4">
         <motion.div 
           className="flex items-center justify-between"
@@ -18,13 +18,13 @@ const DashboardHeader = () => {
               alt="Inner Fire Logo" 
               className="w-10 h-10 object-contain"
             />
-            <h1 className="text-2xl font-bold text-warm-orange">Inner Fire</h1>
+            <h1 className="text-2xl font-bold text-coral">inner fire</h1>
           </div>
           <button 
-            className="w-10 h-10 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors"
+            className="w-10 h-10 rounded-full bg-background-secondary hover:bg-gray-200 flex items-center justify-center transition-colors"
             aria-label="Settings"
           >
-            <Settings className="w-5 h-5 text-muted-foreground" />
+            <Settings className="w-5 h-5 text-gray-500" />
           </button>
         </motion.div>
       </div>

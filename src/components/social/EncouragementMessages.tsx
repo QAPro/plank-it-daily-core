@@ -106,11 +106,6 @@ const EncouragementMessages: React.FC<EncouragementMessagesProps> = ({
       // Simulate API call - replace with actual implementation
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      toast({
-        title: "Encouragement sent!",
-        description: `Your message was sent to ${recipientName}`,
-      });
-      
       onSent?.();
     } catch (error) {
       toast({

@@ -52,11 +52,6 @@ const InAppPostDialog: React.FC<InAppPostDialogProps> = ({
         postType: 'user_generated'
       });
 
-      toast({
-        title: "Posted to activity feed! 🎉",
-        description: "Your workout has been shared with your friends."
-      });
-
       onClose();
     } catch (error) {
       console.error('Failed to post to activity feed:', error);

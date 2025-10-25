@@ -37,13 +37,7 @@ export const useChallengeTracking = () => {
         )
       );
 
-      // Show completion notifications
-      newlyCompleted.forEach(challenge => {
-        toast({
-          title: "Challenge Completed! 🏆",
-          description: `Congratulations! You've completed "${challenge.title}"`,
-        });
-      });
+      // Challenge completions will be shown in SessionCompletionCelebration
 
     } catch (error) {
       console.error('Error updating challenge progress:', error);

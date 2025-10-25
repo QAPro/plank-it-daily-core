@@ -79,7 +79,7 @@ const HelpSupport = () => {
                 <Mail className="w-5 h-5 text-primary" />
                 <div>
                   <p className="text-sm text-muted-foreground">Email us at</p>
-                  <p className="font-medium text-foreground">support@plankit.app</p>
+                  <p className="font-medium text-foreground">support@innerfire.app</p>
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">

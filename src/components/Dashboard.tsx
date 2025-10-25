@@ -81,9 +81,9 @@ const Dashboard = () => {
   console.log('[Dashboard] Rendering Dashboard for user:', user?.email);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
-      {/* Header with Settings */}
-      <DashboardHeader onSettingsClick={() => navigate('/settings')} />
+    <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-background">
+      {/* Header */}
+      <DashboardHeader />
       
       <div className="flex flex-col h-screen">        
         {/* Main Content */}

@@ -84,10 +84,10 @@ const EmailVerificationHandler = () => {
             setStatus('success');
             
             if (type === 'signup') {
-              setMessage('Your email has been verified successfully! Welcome to PlankIt.');
+              setMessage('Your email has been verified successfully! Welcome to Inner Fire.');
               toast({
                 title: "Email verified!",
-                description: "Welcome to PlankIt! Your account is now active.",
+                description: "Welcome to Inner Fire! Your account is now active.",
               });
             } else if (type === 'email_change') {
               setMessage('Your email address has been updated successfully!');
@@ -204,7 +204,7 @@ const EmailVerificationHandler = () => {
                 variant="outline"
                 className="w-full"
               >
-                Return to PlankIt
+                Return to Inner Fire
               </Button>
             </div>
           )}

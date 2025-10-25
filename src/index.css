@@ -2,95 +2,132 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* Inner Fire Design System - Elevated Minimalism
+   All colors MUST be HSL format for theme compatibility
 */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Cream & Warm Palette - Light Mode */
+    --background: 40 40% 97%;  /* Warm cream #FAF8F5 */
+    --foreground: 20 14% 20%;  /* Dark charcoal #2D2820 */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 40 40% 98%;  /* Slightly lighter cream */
+    --card-foreground: 20 14% 20%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 40 40% 98%;
+    --popover-foreground: 20 14% 20%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Coral Primary */
+    --primary: 14 100% 65%;  /* Bright coral #FF845C */
+    --primary-foreground: 0 0% 100%;  /* White text on coral */
+    --primary-glow: 14 100% 75%;  /* Lighter coral for glow effects */
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Warm Orange Secondary */
+    --secondary: 30 100% 94%;  /* Very light warm background */
+    --secondary-foreground: 14 100% 50%;  /* Darker coral for text */
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 40 30% 92%;
+    --muted-foreground: 20 10% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 14 100% 65%;  /* Coral accent */
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 40 20% 88%;
+    --input: 40 20% 88%;
+    --ring: 14 100% 65%;  /* Coral focus ring */
 
-    --radius: 0.5rem;
+    --radius: 1rem;  /* 16px - soft rounded corners */
 
-    --sidebar-background: 0 0% 98%;
+    /* Custom Colors */
+    --cream: 40 40% 97%;
+    --coral: 14 100% 65%;
+    --warm-orange: 25 100% 60%;
+    --deep-slate: 220 40% 15%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(14 100% 65%), hsl(25 100% 60%));
+    --gradient-secondary: linear-gradient(180deg, hsl(40 40% 97%), hsl(40 40% 95%));
+    --gradient-hero: linear-gradient(135deg, hsl(14 100% 65%) 0%, hsl(25 100% 60%) 100%);
 
-    --sidebar-primary: 240 5.9% 10%;
+    /* Shadows - Soft & Elegant */
+    --shadow-soft: 0 2px 8px -2px hsla(14, 100%, 65%, 0.08);
+    --shadow-medium: 0 4px 12px -2px hsla(14, 100%, 65%, 0.12);
+    --shadow-strong: 0 8px 24px -4px hsla(14, 100%, 65%, 0.16);
+    --shadow-glow: 0 0 24px hsla(14, 100%, 65%, 0.2);
 
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar tokens */
+    --sidebar-background: 40 40% 98%;
+    --sidebar-foreground: 20 14% 20%;
+    --sidebar-primary: 14 100% 65%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 40 30% 94%;
+    --sidebar-accent-foreground: 20 14% 20%;
+    --sidebar-border: 40 20% 90%;
+    --sidebar-ring: 14 100% 65%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Deep Slate Dark Mode with Warm Accents */
+    --background: 220 40% 12%;  /* Deep slate #141A26 */
+    --foreground: 40 40% 95%;  /* Warm off-white */
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 220 40% 15%;  /* Slightly lighter slate */
+    --card-foreground: 40 40% 95%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 220 40% 15%;
+    --popover-foreground: 40 40% 95%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    /* Bright Coral for Dark Mode */
+    --primary: 14 100% 70%;  /* Brighter coral for visibility */
+    --primary-foreground: 220 40% 12%;  /* Dark slate text */
+    --primary-glow: 14 100% 80%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 220 40% 20%;  /* Darker slate */
+    --secondary-foreground: 14 100% 70%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 220 30% 20%;
+    --muted-foreground: 40 20% 65%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 14 100% 70%;
+    --accent-foreground: 220 40% 12%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 220 30% 25%;
+    --input: 220 30% 25%;
+    --ring: 14 100% 70%;
+
+    /* Dark mode custom colors */
+    --cream: 220 40% 12%;
+    --coral: 14 100% 70%;
+    --warm-orange: 25 100% 65%;
+    --deep-slate: 220 40% 10%;
+
+    /* Dark mode gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(14 100% 70%), hsl(25 100% 65%));
+    --gradient-secondary: linear-gradient(180deg, hsl(220 40% 12%), hsl(220 40% 10%));
+    --gradient-hero: linear-gradient(135deg, hsl(14 100% 70%) 0%, hsl(25 100% 65%) 100%);
+
+    /* Stronger shadows for dark mode */
+    --shadow-soft: 0 2px 8px -2px hsla(0, 0%, 0%, 0.3);
+    --shadow-medium: 0 4px 12px -2px hsla(0, 0%, 0%, 0.4);
+    --shadow-strong: 0 8px 24px -4px hsla(0, 0%, 0%, 0.5);
+    --shadow-glow: 0 0 32px hsla(14, 100%, 70%, 0.3);
+
+    /* Dark sidebar */
+    --sidebar-background: 220 40% 10%;
+    --sidebar-foreground: 40 40% 95%;
+    --sidebar-primary: 14 100% 70%;
+    --sidebar-primary-foreground: 220 40% 12%;
+    --sidebar-accent: 220 40% 18%;
+    --sidebar-accent-foreground: 40 40% 95%;
+    --sidebar-border: 220 30% 20%;
+    --sidebar-ring: 14 100% 70%;
   }
 }
 
@@ -101,5 +138,45 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Custom utility classes */
+@layer utilities {
+  .bg-gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .bg-gradient-secondary {
+    background: var(--gradient-secondary);
+  }
+
+  .bg-gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+
+  .shadow-medium {
+    box-shadow: var(--shadow-medium);
+  }
+
+  .shadow-strong {
+    box-shadow: var(--shadow-strong);
+  }
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .text-gradient {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }

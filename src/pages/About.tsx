@@ -24,7 +24,7 @@ const About = () => {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">About PlankIt</h1>
+            <h1 className="text-3xl font-bold text-foreground">About Inner Fire</h1>
             <p className="text-muted-foreground">Learn more about us</p>
           </div>
         </motion.div>
@@ -41,7 +41,7 @@ const About = () => {
                 <Info className="w-12 h-12 text-primary" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-foreground">PlankIt</h2>
+                <h2 className="text-2xl font-bold text-coral">Inner Fire</h2>
                 <p className="text-muted-foreground">Version 1.0.0</p>
               </div>
             </CardContent>
@@ -104,7 +104,7 @@ const About = () => {
               <div className="flex items-center justify-center gap-2 text-muted-foreground">
                 <span>Made with</span>
                 <Heart className="w-4 h-4 text-red-500 fill-red-500" />
-                <span>by the PlankIt Team</span>
+                <span>by the Inner Fire Team</span>
               </div>
             </CardContent>
           </Card>

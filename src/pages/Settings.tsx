@@ -11,20 +11,26 @@ import {
   FileText, 
   Info, 
   LogOut,
-  ChevronRight
+  ChevronRight,
+  Moon,
+  Sun
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAdmin } from '@/hooks/useAdmin';
+import { useTheme } from '@/components/theme-provider';
 import NewBottomNav from '@/components/navigation/NewBottomNav';
 
 const Settings = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isAdmin } = useAdmin();
+  const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState('settings');
 
   const handleTabChange = (tabId: string) => {
@@ -62,13 +68,13 @@ const Settings = () => {
   const MenuItem = ({ icon: Icon, label, onClick, color = "text-foreground" }: any) => (
     <button
       onClick={onClick}
-      className="w-full flex items-center justify-between p-4 bg-card hover:bg-accent/50 rounded-lg transition-colors border border-border"
+      className="w-full flex items-center justify-between p-4 bg-card hover:bg-coral/5 rounded-xl transition-all duration-200 border border-border/50 shadow-soft hover:shadow-medium"
     >
       <div className="flex items-center gap-3">
         <Icon className={`w-5 h-5 ${color}`} />
         <span className={`font-medium ${color}`}>{label}</span>
       </div>
-      <ChevronRight className="w-5 h-5 text-muted-foreground" />
+      <ChevronRight className="w-5 h-5 text-coral" />
     </button>
   );
 
@@ -122,6 +128,25 @@ const Settings = () => {
                 label="Privacy Settings" 
                 onClick={() => navigate('/settings/privacy-settings')} 
               />
+              
+              {/* Dark Mode Toggle */}
+              <div className="flex items-center justify-between p-4 bg-card rounded-xl border border-border/50 shadow-soft">
+                <div className="flex items-center gap-3">
+                  {theme === 'dark' ? (
+                    <Moon className="w-5 h-5 text-foreground" />
+                  ) : (
+                    <Sun className="w-5 h-5 text-foreground" />
+                  )}
+                  <Label htmlFor="dark-mode" className="font-medium cursor-pointer">
+                    Dark Mode
+                  </Label>
+                </div>
+                <Switch
+                  id="dark-mode"
+                  checked={theme === 'dark'}
+                  onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                />
+              </div>
             </CardContent>
           </Card>
         </motion.div>

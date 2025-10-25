@@ -68,7 +68,7 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
   const visibleTabs = tabs.filter((tab) => tab.visible);
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-[#1a2332] border-t border-border z-50">
+    <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50 shadow-strong">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-around h-20">
           {visibleTabs.map((tab) => {
@@ -79,25 +79,34 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
               <motion.button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
-                className="flex flex-col items-center justify-center gap-1 min-w-[70px]"
+                className="flex flex-col items-center justify-center gap-1 min-w-[70px] relative"
                 whileTap={{ scale: 0.95 }}
               >
+                {isActive && (
+                  <motion.div
+                    layoutId="activeIndicator"
+                    className="absolute inset-0 bg-gradient-primary rounded-xl opacity-10"
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
                 <motion.div
                   animate={{
                     scale: isActive ? (isHomeTab ? 1.08 : 1.03) : isHomeTab ? 1.05 : 1,
                   }}
                   transition={{ duration: 0.2 }}
-                  className="relative flex items-center justify-center h-[44px]"
+                  className="relative flex items-center justify-center h-[44px] z-10"
                 >
                   <img
                     src={isActive ? tab.activeIcon : tab.inactiveIcon}
                     alt={tab.label}
-                    className={`${isHomeTab ? "w-[60px] h-[60px]" : "w-12 h-12"} object-contain`}
+                    className={`${isHomeTab ? "w-[60px] h-[60px]" : "w-12 h-12"} object-contain ${
+                      isActive ? "drop-shadow-glow" : ""
+                    }`}
                   />
                 </motion.div>
                 <span
-                  className={`text-xs font-medium transition-colors ${
-                    isActive ? "text-[#FF6B35]" : "text-[#A9B4C2]"
+                  className={`text-xs font-medium transition-colors z-10 ${
+                    isActive ? "text-coral" : "text-muted-foreground"
                   }`}
                 >
                   {tab.label}

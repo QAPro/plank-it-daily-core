@@ -1,11 +1,11 @@
 {
-  "name": "Inner Fire - JUst 5 minutes a day, just for you",
+  "name": "Inner Fire - 5 Minutes a Day, Just for You",
   "short_name": "Inner Fire",
   "description": "Transform your health with personalized workouts, achievement tracking, and social challenges.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#2563eb",
+  "theme_color": "#FF845C",
   "orientation": "portrait-primary",
   "categories": ["fitness", "health", "sports"],
   "lang": "en",

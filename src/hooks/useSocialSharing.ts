@@ -208,11 +208,11 @@ export const useSocialSharing = () => {
 
   const generateShareText = (shareData: EnhancedShareData): string => {
     if (shareData.achievement) {
-      return `🏆 Just unlocked "${shareData.achievement}" on PlankIt! ${shareData.achievement_description || ''} #PlankIt #Achievement #Fitness`;
+      return `🏆 Just unlocked "${shareData.achievement}" on Inner Fire! ${shareData.achievement_description || ''} #InnerFire #Achievement #Fitness`;
     }
     
     if (shareData.streakDays) {
-      return `🔥 ${shareData.streakDays}-day workout streak on PlankIt! Consistency is key! 💪 #PlankIt #Streak #Fitness`;
+      return `🔥 ${shareData.streakDays}-day workout streak on Inner Fire! Consistency is key! 💪 #InnerFire #Streak #Fitness`;
     }
     
     if (shareData.exercise && shareData.duration) {
@@ -221,10 +221,10 @@ export const useSocialSharing = () => {
       const timeStr = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
       const pbText = shareData.personalBest ? " 🏆 New personal best!" : "";
       
-      return `💪 Just completed a ${timeStr} ${shareData.exercise} on PlankIt!${pbText} #PlankIt #Fitness #CoreStrength`;
+      return `💪 Just completed a ${timeStr} ${shareData.exercise} on Inner Fire!${pbText} #InnerFire #Fitness #CoreStrength`;
     }
     
-    return "Check out my fitness progress on PlankIt! 💪 #PlankIt #Fitness";
+    return "Check out my fitness progress on Inner Fire! 💪 #InnerFire #Fitness";
   };
 
   return {

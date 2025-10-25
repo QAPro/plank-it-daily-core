@@ -9,7 +9,7 @@ const RESERVED_USERNAMES = [
   'profile', 'profiles', 'settings', 'config', 'app', 'apps', 'service',
   'services', 'test', 'demo', 'example', 'sample', 'null', 'undefined',
   'anonymous', 'guest', 'public', 'private', 'official', 'staff', 'team',
-  'moderator', 'mod', 'plankit', 'plank', 'workout', 'fitness'
+  'moderator', 'mod', 'innerfire', 'inner-fire', 'fire', 'workout', 'fitness'
 ];
 
 export interface UsernameValidationResult {

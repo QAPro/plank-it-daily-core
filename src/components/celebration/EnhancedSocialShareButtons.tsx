@@ -72,11 +72,11 @@ const EnhancedSocialShareButtons = ({
 
   const generateShareText = (): string => {
     if (shareData.achievement) {
-      return `🏆 Just unlocked "${shareData.achievement}" on PlankIt! ${shareData.achievement_description || ''} #PlankIt #Achievement #Fitness`;
+      return `🏆 Just unlocked "${shareData.achievement}" on Inner Fire! ${shareData.achievement_description || ''} #InnerFire #Achievement #Fitness`;
     }
     
     if (shareData.streakDays) {
-      return `🔥 ${shareData.streakDays}-day workout streak on PlankIt! Consistency is key! 💪 #PlankIt #Streak #Fitness`;
+      return `🔥 ${shareData.streakDays}-day workout streak on Inner Fire! Consistency is key! 💪 #InnerFire #Streak #Fitness`;
     }
     
     if (shareData.exercise && shareData.duration) {
@@ -85,10 +85,10 @@ const EnhancedSocialShareButtons = ({
       const timeStr = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
       const pbText = shareData.personalBest ? " 🏆 New personal best!" : "";
       
-      return `💪 Just completed a ${timeStr} ${shareData.exercise} on PlankIt!${pbText} #PlankIt #Fitness #CoreStrength`;
+      return `💪 Just completed a ${timeStr} ${shareData.exercise} on Inner Fire!${pbText} #InnerFire #Fitness #CoreStrength`;
     }
     
-    return "Check out my fitness progress on PlankIt! 💪 #PlankIt #Fitness";
+    return "Check out my fitness progress on Inner Fire! 💪 #InnerFire #Fitness";
   };
 
   const handleNativeShare = async () => {
@@ -96,7 +96,7 @@ const EnhancedSocialShareButtons = ({
     
     if (navigator.share) {
       const shareData: ShareData = {
-        title: 'My PlankIt Achievement',
+        title: 'My Inner Fire Achievement',
         text: shareText,
         url: window.location.origin,
       };
@@ -104,7 +104,7 @@ const EnhancedSocialShareButtons = ({
       if (shareImage) {
         try {
           const file = await fetch(shareImage).then(r => r.blob()).then(blob => 
-            new File([blob], 'plankit-share.png', { type: 'image/png' })
+            new File([blob], 'innerfire-share.png', { type: 'image/png' })
           );
           if (navigator.canShare({ files: [file] })) {
             shareData.files = [file];

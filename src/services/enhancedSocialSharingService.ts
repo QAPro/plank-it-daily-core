@@ -187,17 +187,17 @@ export class EnhancedSocialSharingService {
       .replace('{{streak_days}}', shareData.streakDays?.toString() || '0')
       .replace('{{is_personal_best}}', shareData.personalBest ? '🏆 Yes!' : 'No')
       .replace('{{user_name}}', shareData.user_name || 'You')
-      .replace('{{app_name}}', shareData.app_name || 'PlankIt');
+      .replace('{{app_name}}', shareData.app_name || 'Inner Fire');
   }
 
   // Enhanced platform sharing methods
   async shareToInstagram(imageDataUrl: string, caption: string): Promise<void> {
     try {
-      const file = await this.dataURLToFile(imageDataUrl, 'plankit-workout.png');
+      const file = await this.dataURLToFile(imageDataUrl, 'innerfire-workout.png');
       
       if (navigator.share && navigator.canShare({ files: [file] })) {
         await navigator.share({
-          title: 'My PlankIt Workout',
+          title: 'My Inner Fire Workout',
           text: caption,
           files: [file]
         });
@@ -229,7 +229,7 @@ export class EnhancedSocialSharingService {
   }
 
   async shareToTwitter(text: string, imageDataUrl?: string): Promise<void> {
-    const tweetText = `${text} #PlankIt #Fitness #CoreStrength`;
+    const tweetText = `${text} #InnerFire #Fitness #CoreStrength`;
     const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
     
     if (imageDataUrl) {

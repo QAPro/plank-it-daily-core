@@ -19,13 +19,26 @@ export default {
 		},
 		extend: {
 			spacing: {
+				'4': '1rem',
+				'8': '2rem',
+				'12': '3rem',
+				'16': '4rem',
 				'18': '4.5rem',
+				'20': '5rem',
+				'24': '6rem',
+				'32': '8rem',
+				'48': '12rem',
+				'64': '16rem',
 			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
-				background: 'hsl(var(--background))',
+				background: {
+					DEFAULT: 'hsl(var(--background))',
+					secondary: 'hsl(var(--background-secondary))',
+					tertiary: 'hsl(var(--background-tertiary))',
+				},
 				foreground: 'hsl(var(--foreground))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
@@ -67,23 +80,64 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				// Custom Inner Fire colors
-				cream: 'hsl(var(--cream))',
+				cream: {
+					DEFAULT: 'hsl(var(--cream))',
+					dark: 'hsl(var(--cream-dark))',
+				},
 				coral: 'hsl(var(--coral))',
+				gold: {
+					DEFAULT: 'hsl(var(--gold))',
+					light: 'hsl(var(--gold-light))',
+				},
 				'warm-orange': 'hsl(var(--warm-orange))',
-				'deep-slate': 'hsl(var(--deep-slate))'
+				'deep-slate': {
+					DEFAULT: 'hsl(var(--deep-slate))',
+					light: 'hsl(var(--dark-slate-light))',
+				},
+				'sky-blue': {
+					DEFAULT: 'hsl(var(--sky-blue))',
+					light: 'hsl(var(--sky-blue-light))',
+					dark: 'hsl(var(--sky-blue-dark))',
+				},
+				text: {
+					primary: 'hsl(var(--text-primary))',
+					secondary: 'hsl(var(--text-secondary))',
+					light: 'hsl(var(--text-light))',
+				},
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)',
 				xl: '1rem',
-				'2xl': '1.5rem'
+				'2xl': '1.5rem',
+				'3xl': '2rem',
 			},
 			boxShadow: {
 				'soft': 'var(--shadow-soft)',
 				'medium': 'var(--shadow-medium)',
 				'strong': 'var(--shadow-strong)',
-				'glow': 'var(--shadow-glow)'
+				'button': 'var(--shadow-button)',
+				'button-hover': 'var(--shadow-button-hover)',
+				'glossy': 'var(--shadow-glossy)',
+				'3d': 'var(--shadow-3d)',
+				'glow': 'var(--shadow-glow)',
+				'nav': 'var(--shadow-nav)',
+				'orange': 'var(--shadow-orange)',
+				'blue': 'var(--shadow-blue)',
+				'purple': 'var(--shadow-purple)',
+				'green': 'var(--shadow-green)',
+			},
+			fontSize: {
+				'xs': ['0.75rem', { lineHeight: '1rem', fontWeight: '500' }],      // 12px
+				'sm': ['0.875rem', { lineHeight: '1.25rem', fontWeight: '500' }],   // 14px
+				'base': ['1rem', { lineHeight: '1.5rem', fontWeight: '400' }],      // 16px
+				'lg': ['1.125rem', { lineHeight: '1.75rem', fontWeight: '600' }],   // 18px
+				'xl': ['1.25rem', { lineHeight: '1.75rem', fontWeight: '600' }],    // 20px
+				'2xl': ['1.5rem', { lineHeight: '2rem', fontWeight: '600' }],       // 24px
+				'3xl': ['2rem', { lineHeight: '2.5rem', fontWeight: '700' }],       // 32px
+				'4xl': ['2.25rem', { lineHeight: '2.75rem', fontWeight: '700' }],   // 36px
+				'timer': ['3rem', { lineHeight: '3.5rem', fontWeight: '700' }],     // 48px
 			},
 			keyframes: {
 				'accordion-down': {

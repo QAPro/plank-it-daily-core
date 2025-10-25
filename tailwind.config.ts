@@ -18,18 +18,6 @@ export default {
 			}
 		},
 		extend: {
-			spacing: {
-				'4': '1rem',
-				'8': '2rem',
-				'12': '3rem',
-				'16': '4rem',
-				'18': '4.5rem',
-				'20': '5rem',
-				'24': '6rem',
-				'32': '8rem',
-				'48': '12rem',
-				'64': '16rem',
-			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -106,10 +94,10 @@ export default {
 				},
 			},
 			borderRadius: {
+				sm: 'calc(var(--radius) - 8px)',
+				md: 'calc(var(--radius) - 4px)',
 				lg: 'var(--radius)',
-				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)',
-				xl: '1rem',
+				xl: 'calc(var(--radius) + 8px)',
 				'2xl': '1.5rem',
 				'3xl': '2rem',
 			},

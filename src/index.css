@@ -300,6 +300,34 @@
     box-shadow: var(--shadow-green);
   }
 
+  /* 3D Glossy Timer Utilities */
+  .bg-gradient-orange-ring {
+    background: linear-gradient(135deg, #FF6B35 0%, #FDB961 100%);
+  }
+
+  .bg-gradient-blue-inner {
+    background: linear-gradient(135deg, #029FD4 0%, #03B7EE 50%, #35C9F5 100%);
+  }
+
+  .shadow-glossy-orange {
+    box-shadow: 0 8px 24px rgba(255, 107, 53, 0.3);
+  }
+
+  .shadow-glossy-blue {
+    box-shadow: 
+      inset 0 2px 8px rgba(255, 255, 255, 0.4),
+      0 4px 16px rgba(3, 183, 238, 0.3);
+  }
+
+  .glossy-shine {
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.2) 40%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .text-timer {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
   /* Text Effects */
   .text-gradient {
     background: var(--gradient-primary);

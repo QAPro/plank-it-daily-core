@@ -20,23 +20,51 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
   };
 
   const getStateColor = () => {
-    // State-based colors take priority
-    if (state === 'completed') return { ring: 'stroke-green-500', bg: 'from-green-500 to-emerald-500' };
-    if (state === 'paused') return { ring: 'stroke-muted-foreground', bg: 'from-muted to-muted-foreground' };
-    
-    // For setup and ready states, always use primary blue regardless of duration
-    if (state === 'setup' || state === 'ready') {
-      return { ring: 'stroke-primary', bg: 'from-primary to-blue-600' };
+    // State-based colors take priority - returns outer ring and inner circle styles
+    if (state === 'completed') {
+      return { 
+        outerRing: 'bg-gradient-to-br from-green-500 to-emerald-500',
+        outerShadow: 'shadow-[0_8px_24px_rgba(34,197,94,0.3)]',
+        innerCircle: 'bg-gradient-to-br from-green-400 to-emerald-400',
+        innerShadow: 'shadow-[inset_0_2px_8px_rgba(255,255,255,0.4),0_4px_16px_rgba(34,197,94,0.3)]'
+      };
+    }
+    if (state === 'paused') {
+      return { 
+        outerRing: 'bg-gradient-to-br from-gray-400 to-gray-500',
+        outerShadow: 'shadow-[0_8px_24px_rgba(156,163,175,0.3)]',
+        innerCircle: 'bg-gradient-to-br from-gray-300 to-gray-400',
+        innerShadow: 'shadow-[inset_0_2px_8px_rgba(255,255,255,0.4),0_4px_16px_rgba(156,163,175,0.3)]'
+      };
     }
     
     // For running state, check time-based warnings
     if (state === 'running') {
-      if (timeLeft <= 10) return { ring: 'stroke-destructive', bg: 'from-destructive to-red-600' };
-      if (timeLeft <= 30) return { ring: 'stroke-yellow-500', bg: 'from-yellow-500 to-amber-500' };
+      if (timeLeft <= 10) {
+        return { 
+          outerRing: 'bg-gradient-to-br from-red-500 to-red-600',
+          outerShadow: 'shadow-[0_8px_24px_rgba(239,68,68,0.3)]',
+          innerCircle: 'bg-gradient-blue-inner',
+          innerShadow: 'shadow-glossy-blue'
+        };
+      }
+      if (timeLeft <= 30) {
+        return { 
+          outerRing: 'bg-gradient-to-br from-yellow-500 to-amber-500',
+          outerShadow: 'shadow-[0_8px_24px_rgba(234,179,8,0.3)]',
+          innerCircle: 'bg-gradient-blue-inner',
+          innerShadow: 'shadow-glossy-blue'
+        };
+      }
     }
     
-    // Default primary color
-    return { ring: 'stroke-primary', bg: 'from-primary to-blue-600' };
+    // Default: orange outer ring, blue inner circle
+    return { 
+      outerRing: 'bg-gradient-orange-ring',
+      outerShadow: 'shadow-glossy-orange',
+      innerCircle: 'bg-gradient-blue-inner',
+      innerShadow: 'shadow-glossy-blue'
+    };
   };
 
   const getStateMessage = () => {
@@ -75,32 +103,30 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
 
   return (
     <div className="relative w-[200px] h-[200px] sm:w-[320px] sm:h-[320px] flex items-center justify-center mx-auto">
-      {/* Background Circle with Gradient */}
-      <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${colors.bg} shadow-lg`} />
-      
-      <div className="relative z-10">
-        {/* Mobile SVG */}
+      {/* Layer 1: Outer Orange Ring with Progress */}
+      <div className={`absolute inset-0 rounded-full ${colors.outerRing} ${colors.outerShadow}`}>
+        {/* Mobile SVG Progress Ring */}
         <svg 
           width={svgConfig.mobile.size} 
           height={svgConfig.mobile.size} 
-          className="sm:hidden transform rotate-90 scale-x-[-1]"
+          className="sm:hidden absolute inset-0 transform rotate-90 scale-x-[-1]"
           viewBox={`0 0 ${svgConfig.mobile.size} ${svgConfig.mobile.size}`}
         >
-          {/* Background Circle */}
+          {/* Background Ring */}
           <circle
             cx={svgConfig.mobile.center}
             cy={svgConfig.mobile.center}
             r={svgConfig.mobile.radius}
-            stroke="rgba(255, 255, 255, 0.2)"
+            stroke="rgba(255, 255, 255, 0.3)"
             strokeWidth={svgConfig.mobile.strokeWidth}
             fill="none"
           />
-          {/* Progress Circle */}
+          {/* Progress Ring */}
           <motion.circle
             cx={svgConfig.mobile.center}
             cy={svgConfig.mobile.center}
             r={svgConfig.mobile.radius}
-            stroke="white"
+            stroke="rgba(255, 255, 255, 0.9)"
             strokeWidth={svgConfig.mobile.strokeWidth}
             fill="none"
             strokeDasharray={mobileCircumference}
@@ -112,28 +138,28 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
           />
         </svg>
 
-        {/* Desktop SVG */}
+        {/* Desktop SVG Progress Ring */}
         <svg 
           width={320} 
           height={320} 
-          className="hidden sm:block transform rotate-90 scale-x-[-1]"
+          className="hidden sm:block absolute inset-0 transform rotate-90 scale-x-[-1]"
           viewBox="0 0 320 320"
         >
-          {/* Background Circle */}
+          {/* Background Ring */}
           <circle
             cx="160"
             cy="160"
             r="140"
-            stroke="rgba(255, 255, 255, 0.2)"
+            stroke="rgba(255, 255, 255, 0.3)"
             strokeWidth="8"
             fill="none"
           />
-          {/* Progress Circle */}
+          {/* Progress Ring */}
           <motion.circle
             cx="160"
             cy="160"
             r="140"
-            stroke="white"
+            stroke="rgba(255, 255, 255, 0.9)"
             strokeWidth="8"
             fill="none"
             strokeDasharray={2 * Math.PI * 140}
@@ -144,6 +170,12 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
             transition={{ duration: 0.5, ease: "easeInOut" }}
           />
         </svg>
+      </div>
+      
+      {/* Layer 2: Inner Blue Circle with Glossy Effect */}
+      <div className={`absolute inset-[16px] sm:inset-[24px] rounded-full ${colors.innerCircle} ${colors.innerShadow} overflow-hidden`}>
+        {/* Glossy Highlight */}
+        <div className="absolute top-[15%] left-[15%] w-[35%] h-[35%] rounded-full glossy-shine" />
         
         {/* Timer Display - Absolutely centered */}
         <div 
@@ -155,7 +187,7 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
             initial={{ scale: 1.1 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.2 }}
-            className="text-2xl sm:text-5xl font-bold"
+            className="text-4xl sm:text-6xl font-bold text-timer"
           >
             {formatTime(timeLeft)}
           </motion.div>
@@ -167,7 +199,7 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="text-sm sm:text-lg font-semibold mt-2"
+            className="text-sm sm:text-base font-medium text-white/90 mt-2"
           >
             {getStateMessage()}
           </motion.div>
@@ -177,7 +209,7 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              className="mt-1 text-xs sm:text-base font-medium"
+              className="mt-1 text-xs sm:text-sm font-medium"
             >
               🔥 Final countdown!
             </motion.div>

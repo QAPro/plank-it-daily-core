@@ -163,7 +163,7 @@ const ProfileHeader = () => {
     if (user?.email) {
       return user.email;
     }
-    return 'PlankIt Member';
+    return 'Inner Fire Member';
   };
 
   const getInitials = () => {

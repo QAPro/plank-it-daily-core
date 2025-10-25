@@ -43,12 +43,6 @@ const WeeklyGoalSettings: React.FC<WeeklyGoalSettingsProps> = ({ children }) => 
       daily_sessions: dailySessions 
     });
     setIsOpen(false);
-    
-    const totalWeeklySessions = weeklyGoal * dailySessions;
-    toast({
-      title: "Goals updated",
-      description: `${weeklyGoal} ${weeklyGoal === 1 ? 'day' : 'days'} per week, ${dailySessions} ${dailySessions === 1 ? 'session' : 'sessions'} per day (${totalWeeklySessions} total weekly sessions).`,
-    });
   };
 
   return (

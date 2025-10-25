@@ -34,10 +34,6 @@ const BulkRolloutControl = ({ isOpen, onClose, selectedFeatures, onSuccess }: Pr
     setIsUpdating(true);
     try {
       await featureManagementService.bulkUpdateRolloutPercentage(selectedFeatures, percentage);
-      toast({
-        title: "Bulk rollout updated",
-        description: `${selectedFeatures.length} features set to ${percentage}% rollout`,
-      });
       onSuccess?.();
       onClose();
     } catch (error) {

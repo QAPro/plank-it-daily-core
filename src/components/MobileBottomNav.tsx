@@ -67,11 +67,6 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ activeTab, onTabChang
 
   const onSignOut = async () => {
     try {
-      toast({
-        title: "Signing out...",
-        description: "Please wait while we sign you out."
-      });
-      
       await handleAuthSignOut();
     } catch (error) {
       console.error('Sign out error:', error);

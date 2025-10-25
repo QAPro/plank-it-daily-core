@@ -84,7 +84,6 @@ const UserDetailsCard: React.FC<Props> = ({ user }) => {
     mutationFn: (reason?: string) => adminUserService.grantAdminRole(user.id, reason),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-user-roles", user.id] });
-      toast({ title: "Role updated", description: "Admin role granted." });
     },
     meta: {
       onError: (err: unknown) => {
@@ -98,7 +97,6 @@ const UserDetailsCard: React.FC<Props> = ({ user }) => {
     mutationFn: (reason?: string) => adminUserService.revokeAdminRole(user.id, reason),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-user-roles", user.id] });
-      toast({ title: "Role updated", description: "Admin role revoked." });
     },
     meta: {
       onError: (err: unknown) => {
@@ -115,7 +113,6 @@ const UserDetailsCard: React.FC<Props> = ({ user }) => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-user-active-sub", user.id] });
       qc.invalidateQueries({ queryKey: ["subscription-tier", user.id] });
-      toast({ title: "Tier updated", description: "User subscription tier updated." });
     },
     meta: {
       onError: (err: unknown) => {
@@ -130,7 +127,6 @@ const UserDetailsCard: React.FC<Props> = ({ user }) => {
       adminUserService.setCustomPricing(user.id, args.planId, args.priceCents, args.reason),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-user-active-sub", user.id] });
-      toast({ title: "Custom pricing applied", description: "User custom pricing saved." });
       setCustomPrice("");
     },
     meta: {
@@ -146,7 +142,6 @@ const UserDetailsCard: React.FC<Props> = ({ user }) => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-user-lifetime", user.id] });
       qc.invalidateQueries({ queryKey: ["admin-user-active-sub", user.id] });
-      toast({ title: "Lifetime access granted", description: "User now has lifetime Premium access." });
     },
     meta: {
       onError: (err: unknown) => {
@@ -160,7 +155,6 @@ const UserDetailsCard: React.FC<Props> = ({ user }) => {
     mutationFn: (reason?: string) => adminUserService.revokeLifetimeAccess(user.id, reason),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-user-lifetime", user.id] });
-      toast({ title: "Lifetime access revoked", description: "Lifetime access has been revoked." });
     },
     meta: {
       onError: (err: unknown) => {
@@ -185,7 +179,6 @@ const UserDetailsCard: React.FC<Props> = ({ user }) => {
       qc.invalidateQueries({ queryKey: ["admin-user-notes", user.id] });
       setNoteTitle("");
       setNoteContent("");
-      toast({ title: "Note added", description: "Your note has been saved." });
     },
     meta: {
       onError: (err: unknown) => {

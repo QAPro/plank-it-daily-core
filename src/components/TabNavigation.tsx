@@ -34,11 +34,6 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, onTabChange })
 
   const onSignOut = async () => {
     try {
-      toast({
-        title: "Signing out...",
-        description: "Please wait while we sign you out."
-      });
-      
       await handleAuthSignOut();
     } catch (error) {
       console.error('Sign out error:', error);

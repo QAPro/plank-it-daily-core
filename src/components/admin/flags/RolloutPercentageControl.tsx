@@ -55,10 +55,6 @@ const RolloutPercentageControl = ({
     setIsUpdating(true);
     try {
       await featureManagementService.updateRolloutPercentage(featureFlag.feature_name, percentage);
-      toast({
-        title: "Rollout updated",
-        description: `${featureFlag.feature_name} rollout set to ${percentage}%`,
-      });
       onUpdate?.();
     } catch (error) {
       toast({

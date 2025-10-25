@@ -204,10 +204,6 @@ const EarnedAchievementsGallery = ({ onBackClick }: EarnedAchievementsGalleryPro
     setRefreshing(true);
     try {
       await refetch();
-      toast({
-        title: "Progress updated!",
-        description: "Your achievement progress has been refreshed.",
-      });
     } catch (error) {
       toast({
         title: "Update failed",

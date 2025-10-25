@@ -40,10 +40,6 @@ export const DraggablePlanList: React.FC<DraggablePlanListProps> = ({
 
     try {
       await onReorder(updatedPlans);
-      toast({
-        title: "Plans Reordered",
-        description: "Plan order updated successfully"
-      });
     } catch (error) {
       console.error("Reorder error:", error);
       toast({

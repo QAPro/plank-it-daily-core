@@ -95,7 +95,6 @@ const EnhancedBulkSubscriptionManager: React.FC = () => {
       return adminUserService.bulkChangeTier(selectedUsers, newTier, `Bulk set to ${newTier} for ${selectedUsers.length} users`);
     },
     onSuccess: (count, tier) => {
-      toast({ title: "Bulk operation complete", description: `Updated ${count} users to ${tier}.` });
       setSelectedUserIds(new Set());
       refetch();
     },
@@ -112,7 +111,6 @@ const EnhancedBulkSubscriptionManager: React.FC = () => {
       return adminUserService.bulkGrantLifetime(selectedUsers, currentAdmin.id, `Bulk grant lifetime to ${selectedUsers.length} users`);
     },
     onSuccess: (count) => {
-      toast({ title: "Lifetime access granted", description: `Granted lifetime access to ${count} users.` });
       setSelectedUserIds(new Set());
       refetch();
     },
@@ -128,7 +126,6 @@ const EnhancedBulkSubscriptionManager: React.FC = () => {
       return adminUserService.bulkRevokeLifetime(selectedUsers, `Bulk revoke lifetime for ${selectedUsers.length} users`);
     },
     onSuccess: (count) => {
-      toast({ title: "Lifetime access revoked", description: `Revoked lifetime access for ${count} users.` });
       setSelectedUserIds(new Set());
       refetch();
     },
@@ -145,7 +142,6 @@ const EnhancedBulkSubscriptionManager: React.FC = () => {
       return adminUserService.grantLifetimeAccess(userId, currentAdmin.id, reason, overrideData);
     },
     onSuccess: () => {
-      toast({ title: "Lifetime access granted", description: "Successfully granted lifetime access to user." });
       setLifetimeDialog({ isOpen: false, mode: "grant" });
       setCustomPrice("");
       setLifetimeReason("");
@@ -162,7 +158,6 @@ const EnhancedBulkSubscriptionManager: React.FC = () => {
       return adminUserService.revokeLifetimeAccess(userId, reason);
     },
     onSuccess: () => {
-      toast({ title: "Lifetime access revoked", description: "Successfully revoked lifetime access." });
       setLifetimeDialog({ isOpen: false, mode: "revoke" });
       setLifetimeReason("");
       refetch();

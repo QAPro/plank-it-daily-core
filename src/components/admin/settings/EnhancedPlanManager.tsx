@@ -36,7 +36,6 @@ const EnhancedPlanManager: React.FC = () => {
     mutationFn: (data: PlanFormData) => subscriptionService.upsertPlan(data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin", "subscription-plans", "all"] });
-      toast({ title: "Success", description: "Plan saved successfully." });
       setEditingPlan(null);
       setShowForm(false);
     },
@@ -52,7 +51,6 @@ const EnhancedPlanManager: React.FC = () => {
     mutationFn: (id: string) => subscriptionService.deletePlan(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin", "subscription-plans", "all"] });
-      toast({ title: "Deleted", description: "Plan deleted successfully." });
       setEditingPlan(null);
       setShowForm(false);
     },
@@ -128,7 +126,6 @@ const EnhancedPlanManager: React.FC = () => {
       )
     );
     qc.invalidateQueries({ queryKey: ["admin", "subscription-plans", "all"] });
-    toast({ title: "Success", description: `Activated ${selectedPlans.size} plans` });
     setSelectedPlans(new Set());
   };
 
@@ -140,7 +137,6 @@ const EnhancedPlanManager: React.FC = () => {
       )
     );
     qc.invalidateQueries({ queryKey: ["admin", "subscription-plans", "all"] });
-    toast({ title: "Success", description: `Deactivated ${selectedPlans.size} plans` });
     setSelectedPlans(new Set());
   };
 
@@ -149,7 +145,6 @@ const EnhancedPlanManager: React.FC = () => {
       Array.from(selectedPlans).map(planId => subscriptionService.deletePlan(planId))
     );
     qc.invalidateQueries({ queryKey: ["admin", "subscription-plans", "all"] });
-    toast({ title: "Success", description: `Deleted ${selectedPlans.size} plans` });
     setSelectedPlans(new Set());
   };
 
@@ -168,7 +163,6 @@ const EnhancedPlanManager: React.FC = () => {
       })
     );
     qc.invalidateQueries({ queryKey: ["admin", "subscription-plans", "all"] });
-    toast({ title: "Success", description: `Duplicated ${selectedPlans.size} plans` });
     setSelectedPlans(new Set());
   };
 
@@ -201,10 +195,6 @@ const EnhancedPlanManager: React.FC = () => {
       )
     );
     qc.invalidateQueries({ queryKey: ["admin", "subscription-plans", "all"] });
-    toast({ 
-      title: "Success", 
-      description: `${isPopular ? 'Set' : 'Removed'} popular status for ${selectedPlans.size} plans` 
-    });
     setSelectedPlans(new Set());
   };
 
@@ -218,8 +208,6 @@ const EnhancedPlanManager: React.FC = () => {
     linkElement.setAttribute('href', dataUri);
     linkElement.setAttribute('download', exportFileDefaultName);
     linkElement.click();
-    
-    toast({ title: "Success", description: `Exported ${selectedPlans.size} plans` });
   };
 
   const handleImportPlans = async () => {
@@ -247,7 +235,6 @@ const EnhancedPlanManager: React.FC = () => {
         );
         
         qc.invalidateQueries({ queryKey: ["admin", "subscription-plans", "all"] });
-        toast({ title: "Success", description: `Imported ${importedPlans.length} plans` });
       } catch (error) {
         toast({ 
           title: "Import failed", 

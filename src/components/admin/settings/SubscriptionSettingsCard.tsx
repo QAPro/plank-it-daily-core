@@ -35,7 +35,6 @@ const SubscriptionSettingsCard: React.FC = () => {
       subscriptionService.setAdminSetting("subscription_system_enabled", val, user?.id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["subscription", "admin-settings"] });
-      toast({ title: "Saved", description: "Subscription system setting updated." });
     },
     meta: {
       onError: (err: unknown) => {
@@ -49,7 +48,6 @@ const SubscriptionSettingsCard: React.FC = () => {
     mutationFn: (val: boolean) => subscriptionService.setAdminSetting("demo_mode", val, user?.id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["subscription", "admin-settings"] });
-      toast({ title: "Saved", description: "Demo mode updated." });
     },
     meta: {
       onError: (err: unknown) => {

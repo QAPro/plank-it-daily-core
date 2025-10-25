@@ -41,7 +41,6 @@ const FeatureOverridesManager: React.FC<Props> = ({ userId }) => {
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["feature-overrides", userId] });
-      toast({ title: "Override saved", description: "Feature override updated successfully." });
     },
     meta: {
       onError: (err: unknown) => {

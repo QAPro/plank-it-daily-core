@@ -45,7 +45,6 @@ const BulkSubscriptionManager: React.FC = () => {
       return adminUserService.bulkChangeTier(users.map(u => u.id), newTier, `Bulk set to ${newTier}`);
     },
     onSuccess: (count) => {
-      toast({ title: "Bulk operation complete", description: `Updated ${count} users.` });
       refetch();
     },
     meta: {
@@ -62,7 +61,6 @@ const BulkSubscriptionManager: React.FC = () => {
       return adminUserService.bulkGrantLifetime(users.map(u => u.id), currentAdmin.id, "Bulk grant lifetime");
     },
     onSuccess: (count) => {
-      toast({ title: "Lifetime granted", description: `Granted lifetime to ${count} users.` });
       refetch();
     },
     meta: {
@@ -78,7 +76,6 @@ const BulkSubscriptionManager: React.FC = () => {
       return adminUserService.bulkRevokeLifetime(users.map(u => u.id), "Bulk revoke lifetime");
     },
     onSuccess: (count) => {
-      toast({ title: "Lifetime revoked", description: `Revoked lifetime for ${count} users.` });
       refetch();
     },
     meta: {

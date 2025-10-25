@@ -34,7 +34,6 @@ const RoleManagementDashboard: React.FC = () => {
       selectedUser ? adminUserService.assignRole(selectedUser.id, selectedRole, reason || undefined) : Promise.resolve(false),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-user-roles", selectedUser?.id] });
-      toast({ title: "Role assigned", description: `${selectedRole} granted.` });
       setReason("");
     },
     meta: {
@@ -50,7 +49,6 @@ const RoleManagementDashboard: React.FC = () => {
       selectedUser ? adminUserService.revokeRole(selectedUser.id, selectedRole, reason || undefined) : Promise.resolve(false),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-user-roles", selectedUser?.id] });
-      toast({ title: "Role revoked", description: `${selectedRole} revoked.` });
       setReason("");
     },
     meta: {

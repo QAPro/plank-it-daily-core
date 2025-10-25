@@ -128,13 +128,6 @@ export const useUserPreferences = () => {
       if (error) throw error;
 
       setPreferences(prev => prev ? { ...prev, ...updates } : null);
-      
-      if (showToast) {
-        toast({
-          title: "Preferences updated",
-          description: "Your preferences have been saved successfully.",
-        });
-      }
     } catch (error: any) {
       toast({
         title: "Error updating preferences",

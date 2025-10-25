@@ -35,7 +35,6 @@ const CustomerSupportTools = ({ userId }: Props) => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-user-active-sub", userId] });
       qc.invalidateQueries({ queryKey: ["subscription-tier", userId] });
-      toast({ title: "Updated", description: "User set to Premium." });
     },
     meta: {
       onError: (err: unknown) => {
@@ -49,7 +48,6 @@ const CustomerSupportTools = ({ userId }: Props) => {
     mutationFn: () => adminUserService.changeUserTier(userId, "free", "Support action: set free"),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["subscription-tier", userId] });
-      toast({ title: "Updated", description: "User set to Free." });
     },
     meta: {
       onError: (err: unknown) => {
@@ -63,7 +61,6 @@ const CustomerSupportTools = ({ userId }: Props) => {
     mutationFn: () => adminUserService.grantLifetimeAccess(userId, currentAdmin?.id || userId, "Support action: grant lifetime"),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-user-lifetime", userId] });
-      toast({ title: "Granted", description: "Lifetime access granted." });
     },
     meta: {
       onError: (err: unknown) => {
@@ -77,7 +74,6 @@ const CustomerSupportTools = ({ userId }: Props) => {
     mutationFn: () => adminUserService.revokeLifetimeAccess(userId, "Support action: revoke lifetime"),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-user-lifetime", userId] });
-      toast({ title: "Revoked", description: "Lifetime access revoked." });
     },
     meta: {
       onError: (err: unknown) => {
@@ -95,7 +91,6 @@ const CustomerSupportTools = ({ userId }: Props) => {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-user-active-sub", userId] });
-      toast({ title: "Refreshed", description: "Subscription status refresh invoked." });
     },
     meta: {
       onError: (err: unknown) => {

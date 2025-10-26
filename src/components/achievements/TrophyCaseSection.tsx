@@ -59,12 +59,12 @@ const TrophyCard = ({
         y: -8,
         transition: { duration: 0.3, ease: "easeOut" }
       }}
-      className={`cursor-pointer transition-all duration-300 ${categoryStyle.shadow} hover:${categoryStyle.shadow}`}
+      className="cursor-pointer"
       onClick={() => onAchievementClick(achievement)}
     >
       <div className="text-center space-y-2">
-        {/* Badge Image */}
-        <div className="flex justify-center">
+        {/* Badge Image with category shadow on hover */}
+        <div className={`flex justify-center transition-all duration-300 hover:${categoryStyle.shadow}`}>
           <img 
             src={getBadgeUrl(achievement.badge_file_name)}
             alt={achievement.name}

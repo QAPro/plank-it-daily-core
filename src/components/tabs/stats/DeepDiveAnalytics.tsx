@@ -90,15 +90,37 @@ const DeepDiveAnalytics = () => {
                 <TrendingUp className="h-5 w-5 text-primary" />
                 Performance Trends
               </CardTitle>
-              <Tabs value={timeRange.toString()} onValueChange={(v) => setTimeRange(v === 'all' ? 'all' : Number(v) as DateRange)}>
-                <TabsList>
-                  <TabsTrigger value="7">7 Days</TabsTrigger>
-                  <TabsTrigger value="30">30 Days</TabsTrigger>
-                  <TabsTrigger value="90">90 Days</TabsTrigger>
-                  <TabsTrigger value="180">6 Months</TabsTrigger>
-                  <TabsTrigger value="all">All Time</TabsTrigger>
-                </TabsList>
-              </Tabs>
+              {/* Mobile: Dropdown */}
+              <div className="sm:hidden">
+                <Select 
+                  value={timeRange.toString()} 
+                  onValueChange={(v) => setTimeRange(v === 'all' ? 'all' : Number(v) as DateRange)}
+                >
+                  <SelectTrigger className="w-[160px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="7">Last 7 Days</SelectItem>
+                    <SelectItem value="30">Last 30 Days</SelectItem>
+                    <SelectItem value="90">Last 90 Days</SelectItem>
+                    <SelectItem value="180">Last 6 Months</SelectItem>
+                    <SelectItem value="all">All Time</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Desktop: Tabs */}
+              <div className="hidden sm:block">
+                <Tabs value={timeRange.toString()} onValueChange={(v) => setTimeRange(v === 'all' ? 'all' : Number(v) as DateRange)}>
+                  <TabsList>
+                    <TabsTrigger value="7">7 Days</TabsTrigger>
+                    <TabsTrigger value="30">30 Days</TabsTrigger>
+                    <TabsTrigger value="90">90 Days</TabsTrigger>
+                    <TabsTrigger value="180">6 Months</TabsTrigger>
+                    <TabsTrigger value="all">All Time</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Metric:</span>

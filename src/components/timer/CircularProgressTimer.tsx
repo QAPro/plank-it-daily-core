@@ -140,40 +140,40 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
 
         {/* Desktop SVG Progress Ring */}
         <svg 
-          width={320} 
-          height={320} 
+          width={svgConfig.desktop.size} 
+          height={svgConfig.desktop.size} 
           className="hidden sm:block absolute inset-0 transform rotate-90 scale-x-[-1]"
-          viewBox="0 0 320 320"
+          viewBox={`0 0 ${svgConfig.desktop.size} ${svgConfig.desktop.size}`}
         >
           {/* Background Ring */}
           <circle
-            cx="160"
-            cy="160"
-            r="140"
+            cx={svgConfig.desktop.center}
+            cy={svgConfig.desktop.center}
+            r={svgConfig.desktop.radius}
             stroke="rgba(255, 255, 255, 0.3)"
-            strokeWidth="8"
+            strokeWidth={svgConfig.desktop.strokeWidth}
             fill="none"
           />
           {/* Progress Ring */}
           <motion.circle
-            cx="160"
-            cy="160"
-            r="140"
+            cx={svgConfig.desktop.center}
+            cy={svgConfig.desktop.center}
+            r={svgConfig.desktop.radius}
             stroke="rgba(255, 255, 255, 0.9)"
-            strokeWidth="8"
+            strokeWidth={svgConfig.desktop.strokeWidth}
             fill="none"
-            strokeDasharray={2 * Math.PI * 140}
-            strokeDashoffset={2 * Math.PI * 140 * (remainingProgress / 100)}
+            strokeDasharray={desktopCircumference}
+            strokeDashoffset={desktopCircumference * (remainingProgress / 100)}
             strokeLinecap="round"
-            initial={{ strokeDashoffset: 2 * Math.PI * 140 }}
-            animate={{ strokeDashoffset: 2 * Math.PI * 140 * (remainingProgress / 100) }}
+            initial={{ strokeDashoffset: desktopCircumference }}
+            animate={{ strokeDashoffset: desktopCircumference * (remainingProgress / 100) }}
             transition={{ duration: 0.5, ease: "easeInOut" }}
           />
         </svg>
       </div>
       
       {/* Layer 2: Inner Blue Circle with Glossy Effect */}
-      <div className={`absolute inset-[16px] sm:inset-[24px] rounded-full ${colors.innerCircle} ${colors.innerShadow} overflow-hidden`}>
+      <div className={`absolute inset-[20px] rounded-full ${colors.innerCircle} ${colors.innerShadow} overflow-hidden`}>
         {/* Glossy Highlight */}
         <div className="absolute top-[15%] left-[15%] w-[35%] h-[35%] rounded-full glossy-shine" />
         
@@ -187,7 +187,7 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
             initial={{ scale: 1.1 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.2 }}
-            className="text-4xl sm:text-6xl font-bold text-timer"
+            className="text-5xl sm:text-6xl font-bold text-timer"
           >
             {formatTime(timeLeft)}
           </motion.div>
@@ -199,7 +199,7 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="text-sm sm:text-base font-medium text-white/90 mt-2"
+            className="text-base font-medium text-white/90 mt-2"
           >
             {getStateMessage()}
           </motion.div>

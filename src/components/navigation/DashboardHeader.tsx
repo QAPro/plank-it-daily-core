@@ -2,7 +2,11 @@ import { motion } from "framer-motion";
 import { Settings } from "lucide-react";
 import innerFireLogo from "@/assets/inner-fire-logo.png";
 
-const DashboardHeader = () => {
+interface DashboardHeaderProps {
+  onTabChange: (tab: string) => void;
+}
+
+const DashboardHeader = ({ onTabChange }: DashboardHeaderProps) => {
   return (
     <header className="fixed top-0 left-0 right-0 bg-background backdrop-blur-sm z-40">
       <div className="max-w-7xl mx-auto px-4 py-4">
@@ -21,6 +25,7 @@ const DashboardHeader = () => {
             <h1 className="text-2xl font-bold text-coral">inner fire</h1>
           </div>
           <button 
+            onClick={() => onTabChange('profile')}
             className="w-10 h-10 rounded-full bg-background-secondary hover:bg-gray-200 flex items-center justify-center transition-colors"
             aria-label="Settings"
           >

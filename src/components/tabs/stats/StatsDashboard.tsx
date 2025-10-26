@@ -5,6 +5,9 @@ import MomentumScoreWidget from "@/components/momentum/MomentumScoreWidget";
 import { useStatsDashboard } from "@/hooks/useStatsDashboard";
 import { Button } from "@/components/ui/button";
 import { Crown } from "lucide-react";
+import FeaturedStatCard from "@/components/stats/FeaturedStatCard";
+import RegularStatCard from "@/components/stats/RegularStatCard";
+import WeeklyActivityChart from "@/components/stats/WeeklyActivityChart";
 
 const StatsDashboard = () => {
   const { keyMetrics, weeklyActivity, personalRecords, recentAchievements, isLoading } = useStatsDashboard();
@@ -32,111 +35,53 @@ const StatsDashboard = () => {
       transition={{ duration: 0.5 }}
       className="p-4 lg:p-6 pb-32 space-y-6 max-w-7xl mx-auto"
     >
+      {/* Featured Stat - Current Streak */}
+      <FeaturedStatCard 
+        icon={Flame}
+        label="Current Streak"
+        value={`${keyMetrics.currentStreak} days`}
+      />
+
       {/* Key Metrics Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <Activity className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Total Workouts</p>
-                <p className="text-2xl font-bold text-foreground">{keyMetrics.totalWorkouts}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <Calendar className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Active Days</p>
-                <p className="text-2xl font-bold text-foreground">{keyMetrics.activeDays}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <Flame className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Current Streak</p>
-                <p className="text-2xl font-bold text-foreground">{keyMetrics.currentStreak}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <Clock className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Total Time</p>
-                <p className="text-2xl font-bold text-foreground">{keyMetrics.totalDuration}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 px-5">
+        <RegularStatCard 
+          icon={Activity}
+          title="Total Workouts"
+          value={keyMetrics.totalWorkouts}
+          delay={0}
+        />
+        
+        <RegularStatCard 
+          icon={Calendar}
+          title="Active Days"
+          value={keyMetrics.activeDays}
+          delay={0.1}
+        />
+        
+        <RegularStatCard 
+          icon={Clock}
+          title="Total Time"
+          value={keyMetrics.totalDuration}
+          delay={0.2}
+        />
       </div>
 
       {/* Momentum Score Widget */}
       <MomentumScoreWidget />
 
-      {/* 7-Day Activity Calendar */}
-      <Card>
-        <CardHeader>
-          <CardTitle>7-Day Activity</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex justify-around items-end h-32">
-            {weeklyActivity.map((day, index) => (
-              <div key={index} className="flex flex-col items-center gap-2">
-                <div className="relative group">
-                  <div
-                    className={`w-8 h-8 rounded-full transition-colors ${
-                      day.hasWorkout
-                        ? "bg-primary"
-                        : "bg-muted"
-                    }`}
-                  >
-                    {day.hasWorkout && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-xs font-bold text-primary-foreground">
-                          {day.workoutCount}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  {day.hasWorkout && (
-                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-popover text-popover-foreground px-2 py-1 rounded text-xs whitespace-nowrap shadow-lg">
-                      {day.workoutCount} workout{day.workoutCount > 1 ? 's' : ''}
-                    </div>
-                  )}
-                </div>
-                <span className="text-xs text-muted-foreground">{day.label}</span>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {/* 7-Day Activity Chart */}
+      <div className="px-5">
+        <WeeklyActivityChart data={weeklyActivity} />
+      </div>
 
       {/* Personal Records */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Personal Records</CardTitle>
-        </CardHeader>
+      <div className="px-5">
+        <Card className="bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
+          <CardHeader>
+            <CardTitle className="text-base font-semibold text-[#7F8C8D] uppercase" style={{ letterSpacing: '0.5px' }}>
+              Personal Records
+            </CardTitle>
+          </CardHeader>
         <CardContent>
           <div className="space-y-3">
             {personalRecords.length === 0 ? (
@@ -159,13 +104,17 @@ const StatsDashboard = () => {
             )}
           </div>
         </CardContent>
-      </Card>
+        </Card>
+      </div>
 
       {/* Recent Achievements */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Achievements</CardTitle>
-        </CardHeader>
+      <div className="px-5">
+        <Card className="bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
+          <CardHeader>
+            <CardTitle className="text-base font-semibold text-[#7F8C8D] uppercase" style={{ letterSpacing: '0.5px' }}>
+              Recent Achievements
+            </CardTitle>
+          </CardHeader>
         <CardContent>
           <div className="space-y-3">
             {recentAchievements.length === 0 ? (
@@ -185,9 +134,11 @@ const StatsDashboard = () => {
             )}
           </div>
         </CardContent>
-      </Card>
+        </Card>
+      </div>
 
       {/* Premium Teaser */}
+      <div className="px-5">
       <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
         <CardContent className="p-6 text-center">
           <Crown className="w-12 h-12 mx-auto text-primary mb-4" />
@@ -207,7 +158,8 @@ const StatsDashboard = () => {
             Upgrade to Premium
           </Button>
         </CardContent>
-      </Card>
+        </Card>
+      </div>
     </motion.div>
   );
 };

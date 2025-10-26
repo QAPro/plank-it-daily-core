@@ -95,7 +95,7 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
                     className={`${
                       isHomeTab 
                         ? isActive ? "w-[60px] h-[60px]" : "w-12 h-12"
-                        : isActive ? "w-10 h-10" : "w-8 h-8"
+                        : isActive ? "w-11 h-11" : "w-9 h-9"
                     } object-contain ${
                       isActive ? "drop-shadow-[0_2px_4px_rgba(255,107,53,0.3)]" : ""
                     }`}

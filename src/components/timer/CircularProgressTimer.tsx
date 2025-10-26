@@ -84,13 +84,13 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
   const svgConfig = {
     mobile: { 
       size: 200, 
-      radius: 97, 
+      radius: 90, 
       strokeWidth: 6,
       center: 100 
     },
     desktop: { 
       size: 320, 
-      radius: 156, 
+      radius: 150, 
       strokeWidth: 8,
       center: 160 
     }

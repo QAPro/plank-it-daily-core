@@ -50,20 +50,35 @@ const StatsTab = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="p-6 pb-32 space-y-6"
+      className="min-h-screen bg-[#E8D4C4] p-4 pb-32"
     >
       {/* Header */}
-      <div className="text-center pt-4">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Your Progress</h2>
-        <p className="text-gray-600">Track your plank journey and transformation</p>
+      <div className="text-center pt-6 pb-4">
+        <h2 className="text-2xl font-bold text-[#2C3E50] mb-1">Your Progress</h2>
+        <p className="text-[#7F8C8D] text-sm">Track your plank journey and transformation</p>
       </div>
 
       {/* Statistics Tabs */}
-      <Tabs defaultValue="dashboard" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="deepdive">Deep Dive</TabsTrigger>
-          <TabsTrigger value="history">History</TabsTrigger>
+      <Tabs defaultValue="dashboard" className="space-y-4">
+        <TabsList className="bg-white rounded-full p-1 mx-auto max-w-md grid grid-cols-3 shadow-soft">
+          <TabsTrigger 
+            value="dashboard"
+            className="rounded-full data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#FF6B35] data-[state=active]:rounded-b-none"
+          >
+            Dashboard
+          </TabsTrigger>
+          <TabsTrigger 
+            value="deepdive"
+            className="rounded-full data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#FF6B35] data-[state=active]:rounded-b-none"
+          >
+            Deep Dive
+          </TabsTrigger>
+          <TabsTrigger 
+            value="history"
+            className="rounded-full data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#FF6B35] data-[state=active]:rounded-b-none"
+          >
+            History
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="dashboard" className="space-y-6">

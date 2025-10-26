@@ -67,7 +67,7 @@ const Index = () => {
   if (authLoading || onboardingLoading) {
     console.log('Index: Showing loading state');
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-background flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-[#FFF9F5] to-[#FFFCFA] flex items-center justify-center pb-24">
         <div className="text-coral text-lg">Loading...</div>
       </div>
     );
@@ -77,7 +77,7 @@ const Index = () => {
   if (authError) {
     console.log('Index: Showing auth error', authError);
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-background flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-[#FFF9F5] to-[#FFFCFA] flex items-center justify-center pb-24">
         <div className="text-red-600 text-lg">Authentication Error: {authError}</div>
       </div>
     );
@@ -87,7 +87,7 @@ const Index = () => {
   if (!user) {
     console.log('Index: No user found, should redirect');
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-background flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-[#FFF9F5] to-[#FFFCFA] flex items-center justify-center pb-24">
         <div className="text-coral text-lg">Redirecting to login...</div>
       </div>
     );
@@ -109,7 +109,7 @@ const Index = () => {
   return (
     <LevelProgressionProvider>
       <StreakProvider>
-        <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-background">
+        <div className="min-h-screen bg-gradient-to-b from-[#FFF9F5] to-[#FFFCFA] pb-24">
           <AnimatePresence mode="wait">
             {showWelcome ? (
               <WelcomeScreen key="welcome" onGetStarted={handleGetStarted} />

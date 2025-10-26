@@ -257,7 +257,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="p-6 space-y-6 mb-6 max-w-2xl mx-auto"
+      className="p-6 space-y-6 mb-6 max-w-2xl mx-auto pb-24"
     >
       {/* Confetti */}
       <EnhancedConfetti 
@@ -290,7 +290,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         animate={{ opacity: 1, y: 0 }}
         className="space-y-2 text-center"
       >
-        <h1 className="text-3xl font-bold text-foreground">{getGreeting()}</h1>
+        <h1 className="text-3xl md:text-4xl font-bold text-foreground">{getGreeting()}</h1>
         <p className="text-sm text-muted-foreground">
           {getCurrentDate()}
         </p>

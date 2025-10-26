@@ -102,14 +102,18 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
   const remainingProgress = 100 - progress;
 
   return (
-    <div className="relative w-[200px] h-[200px] sm:w-[320px] sm:h-[320px] flex items-center justify-center mx-auto">
+    <div className="relative w-[280px] h-[280px] md:w-[320px] md:h-[320px] lg:w-[360px] lg:h-[360px] flex items-center justify-center mx-auto">
       {/* Layer 1: Outer Orange Ring Background (z-10) */}
-      <div className={`absolute inset-0 rounded-full ${colors.outerRing} ${colors.outerShadow} shadow-[inset_0_2px_4px_rgba(255,255,255,0.3),inset_0_-2px_4px_rgba(0,0,0,0.2)] z-10 overflow-hidden`}>
+      <motion.div 
+        className={`absolute inset-0 rounded-full ${colors.outerRing} ${colors.outerShadow} shadow-[inset_0_2px_4px_rgba(255,255,255,0.3),inset_0_-2px_4px_rgba(0,0,0,0.2)] z-10 overflow-hidden`}
+        animate={state === 'running' ? { scale: [1, 1.02, 1] } : {}}
+        transition={state === 'running' ? { duration: 2, repeat: Infinity, ease: "easeInOut" } : {}}
+      >
         {/* Top glossy highlight - simulates light reflection */}
         <div className="absolute top-0 left-[10%] right-[10%] h-[30%] rounded-full bg-gradient-to-b from-white/40 via-white/20 to-transparent blur-sm" />
         {/* Bottom shadow - creates depth */}
         <div className="absolute bottom-0 left-[15%] right-[15%] h-[20%] rounded-full bg-gradient-to-t from-black/30 to-transparent blur-sm" />
-      </div>
+      </motion.div>
       
       {/* Layer 2: Progress Rings (z-20) */}
       <div className="absolute inset-0 z-20 pointer-events-none">

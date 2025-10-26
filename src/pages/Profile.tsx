@@ -81,14 +81,14 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-[#FFF9F5] to-[#FFFCFA] flex items-center justify-center pb-32">
         <div className="text-muted-foreground">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20">
+    <div className="min-h-screen bg-gradient-to-b from-[#FFF9F5] to-[#FFFCFA]">
       <div className="max-w-2xl mx-auto p-6 space-y-6 pb-32">
         {/* Header */}
         <motion.div

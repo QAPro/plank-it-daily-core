@@ -81,7 +81,7 @@ const Dashboard = () => {
   console.log('[Dashboard] Rendering Dashboard for user:', user?.email);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-background">
+    <div className="min-h-screen bg-gradient-to-b from-[#FFF9F5] to-[#FFFCFA]">
       {/* Header */}
       <DashboardHeader />
       

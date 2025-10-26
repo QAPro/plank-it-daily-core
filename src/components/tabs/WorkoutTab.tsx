@@ -56,18 +56,20 @@ const WorkoutTab = ({ onStartWorkout }: WorkoutTabProps) => {
   }
 
   return (
-    <div className="h-full">
-      <AnimatePresence mode="wait">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          {/* New Workout Hub */}
-          <WorkoutHub onStartExercise={handleStartExercise} />
-        </motion.div>
-      </AnimatePresence>
+    <div className="min-h-screen bg-gradient-to-b from-[#FFF9F5] to-[#FFFCFA] pb-24">
+      <div className="h-full">
+        <AnimatePresence mode="wait">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {/* New Workout Hub */}
+            <WorkoutHub onStartExercise={handleStartExercise} />
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </div>
   );
 };

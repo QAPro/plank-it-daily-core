@@ -3,21 +3,23 @@ import WhatsNextAchievementsView from "@/components/achievements/WhatsNextAchiev
 
 const AchievementsTab = () => {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="p-6 space-y-6"
-    >
+    <div className="min-h-screen bg-gradient-to-b from-[#FFF9F5] to-[#FFFCFA] pb-24">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="p-6 space-y-6 max-w-4xl mx-auto"
+      >
       {/* Header */}
       <div className="text-center pt-4">
         <h2 className="text-3xl font-bold text-foreground mb-2">🏆 Achievements</h2>
         <p className="text-muted-foreground">Track your progress and unlock rewards on your fitness journey</p>
       </div>
 
-      {/* Single scrollable content - no tabs */}
-      <WhatsNextAchievementsView />
-    </motion.div>
+        {/* Single scrollable content - no tabs */}
+        <WhatsNextAchievementsView />
+      </motion.div>
+    </div>
   );
 };
 

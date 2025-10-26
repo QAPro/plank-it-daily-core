@@ -68,7 +68,7 @@ const Settings = () => {
   const MenuItem = ({ icon: Icon, label, onClick, color = "text-foreground" }: any) => (
     <button
       onClick={onClick}
-      className="w-full flex items-center justify-between p-4 bg-card hover:bg-coral/5 rounded-xl transition-all duration-200 border border-border/50 shadow-soft hover:shadow-medium"
+      className="w-full flex items-center justify-between p-4 bg-card hover:bg-coral/5 rounded-xl transition-all duration-300 ease-out border border-border/50 shadow-soft hover:shadow-medium hover:-translate-y-0.5 active:scale-[0.98]"
     >
       <div className="flex items-center gap-3">
         <Icon className={`w-5 h-5 ${color}`} />
@@ -79,7 +79,7 @@ const Settings = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20">
+    <div className="min-h-screen bg-gradient-to-b from-[#FFF9F5] to-[#FFFCFA]">
       <div className="max-w-2xl mx-auto p-6 space-y-6 pb-32">
         <motion.div
           initial={{ opacity: 0, y: -20 }}

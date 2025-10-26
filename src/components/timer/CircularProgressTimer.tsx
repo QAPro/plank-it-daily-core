@@ -104,7 +104,12 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
   return (
     <div className="relative w-[200px] h-[200px] sm:w-[320px] sm:h-[320px] flex items-center justify-center mx-auto">
       {/* Layer 1: Outer Orange Ring Background (z-10) */}
-      <div className={`absolute inset-0 rounded-full ${colors.outerRing} ${colors.outerShadow} shadow-[inset_0_2px_4px_rgba(255,255,255,0.3),inset_0_-2px_4px_rgba(0,0,0,0.2)] z-10`}></div>
+      <div className={`absolute inset-0 rounded-full ${colors.outerRing} ${colors.outerShadow} shadow-[inset_0_2px_4px_rgba(255,255,255,0.3),inset_0_-2px_4px_rgba(0,0,0,0.2)] z-10 overflow-hidden`}>
+        {/* Top glossy highlight - simulates light reflection */}
+        <div className="absolute top-0 left-[10%] right-[10%] h-[30%] rounded-full bg-gradient-to-b from-white/40 via-white/20 to-transparent blur-sm" />
+        {/* Bottom shadow - creates depth */}
+        <div className="absolute bottom-0 left-[15%] right-[15%] h-[20%] rounded-full bg-gradient-to-t from-black/30 to-transparent blur-sm" />
+      </div>
       
       {/* Layer 2: Progress Rings (z-20) */}
       <div className="absolute inset-0 z-20 pointer-events-none">
@@ -135,6 +140,7 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
             strokeDasharray={mobileCircumference}
             strokeDashoffset={mobileCircumference * (remainingProgress / 100)}
             strokeLinecap="round"
+            filter="drop-shadow(0 0 3px rgba(255, 255, 255, 0.8))"
             initial={{ strokeDashoffset: mobileCircumference }}
             animate={{ strokeDashoffset: mobileCircumference * (remainingProgress / 100) }}
             transition={{ duration: 0.5, ease: "easeInOut" }}
@@ -168,6 +174,7 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
             strokeDasharray={desktopCircumference}
             strokeDashoffset={desktopCircumference * (remainingProgress / 100)}
             strokeLinecap="round"
+            filter="drop-shadow(0 0 4px rgba(255, 255, 255, 0.8))"
             initial={{ strokeDashoffset: desktopCircumference }}
             animate={{ strokeDashoffset: desktopCircumference * (remainingProgress / 100) }}
             transition={{ duration: 0.5, ease: "easeInOut" }}
@@ -176,12 +183,16 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
       </div>
       
       {/* Layer 3: Dark Rim/Border Between Rings (z-30) */}
-      <div className="absolute inset-[20px] rounded-full bg-gradient-to-br from-[#1a2332] to-[#2d3d54] shadow-[inset_0_2px_4px_rgba(0,0,0,0.5),0_-2px_4px_rgba(255,255,255,0.1)] z-30" />
+      <div className="absolute inset-[20px] rounded-full bg-gradient-to-br from-[#1a2332] to-[#2d3d54] shadow-[inset_0_4px_8px_rgba(0,0,0,0.7),inset_0_-2px_6px_rgba(0,0,0,0.4),0_-2px_4px_rgba(255,255,255,0.1)] z-30" />
       
       {/* Layer 4: Inner Blue Circle with Glossy Effect (z-40) */}
       <div className={`absolute inset-[24px] rounded-full ${colors.innerCircle} ${colors.innerShadow} overflow-hidden z-40`}>
-        {/* Enhanced Glossy Highlight */}
-        <div className="absolute top-[12%] left-[12%] w-[40%] h-[40%] rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.6)_0%,rgba(255,255,255,0.3)_30%,rgba(255,255,255,0.1)_50%,transparent_70%)] pointer-events-none" />
+        {/* Primary glossy highlight - brighter and larger */}
+        <div className="absolute top-[8%] left-[8%] w-[50%] h-[50%] rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.8)_0%,rgba(255,255,255,0.5)_25%,rgba(255,255,255,0.2)_45%,transparent_65%)] pointer-events-none" />
+        {/* Secondary smaller highlight for realism */}
+        <div className="absolute top-[15%] left-[60%] w-[20%] h-[20%] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.4)_0%,transparent_60%)] pointer-events-none" />
+        {/* Bottom subtle reflection */}
+        <div className="absolute bottom-[10%] left-[20%] right-[20%] h-[15%] rounded-full bg-gradient-to-t from-white/10 to-transparent blur-sm pointer-events-none" />
         
         {/* Timer Display - Absolutely centered */}
         <div 

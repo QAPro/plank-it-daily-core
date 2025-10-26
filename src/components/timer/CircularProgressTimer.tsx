@@ -24,17 +24,17 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
     if (state === 'completed') {
       return { 
         outerRing: 'bg-gradient-to-br from-green-500 to-emerald-500',
-        outerShadow: 'shadow-[0_8px_24px_rgba(34,197,94,0.3)]',
+        outerShadow: 'shadow-[0_12px_32px_rgba(34,197,94,0.4),0_6px_16px_rgba(34,197,94,0.3),0_2px_8px_rgba(34,197,94,0.2)]',
         innerCircle: 'bg-gradient-to-br from-green-400 to-emerald-400',
-        innerShadow: 'shadow-[inset_0_2px_8px_rgba(255,255,255,0.4),0_4px_16px_rgba(34,197,94,0.3)]'
+        innerShadow: 'shadow-[inset_0_4px_12px_rgba(0,0,0,0.3),inset_0_2px_6px_rgba(0,0,0,0.2),0_2px_8px_rgba(34,197,94,0.2)]'
       };
     }
     if (state === 'paused') {
       return { 
         outerRing: 'bg-gradient-to-br from-gray-400 to-gray-500',
-        outerShadow: 'shadow-[0_8px_24px_rgba(156,163,175,0.3)]',
+        outerShadow: 'shadow-[0_12px_32px_rgba(156,163,175,0.4),0_6px_16px_rgba(156,163,175,0.3),0_2px_8px_rgba(156,163,175,0.2)]',
         innerCircle: 'bg-gradient-to-br from-gray-300 to-gray-400',
-        innerShadow: 'shadow-[inset_0_2px_8px_rgba(255,255,255,0.4),0_4px_16px_rgba(156,163,175,0.3)]'
+        innerShadow: 'shadow-[inset_0_4px_12px_rgba(0,0,0,0.3),inset_0_2px_6px_rgba(0,0,0,0.2),0_2px_8px_rgba(156,163,175,0.2)]'
       };
     }
     
@@ -43,17 +43,17 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
       if (timeLeft <= 10) {
         return { 
           outerRing: 'bg-gradient-to-br from-red-500 to-red-600',
-          outerShadow: 'shadow-[0_8px_24px_rgba(239,68,68,0.3)]',
-          innerCircle: 'bg-gradient-to-br from-[#029FD4] via-[#03B7EE] to-[#35C9F5]',
-          innerShadow: 'shadow-[inset_0_2px_8px_rgba(255,255,255,0.4),0_4px_16px_rgba(3,183,238,0.3)]'
+          outerShadow: 'shadow-[0_12px_32px_rgba(239,68,68,0.4),0_6px_16px_rgba(239,68,68,0.3),0_2px_8px_rgba(239,68,68,0.2)]',
+          innerCircle: 'bg-gradient-to-br from-[#0284b8] via-[#0298d4] to-[#2eb8e8]',
+          innerShadow: 'shadow-[inset_0_4px_12px_rgba(0,0,0,0.3),inset_0_2px_6px_rgba(0,0,0,0.2),0_2px_8px_rgba(3,183,238,0.2)]'
         };
       }
       if (timeLeft <= 30) {
         return { 
           outerRing: 'bg-gradient-to-br from-yellow-500 to-amber-500',
-          outerShadow: 'shadow-[0_8px_24px_rgba(234,179,8,0.3)]',
-          innerCircle: 'bg-gradient-to-br from-[#029FD4] via-[#03B7EE] to-[#35C9F5]',
-          innerShadow: 'shadow-[inset_0_2px_8px_rgba(255,255,255,0.4),0_4px_16px_rgba(3,183,238,0.3)]'
+          outerShadow: 'shadow-[0_12px_32px_rgba(234,179,8,0.4),0_6px_16px_rgba(234,179,8,0.3),0_2px_8px_rgba(234,179,8,0.2)]',
+          innerCircle: 'bg-gradient-to-br from-[#0284b8] via-[#0298d4] to-[#2eb8e8]',
+          innerShadow: 'shadow-[inset_0_4px_12px_rgba(0,0,0,0.3),inset_0_2px_6px_rgba(0,0,0,0.2),0_2px_8px_rgba(3,183,238,0.2)]'
         };
       }
     }
@@ -61,9 +61,9 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
     // Default: orange outer ring, blue inner circle
     return { 
       outerRing: 'bg-gradient-orange-ring',
-      outerShadow: 'shadow-glossy-orange',
-      innerCircle: 'bg-gradient-to-br from-[#029FD4] via-[#03B7EE] to-[#35C9F5]',
-      innerShadow: 'shadow-[inset_0_2px_8px_rgba(255,255,255,0.4),0_4px_16px_rgba(3,183,238,0.3)]'
+      outerShadow: 'shadow-[0_12px_32px_rgba(255,107,53,0.4),0_6px_16px_rgba(255,107,53,0.3),0_2px_8px_rgba(255,107,53,0.2)]',
+      innerCircle: 'bg-gradient-to-br from-[#0284b8] via-[#0298d4] to-[#2eb8e8]',
+      innerShadow: 'shadow-[inset_0_4px_12px_rgba(0,0,0,0.3),inset_0_2px_6px_rgba(0,0,0,0.2),0_2px_8px_rgba(3,183,238,0.2)]'
     };
   };
 
@@ -104,7 +104,7 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
   return (
     <div className="relative w-[200px] h-[200px] sm:w-[320px] sm:h-[320px] flex items-center justify-center mx-auto">
       {/* Layer 1: Outer Orange Ring with Progress */}
-      <div className={`absolute inset-0 rounded-full ${colors.outerRing} ${colors.outerShadow}`}>
+      <div className={`absolute inset-0 rounded-full ${colors.outerRing} ${colors.outerShadow} shadow-[inset_0_2px_4px_rgba(255,255,255,0.3),inset_0_-2px_4px_rgba(0,0,0,0.2)]`}>
         {/* Mobile SVG Progress Ring */}
         <svg 
           width={svgConfig.mobile.size} 
@@ -172,10 +172,13 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
         </svg>
       </div>
       
+      {/* Layer 1.5: Dark Rim/Border Between Rings */}
+      <div className="absolute inset-[20px] rounded-full bg-gradient-to-br from-[#1a2332] to-[#2d3d54] shadow-[inset_0_2px_4px_rgba(0,0,0,0.5),0_-2px_4px_rgba(255,255,255,0.1)]" />
+      
       {/* Layer 2: Inner Blue Circle with Glossy Effect */}
-      <div className={`absolute inset-[20px] rounded-full ${colors.innerCircle} ${colors.innerShadow} overflow-hidden`}>
-        {/* Glossy Highlight */}
-        <div className="absolute top-[15%] left-[15%] w-[35%] h-[35%] rounded-full glossy-shine" />
+      <div className={`absolute inset-[24px] rounded-full ${colors.innerCircle} ${colors.innerShadow} overflow-hidden`}>
+        {/* Enhanced Glossy Highlight */}
+        <div className="absolute top-[12%] left-[12%] w-[40%] h-[40%] rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.6)_0%,rgba(255,255,255,0.3)_30%,rgba(255,255,255,0.1)_50%,transparent_70%)] pointer-events-none" />
         
         {/* Timer Display - Absolutely centered */}
         <div 

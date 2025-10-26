@@ -48,6 +48,10 @@ const TrophyCard = ({
 
   // Get category-based styling for shadow effect
   const categoryStyle = getCategoryGradient(achievement.category);
+  
+  // Extract rgba color from shadow string for drop-shadow filter
+  const shadowMatch = categoryStyle.shadow.match(/rgba\([^)]+\)/);
+  const shadowColor = shadowMatch ? shadowMatch[0] : 'rgba(0,0,0,0.3)';
 
   return (
     <motion.div
@@ -57,14 +61,15 @@ const TrophyCard = ({
       whileHover={{ 
         scale: 1.05,
         y: -8,
+        filter: `drop-shadow(0 8px 16px ${shadowColor})`,
         transition: { duration: 0.3, ease: "easeOut" }
       }}
       className="cursor-pointer"
       onClick={() => onAchievementClick(achievement)}
     >
       <div className="text-center space-y-2">
-        {/* Badge Image with category shadow on hover */}
-        <div className={`flex justify-center transition-all duration-300 hover:${categoryStyle.shadow}`}>
+        {/* Badge Image */}
+        <div className="flex justify-center">
           <img 
             src={getBadgeUrl(achievement.badge_file_name)}
             alt={achievement.name}

@@ -33,7 +33,7 @@ const StatsDashboard = () => {
       className="space-y-4 max-w-3xl mx-auto"
     >
       {/* Key Metrics Cards - 4 Card Row */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <RegularStatCard 
           emoji="🏋️"
           title="Total Workouts"

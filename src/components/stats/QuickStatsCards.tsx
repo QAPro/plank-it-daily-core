@@ -39,25 +39,24 @@ const QuickStatsCards = ({
   ];
 
   return (
-    <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2">
+    <div className="grid grid-cols-3 gap-3 w-full max-w-md mx-auto">
       {stats.map((stat, index) => (
         <motion.div
           key={stat.text}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.1 }}
-          className="flex-shrink-0 w-28"
         >
-          <Card className="bg-white/60 backdrop-blur-sm border-white/20 hover:shadow-md transition-shadow">
-            <CardContent className="p-3 space-y-1.5 flex flex-col items-center">
-              <div className={`w-8 h-8 rounded-full ${stat.bgColor} flex items-center justify-center`}>
-                <span className="text-xl">{stat.emoji}</span>
+          <Card className="bg-white border-0 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_16px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-200">
+            <CardContent className="p-4 flex flex-col items-center text-center space-y-2">
+              <div className="w-8 h-8 flex items-center justify-center mb-2">
+                <span className="text-[32px]">{stat.emoji}</span>
               </div>
-              <div className="space-y-0.5 text-center">
-                <div className="text-lg font-bold text-foreground leading-tight">
+              <div className="space-y-1">
+                <div className="text-2xl font-bold text-[#2C3E50] leading-none">
                   {stat.number}
                 </div>
-                <div className="text-xs text-muted-foreground leading-tight">
+                <div className="text-xs font-medium text-[#7F8C8D] uppercase tracking-wider leading-none">
                   {stat.text}
                 </div>
               </div>

@@ -257,7 +257,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="p-6 space-y-6 mb-6 max-w-2xl mx-auto pb-24"
+      className="p-6 space-y-4 mb-6 max-w-2xl mx-auto pb-24"
     >
       {/* Confetti */}
       <EnhancedConfetti 
@@ -301,7 +301,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.1 }}
-        className="py-4"
+        className="py-2"
       >
         <CircularProgressTimer
           timeLeft={timeLeft}
@@ -353,7 +353,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         transition={{ delay: 0.3 }}
         className="text-center space-y-1"
       >
-        <h2 className="text-xl font-bold text-foreground">
+        <h2 className="text-lg font-bold text-foreground">
           {selectedExercise.name}
         </h2>
         <p className="text-sm text-muted-foreground">

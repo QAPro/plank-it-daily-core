@@ -63,21 +63,27 @@ const StatsTab = () => {
         <TabsList className="bg-white rounded-full p-1 mx-auto max-w-md grid grid-cols-3 shadow-soft">
           <TabsTrigger 
             value="dashboard"
-            className="rounded-full data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#FF6B35] data-[state=active]:rounded-b-none"
+            className="rounded-full data-[state=active]:bg-transparent data-[state=active]:shadow-none relative group"
           >
-            Dashboard
+            <span className="inline-block relative after:content-[''] after:absolute after:bottom-[-10px] after:left-1/2 after:-translate-x-1/2 after:w-[calc(100%+8px)] after:h-[3px] after:bg-[#FF6B35] after:rounded-full after:opacity-0 group-data-[state=active]:after:opacity-100 after:transition-all after:duration-200">
+              Dashboard
+            </span>
           </TabsTrigger>
           <TabsTrigger 
             value="deepdive"
-            className="rounded-full data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#FF6B35] data-[state=active]:rounded-b-none"
+            className="rounded-full data-[state=active]:bg-transparent data-[state=active]:shadow-none relative group"
           >
-            Deep Dive
+            <span className="inline-block relative after:content-[''] after:absolute after:bottom-[-10px] after:left-1/2 after:-translate-x-1/2 after:w-[calc(100%+8px)] after:h-[3px] after:bg-[#FF6B35] after:rounded-full after:opacity-0 group-data-[state=active]:after:opacity-100 after:transition-all after:duration-200">
+              Deep Dive
+            </span>
           </TabsTrigger>
           <TabsTrigger 
             value="history"
-            className="rounded-full data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#FF6B35] data-[state=active]:rounded-b-none"
+            className="rounded-full data-[state=active]:bg-transparent data-[state=active]:shadow-none relative group"
           >
-            History
+            <span className="inline-block relative after:content-[''] after:absolute after:bottom-[-10px] after:left-1/2 after:-translate-x-1/2 after:w-[calc(100%+8px)] after:h-[3px] after:bg-[#FF6B35] after:rounded-full after:opacity-0 group-data-[state=active]:after:opacity-100 after:transition-all after:duration-200">
+              History
+            </span>
           </TabsTrigger>
         </TabsList>
 

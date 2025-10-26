@@ -44,16 +44,16 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
         return { 
           outerRing: 'bg-gradient-to-br from-red-500 to-red-600',
           outerShadow: 'shadow-[0_8px_24px_rgba(239,68,68,0.3)]',
-          innerCircle: 'bg-gradient-blue-inner',
-          innerShadow: 'shadow-glossy-blue'
+          innerCircle: 'bg-gradient-to-br from-[#029FD4] via-[#03B7EE] to-[#35C9F5]',
+          innerShadow: 'shadow-[inset_0_2px_8px_rgba(255,255,255,0.4),0_4px_16px_rgba(3,183,238,0.3)]'
         };
       }
       if (timeLeft <= 30) {
         return { 
           outerRing: 'bg-gradient-to-br from-yellow-500 to-amber-500',
           outerShadow: 'shadow-[0_8px_24px_rgba(234,179,8,0.3)]',
-          innerCircle: 'bg-gradient-blue-inner',
-          innerShadow: 'shadow-glossy-blue'
+          innerCircle: 'bg-gradient-to-br from-[#029FD4] via-[#03B7EE] to-[#35C9F5]',
+          innerShadow: 'shadow-[inset_0_2px_8px_rgba(255,255,255,0.4),0_4px_16px_rgba(3,183,238,0.3)]'
         };
       }
     }
@@ -62,8 +62,8 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
     return { 
       outerRing: 'bg-gradient-orange-ring',
       outerShadow: 'shadow-glossy-orange',
-      innerCircle: 'bg-gradient-blue-inner',
-      innerShadow: 'shadow-glossy-blue'
+      innerCircle: 'bg-gradient-to-br from-[#029FD4] via-[#03B7EE] to-[#35C9F5]',
+      innerShadow: 'shadow-[inset_0_2px_8px_rgba(255,255,255,0.4),0_4px_16px_rgba(3,183,238,0.3)]'
     };
   };
 

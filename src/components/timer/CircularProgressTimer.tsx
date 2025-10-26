@@ -84,13 +84,13 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
   const svgConfig = {
     mobile: { 
       size: 200, 
-      radius: 80, 
+      radius: 94, 
       strokeWidth: 6,
       center: 100 
     },
     desktop: { 
       size: 280, 
-      radius: 120, 
+      radius: 136, 
       strokeWidth: 8,
       center: 140 
     }
@@ -103,8 +103,11 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
 
   return (
     <div className="relative w-[200px] h-[200px] sm:w-[320px] sm:h-[320px] flex items-center justify-center mx-auto">
-      {/* Layer 1: Outer Orange Ring with Progress */}
-      <div className={`absolute inset-0 rounded-full ${colors.outerRing} ${colors.outerShadow} shadow-[inset_0_2px_4px_rgba(255,255,255,0.3),inset_0_-2px_4px_rgba(0,0,0,0.2)]`}>
+      {/* Layer 1: Outer Orange Ring Background (z-10) */}
+      <div className={`absolute inset-0 rounded-full ${colors.outerRing} ${colors.outerShadow} shadow-[inset_0_2px_4px_rgba(255,255,255,0.3),inset_0_-2px_4px_rgba(0,0,0,0.2)] z-10`}></div>
+      
+      {/* Layer 2: Progress Rings (z-20) */}
+      <div className="absolute inset-0 z-20 pointer-events-none">
         {/* Mobile SVG Progress Ring */}
         <svg 
           width={svgConfig.mobile.size} 
@@ -172,11 +175,11 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
         </svg>
       </div>
       
-      {/* Layer 1.5: Dark Rim/Border Between Rings */}
-      <div className="absolute inset-[20px] rounded-full bg-gradient-to-br from-[#1a2332] to-[#2d3d54] shadow-[inset_0_2px_4px_rgba(0,0,0,0.5),0_-2px_4px_rgba(255,255,255,0.1)]" />
+      {/* Layer 3: Dark Rim/Border Between Rings (z-30) */}
+      <div className="absolute inset-[20px] rounded-full bg-gradient-to-br from-[#1a2332] to-[#2d3d54] shadow-[inset_0_2px_4px_rgba(0,0,0,0.5),0_-2px_4px_rgba(255,255,255,0.1)] z-30" />
       
-      {/* Layer 2: Inner Blue Circle with Glossy Effect */}
-      <div className={`absolute inset-[24px] rounded-full ${colors.innerCircle} ${colors.innerShadow} overflow-hidden`}>
+      {/* Layer 4: Inner Blue Circle with Glossy Effect (z-40) */}
+      <div className={`absolute inset-[24px] rounded-full ${colors.innerCircle} ${colors.innerShadow} overflow-hidden z-40`}>
         {/* Enhanced Glossy Highlight */}
         <div className="absolute top-[12%] left-[12%] w-[40%] h-[40%] rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.6)_0%,rgba(255,255,255,0.3)_30%,rgba(255,255,255,0.1)_50%,transparent_70%)] pointer-events-none" />
         

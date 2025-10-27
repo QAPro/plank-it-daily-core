@@ -76,8 +76,11 @@ const SocialStatsCard = ({ userId }: SocialStatsCardProps) => {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-3 gap-4">
-          <div className="text-center p-4 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg">
-            <Heart className="w-6 h-6 text-primary mx-auto mb-2" />
+          <div className="text-center p-4 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-center gap-1 mb-2">
+              <span className="text-xl">💖</span>
+              <Heart className="w-5 h-5 text-primary" />
+            </div>
             <div className="text-2xl font-bold text-foreground">
               {stats?.cheers_given || 0}
             </div>
@@ -86,8 +89,11 @@ const SocialStatsCard = ({ userId }: SocialStatsCardProps) => {
             </div>
           </div>
           
-          <div className="text-center p-4 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg">
-            <Heart className="w-6 h-6 text-primary mx-auto mb-2 fill-primary" />
+          <div className="text-center p-4 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-center gap-1 mb-2">
+              <span className="text-xl">🎉</span>
+              <Heart className="w-5 h-5 text-primary fill-primary" />
+            </div>
             <div className="text-2xl font-bold text-foreground">
               {stats?.cheers_received || 0}
             </div>
@@ -96,8 +102,11 @@ const SocialStatsCard = ({ userId }: SocialStatsCardProps) => {
             </div>
           </div>
           
-          <div className="text-center p-4 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg">
-            <Users className="w-6 h-6 text-primary mx-auto mb-2" />
+          <div className="text-center p-4 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-center gap-1 mb-2">
+              <span className="text-xl">👥</span>
+              <Users className="w-5 h-5 text-primary" />
+            </div>
             <div className="text-2xl font-bold text-foreground">
               {stats?.friends_count || 0}
             </div>

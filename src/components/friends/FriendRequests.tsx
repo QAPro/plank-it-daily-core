@@ -99,11 +99,11 @@ const FriendRequests = () => {
   if (pendingRequests.length === 0) {
     return (
       <div className="text-center py-12">
-        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <UserPlus className="w-8 h-8 text-gray-400" />
+        <div className="w-20 h-20 bg-gradient-to-br from-orange-50 to-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <UserPlus className="w-10 h-10 text-orange-500" />
         </div>
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">No pending requests</h3>
-        <p className="text-gray-600">Friend requests will appear here when people want to connect with you</p>
+        <h3 className="text-lg font-semibold text-[#2C3E50] mb-2">No pending requests</h3>
+        <p className="text-[#7F8C8D]">Friend requests will appear here when people want to connect with you</p>
       </div>
     );
   }
@@ -115,7 +115,7 @@ const FriendRequests = () => {
       </h2>
       
       {pendingRequests.map((request) => (
-        <Card key={request.id} className="hover:shadow-md transition-shadow">
+        <Card key={request.id} className="hover:shadow-medium transition-all duration-300 hover:-translate-y-0.5">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
@@ -127,10 +127,10 @@ const FriendRequests = () => {
                 </Avatar>
 
                 <div>
-                  <h4 className="font-semibold text-gray-800 mb-1">
+                  <h4 className="font-semibold text-[#2C3E50] mb-1">
                     {request.users.username}
                   </h4>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-[#7F8C8D]">
                     Sent {formatDistanceToNow(new Date(request.created_at), { addSuffix: true })}
                   </p>
                 </div>

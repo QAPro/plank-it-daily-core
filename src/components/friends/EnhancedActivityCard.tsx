@@ -50,13 +50,33 @@ const EnhancedActivityCard = ({ activity, currentUserId, onUpdate }: EnhancedAct
   const getActivityIcon = () => {
     switch (activity.activity_type) {
       case 'workout':
-        return <Zap className="h-5 w-5 text-primary" />;
+        return (
+          <div className="flex items-center gap-1">
+            <span className="text-lg">🏋️</span>
+            <Zap className="h-5 w-5 text-orange-500" />
+          </div>
+        );
       case 'achievement':
-        return <Trophy className="h-5 w-5 text-primary" />;
+        return (
+          <div className="flex items-center gap-1">
+            <span className="text-lg">🏆</span>
+            <Trophy className="h-5 w-5 text-orange-500" />
+          </div>
+        );
       case 'weekly_goal':
-        return <Target className="h-5 w-5 text-primary" />;
+        return (
+          <div className="flex items-center gap-1">
+            <span className="text-lg">🎯</span>
+            <Target className="h-5 w-5 text-orange-500" />
+          </div>
+        );
       case 'level_up':
-        return <Flame className="h-5 w-5 text-primary" />;
+        return (
+          <div className="flex items-center gap-1">
+            <span className="text-lg">🔥</span>
+            <Flame className="h-5 w-5 text-orange-500" />
+          </div>
+        );
       default:
         return <Zap className="h-5 w-5 text-muted-foreground" />;
     }
@@ -94,7 +114,7 @@ const EnhancedActivityCard = ({ activity, currentUserId, onUpdate }: EnhancedAct
   };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full hover:shadow-medium transition-all duration-300 hover:-translate-y-0.5">
       <CardHeader className="pb-3">
         <div className="flex items-start space-x-3">
           <Avatar className="w-10 h-10">

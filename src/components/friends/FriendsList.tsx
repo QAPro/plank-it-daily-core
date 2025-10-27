@@ -78,11 +78,11 @@ const FriendsList = () => {
     return (
       <div className="text-center py-12">
         <div className="mb-4">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <MessageCircle className="w-8 h-8 text-gray-400" />
+          <div className="w-20 h-20 bg-gradient-to-br from-orange-50 to-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <MessageCircle className="w-10 h-10 text-orange-500" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">No friends yet</h3>
-          <p className="text-gray-600 mb-6">Start building your fitness community by adding friends!</p>
+          <h3 className="text-lg font-semibold text-[#2C3E50] mb-2">No friends yet</h3>
+          <p className="text-[#7F8C8D] mb-6">Start building your fitness community by adding friends!</p>
         </div>
       </div>
     );
@@ -96,7 +96,7 @@ const FriendsList = () => {
       </div>
 
       {friends.map((friend) => (
-        <Card key={friend.id} className="hover:shadow-md transition-shadow">
+        <Card key={friend.id} className="hover:shadow-medium transition-all duration-300 hover:-translate-y-0.5">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
@@ -108,13 +108,13 @@ const FriendsList = () => {
                     </AvatarFallback>
                   </Avatar>
                   {friend.is_online && (
-                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full animate-pulse"></div>
                   )}
                 </div>
 
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-1">
-                    <h3 className="font-semibold text-gray-800">
+                    <h3 className="font-semibold text-[#2C3E50]">
                       {friend.full_name || friend.username}
                     </h3>
                     <Badge variant="secondary" className="bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs">
@@ -122,7 +122,7 @@ const FriendsList = () => {
                     </Badge>
                   </div>
                   
-                  <div className="flex items-center space-x-4 text-sm text-gray-600">
+                  <div className="flex items-center space-x-4 text-sm text-[#7F8C8D]">
                     <div className="flex items-center space-x-1">
                       <Flame className="w-4 h-4 text-orange-500" />
                       <span>{friend.current_streak} day streak</span>

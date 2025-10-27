@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import FriendsList from './FriendsList';
@@ -13,11 +14,34 @@ const MyCommunityTab = () => {
 
   if (!user) return null;
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
+
   return (
-    <div className="space-y-6">
+    <motion.div 
+      className="space-y-8"
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+    >
       {/* Section 1: Friend Management */}
-      <div>
-        <h3 className="text-lg font-semibold mb-4">Manage Friends</h3>
+      <motion.div variants={itemVariants}>
+        <h3 className="text-xl font-semibold mb-4 text-[#2C3E50] flex items-center gap-2">
+          <span className="text-2xl">👥</span>
+          Manage Friends
+        </h3>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="friends">My Friends</TabsTrigger>
@@ -37,18 +61,30 @@ const MyCommunityTab = () => {
             <FriendRequests />
           </TabsContent>
         </Tabs>
-      </div>
+      </motion.div>
+
+      <div className="h-px bg-border/50" />
 
       {/* Section 2: Cheer Wall */}
-      <div>
+      <motion.div variants={itemVariants}>
+        <h3 className="text-xl font-semibold mb-4 text-[#2C3E50] flex items-center gap-2">
+          <span className="text-2xl">💬</span>
+          Cheer Wall
+        </h3>
         <CheerWall userId={user.id} />
-      </div>
+      </motion.div>
+
+      <div className="h-px bg-border/50" />
 
       {/* Section 3: Social Stats & Invite */}
-      <div>
+      <motion.div variants={itemVariants}>
+        <h3 className="text-xl font-semibold mb-4 text-[#2C3E50] flex items-center gap-2">
+          <span className="text-2xl">📊</span>
+          Social Stats
+        </h3>
         <SocialStatsCard userId={user.id} />
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

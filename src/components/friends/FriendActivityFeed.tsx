@@ -82,13 +82,13 @@ const FriendActivityFeed = () => {
       <div className="space-y-6">
         {activities.length === 0 ? (
           <div className="text-center py-12">
-            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-              <Activity className="w-8 h-8 text-muted-foreground" />
+            <div className="w-20 h-20 bg-gradient-to-br from-orange-50 to-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Activity className="w-10 h-10 text-orange-500" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">
+            <h3 className="text-lg font-semibold mb-2 text-[#2C3E50]">
               No recent activity
             </h3>
-            <p className="text-muted-foreground">
+            <p className="text-[#7F8C8D]">
               Your friends' activities will appear here when they complete workouts or earn achievements!
             </p>
           </div>

@@ -63,10 +63,10 @@ const CheerWall = ({ userId }: CheerWallProps) => {
       <CardContent>
         {cheers.length === 0 ? (
           <div className="text-center py-8">
-            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-              <Activity className="w-8 h-8 text-muted-foreground" />
+            <div className="w-20 h-20 bg-gradient-to-br from-orange-50 to-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Activity className="w-10 h-10 text-orange-500" />
             </div>
-            <p className="text-muted-foreground">
+            <p className="text-[#7F8C8D]">
               No cheers yet - share your activities to get support!
             </p>
           </div>
@@ -75,7 +75,7 @@ const CheerWall = ({ userId }: CheerWallProps) => {
             {cheers.map((cheer) => (
               <div
                 key={cheer.id}
-                className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-all duration-200 hover:scale-[1.02]"
               >
                 <Avatar className="w-10 h-10">
                   <AvatarImage src={cheer.from_user?.avatar_url || ''} />

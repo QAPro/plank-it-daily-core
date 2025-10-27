@@ -89,11 +89,11 @@ const FriendSearch = () => {
 
       {searchQuery && searchResults.length === 0 && !searching && (
         <div className="text-center py-8">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Search className="w-8 h-8 text-gray-400" />
+          <div className="w-20 h-20 bg-gradient-to-br from-orange-50 to-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Search className="w-10 h-10 text-orange-500" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">No users found</h3>
-          <p className="text-gray-600">Try searching with a different username or email</p>
+          <h3 className="text-lg font-semibold text-[#2C3E50] mb-2">No users found</h3>
+          <p className="text-[#7F8C8D]">Try searching with a different username or email</p>
         </div>
       )}
 
@@ -101,7 +101,7 @@ const FriendSearch = () => {
         <div className="space-y-3">
           <h3 className="text-lg font-medium text-gray-800">Search Results</h3>
           {searchResults.map((user) => (
-            <Card key={user.id} className="hover:shadow-md transition-shadow">
+            <Card key={user.id} className="hover:shadow-medium transition-all duration-300 hover:-translate-y-0.5">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
@@ -114,18 +114,18 @@ const FriendSearch = () => {
 
                     <div>
                       <div className="flex items-center space-x-2 mb-1">
-                        <h4 className="font-semibold text-gray-800">
+                        <h4 className="font-semibold text-[#2C3E50]">
                           {user.username}
                         </h4>
                         <Badge variant="secondary" className="bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs">
                           Level {user.current_level}
                         </Badge>
                         {user.is_online && (
-                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                         )}
                       </div>
                       
-                      <div className="flex items-center space-x-4 text-sm text-gray-600">
+                      <div className="flex items-center space-x-4 text-sm text-[#7F8C8D]">
                         <span>{user.current_streak} day streak</span>
                         <span>{user.total_workouts} workouts</span>
                       </div>
@@ -155,11 +155,11 @@ const FriendSearch = () => {
 
       {!searchQuery && (
         <div className="text-center py-12">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <UserPlus className="w-8 h-8 text-gray-400" />
+          <div className="w-20 h-20 bg-gradient-to-br from-orange-50 to-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <UserPlus className="w-10 h-10 text-orange-500" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">Search for Friends</h3>
-          <p className="text-gray-600">Enter a username, name, or email to find people to connect with</p>
+          <h3 className="text-lg font-semibold text-[#2C3E50] mb-2">Search for Friends</h3>
+          <p className="text-[#7F8C8D]">Enter a username, name, or email to find people to connect with</p>
         </div>
         )}
       </div>

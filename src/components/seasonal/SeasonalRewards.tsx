@@ -224,9 +224,6 @@ const SeasonalRewards: React.FC = () => {
                     {getRewardIcon(reward.type)}
                     <CardTitle className="text-sm">{reward.title}</CardTitle>
                   </div>
-                  <Badge className={getRarityColor(reward.rarity)}>
-                    {reward.rarity}
-                  </Badge>
                 </div>
                 <CardDescription className="text-xs">
                   {reward.description}

@@ -110,15 +110,6 @@ const SeasonalAchievementsBanner = ({ onAchievementClick }: SeasonalAchievements
     return Math.max(0, diffDays);
   };
 
-  const getRarityIcon = (rarity: string) => {
-    switch (rarity) {
-      case 'legendary': return <Star className="w-4 h-4 text-yellow-400" />;
-      case 'epic': return <Star className="w-4 h-4 text-purple-400" />;
-      case 'rare': return <Star className="w-4 h-4 text-blue-400" />;
-      default: return <Star className="w-4 h-4 text-gray-400" />;
-    }
-  };
-
   if (loading) {
     return (
       <div className="space-y-4">
@@ -173,10 +164,7 @@ const SeasonalAchievementsBanner = ({ onAchievementClick }: SeasonalAchievements
                       <div className="flex items-center space-x-3">
                         <div className="text-3xl">{achievement.icon}</div>
                         <div>
-                          <div className="flex items-center space-x-2 mb-1">
-                            <h3 className="font-bold text-lg">{achievement.name}</h3>
-                            {getRarityIcon(achievement.rarity)}
-                          </div>
+                          <h3 className="font-bold text-lg mb-1">{achievement.name}</h3>
                           <p className="text-sm opacity-90">{achievement.description}</p>
                         </div>
                       </div>

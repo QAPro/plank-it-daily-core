@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Clock, Trophy, Star } from "lucide-react";
-import { getRarityColor, getRarityGlow } from "@/utils/achievementDisplay";
+import { getCategoryGradient, getCategoryGlow } from "@/utils/categoryGradients";
 import type { AchievementWithProgress } from "@/hooks/useExpandedAchievementProgress";
 
 interface EnhancedAchievementCardProps {
@@ -14,8 +14,8 @@ interface EnhancedAchievementCardProps {
 
 const EnhancedAchievementCard = ({ achievementProgress, onClick }: EnhancedAchievementCardProps) => {
   const { achievement, isEarned, currentProgress, progressPercentage, estimatedCompletion } = achievementProgress;
-  const rarityColors = getRarityColor(achievement.rarity as any);
-  const rarityGlow = getRarityGlow(achievement.rarity as any);
+  const categoryStyle = getCategoryGradient(achievement.category);
+  const categoryGlow = getCategoryGlow(achievement.category);
 
   const getCategoryIcon = () => {
     // Check if it's a category-specific achievement
@@ -61,7 +61,7 @@ const EnhancedAchievementCard = ({ achievementProgress, onClick }: EnhancedAchie
       <Card 
         className={`relative cursor-pointer transition-all duration-300 hover:shadow-md ${
           isEarned ? 'border-2 border-orange-200 bg-orange-50' : 'hover:border-gray-300'
-        } ${rarityGlow}`}
+        } ${categoryGlow}`}
         onClick={onClick}
       >
         <CardContent className="p-4">

@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Share2, X } from "lucide-react";
-import { getRarityColor } from "@/utils/achievementDisplay";
+import { getCategoryGradient, getCategoryGlow, getCategoryConfettiColors } from "@/utils/categoryGradients";
 
 interface EnhancedAchievementCelebrationProps {
   achievement: any;
@@ -21,70 +21,28 @@ const EnhancedAchievementCelebration = ({
   isVisible 
 }: EnhancedAchievementCelebrationProps) => {
   const [showConfetti, setShowConfetti] = useState(false);
-  const rarityColors = getRarityColor(achievement.rarity as any);
 
   useEffect(() => {
     if (isVisible) {
       setShowConfetti(true);
       
-      // Auto-close after 8 seconds for common achievements, longer for rare ones
-      const autoCloseDelay = achievement.rarity === 'legendary' ? 12000 : 
-                            achievement.rarity === 'epic' ? 10000 : 
-                            achievement.rarity === 'rare' ? 8000 : 6000;
+      // Auto-close after 8 seconds for all achievements
+      const autoCloseDelay = 8000;
       
       const timer = setTimeout(onClose, autoCloseDelay);
       return () => clearTimeout(timer);
     }
-  }, [isVisible, achievement.rarity, onClose]);
+  }, [isVisible, onClose]);
 
-  const getConfettiCount = () => {
-    switch (achievement.rarity) {
-      case 'legendary': return 50;
-      case 'epic': return 35;
-      case 'rare': return 25;
-      case 'uncommon': return 15;
-      default: return 10;
-    }
-  };
+  const getConfettiCount = () => 35;
+  const getAnimationScale = () => 1.1;
 
-
-  const getAnimationScale = () => {
-    switch (achievement.rarity) {
-      case 'legendary': return 1.2;
-      case 'epic': return 1.15;
-      case 'rare': return 1.1;
-      default: return 1.0;
-    }
-  };
-
-  const getRarityColors = () => {
-    switch (achievement.rarity) {
-      case 'legendary':
-        return {
-          gradient: 'bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500',
-          glow: 'shadow-[0_0_50px_rgba(251,191,36,0.5)]'
-        };
-      case 'epic':
-        return {
-          gradient: 'bg-gradient-to-br from-purple-400 via-pink-500 to-red-500',
-          glow: 'shadow-[0_0_40px_rgba(168,85,247,0.5)]'
-        };
-      case 'rare':
-        return {
-          gradient: 'bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500',
-          glow: 'shadow-[0_0_30px_rgba(59,130,246,0.5)]'
-        };
-      case 'uncommon':
-        return {
-          gradient: 'bg-gradient-to-br from-green-400 to-blue-500',
-          glow: 'shadow-[0_0_20px_rgba(34,197,94,0.5)]'
-        };
-      default:
-        return {
-          gradient: 'bg-gradient-to-br from-slate-600 to-slate-800',
-          glow: 'shadow-[0_0_15px_rgba(71,85,105,0.5)]'
-        };
-    }
+  const getCategoryColors = () => {
+    const categoryStyle = getCategoryGradient(achievement.category);
+    return {
+      gradient: categoryStyle.gradient,
+      glow: categoryStyle.shadow
+    };
   };
 
   return (
@@ -117,12 +75,12 @@ const EnhancedAchievementCelebration = ({
             {/* Confetti Effect */}
             {showConfetti && (
               <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-xl">
-                {[...Array(getConfettiCount())].map((_, i) => (
-                  <motion.div
-                    key={i}
-                    className={`absolute w-3 h-3 rounded-full ${
-                      ['bg-yellow-400', 'bg-orange-400', 'bg-red-400', 'bg-purple-400', 'bg-blue-400'][i % 5]
-                    }`}
+                {[...Array(getConfettiCount())].map((_, i) => {
+                  const confettiColors = getCategoryConfettiColors(achievement.category);
+                  return (
+                    <motion.div
+                      key={i}
+                      className={`absolute w-3 h-3 rounded-full ${confettiColors[i % confettiColors.length]}`}
                     initial={{
                       x: '50%',
                       y: '50%',
@@ -145,7 +103,8 @@ const EnhancedAchievementCelebration = ({
                       top: '50%',
                     }}
                   />
-                ))}
+                  );
+                })}
               </div>
             )}
 
@@ -159,7 +118,7 @@ const EnhancedAchievementCelebration = ({
               <X className="w-4 h-4" />
             </Button>
 
-            <Card className={`${getRarityColors().gradient} ${getRarityColors().glow} text-white border-0 shadow-2xl overflow-hidden`}>
+            <Card className={`${getCategoryColors().gradient} ${getCategoryColors().glow} text-white border-0 shadow-2xl overflow-hidden`}>
               <CardContent className="p-8 text-center relative">
 
                 {/* Title */}
@@ -181,7 +140,7 @@ const EnhancedAchievementCelebration = ({
                   transition={{ 
                     duration: 0.6, 
                     delay: 0.5,
-                    repeat: achievement.rarity === 'legendary' ? 2 : 1
+                    repeat: 1
                   }}
                   className="mb-6"
                 >

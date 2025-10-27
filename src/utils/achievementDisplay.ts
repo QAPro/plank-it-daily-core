@@ -1,5 +1,9 @@
 /**
  * Utility functions for achievement display styling
+ * 
+ * @deprecated These rarity-based functions are deprecated. 
+ * Use category-based styling from categoryGradients.ts instead.
+ * These functions should not be used in user-facing components.
  */
 
 export type AchievementRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';

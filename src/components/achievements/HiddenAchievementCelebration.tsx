@@ -3,13 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { X, Share2, Award } from 'lucide-react';
+import { getCategoryGradient, getCategoryConfettiColors } from '@/utils/categoryGradients';
 
 interface HiddenAchievementCelebrationProps {
   achievement: {
     name: string;
     description: string;
     icon: string;
-    rarity: string;
+    category: string;
     points: number;
     metadata?: {
       unlockMessage?: string;
@@ -33,9 +34,8 @@ const HiddenAchievementCelebration = ({
   useEffect(() => {
     if (isVisible) {
       setShowConfetti(true);
-      // Auto-close after delay based on rarity
-      const delay = achievement.rarity === 'legendary' ? 8000 : 
-                   achievement.rarity === 'epic' ? 6000 : 4000;
+      // Auto-close after 6 seconds for all hidden achievements
+      const delay = 6000;
       
       const timer = setTimeout(() => {
         onClose();
@@ -43,47 +43,20 @@ const HiddenAchievementCelebration = ({
 
       return () => clearTimeout(timer);
     }
-  }, [isVisible, achievement.rarity, onClose]);
+  }, [isVisible, onClose]);
 
-  const getConfettiCount = () => {
-    switch (achievement.rarity) {
-      case 'legendary': return 100;
-      case 'epic': return 75;
-      case 'rare': return 50;
-      default: return 30;
-    }
+  const getConfettiCount = () => 50;
+
+  const getCategoryColors = () => {
+    const categoryStyle = getCategoryGradient(achievement.category);
+    return {
+      gradient: categoryStyle.gradient.replace('bg-gradient-to-br ', ''),
+      glow: categoryStyle.shadow,
+      text: 'text-white'
+    };
   };
 
-  const getRarityColors = () => {
-    switch (achievement.rarity) {
-      case 'legendary':
-        return {
-          gradient: 'from-yellow-400 via-orange-500 to-red-500',
-          glow: 'shadow-[0_0_50px_rgba(251,191,36,0.5)]',
-          text: 'text-yellow-300'
-        };
-      case 'epic':
-        return {
-          gradient: 'from-purple-400 via-pink-500 to-red-500',
-          glow: 'shadow-[0_0_40px_rgba(168,85,247,0.5)]',
-          text: 'text-purple-300'
-        };
-      case 'rare':
-        return {
-          gradient: 'from-blue-400 via-purple-500 to-pink-500',
-          glow: 'shadow-[0_0_30px_rgba(59,130,246,0.5)]',
-          text: 'text-blue-300'
-        };
-      default:
-        return {
-          gradient: 'from-green-400 to-blue-500',
-          glow: 'shadow-[0_0_20px_rgba(34,197,94,0.5)]',
-          text: 'text-green-300'
-        };
-    }
-  };
-
-  const colors = getRarityColors();
+  const colors = getCategoryColors();
 
   return (
     <AnimatePresence>
@@ -98,10 +71,12 @@ const HiddenAchievementCelebration = ({
           {/* Confetti Effect */}
           {showConfetti && (
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
-              {[...Array(getConfettiCount())].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute w-2 h-2 bg-gradient-to-r from-yellow-400 to-pink-500 rounded-full"
+              {[...Array(getConfettiCount())].map((_, i) => {
+                const confettiColors = getCategoryConfettiColors(achievement.category);
+                return (
+                  <motion.div
+                    key={i}
+                    className={`absolute w-2 h-2 rounded-full ${confettiColors[i % confettiColors.length]}`}
                   initial={{
                     x: '50vw',
                     y: '50vh',
@@ -120,7 +95,8 @@ const HiddenAchievementCelebration = ({
                     ease: "easeOut",
                   }}
                 />
-              ))}
+                );
+              })}
             </div>
           )}
 

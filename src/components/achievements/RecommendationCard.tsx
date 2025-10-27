@@ -126,9 +126,6 @@ export const RecommendationCard = React.memo<RecommendationCardProps>(
                   {getReasonIcon(recommendationReason)}
                   <span className="ml-1">{getReasonLabel(recommendationReason)}</span>
                 </Badge>
-                <Badge variant="secondary" className="text-xs">
-                  {achievement.rarity}
-                </Badge>
               </div>
             </div>
           </div>

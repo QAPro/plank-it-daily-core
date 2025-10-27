@@ -40,14 +40,15 @@ export const WorkoutHub = ({ onStartExercise }: WorkoutHubProps) => {
   }
 
   return (
-    <div className="p-6 pb-32 space-y-6">
+    <div className="p-6 pb-40 space-y-6">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
+        className="text-center mb-8"
       >
-        <h2 className="text-2xl font-bold mb-2">Workout Hub</h2>
-        <p className="text-muted-foreground">
+        <h2 className="text-3xl md:text-4xl font-bold mb-3 text-[#2C3E50]">Workout Hub</h2>
+        <p className="text-base md:text-lg text-[#7F8C8D]">
           Choose a category to explore exercises and start your workout
         </p>
       </motion.div>
@@ -59,24 +60,27 @@ export const WorkoutHub = ({ onStartExercise }: WorkoutHubProps) => {
               ex => ex.category_id === category.id
             ).length || 0;
 
-            // Dramatic rotation angles for mobile, subtle on desktop
-            const rotation = index % 6 === 0 ? '-8deg' : 
-                           index % 6 === 1 ? '7deg' : 
-                           index % 6 === 2 ? '-6deg' : 
-                           index % 6 === 3 ? '8deg' : 
-                           index % 6 === 4 ? '-7deg' : '6deg';
+            // More dramatic rotation angles
+            const rotation = index % 6 === 0 ? '-12deg' : 
+                           index % 6 === 1 ? '10deg' : 
+                           index % 6 === 2 ? '-11deg' : 
+                           index % 6 === 3 ? '12deg' : 
+                           index % 6 === 4 ? '-10deg' : '11deg';
             
-            // Progressive overlap: dramatic mobile, moderate tablet, minimal desktop
-            const mobileOverlap = '-mb-6';
-            const tabletOverlap = 'md:-mb-8';
-            const desktopOverlap = 'lg:-mb-4';
+            // Horizontal offset for zigzag effect
+            const horizontalOffset = index % 2 === 0 ? '-12px' : '12px';
+            
+            // Minimal vertical overlap (corner only)
+            const mobileOverlap = '-mb-3';
+            const tabletOverlap = 'md:-mb-4';
+            const desktopOverlap = 'lg:-mb-2';
 
             return (
               <div 
                 key={category.id}
                 className={`${mobileOverlap} ${tabletOverlap} ${desktopOverlap}`}
                 style={{ 
-                  transform: `rotate(${rotation})`,
+                  transform: `rotate(${rotation}) translateX(${horizontalOffset})`,
                   zIndex: categories.length - index
                 }}
               >

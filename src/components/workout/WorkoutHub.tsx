@@ -52,23 +52,27 @@ export const WorkoutHub = ({ onStartExercise }: WorkoutHubProps) => {
         </p>
       </motion.div>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-6">
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5 lg:gap-6">
+      <div className="max-w-[280px] sm:max-w-sm md:max-w-3xl lg:max-w-7xl mx-auto px-4 md:px-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5 lg:gap-6">
           {categories?.map((category, index) => {
             const exerciseCount = allExercises?.filter(
               ex => ex.category_id === category.id
             ).length || 0;
 
-            // More dramatic rotation angles
-            const rotation = index % 3 === 0 ? '-5deg' : index % 3 === 1 ? '4deg' : '-3deg';
+            // Dramatic rotation angles for mobile single-column stack
+            const rotation = index % 6 === 0 ? '-8deg' : 
+                           index % 6 === 1 ? '7deg' : 
+                           index % 6 === 2 ? '-6deg' : 
+                           index % 6 === 3 ? '8deg' : 
+                           index % 6 === 4 ? '-7deg' : '6deg';
             
-            // Vertical offsets for staggering
+            // Vertical offsets for tablet/desktop staggering
             const verticalOffset = index % 2 === 0 ? 'md:-mt-6' : 'md:mt-6';
             const lgVerticalOffset = index % 3 === 0 ? 'lg:-mt-8' : index % 3 === 1 ? 'lg:mt-8' : 'lg:mt-0';
             
-            // Mobile overlap with negative margins
-            const mobileOverlap = '-mb-6 -mr-2';
-            const tabletOverlap = 'md:-mb-8 md:mr-0';
+            // Mobile: dramatic vertical overlap for corner stacking
+            const mobileOverlap = '-mb-16';
+            const tabletOverlap = 'md:-mb-8';
             const desktopReset = 'lg:mb-0';
 
             return (

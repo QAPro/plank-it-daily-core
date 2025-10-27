@@ -43,10 +43,25 @@ const MyCommunityTab = () => {
           Manage Friends
         </h3>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="friends">My Friends</TabsTrigger>
-            <TabsTrigger value="search">Search</TabsTrigger>
-            <TabsTrigger value="requests">Requests</TabsTrigger>
+          <TabsList className="bg-white rounded-full p-1 mx-auto max-w-md flex">
+            <TabsTrigger 
+              value="friends"
+              className="rounded-full px-6 data-[state=active]:bg-transparent data-[state=active]:shadow-none relative data-[state=active]:after:absolute data-[state=active]:after:bottom-0 data-[state=active]:after:left-0 data-[state=active]:after:right-0 data-[state=active]:after:h-0.5 data-[state=active]:after:bg-orange-500 data-[state=active]:after:rounded-full data-[state=active]:text-[#2C3E50] transition-all"
+            >
+              My Friends
+            </TabsTrigger>
+            <TabsTrigger 
+              value="search"
+              className="rounded-full px-6 data-[state=active]:bg-transparent data-[state=active]:shadow-none relative data-[state=active]:after:absolute data-[state=active]:after:bottom-0 data-[state=active]:after:left-0 data-[state=active]:after:right-0 data-[state=active]:after:h-0.5 data-[state=active]:after:bg-orange-500 data-[state=active]:after:rounded-full data-[state=active]:text-[#2C3E50] transition-all"
+            >
+              Search
+            </TabsTrigger>
+            <TabsTrigger 
+              value="requests"
+              className="rounded-full px-6 data-[state=active]:bg-transparent data-[state=active]:shadow-none relative data-[state=active]:after:absolute data-[state=active]:after:bottom-0 data-[state=active]:after:left-0 data-[state=active]:after:right-0 data-[state=active]:after:h-0.5 data-[state=active]:after:bg-orange-500 data-[state=active]:after:rounded-full data-[state=active]:text-[#2C3E50] transition-all"
+            >
+              Requests
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="friends" className="mt-4">

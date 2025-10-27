@@ -1,4 +1,4 @@
-export const categoryGradients: Record<string, { gradient: string; shadow: string; glow?: string; confettiColors?: string[] }> = {
+export const categoryGradients: Record<string, { gradient: string; shadow: string; glow?: string; confettiColors?: string[]; badgeColor?: string; glowColor?: string; borderColor?: string }> = {
   // Achievement Categories
   'Consistency': {
     gradient: 'bg-gradient-to-br from-purple-600 via-purple-700 to-purple-900',
@@ -37,60 +37,128 @@ export const categoryGradients: Record<string, { gradient: string; shadow: strin
     confettiColors: ['bg-purple-400', 'bg-amber-400', 'bg-pink-400', 'bg-violet-500']
   },
   
+  // Exercise Categories
+  'Cardio & Walking': {
+    gradient: 'bg-gradient-to-br from-[#FF6B35] to-[#FDB961]',
+    shadow: 'shadow-[0_4px_12px_rgba(255,107,53,0.3)]',
+    badgeColor: '#FF6B35',
+    glowColor: 'rgba(255, 107, 53, 0.4)',
+    borderColor: 'border-[#FF6B35]/20'
+  },
+  'Core & Balance': {
+    gradient: 'bg-gradient-to-br from-[#03B7EE] to-[#35C9F5]',
+    shadow: 'shadow-[0_4px_12px_rgba(3,183,238,0.3)]',
+    badgeColor: '#03B7EE',
+    glowColor: 'rgba(3, 183, 238, 0.4)',
+    borderColor: 'border-[#03B7EE]/20'
+  },
+  'Leg Strength': {
+    gradient: 'bg-gradient-to-br from-[#9B59B6] to-[#C39BD3]',
+    shadow: 'shadow-[0_4px_12px_rgba(155,89,182,0.3)]',
+    badgeColor: '#9B59B6',
+    glowColor: 'rgba(155, 89, 182, 0.4)',
+    borderColor: 'border-[#9B59B6]/20'
+  },
+  'Seated Movement': {
+    gradient: 'bg-gradient-to-br from-[#27AE60] to-[#52BE80]',
+    shadow: 'shadow-[0_4px_12px_rgba(39,174,96,0.3)]',
+    badgeColor: '#27AE60',
+    glowColor: 'rgba(39, 174, 96, 0.4)',
+    borderColor: 'border-[#27AE60]/20'
+  },
+  'Standing Movement': {
+    gradient: 'bg-gradient-to-br from-[#FF8066] to-[#FFB4A2]',
+    shadow: 'shadow-[0_4px_12px_rgba(255,128,102,0.3)]',
+    badgeColor: '#FF8066',
+    glowColor: 'rgba(255, 128, 102, 0.4)',
+    borderColor: 'border-[#FF8066]/20'
+  },
+  'Wall Sits': {
+    gradient: 'bg-gradient-to-br from-[#3498DB] to-[#5DADE2]',
+    shadow: 'shadow-[0_4px_12px_rgba(52,152,219,0.3)]',
+    badgeColor: '#3498DB',
+    glowColor: 'rgba(52, 152, 219, 0.4)',
+    borderColor: 'border-[#3498DB]/20'
+  },
+  
   // High intensity categories - Orange
   'High Intensity': {
     gradient: 'bg-gradient-to-br from-[#FF6B35] to-[#FDB961]',
-    shadow: 'shadow-[0_4px_12px_rgba(255,107,53,0.3)]'
+    shadow: 'shadow-[0_4px_12px_rgba(255,107,53,0.3)]',
+    badgeColor: '#FF6B35',
+    glowColor: 'rgba(255, 107, 53, 0.4)'
   },
   'HIIT': {
     gradient: 'bg-gradient-to-br from-[#FF6B35] to-[#FDB961]',
-    shadow: 'shadow-[0_4px_12px_rgba(255,107,53,0.3)]'
+    shadow: 'shadow-[0_4px_12px_rgba(255,107,53,0.3)]',
+    badgeColor: '#FF6B35',
+    glowColor: 'rgba(255, 107, 53, 0.4)'
   },
   'Cardio': {
     gradient: 'bg-gradient-to-br from-[#FF6B35] to-[#FDB961]',
-    shadow: 'shadow-[0_4px_12px_rgba(255,107,53,0.3)]'
+    shadow: 'shadow-[0_4px_12px_rgba(255,107,53,0.3)]',
+    badgeColor: '#FF6B35',
+    glowColor: 'rgba(255, 107, 53, 0.4)'
   },
   
   // Flexibility categories - Blue
   'Flexibility': {
     gradient: 'bg-gradient-to-br from-[#03B7EE] to-[#35C9F5]',
-    shadow: 'shadow-[0_4px_12px_rgba(3,183,238,0.3)]'
+    shadow: 'shadow-[0_4px_12px_rgba(3,183,238,0.3)]',
+    badgeColor: '#03B7EE',
+    glowColor: 'rgba(3, 183, 238, 0.4)'
   },
   'Mobility': {
     gradient: 'bg-gradient-to-br from-[#03B7EE] to-[#35C9F5]',
-    shadow: 'shadow-[0_4px_12px_rgba(3,183,238,0.3)]'
+    shadow: 'shadow-[0_4px_12px_rgba(3,183,238,0.3)]',
+    badgeColor: '#03B7EE',
+    glowColor: 'rgba(3, 183, 238, 0.4)'
   },
   'Yoga': {
     gradient: 'bg-gradient-to-br from-[#03B7EE] to-[#35C9F5]',
-    shadow: 'shadow-[0_4px_12px_rgba(3,183,238,0.3)]'
+    shadow: 'shadow-[0_4px_12px_rgba(3,183,238,0.3)]',
+    badgeColor: '#03B7EE',
+    glowColor: 'rgba(3, 183, 238, 0.4)'
   },
   
   // Strength categories - Purple
   'Strength': {
     gradient: 'bg-gradient-to-br from-[#9B59B6] to-[#C39BD3]',
-    shadow: 'shadow-[0_4px_12px_rgba(155,89,182,0.3)]'
+    shadow: 'shadow-[0_4px_12px_rgba(155,89,182,0.3)]',
+    badgeColor: '#9B59B6',
+    glowColor: 'rgba(155, 89, 182, 0.4)'
   },
   'Power': {
     gradient: 'bg-gradient-to-br from-[#9B59B6] to-[#C39BD3]',
-    shadow: 'shadow-[0_4px_12px_rgba(155,89,182,0.3)]'
+    shadow: 'shadow-[0_4px_12px_rgba(155,89,182,0.3)]',
+    badgeColor: '#9B59B6',
+    glowColor: 'rgba(155, 89, 182, 0.4)'
   },
   'Resistance': {
     gradient: 'bg-gradient-to-br from-[#9B59B6] to-[#C39BD3]',
-    shadow: 'shadow-[0_4px_12px_rgba(155,89,182,0.3)]'
+    shadow: 'shadow-[0_4px_12px_rgba(155,89,182,0.3)]',
+    badgeColor: '#9B59B6',
+    glowColor: 'rgba(155, 89, 182, 0.4)'
   },
   
   // Recovery categories - Green
   'Recovery': {
     gradient: 'bg-gradient-to-br from-[#27AE60] to-[#52BE80]',
-    shadow: 'shadow-[0_4px_12px_rgba(39,174,96,0.3)]'
+    shadow: 'shadow-[0_4px_12px_rgba(39,174,96,0.3)]',
+    badgeColor: '#27AE60',
+    glowColor: 'rgba(39, 174, 96, 0.4)'
   },
   'Wellness': {
     gradient: 'bg-gradient-to-br from-[#27AE60] to-[#52BE80]',
-    shadow: 'shadow-[0_4px_12px_rgba(39,174,96,0.3)]'
+    shadow: 'shadow-[0_4px_12px_rgba(39,174,96,0.3)]',
+    badgeColor: '#27AE60',
+    glowColor: 'rgba(39, 174, 96, 0.4)'
   },
   'Stretching': {
     gradient: 'bg-gradient-to-br from-[#27AE60] to-[#52BE80]',
-    shadow: 'shadow-[0_4px_12px_rgba(39,174,96,0.3)]'
+    shadow: 'shadow-[0_4px_12px_rgba(39,174,96,0.3)]',
+    badgeColor: '#27AE60',
+    glowColor: 'rgba(39, 174, 96, 0.4)'
   },
 };
 
@@ -99,7 +167,10 @@ export const defaultGradient = {
   gradient: 'bg-gradient-to-br from-[#FF6B35] to-[#FDB961]',
   shadow: 'shadow-[0_4px_12px_rgba(255,107,53,0.3)]',
   glow: 'shadow-[0_0_25px_rgba(255,107,53,0.5)]',
-  confettiColors: ['bg-orange-400', 'bg-yellow-400', 'bg-red-400']
+  confettiColors: ['bg-orange-400', 'bg-yellow-400', 'bg-red-400'],
+  badgeColor: '#FF6B35',
+  glowColor: 'rgba(255, 107, 53, 0.4)',
+  borderColor: 'border-[#FF6B35]/20'
 };
 
 export const getCategoryGradient = (categoryName: string) => {

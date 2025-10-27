@@ -53,21 +53,32 @@ export const WorkoutHub = ({ onStartExercise }: WorkoutHubProps) => {
       </motion.div>
 
       <div className="max-w-7xl mx-auto px-4 md:px-6">
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5 lg:gap-6">
           {categories?.map((category, index) => {
             const exerciseCount = allExercises?.filter(
               ex => ex.category_id === category.id
             ).length || 0;
 
-            const rotation = index % 3 === 0 ? '-2deg' : index % 3 === 1 ? '2deg' : '-1deg';
-            const verticalOffset = index % 2 === 0 ? 'md:-mt-4' : 'md:mt-4';
-            const lgVerticalOffset = index % 3 === 0 ? 'lg:-mt-6' : index % 3 === 1 ? 'lg:mt-6' : 'lg:mt-0';
+            // More dramatic rotation angles
+            const rotation = index % 3 === 0 ? '-5deg' : index % 3 === 1 ? '4deg' : '-3deg';
+            
+            // Vertical offsets for staggering
+            const verticalOffset = index % 2 === 0 ? 'md:-mt-6' : 'md:mt-6';
+            const lgVerticalOffset = index % 3 === 0 ? 'lg:-mt-8' : index % 3 === 1 ? 'lg:mt-8' : 'lg:mt-0';
+            
+            // Mobile overlap with negative margins
+            const mobileOverlap = '-mb-6 -mr-2';
+            const tabletOverlap = 'md:-mb-8 md:mr-0';
+            const desktopReset = 'lg:mb-0';
 
             return (
               <div 
                 key={category.id}
-                className={`${verticalOffset} ${lgVerticalOffset}`}
-                style={{ transform: `rotate(${rotation})` }}
+                className={`${mobileOverlap} ${tabletOverlap} ${desktopReset} ${verticalOffset} ${lgVerticalOffset}`}
+                style={{ 
+                  transform: `rotate(${rotation})`,
+                  zIndex: categories.length - index
+                }}
               >
                 <CategoryCard
                   category={category}

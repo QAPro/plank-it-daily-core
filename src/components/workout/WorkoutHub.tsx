@@ -52,20 +52,26 @@ export const WorkoutHub = ({ onStartExercise }: WorkoutHubProps) => {
         </p>
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="max-w-2xl mx-auto space-y-8">
         {categories?.map((category, index) => {
           const exerciseCount = allExercises?.filter(
             ex => ex.category_id === category.id
           ).length || 0;
 
+          const offset = index % 3 === 0 ? '-40px' : index % 3 === 1 ? '40px' : '0px';
+
           return (
-            <CategoryCard
+            <div 
               key={category.id}
-              category={category}
-              exerciseCount={exerciseCount}
-              onClick={() => setSelectedCategory(category)}
-              index={index}
-            />
+              style={{ transform: `translateX(${offset})` }}
+            >
+              <CategoryCard
+                category={category}
+                exerciseCount={exerciseCount}
+                onClick={() => setSelectedCategory(category)}
+                index={index}
+              />
+            </div>
           );
         })}
       </div>

@@ -33,7 +33,7 @@ export const CategoryCard = ({ category, exerciseCount, onClick, index }: Catego
       transition={{ delay: 0.05 * index, duration: 0.3 }}
     >
       <Card 
-        className="group bg-white rounded-2xl shadow-[0_4px_16px_rgba(0,0,0,0.1)] transition-all duration-300 cursor-pointer hover:shadow-[0_8px_24px_rgba(0,0,0,0.15)] hover:-translate-y-1 odd:rotate-[-0.5deg] even:rotate-[0.5deg] hover:rotate-0 border-0"
+        className="group bg-white rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] transition-all duration-300 cursor-pointer hover:shadow-[0_16px_48px_rgba(0,0,0,0.18)] hover:-translate-y-1 odd:rotate-[-0.5deg] even:rotate-[0.5deg] hover:rotate-0 border-0"
         onClick={onClick}
       >
         <CardContent className="p-5 flex items-center gap-4">

@@ -105,7 +105,7 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
                 </motion.div>
                 <span
                   className={`text-xs font-medium transition-colors ${
-                    isActive ? "text-primary" : "text-foreground/60 group-hover:text-foreground/80"
+                    isActive ? "text-primary" : "text-foreground/60"
                   }`}
                 >
                   {tab.label}

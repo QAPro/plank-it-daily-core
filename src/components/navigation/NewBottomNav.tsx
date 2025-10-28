@@ -79,7 +79,7 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
               <motion.button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
-                className="flex flex-col items-center justify-center gap-1 min-w-[70px] relative touch-manipulation active:opacity-90"
+                className="flex flex-col items-center justify-end gap-1 min-w-[70px] relative touch-manipulation active:opacity-90"
                 whileTap={{ scale: 0.95 }}
                 animate={isActive ? { scale: isHomeTab ? 1.08 : 1.03 } : { scale: 1 }}
                 transition={{ duration: 0.2 }}

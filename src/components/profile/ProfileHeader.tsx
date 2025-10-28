@@ -71,10 +71,6 @@ const ProfileHeader = () => {
 
   const handleEdit = () => {
     setIsEditing(true);
-    toast({
-      title: "Edit mode activated",
-      description: "You can now edit your profile information.",
-    });
   };
 
   const handleCancel = () => {
@@ -82,10 +78,6 @@ const ProfileHeader = () => {
     setEditData({
       username: userProfile?.username || '',
       avatar_url: userProfile?.avatar_url || '',
-    });
-    toast({
-      title: "Changes cancelled",
-      description: "Your profile changes have been discarded.",
     });
   };
 
@@ -136,10 +128,6 @@ const ProfileHeader = () => {
       }));
 
       setIsEditing(false);
-      toast({
-        title: "Profile updated successfully",
-        description: "Your profile information has been saved.",
-      });
     } catch (error: any) {
       console.error('Error updating profile:', error);
       toast({

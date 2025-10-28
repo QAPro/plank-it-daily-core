@@ -49,11 +49,6 @@ const EditProfileDialog = ({ open, onOpenChange, userData, onUpdate }: EditProfi
 
       if (error) throw error;
 
-      toast({
-        title: "Profile updated",
-        description: "Your profile has been updated successfully"
-      });
-
       onUpdate();
       onOpenChange(false);
     } catch (error: any) {

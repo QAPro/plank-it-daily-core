@@ -3,14 +3,14 @@
   
   <!-- Person 1 (left) -->
   <!-- Head -->
-  <circle cx="11" cy="10" r="4" fill="#A9B4C2"/>
+  <circle cx="11" cy="10" r="4" fill="#03B7EE"/>
   <!-- Body -->
-  <path d="M 11 14 Q 6 14 6 20 L 6 28 L 16 28 L 16 20 Q 16 14 11 14 Z" fill="#A9B4C2"/>
+  <path d="M 11 14 Q 6 14 6 20 L 6 28 L 16 28 L 16 20 Q 16 14 11 14 Z" fill="#03B7EE"/>
   
   <!-- Person 2 (right, slightly overlapping) -->
   <!-- Head -->
-  <circle cx="21" cy="10" r="4" fill="#A9B4C2"/>
+  <circle cx="21" cy="10" r="4" fill="#FF6B35"/>
   <!-- Body -->
-  <path d="M 21 14 Q 16 14 16 20 L 16 28 L 26 28 L 26 20 Q 26 14 21 14 Z" fill="#A9B4C2"/>
+  <path d="M 21 14 Q 16 14 16 20 L 16 28 L 26 28 L 26 20 Q 26 14 21 14 Z" fill="#FF6B35"/>
 </svg>
 

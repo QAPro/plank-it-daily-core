@@ -68,9 +68,9 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
   const visibleTabs = tabs.filter((tab) => tab.visible);
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border shadow-nav z-50 pb-1">
+    <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border shadow-nav z-50">
       <div className="max-w-7xl mx-auto px-2">
-        <div className="flex items-center justify-around h-[72px] overflow-visible">
+        <div className="flex items-center justify-around h-[80px] py-2 overflow-visible">
           {visibleTabs.map((tab) => {
             const isActive = activeTab === tab.id;
             const isHomeTab = tab.id === "home";

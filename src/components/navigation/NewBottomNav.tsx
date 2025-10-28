@@ -81,12 +81,10 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
                 onClick={() => onTabChange(tab.id)}
                 className="flex flex-col items-center justify-center gap-1 min-w-[70px] relative group touch-manipulation"
                 whileTap={{ scale: 0.95 }}
+                animate={isActive ? { scale: isHomeTab ? 1.08 : 1.03 } : { scale: 1 }}
+                transition={{ duration: 0.2 }}
               >
-                <motion.div
-                  animate={isActive ? {
-                    scale: isHomeTab ? 1.08 : 1.03
-                  } : undefined}
-                  transition={{ duration: 0.2 }}
+                <div
                   className={`relative flex items-center justify-center h-[44px] rounded-full ${
                     !isActive ? 'bg-muted/30 border-2 border-border/50 shadow-sm' : ''
                   }`}
@@ -104,7 +102,7 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
                         : "opacity-85"
                     }`}
                   />
-                </motion.div>
+                </div>
                 <span
                   className={`text-xs font-medium transition-colors ${
                     isActive ? "text-primary" : "text-foreground/70"

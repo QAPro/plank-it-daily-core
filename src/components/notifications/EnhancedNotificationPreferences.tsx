@@ -72,9 +72,9 @@ export function EnhancedNotificationPreferences() {
   }, [loading, preferences])
 
   useEffect(() => {
-    console.log('🔄 Timezone Effect - loading:', loading, 'timezone:', (preferences as any)?.time_zone)
+    console.log('🔄 Timezone Effect - loading:', loading, 'timezone:', preferences?.time_zone)
     if (!loading && preferences) {
-      const tz = (preferences as any)?.time_zone || 'UTC'
+      const tz = preferences.time_zone || 'UTC'
       console.log('✅ Setting timezone to:', tz)
       setLocalTimezone(tz)
     }
@@ -170,8 +170,7 @@ export function EnhancedNotificationPreferences() {
     setLocalTimezone(timezone) // Optimistic update
     
     try {
-      // Note: time_zone field will be added to user_preferences table
-      await updatePreferences({ time_zone: timezone } as any)
+      await updatePreferences({ time_zone: timezone })
       toast({
         title: "Timezone updated",
         description: `Set to ${TIMEZONE_OPTIONS.find(tz => tz.value === timezone)?.label || timezone}`,
@@ -179,7 +178,7 @@ export function EnhancedNotificationPreferences() {
     } catch (error) {
       console.error('Error updating timezone:', error)
       // Revert on error
-      setLocalTimezone((preferences as any)?.time_zone || 'UTC')
+      setLocalTimezone(preferences?.time_zone || 'UTC')
       toast({
         title: "Error",
         description: "Failed to update timezone",

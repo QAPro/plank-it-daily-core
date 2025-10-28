@@ -38,6 +38,7 @@ export interface UserPreferences {
   quiet_hours_start?: string;
   quiet_hours_end?: string;
   notification_frequency?: 'minimal' | 'normal' | 'frequent';
+  time_zone?: string;
   // Quick Start System
   last_exercise_id?: string;
   last_duration?: number;
@@ -103,6 +104,7 @@ export const useUserPreferences = () => {
           quiet_hours_start: data.quiet_hours_start ?? '22:00',
           quiet_hours_end: data.quiet_hours_end ?? '08:00',
           notification_frequency: (data.notification_frequency as 'minimal' | 'normal' | 'frequent') ?? 'normal',
+          time_zone: (data as any).time_zone ?? 'UTC',
           // Quick Start System (safely handle missing fields)
           last_exercise_id: (data as any).last_exercise_id || null,
           last_duration: (data as any).last_duration || null,

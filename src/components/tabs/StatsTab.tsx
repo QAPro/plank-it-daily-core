@@ -50,7 +50,7 @@ const StatsTab = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="min-h-screen bg-[#E8D4C4] p-4 pb-32"
+      className="min-h-screen bg-gradient-to-b from-[#FFF9F5] to-[#FFFCFA] p-4 pb-32"
     >
       {/* Header */}
       <div className="text-center pt-6 pb-4">

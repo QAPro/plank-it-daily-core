@@ -20,8 +20,8 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { handleAuthSignOut } from '@/utils/authCleanup';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useTheme } from '@/components/theme-provider';
 import NewBottomNav from '@/components/navigation/NewBottomNav';
@@ -50,11 +50,7 @@ const Settings = () => {
 
   const handleSignOut = async () => {
     try {
-      await supabase.auth.signOut();
-      toast({
-        title: "Signed out successfully",
-        description: "See you next time!"
-      });
+      await handleAuthSignOut();
     } catch (error) {
       console.error('Sign out error:', error);
       toast({

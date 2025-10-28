@@ -52,12 +52,32 @@ export function EnhancedNotificationPreferences() {
     }
   )
 
+  const [localTimezone, setLocalTimezone] = useState<string>(
+    (preferences as any)?.time_zone || 'UTC'
+  )
+
+  const [localNotificationFrequency, setLocalNotificationFrequency] = useState<'minimal' | 'normal' | 'frequent'>(
+    preferences?.notification_frequency || 'normal'
+  )
+
   // Sync local state when preferences load from database
   useEffect(() => {
     if (preferences?.notification_types) {
       setLocalNotificationTypes(preferences.notification_types)
     }
   }, [preferences?.notification_types])
+
+  useEffect(() => {
+    if ((preferences as any)?.time_zone) {
+      setLocalTimezone((preferences as any).time_zone)
+    }
+  }, [(preferences as any)?.time_zone])
+
+  useEffect(() => {
+    if (preferences?.notification_frequency) {
+      setLocalNotificationFrequency(preferences.notification_frequency)
+    }
+  }, [preferences?.notification_frequency])
 
   // Helper to normalize time format (strip seconds if present)
   const normalizeTimeFormat = (time: string | undefined): string => {
@@ -109,6 +129,8 @@ export function EnhancedNotificationPreferences() {
   }
 
   const handleFrequencyChange = async (frequency: 'minimal' | 'normal' | 'frequent') => {
+    setLocalNotificationFrequency(frequency) // Optimistic update
+    
     try {
       await updatePreferences({ notification_frequency: frequency })
       toast({
@@ -117,6 +139,8 @@ export function EnhancedNotificationPreferences() {
       })
     } catch (error) {
       console.error('Error updating notification frequency:', error)
+      // Revert on error
+      setLocalNotificationFrequency(preferences?.notification_frequency || 'normal')
       toast({
         title: "Error", 
         description: "Failed to update notification frequency",
@@ -126,6 +150,8 @@ export function EnhancedNotificationPreferences() {
   }
 
   const handleTimezoneChange = async (timezone: string) => {
+    setLocalTimezone(timezone) // Optimistic update
+    
     try {
       // Note: time_zone field will be added to user_preferences table
       await updatePreferences({ time_zone: timezone } as any)
@@ -135,6 +161,8 @@ export function EnhancedNotificationPreferences() {
       })
     } catch (error) {
       console.error('Error updating timezone:', error)
+      // Revert on error
+      setLocalTimezone((preferences as any)?.time_zone || 'UTC')
       toast({
         title: "Error",
         description: "Failed to update timezone",
@@ -217,8 +245,7 @@ export function EnhancedNotificationPreferences() {
             Timezone
           </Label>
           <Select 
-            key={`timezone-${(preferences as any)?.time_zone || 'UTC'}`}
-            value={(preferences as any)?.time_zone || 'UTC'} 
+            value={localTimezone} 
             onValueChange={handleTimezoneChange}
           >
             <SelectTrigger>
@@ -313,7 +340,7 @@ export function EnhancedNotificationPreferences() {
         <div className="space-y-3">
           <Label className="text-sm font-medium">Notification Frequency</Label>
           <Select 
-            value={preferences?.notification_frequency || 'normal'} 
+            value={localNotificationFrequency} 
             onValueChange={handleFrequencyChange}
           >
             <SelectTrigger>

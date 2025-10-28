@@ -76,15 +76,17 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
             const isHomeTab = tab.id === "home";
 
             return (
-              <motion.button
+              <button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
                 className="flex flex-col items-center justify-end gap-1 min-w-[70px] relative touch-manipulation active:opacity-90"
-                whileTap={{ scale: 0.95 }}
-                animate={isActive ? { scale: isHomeTab ? 1.08 : 1.03 } : { scale: 1 }}
-                transition={{ duration: 0.2 }}
               >
-                <div className="h-[60px] flex items-center justify-center">
+                <motion.div 
+                  className="h-[60px] flex items-center justify-center origin-center"
+                  animate={isActive ? { scale: isHomeTab ? 1.08 : 1.03 } : { scale: 1 }}
+                  transition={{ duration: 0.2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
                   <img
                     src={isActive ? tab.activeIcon : tab.inactiveIcon}
                     alt={tab.label}
@@ -98,7 +100,7 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
                         : ""
                     }`}
                   />
-                </div>
+                </motion.div>
                 <span
                   className={`text-xs font-medium transition-colors ${
                     isActive ? "text-primary" : "text-muted-foreground"
@@ -106,7 +108,7 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
                 >
                   {tab.label}
                 </span>
-              </motion.button>
+              </button>
             );
           })}
         </div>

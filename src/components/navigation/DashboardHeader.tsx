@@ -3,7 +3,11 @@ import { Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import innerFireLogo from "@/assets/inner-fire-logo.png";
 
-const DashboardHeader = () => {
+interface DashboardHeaderProps {
+  activeTab?: string;
+}
+
+const DashboardHeader = ({ activeTab = 'home' }: DashboardHeaderProps) => {
   const navigate = useNavigate();
   return (
     <header className="fixed top-0 left-0 right-0 bg-background backdrop-blur-sm z-40">
@@ -23,7 +27,7 @@ const DashboardHeader = () => {
             <h1 className="text-2xl font-bold text-coral">inner fire</h1>
           </div>
           <button 
-            onClick={() => navigate('/settings')}
+            onClick={() => navigate('/settings', { state: { fromTab: activeTab } })}
             className="w-10 h-10 rounded-full bg-background-secondary hover:bg-gray-200 flex items-center justify-center transition-colors"
             aria-label="Settings"
           >

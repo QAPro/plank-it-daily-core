@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { 
   User, 
@@ -13,7 +13,8 @@ import {
   LogOut,
   ChevronRight,
   Moon,
-  Sun
+  Sun,
+  ArrowLeft
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,10 +29,12 @@ import NewBottomNav from '@/components/navigation/NewBottomNav';
 
 const Settings = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const { isAdmin } = useAdmin();
   const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState('settings');
+  const fromTab = location.state?.fromTab || 'home';
 
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
@@ -46,6 +49,10 @@ const Settings = () => {
     if (routes[tabId]) {
       navigate(routes[tabId]);
     }
+  };
+
+  const handleBack = () => {
+    handleTabChange(fromTab);
   };
 
   const handleSignOut = async () => {
@@ -82,14 +89,19 @@ const Settings = () => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-3 text-center pt-4 mb-8"
+          className="flex items-center gap-4 pt-4 mb-8"
         >
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-coral via-[#FF8C61] to-amber bg-clip-text text-transparent">
-            Settings
-          </h1>
-          <p className="text-base text-muted-foreground">
-            Manage your account and preferences
-          </p>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleBack}
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Settings</h1>
+            <p className="text-muted-foreground">Manage your account and preferences</p>
+          </div>
         </motion.div>
 
         {/* Account & Preferences Section */}

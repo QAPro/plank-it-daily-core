@@ -83,7 +83,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#FFF9F5] to-[#FFFCFA]">
       {/* Header */}
-      <DashboardHeader />
+      <DashboardHeader activeTab={activeTab} />
       
       <div className="flex flex-col h-screen">        
         {/* Main Content */}

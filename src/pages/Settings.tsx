@@ -32,8 +32,8 @@ const Settings = () => {
   const { toast } = useToast();
   const { isAdmin } = useAdmin();
   const { theme, setTheme } = useTheme();
-  const [activeTab, setActiveTab] = useState('settings');
   const fromTab = location.state?.fromTab || 'home';
+  const [activeTab, setActiveTab] = useState(fromTab);
 
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);

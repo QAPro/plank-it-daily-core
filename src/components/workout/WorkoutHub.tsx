@@ -71,9 +71,9 @@ export const WorkoutHub = ({ onStartExercise }: WorkoutHubProps) => {
             const horizontalOffset = index % 2 === 0 ? '-12px' : '12px';
             
             // Minimal vertical overlap (corner only)
-            const mobileOverlap = '-mb-3';
-            const tabletOverlap = 'md:-mb-4';
-            const desktopOverlap = 'lg:-mb-2';
+            const mobileOverlap = '-mb-1';
+            const tabletOverlap = 'md:-mb-2';
+            const desktopOverlap = 'lg:-mb-1';
 
             return (
               <div 

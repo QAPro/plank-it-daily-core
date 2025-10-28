@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -51,6 +51,20 @@ export function EnhancedNotificationPreferences() {
       social: false,
     }
   )
+
+  // Sync local state when preferences load from database
+  useEffect(() => {
+    if (preferences?.notification_types) {
+      setLocalNotificationTypes(preferences.notification_types)
+    }
+  }, [preferences?.notification_types])
+
+  // Helper to normalize time format (strip seconds if present)
+  const normalizeTimeFormat = (time: string | undefined): string => {
+    if (!time) return '09:00'
+    // Strip seconds if present (22:00:00 -> 22:00)
+    return time.substring(0, 5)
+  }
 
   if (loading || schedulesLoading) {
     return (
@@ -203,6 +217,7 @@ export function EnhancedNotificationPreferences() {
             Timezone
           </Label>
           <Select 
+            key={`timezone-${(preferences as any)?.time_zone || 'UTC'}`}
             value={(preferences as any)?.time_zone || 'UTC'} 
             onValueChange={handleTimezoneChange}
           >
@@ -244,7 +259,7 @@ export function EnhancedNotificationPreferences() {
                   </div>
                   {schedule.enabled && (
                     <Select
-                      value={schedule.send_time}
+                      value={normalizeTimeFormat(schedule.send_time)}
                       onValueChange={(time) => handleScheduleChange(slot, 'send_time', time)}
                     >
                       <SelectTrigger className="w-32">
@@ -324,7 +339,7 @@ export function EnhancedNotificationPreferences() {
             <div className="space-y-2">
               <Label className="text-sm">Start Time</Label>
               <Select 
-                value={preferences?.quiet_hours_start || '22:00'} 
+                value={normalizeTimeFormat(preferences?.quiet_hours_start) || '22:00'} 
                 onValueChange={(value) => handleQuietHoursChange('start', value)}
               >
                 <SelectTrigger>
@@ -342,7 +357,7 @@ export function EnhancedNotificationPreferences() {
             <div className="space-y-2">
               <Label className="text-sm">End Time</Label>
               <Select 
-                value={preferences?.quiet_hours_end || '08:00'} 
+                value={normalizeTimeFormat(preferences?.quiet_hours_end) || '08:00'} 
                 onValueChange={(value) => handleQuietHoursChange('end', value)}
               >
                 <SelectTrigger>

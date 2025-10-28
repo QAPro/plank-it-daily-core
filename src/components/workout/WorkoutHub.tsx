@@ -49,7 +49,7 @@ export const WorkoutHub = ({ onStartExercise }: WorkoutHubProps) => {
       >
         <h2 className="text-3xl md:text-4xl font-bold mb-3 text-[#2C3E50]">Workout Hub</h2>
         <p className="text-base md:text-lg text-[#7F8C8D]">
-          Choose a category to explore exercises and start your workout
+          Choose a category to select an exercise
         </p>
       </motion.div>
 

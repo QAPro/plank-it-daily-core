@@ -52,32 +52,34 @@ export function EnhancedNotificationPreferences() {
     }
   )
 
-  const [localTimezone, setLocalTimezone] = useState<string>(
-    (preferences as any)?.time_zone || 'UTC'
-  )
+  const [localTimezone, setLocalTimezone] = useState<string | null>(null)
 
-  const [localNotificationFrequency, setLocalNotificationFrequency] = useState<'minimal' | 'normal' | 'frequent'>(
-    preferences?.notification_frequency || 'normal'
-  )
+  const [localNotificationFrequency, setLocalNotificationFrequency] = useState<'minimal' | 'normal' | 'frequent' | null>(null)
 
   // Sync local state when preferences load from database
   useEffect(() => {
-    if (preferences?.notification_types) {
-      setLocalNotificationTypes(preferences.notification_types)
+    if (!loading && preferences) {
+      setLocalNotificationTypes(preferences.notification_types || {
+        reminders: true,
+        achievements: true,
+        streaks: true,
+        milestones: true,
+        social: false,
+      })
     }
-  }, [preferences?.notification_types])
+  }, [loading, preferences])
 
   useEffect(() => {
-    if ((preferences as any)?.time_zone) {
-      setLocalTimezone((preferences as any).time_zone)
+    if (!loading && preferences) {
+      setLocalTimezone((preferences as any)?.time_zone || 'UTC')
     }
-  }, [(preferences as any)?.time_zone])
+  }, [loading, preferences])
 
   useEffect(() => {
-    if (preferences?.notification_frequency) {
-      setLocalNotificationFrequency(preferences.notification_frequency)
+    if (!loading && preferences) {
+      setLocalNotificationFrequency(preferences.notification_frequency || 'normal')
     }
-  }, [preferences?.notification_frequency])
+  }, [loading, preferences])
 
   // Helper to normalize time format (strip seconds if present)
   const normalizeTimeFormat = (time: string | undefined): string => {
@@ -107,7 +109,14 @@ export function EnhancedNotificationPreferences() {
   }
 
   const handleNotificationTypeChange = async (type: string, enabled: boolean) => {
-    const newTypes = { ...localNotificationTypes, [type]: enabled }
+    const currentTypes = localNotificationTypes || {
+      reminders: true,
+      achievements: true,
+      streaks: true,
+      milestones: true,
+      social: false,
+    }
+    const newTypes = { ...currentTypes, [type]: enabled }
     setLocalNotificationTypes(newTypes)
     
     try {
@@ -245,7 +254,7 @@ export function EnhancedNotificationPreferences() {
             Timezone
           </Label>
           <Select 
-            value={localTimezone} 
+            value={localTimezone || 'UTC'} 
             onValueChange={handleTimezoneChange}
           >
             <SelectTrigger>
@@ -340,7 +349,7 @@ export function EnhancedNotificationPreferences() {
         <div className="space-y-3">
           <Label className="text-sm font-medium">Notification Frequency</Label>
           <Select 
-            value={localNotificationFrequency} 
+            value={localNotificationFrequency || 'normal'} 
             onValueChange={handleFrequencyChange}
           >
             <SelectTrigger>

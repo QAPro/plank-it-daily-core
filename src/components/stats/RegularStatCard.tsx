@@ -16,7 +16,7 @@ const RegularStatCard = ({ icon: Icon, title, value, delay = 0, emoji }: Regular
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay }}
     >
-      <Card className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+      <Card className="bg-card rounded-xl shadow-soft">
         <CardContent className="p-4 text-center">
           {emoji && (
             <div className="text-3xl mb-2">
@@ -28,10 +28,10 @@ const RegularStatCard = ({ icon: Icon, title, value, delay = 0, emoji }: Regular
               <Icon className="h-8 w-8 text-primary" />
             </div>
           )}
-          <p className="text-2xl font-bold text-[#2C3E50] mb-1">
+          <p className="text-2xl font-bold text-foreground mb-1">
             {value}
           </p>
-          <p className="text-xs font-medium text-[#7F8C8D]">
+          <p className="text-xs font-medium text-muted-foreground">
             {title}
           </p>
         </CardContent>

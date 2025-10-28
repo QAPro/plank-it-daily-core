@@ -324,7 +324,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
             variant="outline"
             onClick={() => handleQuickAdjust(-5)}
             disabled={quickAdjustDisabled || duration <= 0}
-            className="h-12 px-6 bg-white border border-[#ECF0F1] rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:bg-[#FFF9F5] hover:border-[#FF6B35] hover:text-[#FF6B35] hover:shadow-[0_4px_12px_rgba(255,107,53,0.15)] active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none"
+            className="h-12 px-6 bg-card border border-border rounded-lg shadow-soft hover:bg-background-tertiary hover:border-primary hover:text-primary hover:shadow-medium active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none"
           >
             <div className="flex items-center gap-2">
               <Minus className="h-4 w-4" />
@@ -336,7 +336,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
             variant="outline"
             onClick={() => handleQuickAdjust(5)}
             disabled={quickAdjustDisabled || duration >= 5999}
-            className="h-12 px-6 bg-white border border-[#ECF0F1] rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:bg-[#FFF9F5] hover:border-[#FF6B35] hover:text-[#FF6B35] hover:shadow-[0_4px_12px_rgba(255,107,53,0.15)] active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none"
+            className="h-12 px-6 bg-card border border-border rounded-lg shadow-soft hover:bg-background-tertiary hover:border-primary hover:text-primary hover:shadow-medium active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none"
           >
             <div className="flex items-center gap-2">
               <Plus className="h-4 w-4" />

@@ -52,7 +52,7 @@ const Settings = () => {
   };
 
   const handleBack = () => {
-    navigate('/');
+    navigate('/', { state: { activeTab: fromTab } });
   };
 
   const handleSignOut = async () => {

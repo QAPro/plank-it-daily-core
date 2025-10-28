@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import NewBottomNav from './navigation/NewBottomNav';
 import DashboardHeader from './navigation/DashboardHeader';
@@ -23,7 +23,8 @@ import { VapidKeyManager } from '@/components/VapidKeyManager';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('home');
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'home');
   const [selectedWorkout, setSelectedWorkout] = useState<{exerciseId: string, duration: number} | null>(null);
   const { user } = useAuth();
   const isMobile = useIsMobile();

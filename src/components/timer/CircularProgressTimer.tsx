@@ -83,16 +83,16 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
   // Responsive SVG configuration
   const svgConfig = {
     mobile: { 
-      size: 200, 
-      radius: 90, 
+      size: 260, 
+      radius: 125, 
       strokeWidth: 6,
-      center: 100 
+      center: 130 
     },
     desktop: { 
-      size: 320, 
-      radius: 150, 
+      size: 340, 
+      radius: 165, 
       strokeWidth: 8,
-      center: 160 
+      center: 170 
     }
   };
 
@@ -116,7 +116,7 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
       </motion.div>
       
       {/* Layer 2: Progress Rings (z-20) */}
-      <div className="absolute inset-0 z-20 pointer-events-none">
+      <div className="absolute inset-[10px] z-20 pointer-events-none">
         {/* Mobile SVG Progress Ring */}
         <svg 
           width={svgConfig.mobile.size} 

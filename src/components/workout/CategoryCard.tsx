@@ -33,7 +33,7 @@ export const CategoryCard = ({ category, exerciseCount, onClick, index }: Catego
       transition={{ delay: 0.05 * index, duration: 0.3 }}
     >
       <Card 
-        className="group bg-white rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] transition-all duration-300 cursor-pointer hover:shadow-[0_16px_48px_rgba(0,0,0,0.18)] hover:-translate-y-2 hover:scale-105 hover:rotate-0 border-2 border-transparent"
+        className="group bg-white rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] transition-all duration-300 cursor-pointer hover:shadow-[0_16px_48px_rgba(0,0,0,0.18)] hover:scale-105 hover:rotate-0 border-2 border-transparent"
         onClick={onClick}
         style={{
           borderColor: gradientStyle.borderColor ? gradientStyle.borderColor.replace('border-', '').replace('/20', '33') : 'transparent',

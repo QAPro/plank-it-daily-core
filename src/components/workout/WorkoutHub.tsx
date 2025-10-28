@@ -45,7 +45,7 @@ export const WorkoutHub = ({ onStartExercise }: WorkoutHubProps) => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="text-center mb-8"
+        className="text-center mb-12 md:mb-16"
       >
         <h2 className="text-3xl md:text-4xl font-bold mb-3 text-[#2C3E50]">Workout Hub</h2>
         <p className="text-base md:text-lg text-[#7F8C8D]">
@@ -72,8 +72,8 @@ export const WorkoutHub = ({ onStartExercise }: WorkoutHubProps) => {
             
             // Minimal vertical overlap (corner only)
             const mobileOverlap = '-mb-1';
-            const tabletOverlap = 'md:-mb-2';
-            const desktopOverlap = 'lg:-mb-1';
+            const tabletOverlap = 'md:mb-0';
+            const desktopOverlap = 'lg:mb-1';
 
             return (
               <div 

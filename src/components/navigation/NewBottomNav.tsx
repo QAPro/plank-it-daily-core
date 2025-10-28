@@ -87,7 +87,7 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
                     scale: isHomeTab ? 1.08 : 1.03
                   } : undefined}
                   transition={{ duration: 0.2 }}
-                  className={`relative flex items-center justify-center h-[44px] rounded-full transition-all duration-200 ${
+                  className={`relative flex items-center justify-center h-[44px] rounded-full ${
                     !isActive ? 'bg-muted/30 border-2 border-border/50 shadow-sm' : ''
                   }`}
                 >

@@ -68,13 +68,15 @@ const Settings = () => {
   const MenuItem = ({ icon: Icon, label, onClick, color = "text-foreground" }: any) => (
     <button
       onClick={onClick}
-      className="w-full flex items-center justify-between p-4 bg-card hover:bg-coral/5 rounded-xl transition-all duration-300 ease-out border border-border/50 shadow-soft hover:shadow-medium hover:-translate-y-0.5 active:scale-[0.98]"
+      className="group w-full flex items-center justify-between p-4 bg-white rounded-xl transition-all duration-300 ease-out border border-gray-100 hover:border-coral/20 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_12px_rgba(255,107,53,0.12)] hover:-translate-y-0.5 active:scale-[0.98]"
     >
       <div className="flex items-center gap-3">
-        <Icon className={`w-5 h-5 ${color}`} />
+        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-coral/10 to-amber/10 flex items-center justify-center group-hover:from-coral/20 group-hover:to-amber/20 transition-all duration-300">
+          <Icon className={`w-5 h-5 ${color}`} />
+        </div>
         <span className={`font-medium ${color}`}>{label}</span>
       </div>
-      <ChevronRight className="w-5 h-5 text-coral" />
+      <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-coral transition-colors duration-300" />
     </button>
   );
 
@@ -84,10 +86,14 @@ const Settings = () => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-2"
+          className="space-y-3 text-center pt-4 mb-8"
         >
-          <h1 className="text-3xl font-bold text-foreground">Settings</h1>
-          <p className="text-muted-foreground">Manage your account and preferences</p>
+          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-coral via-[#FF8C61] to-amber bg-clip-text text-transparent">
+            Settings
+          </h1>
+          <p className="text-base text-muted-foreground">
+            Manage your account and preferences
+          </p>
         </motion.div>
 
         {/* Account & Preferences Section */}
@@ -96,9 +102,9 @@ const Settings = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card>
+          <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-[0_2px_12px_rgba(0,0,0,0.08)]">
             <CardHeader>
-              <CardTitle className="text-sm text-muted-foreground uppercase tracking-wide">
+              <CardTitle className="text-xs text-muted-foreground/70 uppercase tracking-wider font-semibold">
                 Account & Preferences
               </CardTitle>
             </CardHeader>
@@ -130,13 +136,15 @@ const Settings = () => {
               />
               
               {/* Dark Mode Toggle */}
-              <div className="flex items-center justify-between p-4 bg-card rounded-xl border border-border/50 shadow-soft">
+              <div className="group flex items-center justify-between p-4 bg-white rounded-xl border border-gray-100 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_2px_6px_rgba(0,0,0,0.06)] transition-all duration-300">
                 <div className="flex items-center gap-3">
-                  {theme === 'dark' ? (
-                    <Moon className="w-5 h-5 text-foreground" />
-                  ) : (
-                    <Sun className="w-5 h-5 text-foreground" />
-                  )}
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber/20 to-coral/20 flex items-center justify-center transition-all duration-300">
+                    {theme === 'dark' ? (
+                      <Moon className="w-5 h-5 text-foreground" />
+                    ) : (
+                      <Sun className="w-5 h-5 text-amber" />
+                    )}
+                  </div>
                   <Label htmlFor="dark-mode" className="font-medium cursor-pointer">
                     Dark Mode
                   </Label>
@@ -158,9 +166,9 @@ const Settings = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
           >
-            <Card className="border-primary/50">
+            <Card className="border-0 bg-gradient-to-br from-coral/5 to-amber/5 shadow-[0_2px_12px_rgba(255,107,53,0.15)]">
               <CardHeader>
-                <CardTitle className="text-sm text-muted-foreground uppercase tracking-wide">
+                <CardTitle className="text-xs text-coral uppercase tracking-wider font-semibold">
                   Admin Access
                 </CardTitle>
               </CardHeader>
@@ -169,7 +177,7 @@ const Settings = () => {
                   icon={SettingsIcon} 
                   label="Admin Dashboard" 
                   onClick={() => navigate('/')} 
-                  color="text-primary"
+                  color="text-coral"
                 />
               </CardContent>
             </Card>
@@ -182,9 +190,9 @@ const Settings = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <Card>
+          <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-[0_2px_12px_rgba(0,0,0,0.08)]">
             <CardHeader>
-              <CardTitle className="text-sm text-muted-foreground uppercase tracking-wide">
+              <CardTitle className="text-xs text-muted-foreground/70 uppercase tracking-wider font-semibold">
                 Support & Information
               </CardTitle>
             </CardHeader>
@@ -214,16 +222,16 @@ const Settings = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <Card className="border-t-4 border-t-destructive">
+          <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-[0_2px_12px_rgba(0,0,0,0.08)]">
             <CardContent className="pt-6">
               <Button
                 onClick={handleSignOut}
-                variant="destructive"
-                className="w-full flex items-center gap-2"
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2 h-12 border-2 border-gray-200 hover:border-coral/30 hover:bg-coral/5 text-foreground hover:text-coral transition-all duration-300"
                 size="lg"
               >
                 <LogOut className="w-5 h-5" />
-                Sign Out
+                <span className="font-medium">Sign Out</span>
               </Button>
             </CardContent>
           </Card>

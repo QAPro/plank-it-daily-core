@@ -88,7 +88,7 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
                   } : undefined}
                   transition={{ duration: 0.2 }}
                   className={`relative flex items-center justify-center h-[44px] rounded-full transition-all duration-200 ${
-                    !isActive ? 'bg-muted/10 border border-border/30' : ''
+                    !isActive ? 'bg-muted/30 border-2 border-border/50 shadow-sm' : ''
                   }`}
                 >
                   <img

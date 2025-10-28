@@ -13,7 +13,7 @@ const FeaturedStatCard = ({ icon: Icon, label, value }: FeaturedStatCardProps) =
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
-      className="bg-gradient-to-br from-[#FF6B35] to-[#FDB961] rounded-2xl p-8 mx-5 mb-6 shadow-[0_6px_20px_rgba(255,107,53,0.3)] text-center text-white"
+      className="bg-gradient-primary rounded-2xl p-8 mx-5 mb-6 shadow-glow text-center text-white"
     >
       <Icon className="w-12 h-12 mx-auto mb-3" />
       <p className="text-base font-medium opacity-90 mb-2">

@@ -24,7 +24,7 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
     if (state === 'completed') {
       return { 
         outerRing: 'bg-gradient-to-br from-green-500 to-emerald-500',
-        outerShadow: 'shadow-[0_12px_32px_rgba(34,197,94,0.4),0_6px_16px_rgba(34,197,94,0.3),0_2px_8px_rgba(34,197,94,0.2)]',
+        outerShadow: 'shadow-glow',
         innerCircle: 'bg-gradient-to-br from-green-400 to-emerald-400',
         innerShadow: 'shadow-[inset_0_4px_12px_rgba(0,0,0,0.3),inset_0_2px_6px_rgba(0,0,0,0.2),0_2px_8px_rgba(34,197,94,0.2)]'
       };
@@ -32,7 +32,7 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
     if (state === 'paused') {
       return { 
         outerRing: 'bg-gradient-to-br from-gray-400 to-gray-500',
-        outerShadow: 'shadow-[0_12px_32px_rgba(156,163,175,0.4),0_6px_16px_rgba(156,163,175,0.3),0_2px_8px_rgba(156,163,175,0.2)]',
+        outerShadow: 'shadow-soft',
         innerCircle: 'bg-gradient-to-br from-gray-300 to-gray-400',
         innerShadow: 'shadow-[inset_0_4px_12px_rgba(0,0,0,0.3),inset_0_2px_6px_rgba(0,0,0,0.2),0_2px_8px_rgba(156,163,175,0.2)]'
       };
@@ -43,7 +43,7 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
       if (timeLeft <= 10) {
         return { 
           outerRing: 'bg-gradient-to-br from-red-500 to-red-600',
-          outerShadow: 'shadow-[0_12px_32px_rgba(239,68,68,0.4),0_6px_16px_rgba(239,68,68,0.3),0_2px_8px_rgba(239,68,68,0.2)]',
+          outerShadow: 'shadow-medium',
           innerCircle: 'bg-gradient-to-br from-[#0284b8] via-[#0298d4] to-[#2eb8e8]',
           innerShadow: 'shadow-[inset_0_4px_12px_rgba(0,0,0,0.3),inset_0_2px_6px_rgba(0,0,0,0.2),0_2px_8px_rgba(3,183,238,0.2)]'
         };
@@ -51,7 +51,7 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
       if (timeLeft <= 30) {
         return { 
           outerRing: 'bg-gradient-to-br from-yellow-500 to-amber-500',
-          outerShadow: 'shadow-[0_12px_32px_rgba(234,179,8,0.4),0_6px_16px_rgba(234,179,8,0.3),0_2px_8px_rgba(234,179,8,0.2)]',
+          outerShadow: 'shadow-medium',
           innerCircle: 'bg-gradient-to-br from-[#0284b8] via-[#0298d4] to-[#2eb8e8]',
           innerShadow: 'shadow-[inset_0_4px_12px_rgba(0,0,0,0.3),inset_0_2px_6px_rgba(0,0,0,0.2),0_2px_8px_rgba(3,183,238,0.2)]'
         };
@@ -61,7 +61,7 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
     // Default: orange outer ring, blue inner circle
     return { 
       outerRing: 'bg-gradient-orange-ring',
-      outerShadow: 'shadow-[0_12px_32px_rgba(255,107,53,0.4),0_6px_16px_rgba(255,107,53,0.3),0_2px_8px_rgba(255,107,53,0.2)]',
+      outerShadow: 'shadow-glow',
       innerCircle: 'bg-gradient-to-br from-[#0284b8] via-[#0298d4] to-[#2eb8e8]',
       innerShadow: 'shadow-[inset_0_4px_12px_rgba(0,0,0,0.3),inset_0_2px_6px_rgba(0,0,0,0.2),0_2px_8px_rgba(3,183,238,0.2)]'
     };
@@ -187,7 +187,7 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
       </div>
       
       {/* Layer 3: Dark Rim/Border Between Rings (z-30) */}
-      <div className="absolute inset-[20px] rounded-full bg-gradient-to-br from-[#1a2332] to-[#2d3d54] shadow-[inset_0_4px_8px_rgba(0,0,0,0.7),inset_0_-2px_6px_rgba(0,0,0,0.4),0_-2px_4px_rgba(255,255,255,0.1)] z-30" />
+      <div className="absolute inset-[20px] rounded-full bg-gradient-to-br from-background-tertiary to-background-secondary shadow-[inset_0_4px_8px_rgba(0,0,0,0.7),inset_0_-2px_6px_rgba(0,0,0,0.4),0_-2px_4px_rgba(255,255,255,0.1)] z-30" />
       
       {/* Layer 4: Inner Blue Circle with Glossy Effect (z-40) */}
       <div className={`absolute inset-[24px] rounded-full ${colors.innerCircle} ${colors.innerShadow} overflow-hidden z-40`}>

@@ -105,13 +105,13 @@ export const ExerciseDetailsModal = ({ exercise, isOpen, onClose, onStart, isLoc
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="mt-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border border-amber-200"
+              className="mt-4 p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 dark:from-amber-500/20 dark:to-orange-500/20 rounded-lg border border-amber-500/30 dark:border-amber-500/40"
             >
               <div className="flex items-start gap-3">
-                <Crown className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                <Crown className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
                 <div>
-                  <h4 className="font-semibold text-amber-900 mb-1">Premium Exercise</h4>
-                  <p className="text-sm text-amber-800">
+                  <h4 className="font-semibold text-amber-900 dark:text-amber-100 mb-1">Premium Exercise</h4>
+                  <p className="text-sm text-amber-800 dark:text-amber-200">
                     This advanced exercise is available with a Premium subscription. 
                     Upgrade to unlock all difficulty levels and achieve your fitness goals faster.
                   </p>

@@ -68,7 +68,7 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
   const visibleTabs = tabs.filter((tab) => tab.visible);
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-deep-slate shadow-nav z-50">
+    <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border shadow-nav z-50">
       <div className="max-w-7xl mx-auto px-2">
         <div className="flex items-center justify-around h-[72px]">
           {visibleTabs.map((tab) => {
@@ -103,7 +103,7 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
                 </motion.div>
                 <span
                   className={`text-xs font-medium transition-colors ${
-                    isActive ? "text-warm-orange" : "text-gray-400"
+                    isActive ? "text-primary" : "text-muted-foreground"
                   }`}
                 >
                   {tab.label}

@@ -379,7 +379,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
             >
               <Button
                 onClick={handleStartTimer}
-                className="h-12 px-10 text-base font-semibold bg-gradient-to-br from-[#FF6B35] to-[#FDB961] text-white rounded-xl shadow-[0_4px_12px_rgba(255,107,53,0.3)] hover:shadow-[0_6px_16px_rgba(255,107,53,0.4)] hover:-translate-y-0.5 active:translate-y-0 active:shadow-[0_2px_8px_rgba(255,107,53,0.3)] transition-all duration-200"
+                className="h-12 px-10 text-base font-semibold bg-gradient-primary text-white rounded-xl shadow-soft hover:shadow-medium hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
               >
                 Start Workout
               </Button>
@@ -397,7 +397,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
               <Button
                 onClick={handlePauseTimer}
                 variant="secondary"
-                className="h-12 px-10 text-base font-semibold bg-white text-[#2C3E50] border border-[#ECF0F1] rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:bg-[#FFF9F5] hover:border-[#FF6B35] hover:shadow-[0_6px_16px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+                className="h-12 px-10 text-base font-semibold bg-card text-foreground border border-border rounded-xl shadow-soft hover:bg-secondary hover:border-primary hover:shadow-medium hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
               >
                 Pause
               </Button>
@@ -415,14 +415,14 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
               <div className="flex gap-3 max-w-xs w-full">
                 <Button
                   onClick={handleResumeTimer}
-                  className="flex-1 h-12 px-10 text-base font-semibold bg-gradient-to-br from-[#FF6B35] to-[#FDB961] text-white rounded-xl shadow-[0_4px_12px_rgba(255,107,53,0.3)] hover:shadow-[0_6px_16px_rgba(255,107,53,0.4)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+                  className="flex-1 h-12 px-10 text-base font-semibold bg-gradient-primary text-white rounded-xl shadow-soft hover:shadow-medium hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
                 >
                   Resume
                 </Button>
                 <Button
                   onClick={handleStopTimer}
                   variant="outline"
-                  className="flex-1 h-12 text-base font-semibold bg-white text-[#2C3E50] border border-[#ECF0F1] rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:bg-[#FFF9F5] hover:border-[#FF6B35] hover:text-[#FF6B35] hover:shadow-[0_6px_16px_rgba(0,0,0,0.12)] active:scale-[0.98] transition-all duration-200"
+                  className="flex-1 h-12 text-base font-semibold bg-card text-foreground border border-border rounded-xl shadow-soft hover:bg-secondary hover:border-primary hover:text-primary hover:shadow-medium active:scale-[0.98] transition-all duration-200"
                 >
                   Stop
                 </Button>
@@ -440,7 +440,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
             >
               <Button
                 onClick={handleResetTimer}
-                className="h-12 px-10 text-base font-semibold bg-gradient-to-br from-[#FF6B35] to-[#FDB961] text-white rounded-xl shadow-[0_4px_12px_rgba(255,107,53,0.3)] hover:shadow-[0_6px_16px_rgba(255,107,53,0.4)] hover:-translate-y-0.5 active:translate-y-0 active:shadow-[0_2px_8px_rgba(255,107,53,0.3)] transition-all duration-200"
+                className="h-12 px-10 text-base font-semibold bg-gradient-primary text-white rounded-xl shadow-soft hover:shadow-medium hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
               >
                 Start New Workout
               </Button>

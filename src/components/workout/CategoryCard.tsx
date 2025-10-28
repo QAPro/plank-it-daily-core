@@ -33,7 +33,7 @@ export const CategoryCard = ({ category, exerciseCount, onClick, index }: Catego
       transition={{ delay: 0.05 * index, duration: 0.3 }}
     >
       <Card 
-        className="group bg-white rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] transition-all duration-300 cursor-pointer hover:shadow-[0_16px_48px_rgba(0,0,0,0.18)] hover:scale-105 hover:rotate-0 border-2 border-transparent"
+        className="group bg-card rounded-2xl shadow-soft transition-all duration-300 cursor-pointer hover:shadow-medium hover:scale-105 hover:rotate-0 border-2 border-transparent"
         onClick={onClick}
         style={{
           borderColor: gradientStyle.borderColor ? gradientStyle.borderColor.replace('border-', '').replace('/20', '33') : 'transparent',
@@ -52,17 +52,17 @@ export const CategoryCard = ({ category, exerciseCount, onClick, index }: Catego
           
           {/* Content */}
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm md:text-lg lg:text-xl font-bold text-[#2C3E50] line-clamp-2 mb-0.5 leading-tight">
+            <h3 className="text-sm md:text-lg lg:text-xl font-bold text-foreground line-clamp-2 mb-0.5 leading-tight">
               {category.name}
             </h3>
             
-            <p className="text-xs md:text-sm lg:text-base text-[#7F8C8D] font-medium">
+            <p className="text-xs md:text-sm lg:text-base text-muted-foreground font-medium">
               {exerciseCount} {exerciseCount === 1 ? 'exercise' : 'exercises'}
             </p>
           </div>
 
           <ChevronRight 
-            className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 text-[#BDC3C7] transition-all duration-200 flex-shrink-0 group-hover:translate-x-1"
+            className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 text-muted-foreground/50 transition-all duration-200 flex-shrink-0 group-hover:translate-x-1"
             style={{
               color: gradientStyle.badgeColor || '#BDC3C7'
             }}

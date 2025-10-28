@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
 import { EnhancedNotificationPreferences } from '@/components/notifications/EnhancedNotificationPreferences';
+import { PushNotificationManager } from '@/components/notifications/PushNotificationManager';
 
 const AppSettings = () => {
   const navigate = useNavigate();
@@ -97,11 +98,20 @@ const AppSettings = () => {
           </Card>
         </motion.div>
 
-        {/* Enhanced Notification Preferences */}
+        {/* Push Notification Manager */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
+        >
+          <PushNotificationManager />
+        </motion.div>
+
+        {/* Enhanced Notification Preferences */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
         >
           <EnhancedNotificationPreferences />
         </motion.div>

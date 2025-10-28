@@ -23,7 +23,6 @@ import Legal from "@/pages/Legal";
 import About from "@/pages/About";
 import PrivacySettings from "@/pages/PrivacySettings";
 import SubscriptionPage from "@/pages/SubscriptionPage";
-import NotificationsPage from "@/pages/NotificationsPage";
 
 import NotFound from "@/pages/NotFound";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -85,7 +84,6 @@ function App() {
               <Route path="/settings/profile" element={<Profile />} />
               <Route path="/settings/app-settings" element={<AppSettings />} />
               <Route path="/settings/subscription" element={<SubscriptionPage />} />
-              <Route path="/settings/notifications" element={<NotificationsPage />} />
               <Route path="/settings/privacy-settings" element={<PrivacySettings />} />
               <Route path="/settings/help-support" element={<HelpSupport />} />
               <Route path="/settings/legal" element={<Legal />} />

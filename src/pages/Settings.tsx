@@ -5,7 +5,6 @@ import {
   User, 
   Settings as SettingsIcon, 
   CreditCard, 
-  Bell, 
   Shield, 
   HelpCircle, 
   FileText, 
@@ -131,11 +130,6 @@ const Settings = () => {
                 icon={CreditCard} 
                 label="Subscription" 
                 onClick={() => navigate('/settings/subscription')} 
-              />
-              <MenuItem 
-                icon={Bell} 
-                label="Notifications" 
-                onClick={() => navigate('/settings/notifications')} 
               />
               <MenuItem 
                 icon={Shield} 

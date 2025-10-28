@@ -79,8 +79,9 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
               <motion.button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
-                className="flex flex-col items-center justify-center gap-1 min-w-[70px] relative"
+                className="flex flex-col items-center justify-center gap-1 min-w-[70px] relative group"
                 whileTap={{ scale: 0.95 }}
+                whileHover={!isActive ? { scale: 1.05 } : undefined}
               >
                 <motion.div
                   animate={{
@@ -96,14 +97,16 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
                       isHomeTab 
                         ? isActive ? "w-[60px] h-[60px]" : "w-12 h-12"
                         : isActive ? "w-11 h-11" : "w-9 h-9"
-                    } object-contain ${
-                      isActive ? "drop-shadow-[0_2px_4px_rgba(255,107,53,0.3)]" : ""
+                    } object-contain transition-all duration-200 ${
+                      isActive 
+                        ? "drop-shadow-[0_2px_4px_rgba(255,107,53,0.3)]" 
+                        : "opacity-75"
                     }`}
                   />
                 </motion.div>
                 <span
                   className={`text-xs font-medium transition-colors ${
-                    isActive ? "text-primary" : "text-muted-foreground"
+                    isActive ? "text-primary" : "text-foreground/60 group-hover:text-foreground/80"
                   }`}
                 >
                   {tab.label}

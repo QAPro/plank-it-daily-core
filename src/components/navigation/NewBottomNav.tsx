@@ -87,7 +87,9 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
                     scale: isHomeTab ? 1.08 : 1.03
                   } : undefined}
                   transition={{ duration: 0.2 }}
-                  className="relative flex items-center justify-center h-[44px]"
+                  className={`relative flex items-center justify-center h-[44px] rounded-full transition-all duration-200 ${
+                    !isActive ? 'bg-muted/10 border border-border/30' : ''
+                  }`}
                 >
                   <img
                     src={isActive ? tab.activeIcon : tab.inactiveIcon}
@@ -99,13 +101,13 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
                     } object-contain ${
                       isActive 
                         ? "drop-shadow-[0_2px_4px_rgba(255,107,53,0.3)]" 
-                        : "opacity-75"
+                        : "opacity-85"
                     }`}
                   />
                 </motion.div>
                 <span
                   className={`text-xs font-medium transition-colors ${
-                    isActive ? "text-primary" : "text-foreground/60"
+                    isActive ? "text-primary" : "text-foreground/70"
                   }`}
                 >
                   {tab.label}

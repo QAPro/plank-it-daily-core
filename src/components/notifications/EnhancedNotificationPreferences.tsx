@@ -58,7 +58,9 @@ export function EnhancedNotificationPreferences() {
 
   // Sync local state when preferences load from database
   useEffect(() => {
+    console.log('🔄 Notification Types Effect - loading:', loading, 'preferences:', preferences)
     if (!loading && preferences) {
+      console.log('✅ Setting notification types:', preferences.notification_types)
       setLocalNotificationTypes(preferences.notification_types || {
         reminders: true,
         achievements: true,
@@ -70,14 +72,20 @@ export function EnhancedNotificationPreferences() {
   }, [loading, preferences])
 
   useEffect(() => {
+    console.log('🔄 Timezone Effect - loading:', loading, 'timezone:', (preferences as any)?.time_zone)
     if (!loading && preferences) {
-      setLocalTimezone((preferences as any)?.time_zone || 'UTC')
+      const tz = (preferences as any)?.time_zone || 'UTC'
+      console.log('✅ Setting timezone to:', tz)
+      setLocalTimezone(tz)
     }
   }, [loading, preferences])
 
   useEffect(() => {
+    console.log('🔄 Frequency Effect - loading:', loading, 'frequency:', preferences?.notification_frequency)
     if (!loading && preferences) {
-      setLocalNotificationFrequency(preferences.notification_frequency || 'normal')
+      const freq = preferences.notification_frequency || 'normal'
+      console.log('✅ Setting frequency to:', freq)
+      setLocalNotificationFrequency(freq)
     }
   }, [loading, preferences])
 

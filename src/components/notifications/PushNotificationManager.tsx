@@ -13,8 +13,7 @@ export const PushNotificationManager = () => {
     isSubscribed,
     isLoading,
     subscribe,
-    unsubscribe,
-    resubscribe
+    unsubscribe
   } = usePushNotifications();
 
   const inIframe = isInIframe();
@@ -106,28 +105,6 @@ export const PushNotificationManager = () => {
           />
         </div>
 
-        {!isSubscribed && (
-          <Button 
-            onClick={subscribe} 
-            disabled={isLoading}
-            className="w-full"
-            variant="outline"
-          >
-            {isLoading ? "Enabling..." : "Enable Push Notifications"}
-          </Button>
-        )}
-
-        {isSubscribed && (
-          <Button 
-            onClick={resubscribe}
-            disabled={isLoading}
-            className="w-full"
-            variant="outline"
-            size="sm"
-          >
-            {isLoading ? "Refreshing..." : "Refresh Subscription"}
-          </Button>
-        )}
 
         <div className="text-xs text-muted-foreground space-y-1">
           <p>• Get reminders for your daily workouts</p>

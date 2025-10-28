@@ -2,21 +2,21 @@
   <!-- Achievements Icon: Trophy with flame inside -->
   
   <!-- Trophy base -->
-  <rect x="12" y="26" width="8" height="2" fill="#03B7EE"/>
+  <rect x="12" y="26" width="8" height="2" fill="#A9B4C2"/>
   
   <!-- Trophy stem -->
-  <rect x="14.5" y="22" width="3" height="4" fill="#03B7EE"/>
+  <rect x="14.5" y="22" width="3" height="4" fill="#A9B4C2"/>
   
   <!-- Trophy cup body -->
-  <path d="M 10 22 L 10 12 Q 10 10 12 10 L 20 10 Q 22 10 22 12 L 22 22 Z" fill="#03B7EE"/>
+  <path d="M 10 22 L 10 12 Q 10 10 12 10 L 20 10 Q 22 10 22 12 L 22 22 Z" fill="#A9B4C2"/>
   
   <!-- Left handle -->
-  <path d="M 10 12 Q 7 12 7 15 Q 7 18 10 18" stroke="#03B7EE" stroke-width="1.5" fill="none"/>
+  <path d="M 10 12 Q 7 12 7 15 Q 7 18 10 18" stroke="#A9B4C2" stroke-width="1.5" fill="none"/>
   
   <!-- Right handle -->
-  <path d="M 22 12 Q 25 12 25 15 Q 25 18 22 18" stroke="#03B7EE" stroke-width="1.5" fill="none"/>
+  <path d="M 22 12 Q 25 12 25 15 Q 25 18 22 18" stroke="#A9B4C2" stroke-width="1.5" fill="none"/>
   
   <!-- Flame inside trophy cup -->
-  <path d="M 16 18 L 14.5 15 L 16 12 L 17.5 15 Z" fill="#FF6B35"/>
+  <path d="M 16 18 L 14.5 15 L 16 12 L 17.5 15 Z" fill="#1a2332"/>
 </svg>
 

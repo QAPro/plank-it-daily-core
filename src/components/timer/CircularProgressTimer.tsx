@@ -23,18 +23,18 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
     // State-based colors take priority - returns outer ring and inner circle styles
     if (state === 'completed') {
       return { 
-        outerRing: 'bg-gradient-to-br from-green-500 to-emerald-500',
+        outerRing: 'bg-gradient-to-br from-green-400 to-emerald-400',
         outerShadow: 'shadow-glow',
-        innerCircle: 'bg-gradient-to-br from-green-400 to-emerald-400',
-        innerShadow: 'shadow-[inset_0_4px_12px_rgba(0,0,0,0.3),inset_0_2px_6px_rgba(0,0,0,0.2),0_2px_8px_rgba(34,197,94,0.2)]'
+        innerCircle: 'bg-gradient-green-timer',
+        innerShadow: 'shadow-timer-green'
       };
     }
     if (state === 'paused') {
       return { 
         outerRing: 'bg-gradient-to-br from-gray-400 to-gray-500',
         outerShadow: 'shadow-soft',
-        innerCircle: 'bg-gradient-to-br from-gray-300 to-gray-400',
-        innerShadow: 'shadow-[inset_0_4px_12px_rgba(0,0,0,0.3),inset_0_2px_6px_rgba(0,0,0,0.2),0_2px_8px_rgba(156,163,175,0.2)]'
+        innerCircle: 'bg-gradient-gray-timer',
+        innerShadow: 'shadow-timer-gray'
       };
     }
     
@@ -44,16 +44,16 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
         return { 
           outerRing: 'bg-gradient-to-br from-red-500 to-red-600',
           outerShadow: 'shadow-medium',
-          innerCircle: 'bg-gradient-to-br from-[#0284b8] via-[#0298d4] to-[#2eb8e8]',
-          innerShadow: 'shadow-[inset_0_4px_12px_rgba(0,0,0,0.3),inset_0_2px_6px_rgba(0,0,0,0.2),0_2px_8px_rgba(3,183,238,0.2)]'
+          innerCircle: 'bg-gradient-blue-timer',
+          innerShadow: 'shadow-timer-blue'
         };
       }
       if (timeLeft <= 30) {
         return { 
           outerRing: 'bg-gradient-to-br from-yellow-500 to-amber-500',
           outerShadow: 'shadow-medium',
-          innerCircle: 'bg-gradient-to-br from-[#0284b8] via-[#0298d4] to-[#2eb8e8]',
-          innerShadow: 'shadow-[inset_0_4px_12px_rgba(0,0,0,0.3),inset_0_2px_6px_rgba(0,0,0,0.2),0_2px_8px_rgba(3,183,238,0.2)]'
+          innerCircle: 'bg-gradient-blue-timer',
+          innerShadow: 'shadow-timer-blue'
         };
       }
     }
@@ -62,8 +62,8 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
     return { 
       outerRing: 'bg-gradient-orange-ring',
       outerShadow: 'shadow-glow',
-      innerCircle: 'bg-gradient-to-br from-[#0284b8] via-[#0298d4] to-[#2eb8e8]',
-      innerShadow: 'shadow-[inset_0_4px_12px_rgba(0,0,0,0.3),inset_0_2px_6px_rgba(0,0,0,0.2),0_2px_8px_rgba(3,183,238,0.2)]'
+      innerCircle: 'bg-gradient-blue-timer',
+      innerShadow: 'shadow-timer-blue'
     };
   };
 

@@ -84,19 +84,21 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
                 animate={isActive ? { scale: isHomeTab ? 1.08 : 1.03 } : { scale: 1 }}
                 transition={{ duration: 0.2 }}
               >
-                <img
-                  src={isActive ? tab.activeIcon : tab.inactiveIcon}
-                  alt={tab.label}
-                  className={`${
-                    isHomeTab 
-                      ? isActive ? "w-[60px] h-[60px]" : "w-12 h-12"
-                      : isActive ? "w-11 h-11" : "w-9 h-9"
-                  } object-contain ${
-                    isActive 
-                      ? "drop-shadow-[0_2px_4px_rgba(255,107,53,0.3)]" 
-                      : ""
-                  }`}
-                />
+                <div className="h-[60px] flex items-center justify-center">
+                  <img
+                    src={isActive ? tab.activeIcon : tab.inactiveIcon}
+                    alt={tab.label}
+                    className={`${
+                      isHomeTab 
+                        ? isActive ? "w-[60px] h-[60px]" : "w-12 h-12"
+                        : isActive ? "w-11 h-11" : "w-9 h-9"
+                    } object-contain ${
+                      isActive 
+                        ? "drop-shadow-[0_2px_4px_rgba(255,107,53,0.3)]" 
+                        : ""
+                    }`}
+                  />
+                </div>
                 <span
                   className={`text-xs font-medium transition-colors ${
                     isActive ? "text-primary" : "text-muted-foreground"

@@ -1,31 +1,15 @@
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
-import { useTheme } from "@/components/theme-provider";
-
-// Light mode icons
-import statsActiveLi from "@/assets/nav-icons/light/icon_stats_active.png";
-import statsInactiveLi from "@/assets/nav-icons/light/icon_stats_inactive.png";
-import workoutsActiveLi from "@/assets/nav-icons/light/icon_workouts_active.png";
-import workoutsInactiveLi from "@/assets/nav-icons/light/icon_workouts_inactive.png";
-import homeActiveLi from "@/assets/nav-icons/light/icon_home_active.png";
-import homeInactiveLi from "@/assets/nav-icons/light/icon_home_inactive.png";
-import achievementsActiveLi from "@/assets/nav-icons/light/icon_achievements_active.png";
-import achievementsInactiveLi from "@/assets/nav-icons/light/icon_achievements_inactive.png";
-import friendsActiveLi from "@/assets/nav-icons/light/icon_friends_active.png";
-import friendsInactiveLi from "@/assets/nav-icons/light/icon_friends_inactive.png";
-
-// Dark mode icons
-import statsActiveDk from "@/assets/nav-icons/dark/icon_stats_active.png";
-import statsInactiveDk from "@/assets/nav-icons/dark/icon_stats_inactive.png";
-import workoutsActiveDk from "@/assets/nav-icons/dark/icon_workouts_active.png";
-import workoutsInactiveDk from "@/assets/nav-icons/dark/icon_workouts_inactive.png";
-import homeActiveDk from "@/assets/nav-icons/dark/icon_home_active.png";
-import homeInactiveDk from "@/assets/nav-icons/dark/icon_home_inactive.png";
-import achievementsActiveDk from "@/assets/nav-icons/dark/icon_achievements_active.png";
-import achievementsInactiveDk from "@/assets/nav-icons/dark/icon_achievements_inactive.png";
-import friendsActiveDk from "@/assets/nav-icons/dark/icon_friends_active.png";
-import friendsInactiveDk from "@/assets/nav-icons/dark/icon_friends_inactive.png";
+import homeActive from "@/assets/nav-icons/icon_home_active.png";
+import homeInactive from "@/assets/nav-icons/icon_home_inactive.png";
+import statsActive from "@/assets/nav-icons/icon_stats_active.png";
+import statsInactive from "@/assets/nav-icons/icon_stats_inactive.png";
+import workoutsActive from "@/assets/nav-icons/icon_workouts_active.png";
+import workoutsInactive from "@/assets/nav-icons/icon_workouts_inactive.png";
+import friendsActive from "@/assets/nav-icons/icon_friends_active.png";
+import friendsInactive from "@/assets/nav-icons/icon_friends_inactive.png";
+import achievementsActive from "@/assets/nav-icons/icon_achievements_active.png";
+import achievementsInactive from "@/assets/nav-icons/icon_achievements_inactive.png";
 
 type TabId = "stats" | "workout" | "home" | "achievements" | "friends";
 
@@ -36,57 +20,49 @@ interface NewBottomNavProps {
 
 const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
   const { socialFeaturesEnabled } = useFeatureFlags();
-  const { theme } = useTheme();
-  const [forceUpdate, setForceUpdate] = useState(false);
-
-  // Resolve actual theme (handle "system" mode)
-  const resolvedTheme = theme === "system" 
-    ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
-    : theme;
-  
-  const iconMode = resolvedTheme === "dark" ? "dark" : "light";
-
-  // Icon sets for light and dark modes
-  const iconSets = {
-    light: {
-      stats: { active: statsActiveLi, inactive: statsInactiveLi },
-      workout: { active: workoutsActiveLi, inactive: workoutsInactiveLi },
-      home: { active: homeActiveLi, inactive: homeInactiveLi },
-      achievements: { active: achievementsActiveLi, inactive: achievementsInactiveLi },
-      friends: { active: friendsActiveLi, inactive: friendsInactiveLi },
-    },
-    dark: {
-      stats: { active: statsActiveDk, inactive: statsInactiveDk },
-      workout: { active: workoutsActiveDk, inactive: workoutsInactiveDk },
-      home: { active: homeActiveDk, inactive: homeInactiveDk },
-      achievements: { active: achievementsActiveDk, inactive: achievementsInactiveDk },
-      friends: { active: friendsActiveDk, inactive: friendsInactiveDk },
-    },
-  };
-
-  // Handle system theme changes
-  useEffect(() => {
-    if (theme !== "system") return;
-    
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleChange = () => {
-      setForceUpdate(prev => !prev);
-    };
-    
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, [theme]);
 
   const tabs: Array<{
     id: TabId;
     label: string;
+    activeIcon: string;
+    inactiveIcon: string;
     visible: boolean;
   }> = [
-    { id: "stats", label: "Stats", visible: true },
-    { id: "workout", label: "Workouts", visible: true },
-    { id: "home", label: "Home", visible: true },
-    { id: "achievements", label: "Achievements", visible: true },
-    { id: "friends", label: "Friends", visible: socialFeaturesEnabled },
+    {
+      id: "stats",
+      label: "Stats",
+      activeIcon: statsActive,
+      inactiveIcon: statsInactive,
+      visible: true,
+    },
+    {
+      id: "workout",
+      label: "Workouts",
+      activeIcon: workoutsActive,
+      inactiveIcon: workoutsInactive,
+      visible: true,
+    },
+    {
+      id: "home",
+      label: "Home",
+      activeIcon: homeActive,
+      inactiveIcon: homeInactive,
+      visible: true,
+    },
+    {
+      id: "achievements",
+      label: "Achievements",
+      activeIcon: achievementsActive,
+      inactiveIcon: achievementsInactive,
+      visible: true,
+    },
+    {
+      id: "friends",
+      label: "Friends",
+      activeIcon: friendsActive,
+      inactiveIcon: friendsInactive,
+      visible: socialFeaturesEnabled,
+    },
   ];
 
   const visibleTabs = tabs.filter((tab) => tab.visible);
@@ -112,10 +88,7 @@ const NewBottomNav = ({ activeTab, onTabChange }: NewBottomNavProps) => {
                   whileTap={{ scale: 0.95 }}
                 >
                   <img
-                    src={isActive 
-                      ? iconSets[iconMode][tab.id].active 
-                      : iconSets[iconMode][tab.id].inactive
-                    }
+                    src={isActive ? tab.activeIcon : tab.inactiveIcon}
                     alt={tab.label}
                     className={`${
                       isHomeTab 

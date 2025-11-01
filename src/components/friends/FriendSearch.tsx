@@ -7,10 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Search, UserPlus, Loader2 } from 'lucide-react';
+import { Search, UserPlus, Loader2, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import { useDebounce } from '@/hooks/useDebounce';
 import SocialFeatureGuard from '@/components/access/SocialFeatureGuard';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const FriendSearch = () => {
   const { user } = useAuth();
@@ -57,7 +58,15 @@ const FriendSearch = () => {
       setSearchResults(prev => prev.filter(result => result.id !== targetUserId));
     } catch (error: any) {
       console.error('Error sending friend request:', error);
-      toast.error(error.message || 'Failed to send friend request');
+      
+      // Show appropriate error message based on privacy settings
+      if (error.message.includes('not accepting')) {
+        toast.error('This user is not accepting friend requests');
+      } else if (error.message.includes('already exists')) {
+        toast.error('Friend request already sent or you are already friends');
+      } else {
+        toast.error('Failed to send friend request');
+      }
     } finally {
       setSendingRequests(prev => {
         const newSet = new Set(prev);
@@ -132,20 +141,40 @@ const FriendSearch = () => {
                     </div>
                   </div>
 
-                  <Button
-                    onClick={() => sendFriendRequest(user.id, user.username)}
-                    disabled={sendingRequests.has(user.id)}
-                    className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white"
-                  >
-                    {sendingRequests.has(user.id) ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <>
-                        <UserPlus className="w-4 h-4 mr-2" />
-                        Add Friend
-                      </>
-                    )}
-                  </Button>
+                  {(user as any).canSendRequest === false ? (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            disabled
+                            variant="ghost"
+                            className="text-muted-foreground"
+                          >
+                            <Shield className="w-4 h-4 mr-2" />
+                            Not accepting requests
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>This user is not accepting friend requests</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  ) : (
+                    <Button
+                      onClick={() => sendFriendRequest(user.id, user.username)}
+                      disabled={sendingRequests.has(user.id)}
+                      className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white"
+                    >
+                      {sendingRequests.has(user.id) ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <>
+                          <UserPlus className="w-4 h-4 mr-2" />
+                          Add Friend
+                        </>
+                      )}
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>

@@ -6,16 +6,19 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MoreVertical, MessageCircle, UserMinus, Trophy, Flame, Calendar } from 'lucide-react';
+import { MoreVertical, MessageCircle, UserMinus, Trophy, Flame, Calendar, EyeOff } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import FlagGuard from '@/components/access/FlagGuard';
+import { getVisibleProfileFields } from '@/utils/privacyHelpers';
+import { supabase } from '@/integrations/supabase/client';
 
 const FriendsList = () => {
   const { user } = useAuth();
   const [friends, setFriends] = useState<FriendProfile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [privacySettings, setPrivacySettings] = useState<Map<string, any>>(new Map());
 
   useEffect(() => {
     if (user) {
@@ -29,6 +32,21 @@ const FriendsList = () => {
     try {
       const friendsList = await friendSystemManager.getFriendsList(user.id);
       setFriends(friendsList);
+
+      // Fetch privacy settings for all friends
+      const friendIds = friendsList.map(f => f.id);
+      if (friendIds.length > 0) {
+        const { data: privacyData } = await supabase
+          .from('privacy_settings')
+          .select('user_id, show_achievements, show_statistics, show_streak')
+          .in('user_id', friendIds);
+
+        const privacyMap = new Map();
+        privacyData?.forEach(setting => {
+          privacyMap.set(setting.user_id, setting);
+        });
+        setPrivacySettings(privacyMap);
+      }
     } catch (error) {
       console.error('Error loading friends:', error);
       toast.error('Failed to load friends list');
@@ -95,7 +113,11 @@ const FriendsList = () => {
         <h2 className="text-xl font-semibold text-gray-800">Your Friends ({friends.length})</h2>
       </div>
 
-      {friends.map((friend) => (
+      {friends.map((friend) => {
+        const friendPrivacy = privacySettings.get(friend.id);
+        const visibleFields = getVisibleProfileFields(friendPrivacy);
+
+        return (
         <Card key={friend.id} className="hover:shadow-medium transition-all duration-300 hover:-translate-y-0.5">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -123,15 +145,29 @@ const FriendsList = () => {
                   </div>
                   
                   <div className="flex items-center space-x-4 text-sm text-[#7F8C8D]">
-                    <div className="flex items-center space-x-1">
-                      <Flame className="w-4 h-4 text-orange-500" />
-                      <span>{friend.current_streak} day streak</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Trophy className="w-4 h-4 text-yellow-500" />
-                      <span>{friend.total_workouts} workouts</span>
-                    </div>
-                    {friend.last_workout && (
+                    {visibleFields.streak ? (
+                      <div className="flex items-center space-x-1">
+                        <Flame className="w-4 h-4 text-orange-500" />
+                        <span>{friend.current_streak} day streak</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-1 text-muted-foreground">
+                        <EyeOff className="w-4 h-4" />
+                        <span className="text-xs">Hidden</span>
+                      </div>
+                    )}
+                    {visibleFields.statistics ? (
+                      <div className="flex items-center space-x-1">
+                        <Trophy className="w-4 h-4 text-yellow-500" />
+                        <span>{friend.total_workouts} workouts</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-1 text-muted-foreground">
+                        <EyeOff className="w-4 h-4" />
+                        <span className="text-xs">Hidden</span>
+                      </div>
+                    )}
+                    {friend.last_workout && visibleFields.statistics && (
                       <div className="flex items-center space-x-1">
                         <Calendar className="w-4 h-4 text-blue-500" />
                         <span>Last: {formatDistanceToNow(new Date(friend.last_workout), { addSuffix: true })}</span>
@@ -160,7 +196,8 @@ const FriendsList = () => {
             </div>
           </CardContent>
         </Card>
-        ))}
+        );
+      })}
       </div>
     </FlagGuard>
   );

@@ -20,6 +20,7 @@ export interface FriendProfile {
   total_workouts: number;
   is_online: boolean;
   last_workout?: string;
+  canSendRequest?: boolean;
   privacy_settings: {
     show_workouts: boolean;
     show_achievements: boolean;
@@ -120,32 +121,54 @@ export class FriendSystemManager {
           user.user_id !== currentUserId
         ).slice(0, 10);
 
-        // Get display info for each user
+        // Get display info for each user with privacy filtering
         const userProfiles = await Promise.all(
           uniqueUsers.map(async (user) => {
+            // Check if user can be viewed
+            const { data: canView } = await supabase
+              .rpc('can_view_user_profile', {
+                _viewer_id: currentUserId,
+                _target_user_id: user.user_id
+              });
+
+            // If profile is private and viewer can't see, skip this user
+            if (!canView) {
+              return null;
+            }
+
             const { data: displayInfo } = await supabase
               .rpc('get_user_display_info', { target_user_id: user.user_id })
               .single();
               
             const stats = await this.getUserStats(user.user_id);
+
+            // Check if user can send friend request
+            const { data: canSendRequest } = await supabase
+              .rpc('can_send_friend_request', {
+                _sender_id: currentUserId,
+                _receiver_id: user.user_id
+              });
+
             return {
               id: user.user_id,
               username: displayInfo?.username || user.username || '',
               full_name: '', // Not included in secure function for privacy
-              avatar_url: displayInfo?.avatar_url || '',
+              avatar_url: displayInfo?.avatar_url,
               current_level: displayInfo?.current_level || 1,
               ...stats,
               is_online: false,
+              canSendRequest: canSendRequest || false,
               privacy_settings: {
                 show_workouts: true,
                 show_achievements: true,
                 show_streak: true
               }
-            };
+            } as FriendProfile;
           })
         );
 
-        return userProfiles;
+        // Filter out null results (private profiles)
+        return userProfiles.filter((profile): profile is FriendProfile => profile !== null);
       } catch (error) {
         console.error('Error in secure user search:', error);
         return [];
@@ -154,6 +177,17 @@ export class FriendSystemManager {
 
   async sendFriendRequest(userId: string, targetUserId: string): Promise<boolean> {
     try {
+      // Check privacy settings first
+      const { data: canSend } = await supabase
+        .rpc('can_send_friend_request', {
+          _sender_id: userId,
+          _receiver_id: targetUserId
+        });
+
+      if (!canSend) {
+        throw new Error('This user is not accepting friend requests');
+      }
+
       // Check if friendship already exists
       const friends = this.getStoredFriends();
       const requests = this.getStoredRequests();

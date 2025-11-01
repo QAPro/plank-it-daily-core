@@ -86,7 +86,7 @@ export interface ActivityFilters {
 }
 
 export class SocialActivityManager {
-  async createWorkoutActivity(userId: string, sessionData: any): Promise<void> {
+  async createWorkoutActivity(userId: string, sessionData: any, visibility?: 'public' | 'friends' | 'private'): Promise<void> {
     const activityData: ActivityData = {
       exercise_name: sessionData.exercise_name || sessionData.exercise || 'Workout',
       duration: sessionData.duration_seconds || sessionData.duration || 30,
@@ -96,30 +96,30 @@ export class SocialActivityManager {
       post_type: sessionData.postType || 'auto_generated'
     };
     
-    await this.createActivity(userId, 'workout', activityData);
+    await this.createActivity(userId, 'workout', activityData, visibility);
   }
   
-  async createAchievementActivity(userId: string, achievement: any): Promise<void> {
+  async createAchievementActivity(userId: string, achievement: any, visibility?: 'public' | 'friends' | 'private'): Promise<void> {
     const activityData: ActivityData = {
       achievement_name: achievement.achievement_name || achievement.name,
       achievement_description: achievement.description || 'Great achievement!',
       achievement_rarity: achievement.rarity || 'common'
     };
     
-    await this.createActivity(userId, 'achievement', activityData);
+    await this.createActivity(userId, 'achievement', activityData, visibility);
   }
 
-  async createLevelUpActivity(userId: string, levelData: any): Promise<void> {
+  async createLevelUpActivity(userId: string, levelData: any, visibility?: 'public' | 'friends' | 'private'): Promise<void> {
     const activityData: ActivityData = {
       old_level: levelData.old_level || 1,
       new_level: levelData.new_level || 2,
       new_title: levelData.new_title || `Level ${levelData.new_level}`
     };
     
-    await this.createActivity(userId, 'level_up', activityData);
+    await this.createActivity(userId, 'level_up', activityData, visibility);
   }
 
-  async createPersonalBestActivity(userId: string, exerciseId: string, newBest: number, previousBest: number): Promise<void> {
+  async createPersonalBestActivity(userId: string, exerciseId: string, newBest: number, previousBest: number, visibility?: 'public' | 'friends' | 'private'): Promise<void> {
     const exerciseName = await this.getExerciseName(exerciseId);
     const activityData: ActivityData = {
       exercise_name: exerciseName,
@@ -128,58 +128,63 @@ export class SocialActivityManager {
       improvement: newBest - previousBest
     };
     
-    await this.createActivity(userId, 'personal_best', activityData);
+    await this.createActivity(userId, 'personal_best', activityData, visibility);
   }
 
-  async createStreakMilestoneActivity(userId: string, streakData: any): Promise<void> {
+  async createStreakMilestoneActivity(userId: string, streakData: any, visibility?: 'public' | 'friends' | 'private'): Promise<void> {
     const activityData: ActivityData = {
       streak_length: streakData.streak_length,
       streak_type: streakData.streak_type || 'daily'
     };
     
-    await this.createActivity(userId, 'streak_milestone', activityData);
+    await this.createActivity(userId, 'streak_milestone', activityData, visibility);
   }
 
-  async createWeeklyGoalActivity(userId: string, goalData: any): Promise<void> {
+  async createWeeklyGoalActivity(userId: string, goalData: any, visibility?: 'public' | 'friends' | 'private'): Promise<void> {
     const activityData: ActivityData = {
       workouts_completed: goalData.workouts_completed,
       goal_target: goalData.goal_target || 5
     };
     
-    await this.createActivity(userId, 'weekly_goal', activityData);
+    await this.createActivity(userId, 'weekly_goal', activityData, visibility);
   }
   
-  private async createActivity(userId: string, type: string, data: ActivityData): Promise<void> {
+  private async createActivity(userId: string, type: string, data: ActivityData, visibility?: 'public' | 'friends' | 'private'): Promise<void> {
     try {
-      // Get user's privacy settings with fallback - handle column not existing
-      let visibility = 'friends'; // default visibility
+      // If visibility is explicitly provided, use it
+      let finalVisibility = visibility || 'friends';
       
-      try {
-        // Try to get privacy settings, but handle gracefully if column doesn't exist
-        const userQuery = supabase
-          .from('users')
-          .select('*')
-          .eq('id', userId)
-          .single();
-        
-        const { data: user } = await userQuery;
-        
-        // Check if user data exists and has privacy_settings property
-        if (user && 'privacy_settings' in user && user.privacy_settings) {
-          visibility = this.determineVisibility(type, user.privacy_settings);
+      // Otherwise, get from privacy settings
+      if (!visibility) {
+        try {
+          const { data: privacySettings } = await supabase
+            .from('privacy_settings')
+            .select('activity_visibility')
+            .eq('user_id', userId)
+            .single();
+          
+          if (privacySettings?.activity_visibility) {
+            // Map privacy settings to activity visibility
+            const visibilityMap = {
+              'public': 'public',
+              'friends_only': 'friends',
+              'private': 'private'
+            } as const;
+            finalVisibility = visibilityMap[privacySettings.activity_visibility as keyof typeof visibilityMap] || 'friends';
+          }
+        } catch (error) {
+          console.log('Could not fetch privacy settings, using default visibility');
         }
-      } catch (error) {
-        console.log('Privacy settings not available yet, using default visibility');
       }
       
-      // Use direct database insert now that tables exist
+      // Use direct database insert
       const { error } = await supabase
         .from('friend_activities')
         .insert({
           user_id: userId,
           activity_type: type,
-          activity_data: data as any, // Cast to satisfy JSON type requirements
-          visibility: visibility
+          activity_data: data as any,
+          visibility: finalVisibility
         });
 
       if (error) {
@@ -190,40 +195,13 @@ export class SocialActivityManager {
       console.log('[SocialActivityManager] Activity created successfully:', {
         user_id: userId,
         activity_type: type,
-        visibility
+        visibility: finalVisibility
       });
     } catch (error) {
       console.error('Error creating activity:', error);
     }
   }
   
-  private determineVisibility(activityType: string, privacySettings: any): string {
-    const defaultSettings = {
-      show_workouts: true,
-      show_achievements: true,
-      show_streak: true,
-      show_level_ups: true,
-      show_personal_bests: true
-    };
-    
-    const settings = { ...defaultSettings, ...privacySettings };
-    
-    switch (activityType) {
-      case 'workout':
-        return settings.show_workouts ? 'friends' : 'private';
-      case 'achievement':
-        return settings.show_achievements ? 'friends' : 'private';
-      case 'streak_milestone':
-        return settings.show_streak ? 'friends' : 'private';
-      case 'level_up':
-        return settings.show_level_ups ? 'friends' : 'private';
-      case 'personal_best':
-        return settings.show_personal_bests ? 'friends' : 'private';
-      default:
-        return 'friends';
-    }
-  }
-
   private calculateCalories(sessionData: any): number {
     const baseCaloriesPerMinute = 3.5;
     const durationMinutes = (sessionData.duration_seconds || 30) / 60;
@@ -267,7 +245,10 @@ export class SocialActivityManager {
         return [];
       }
 
-      // Fetch activities from friends - only 4 types: workout, achievement, weekly_goal, level_up
+      // Fetch activities from friends with privacy filtering
+      // Only show activities that are:
+      // 1. Public (visible to everyone)
+      // 2. Friends-only AND the viewer is a friend of the activity owner
       const { data: activities, error: activitiesError } = await supabase
         .from('friend_activities')
         .select(`
@@ -281,6 +262,7 @@ export class SocialActivityManager {
         `)
         .in('user_id', friendIds)
         .in('activity_type', ['workout', 'achievement', 'weekly_goal', 'level_up'])
+        .in('visibility', ['public', 'friends']) // Exclude private activities
         .order('created_at', { ascending: false })
         .limit(50);
 

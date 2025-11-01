@@ -12,7 +12,7 @@ export const useUserProfile = () => {
 
       const { data, error } = await supabase
         .from('users')
-        .select('username, first_name')
+        .select('username, first_name, avatar_url, current_level')
         .eq('id', user.id)
         .maybeSingle();
 
@@ -30,6 +30,8 @@ export const useUserProfile = () => {
   return {
     username: data?.username || null,
     firstName: data?.first_name || null,
+    avatarUrl: data?.avatar_url || null,
+    currentLevel: data?.current_level || 1,
     isLoading,
   };
 };

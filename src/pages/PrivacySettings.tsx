@@ -7,6 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { usePrivacySettings } from '@/hooks/usePrivacySettings';
 import VisibilityRadioGroup from '@/components/privacy/VisibilityRadioGroup';
+import PrivacyHierarchyWarning from '@/components/privacy/PrivacyHierarchyWarning';
 import { toast } from 'sonner';
 
 const PrivacySettings = () => {
@@ -31,23 +32,40 @@ const PrivacySettings = () => {
     },
   ];
 
-  const activityVisibilityOptions = [
-    {
-      value: 'public',
-      label: 'Public',
-      description: 'Your workouts appear in the community feed for everyone',
-    },
-    {
-      value: 'friends_only',
-      label: 'Friends Only',
-      description: 'Only your friends can see your workout activities',
-    },
-    {
-      value: 'private',
-      label: 'Private',
-      description: 'Your activities are completely private',
-    },
-  ];
+  // Filter activity options based on profile visibility
+  const getActivityVisibilityOptions = () => {
+    const allOptions = [
+      {
+        value: 'public',
+        label: 'Public',
+        description: 'Your workouts appear in the community feed for everyone',
+      },
+      {
+        value: 'friends_only',
+        label: 'Friends Only',
+        description: 'Only your friends can see your workout activities',
+      },
+      {
+        value: 'private',
+        label: 'Private',
+        description: 'Your activities are completely private',
+      },
+    ];
+
+    // If profile is private, only allow private activity
+    if (privacySettings?.profile_visibility === 'private') {
+      return allOptions.filter(opt => opt.value === 'private');
+    }
+
+    // If profile is friends_only, don't allow public activity
+    if (privacySettings?.profile_visibility === 'friends_only') {
+      return allOptions.filter(opt => opt.value !== 'public');
+    }
+
+    return allOptions;
+  };
+
+  const activityVisibilityOptions = getActivityVisibilityOptions();
 
   const friendRequestOptions = [
     {
@@ -121,7 +139,10 @@ const PrivacySettings = () => {
                 Control who can see your profile information
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
+              {(privacySettings?.profile_visibility === 'private' || privacySettings?.profile_visibility === 'friends_only') && (
+                <PrivacyHierarchyWarning visibility={privacySettings.profile_visibility} />
+              )}
               <VisibilityRadioGroup
                 value={privacySettings?.profile_visibility ?? 'public'}
                 onValueChange={(value) => updateSetting({ profile_visibility: value as any })}
@@ -149,6 +170,16 @@ const PrivacySettings = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {privacySettings?.profile_visibility === 'private' && (
+                <p className="text-sm text-muted-foreground mb-4 p-3 bg-muted rounded-lg">
+                  Activity visibility is locked to <strong>Private</strong> because your profile is private.
+                </p>
+              )}
+              {privacySettings?.profile_visibility === 'friends_only' && privacySettings?.activity_visibility === 'public' && (
+                <p className="text-sm text-muted-foreground mb-4 p-3 bg-muted rounded-lg">
+                  Public activity is not available with a Friends Only profile.
+                </p>
+              )}
               <VisibilityRadioGroup
                 value={privacySettings?.activity_visibility ?? 'friends_only'}
                 onValueChange={(value) => updateSetting({ activity_visibility: value as any })}
@@ -173,9 +204,16 @@ const PrivacySettings = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {privacySettings?.profile_visibility === 'private' && (
+                <p className="text-sm text-muted-foreground mb-4 p-3 bg-muted rounded-lg">
+                  All profile fields are hidden when your profile is set to <strong>Private</strong>.
+                </p>
+              )}
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label htmlFor="show-achievements">Show achievements</Label>
+                  <Label htmlFor="show-achievements" className={privacySettings?.profile_visibility === 'private' ? 'text-muted-foreground' : ''}>
+                    Show achievements
+                  </Label>
                   <p className="text-sm text-muted-foreground">
                     Display your earned badges and milestones
                   </p>
@@ -183,13 +221,16 @@ const PrivacySettings = () => {
                 <Switch
                   id="show-achievements"
                   checked={privacySettings?.show_achievements ?? true}
+                  disabled={privacySettings?.profile_visibility === 'private'}
                   onCheckedChange={(checked) => updateSetting({ show_achievements: checked })}
                 />
               </div>
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label htmlFor="show-statistics">Show statistics</Label>
+                  <Label htmlFor="show-statistics" className={privacySettings?.profile_visibility === 'private' ? 'text-muted-foreground' : ''}>
+                    Show statistics
+                  </Label>
                   <p className="text-sm text-muted-foreground">
                     Display your workout stats and progress charts
                   </p>
@@ -197,13 +238,16 @@ const PrivacySettings = () => {
                 <Switch
                   id="show-statistics"
                   checked={privacySettings?.show_statistics ?? true}
+                  disabled={privacySettings?.profile_visibility === 'private'}
                   onCheckedChange={(checked) => updateSetting({ show_statistics: checked })}
                 />
               </div>
 
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label htmlFor="show-streak">Show current streak</Label>
+                  <Label htmlFor="show-streak" className={privacySettings?.profile_visibility === 'private' ? 'text-muted-foreground' : ''}>
+                    Show current streak
+                  </Label>
                   <p className="text-sm text-muted-foreground">
                     Display your active workout streak
                   </p>
@@ -211,6 +255,7 @@ const PrivacySettings = () => {
                 <Switch
                   id="show-streak"
                   checked={privacySettings?.show_streak ?? true}
+                  disabled={privacySettings?.profile_visibility === 'private'}
                   onCheckedChange={(checked) => updateSetting({ show_streak: checked })}
                 />
               </div>
@@ -239,6 +284,11 @@ const PrivacySettings = () => {
                 <Label className="text-base font-semibold mb-3 block">
                   Who can send you friend requests?
                 </Label>
+                {privacySettings?.profile_visibility === 'private' && (
+                  <p className="text-sm text-muted-foreground mb-4 p-3 bg-muted rounded-lg">
+                    Friend requests are disabled when your profile is <strong>Private</strong>.
+                  </p>
+                )}
                 <VisibilityRadioGroup
                   value={privacySettings?.friend_request_privacy ?? 'everyone'}
                   onValueChange={(value) => updateSetting({ friend_request_privacy: value as any })}

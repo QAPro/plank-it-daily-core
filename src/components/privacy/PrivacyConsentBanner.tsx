@@ -74,11 +74,11 @@ const PrivacyConsentBanner = ({ onAccept }: PrivacyConsentBannerProps) => {
             <div className="bg-muted/50 rounded-lg p-4">
               <p className="text-sm text-muted-foreground">
                 By continuing, you agree to our{' '}
-                <a href="/legal" className="text-primary hover:underline">
+                <a href="/privacy-policy" className="text-primary hover:underline">
                   Privacy Policy
                 </a>{' '}
                 and{' '}
-                <a href="/legal" className="text-primary hover:underline">
+                <a href="/terms-of-service" className="text-primary hover:underline">
                   Terms of Service
                 </a>
                 . You can customize your privacy settings at any time.

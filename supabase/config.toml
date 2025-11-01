@@ -29,3 +29,9 @@ verify_jwt = false
 
 [functions.assign-ab-test-variant]
 verify_jwt = false
+
+[functions.request-data-export]
+verify_jwt = true
+
+[functions.request-account-deletion]
+verify_jwt = true

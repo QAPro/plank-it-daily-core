@@ -33,6 +33,7 @@ import AdminAchievements from "@/pages/AdminAchievements";
 import { Settings as SettingsIcon } from "lucide-react";
 import { logger } from '@/utils/productionLogger';
 import { PerformanceMonitor } from '@/utils/performanceOptimization';
+import PrivacyConsentGate from "@/components/privacy/PrivacyConsentGate";
 
 function App() {
   const [showDevTools, setShowDevTools] = useState(false);
@@ -71,27 +72,29 @@ function App() {
                 </Button>
               </>
             )}
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/auth/reset-password" element={<PasswordReset />} />
-              <Route path="/auth/verify" element={<EmailVerify />} />
-              <Route path="/verify-email" element={<EmailVerify />} />
-              <Route path="/production-check" element={<ProductionCheck />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/terms-of-service" element={<TermsOfService />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/settings/profile" element={<Profile />} />
-              <Route path="/settings/app-settings" element={<AppSettings />} />
-              <Route path="/settings/subscription" element={<SubscriptionPage />} />
-              <Route path="/settings/privacy-settings" element={<PrivacySettings />} />
-              <Route path="/settings/help-support" element={<HelpSupport />} />
-              <Route path="/settings/legal" element={<Legal />} />
-              <Route path="/settings/about" element={<About />} />
-              <Route path="/admin/achievements" element={<AdminAchievements />} />
-              
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <PrivacyConsentGate>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/auth/reset-password" element={<PasswordReset />} />
+                <Route path="/auth/verify" element={<EmailVerify />} />
+                <Route path="/verify-email" element={<EmailVerify />} />
+                <Route path="/production-check" element={<ProductionCheck />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-of-service" element={<TermsOfService />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/settings/profile" element={<Profile />} />
+                <Route path="/settings/app-settings" element={<AppSettings />} />
+                <Route path="/settings/subscription" element={<SubscriptionPage />} />
+                <Route path="/settings/privacy-settings" element={<PrivacySettings />} />
+                <Route path="/settings/help-support" element={<HelpSupport />} />
+                <Route path="/settings/legal" element={<Legal />} />
+                <Route path="/settings/about" element={<About />} />
+                <Route path="/admin/achievements" element={<AdminAchievements />} />
+                
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </PrivacyConsentGate>
             <Toaster />
             <SonnerToaster />
             <ProductionDiagnostics />

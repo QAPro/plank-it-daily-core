@@ -2303,6 +2303,77 @@ export type Database = {
         }
         Relationships: []
       }
+      privacy_settings: {
+        Row: {
+          activity_visibility: string | null
+          allow_friend_suggestions: boolean | null
+          allow_tagging: boolean | null
+          created_at: string | null
+          data_collection_analytics: boolean | null
+          data_collection_personalization: boolean | null
+          friend_request_privacy: string | null
+          id: string
+          marketing_emails: boolean | null
+          privacy_consent_date: string | null
+          privacy_consent_given: boolean | null
+          product_updates: boolean | null
+          profile_visibility: string | null
+          show_achievements: boolean | null
+          show_statistics: boolean | null
+          show_streak: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          activity_visibility?: string | null
+          allow_friend_suggestions?: boolean | null
+          allow_tagging?: boolean | null
+          created_at?: string | null
+          data_collection_analytics?: boolean | null
+          data_collection_personalization?: boolean | null
+          friend_request_privacy?: string | null
+          id?: string
+          marketing_emails?: boolean | null
+          privacy_consent_date?: string | null
+          privacy_consent_given?: boolean | null
+          product_updates?: boolean | null
+          profile_visibility?: string | null
+          show_achievements?: boolean | null
+          show_statistics?: boolean | null
+          show_streak?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          activity_visibility?: string | null
+          allow_friend_suggestions?: boolean | null
+          allow_tagging?: boolean | null
+          created_at?: string | null
+          data_collection_analytics?: boolean | null
+          data_collection_personalization?: boolean | null
+          friend_request_privacy?: string | null
+          id?: string
+          marketing_emails?: boolean | null
+          privacy_consent_date?: string | null
+          privacy_consent_given?: boolean | null
+          product_updates?: boolean | null
+          profile_visibility?: string | null
+          show_achievements?: boolean | null
+          show_statistics?: boolean | null
+          show_streak?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "privacy_settings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       push_subscriptions: {
         Row: {
           auth_key: string
@@ -5266,6 +5337,18 @@ export type Database = {
         Args: { _admin_id: string; _target_user_id: string }
         Returns: boolean
       }
+      can_send_friend_request: {
+        Args: { _receiver_id: string; _sender_id: string }
+        Returns: boolean
+      }
+      can_view_user_activity: {
+        Args: { _target_user_id: string; _viewer_id: string }
+        Returns: boolean
+      }
+      can_view_user_profile: {
+        Args: { _target_user_id: string; _viewer_id: string }
+        Returns: boolean
+      }
       check_billing_access_rate_limit: {
         Args: { _user_id: string }
         Returns: boolean
@@ -5631,6 +5714,19 @@ export type Database = {
       get_user_momentum_score: {
         Args: { _user_id: string; _week_start_date: string }
         Returns: number
+      }
+      get_user_privacy_settings: {
+        Args: { _user_id: string }
+        Returns: {
+          activity_visibility: string
+          allow_friend_suggestions: boolean
+          allow_tagging: boolean
+          friend_request_privacy: string
+          profile_visibility: string
+          show_achievements: boolean
+          show_statistics: boolean
+          show_streak: boolean
+        }[]
       }
       get_user_push_subscription_count: { Args: never; Returns: number }
       get_user_registration_trends: {

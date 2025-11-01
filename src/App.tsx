@@ -84,6 +84,7 @@ function App() {
                 <Route path="/terms-of-service" element={<TermsOfService />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/settings/profile" element={<Profile />} />
+                <Route path="/profile/:userId" element={<Profile />} />
                 <Route path="/settings/app-settings" element={<AppSettings />} />
                 <Route path="/settings/subscription" element={<SubscriptionPage />} />
                 <Route path="/settings/privacy-settings" element={<PrivacySettings />} />

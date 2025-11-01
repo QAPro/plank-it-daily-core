@@ -13,19 +13,19 @@ const PrivacyBadge = ({ visibility, size = 'sm' }: PrivacyBadgeProps) => {
       icon: Globe,
       label: 'Public',
       description: 'Visible to everyone',
-      className: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+      className: 'bg-accent/10 text-accent-foreground hover:bg-accent/20'
     },
     friends_only: {
       icon: Users,
       label: 'Friends Only',
       description: 'Only visible to your friends',
-      className: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+      className: 'bg-primary/10 text-primary hover:bg-primary/20'
     },
     private: {
       icon: Lock,
       label: 'Private',
       description: 'Only visible to you',
-      className: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
+      className: 'bg-muted text-muted-foreground hover:bg-muted/80'
     }
   }[visibility];
 

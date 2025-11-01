@@ -18,11 +18,14 @@ import { validateUsernameFormat } from "@/utils/usernameValidation";
 import ReputationBadge from "@/components/shared/ReputationBadge";
 import { useReputation } from "@/hooks/useReputation";
 import { format } from "date-fns";
+import PrivacyBadge from "@/components/privacy/PrivacyBadge";
+import { usePrivacySettings } from "@/hooks/usePrivacySettings";
 
 const ProfileHeader = () => {
   const { user, session } = useAuth();
   const { toast } = useToast();
   const { getTotalKarma } = useReputation(user?.id);
+  const { privacySettings } = usePrivacySettings();
   const [userProfile, setUserProfile] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -187,6 +190,16 @@ const ProfileHeader = () => {
       
       <Card className="bg-gradient-to-br from-orange-500 to-amber-500 text-white border-0">
         <CardContent className="p-6">
+          {/* Privacy Badge */}
+          {privacySettings && (
+            <div className="mb-4">
+              <PrivacyBadge 
+                visibility={privacySettings.profile_visibility} 
+                size="md"
+              />
+            </div>
+          )}
+          
           <div className="flex items-center space-x-4">
             <Avatar className="w-16 h-16 border-2 border-white/20">
               <AvatarImage src={userProfile?.avatar_url} />

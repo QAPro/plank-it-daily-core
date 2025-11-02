@@ -102,7 +102,7 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
   const remainingProgress = 100 - progress;
 
   return (
-    <div className="relative w-[280px] h-[280px] md:w-[320px] md:h-[320px] lg:w-[360px] lg:h-[360px] flex items-center justify-center mx-auto">
+    <div className="relative w-[280px] h-[280px] md:w-[320px] md:h-[320px] lg:w-[320px] lg:h-[320px] flex items-center justify-center mx-auto">
       {/* Layer 1: Outer Orange Ring Background (z-10) */}
       <motion.div 
         className={`absolute inset-0 rounded-full ${colors.outerRing} ${colors.outerShadow} shadow-[inset_0_2px_4px_rgba(255,255,255,0.3),inset_0_-2px_4px_rgba(0,0,0,0.2)] z-10 overflow-hidden`}

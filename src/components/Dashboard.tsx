@@ -87,12 +87,10 @@ const Dashboard = () => {
       <DashboardHeader activeTab={activeTab} />
       
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto pt-16 pb-32">
-        <div className="h-full">
-          <AnimatePresence mode="wait">
-            {renderTabContent()}
-          </AnimatePresence>
-        </div>
+      <div className="flex-1 overflow-y-auto pt-16 pb-32 min-h-0">
+        <AnimatePresence mode="wait">
+          {renderTabContent()}
+        </AnimatePresence>
       </div>
 
       {/* Navigation */}

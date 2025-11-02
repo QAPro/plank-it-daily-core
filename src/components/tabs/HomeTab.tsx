@@ -257,7 +257,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="p-6 space-y-4 max-w-2xl mx-auto"
+      className="p-6 space-y-4 max-w-2xl mx-auto pb-8"
     >
       {/* Confetti */}
       <EnhancedConfetti 

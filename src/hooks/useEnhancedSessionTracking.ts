@@ -380,9 +380,14 @@ const completeSession = useCallback(async (duration: number, notes?: string) => 
     try {
       const { updateMomentumScore } = await import('@/services/momentumScoreService');
       await updateMomentumScore(user.id);
-      // Invalidate momentum query to trigger refetch
+      
+      // Invalidate all related queries to trigger refetch
       queryClient.invalidateQueries({ queryKey: ['momentum-score'] });
-      console.log('✅ Momentum score updated and cache invalidated');
+      queryClient.invalidateQueries({ queryKey: ['session-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['session-history'] });
+      queryClient.invalidateQueries({ queryKey: ['user-streak'] });
+      
+      console.log('✅ Momentum score and related stats updated, caches invalidated');
     } catch (error) {
       console.error('Failed to update momentum score:', error);
     }

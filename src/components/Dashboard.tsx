@@ -82,13 +82,13 @@ const Dashboard = () => {
   console.log('[Dashboard] Rendering Dashboard for user:', user?.email);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#FFF9F5] to-[#FFFCFA]">
+    <div className="h-screen bg-gradient-to-b from-[#FFF9F5] to-[#FFFCFA]">
       {/* Header */}
       <DashboardHeader activeTab={activeTab} />
       
       <div className="flex flex-col h-screen">        
         {/* Main Content */}
-        <div className="flex-1 overflow-y-auto pt-16 pb-24">
+        <div className="flex-1 overflow-y-auto pt-16 pb-28">
           <div className="h-full">
             <AnimatePresence mode="wait">
               {renderTabContent()}

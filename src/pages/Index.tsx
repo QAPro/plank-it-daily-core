@@ -109,7 +109,7 @@ const Index = () => {
   return (
     <LevelProgressionProvider>
       <StreakProvider>
-        <div className="min-h-screen bg-gradient-to-b from-[#FFF9F5] to-[#FFFCFA] pb-24">
+        <div className="min-h-screen bg-gradient-to-b from-[#FFF9F5] to-[#FFFCFA]">
           <AnimatePresence mode="wait">
             {showWelcome ? (
               <WelcomeScreen key="welcome" onGetStarted={handleGetStarted} />

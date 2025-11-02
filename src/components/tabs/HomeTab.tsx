@@ -51,7 +51,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
 
   // Audio and session tracking
   const { playCompletionSound } = useEnhancedTimerAudio();
-  const { completeSession } = useEnhancedSessionTracking();
+  const { completeSession, selectExercise } = useEnhancedSessionTracking();
 
   // Timer hook
   const {
@@ -83,6 +83,13 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
 
   // Get selected exercise object
   const selectedExercise = exercises?.find(ex => ex.id === selectedExerciseId);
+  
+  // Keep session tracking hook in sync with selected exercise
+  useEffect(() => {
+    if (selectedExercise) {
+      selectExercise(selectedExercise);
+    }
+  }, [selectedExercise, selectExercise]);
 
   // Initialize from preferences or defaults
   useEffect(() => {

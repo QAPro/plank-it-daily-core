@@ -245,21 +245,21 @@ const ProfileHeader = () => {
               )}
               
               {!isEditing && (
-                <div className="flex items-center space-x-4 text-orange-100 text-sm">
-                  <div className="flex items-center space-x-1">
-                    <Mail className="w-3 h-3" />
-                    <span>{user?.email}</span>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-orange-100 text-sm sm:text-base">
+                  <div className="flex items-center gap-1 w-full sm:w-auto">
+                    <Mail className="w-3 h-3 shrink-0" />
+                    <span className="break-all">{user?.email}</span>
                     <Button
                       size="sm"
                       variant="ghost"
                       onClick={() => setEmailChangeDialogOpen(true)}
-                      className="h-6 px-2 ml-1 text-orange-100 hover:bg-white/20 hover:text-white"
+                      className="h-6 px-2 ml-1 text-orange-100 hover:bg-white/20 hover:text-white shrink-0"
                     >
                       Change
                     </Button>
                   </div>
-                  <div className="flex items-center space-x-1">
-                    <Calendar className="w-3 h-3" />
+                  <div className="flex items-center gap-1 w-full sm:w-auto">
+                    <Calendar className="w-3 h-3 shrink-0" />
                     <span>Member since {getMemberSinceDate()}</span>
                   </div>
                 </div>

@@ -308,6 +308,21 @@ export class DatabaseAchievementService {
 
   protected async awardAchievement(achievement: Achievement): Promise<UserAchievement | null> {
     try {
+      // First, check if user already has this achievement
+      const { data: existingAchievement } = await supabase
+        .from('user_achievements')
+        .select('*')
+        .eq('user_id', this.userId)
+        .eq('achievement_type', achievement.id)
+        .maybeSingle();
+
+      // If already earned, return null to indicate no NEW achievement was awarded
+      if (existingAchievement) {
+        console.log('Achievement already earned (skipping):', achievement.name);
+        return null;
+      }
+
+      // Insert new achievement
       const { data, error } = await supabase
         .from('user_achievements')
         .insert({
@@ -326,6 +341,11 @@ export class DatabaseAchievementService {
         .single();
 
       if (error) {
+        // Handle unique constraint violation gracefully
+        if (error.code === '23505') { // Postgres unique violation code
+          console.log('Achievement already exists (caught by DB constraint):', achievement.name);
+          return null;
+        }
         console.error('Error awarding achievement:', error);
         return null;
       }

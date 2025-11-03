@@ -200,7 +200,7 @@ const ProfileHeader = () => {
             </div>
           )}
           
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 relative">
             <Avatar className="w-16 h-16 border-2 border-white/20">
               <AvatarImage src={userProfile?.avatar_url} />
               <AvatarFallback className="bg-white/20 text-white text-lg font-bold">
@@ -266,7 +266,7 @@ const ProfileHeader = () => {
               )}
             </div>
             
-            <div className="flex items-center space-x-2">
+            <div className="absolute top-0 right-0 flex items-center gap-2">
               {isEditing ? (
                 <>
                   <Button 

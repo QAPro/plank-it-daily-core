@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,11 +10,12 @@ interface SimpleCompletionOverlayProps {
   exerciseName: string;
   duration: number;
   onClose: () => void;
-  onSubmit: (notes: string) => void;
+  onSubmit: (notes: string) => Promise<void>;
 }
 
 const SimpleCompletionOverlay = ({ isOpen, exerciseName, duration, onClose, onSubmit }: SimpleCompletionOverlayProps) => {
   const [notes, setNotes] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -22,10 +23,27 @@ const SimpleCompletionOverlay = ({ isOpen, exerciseName, duration, onClose, onSu
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const handleSubmit = () => {
-    onSubmit(notes);
-    setNotes(''); // Clear notes after submission
+  const handleSubmit = async () => {
+    if (isSubmitting) return; // Prevent double-clicks
+    
+    setIsSubmitting(true);
+    try {
+      await onSubmit(notes);
+      setNotes(''); // Clear notes after successful submission
+    } catch (error) {
+      console.error('Failed to submit workout:', error);
+      setIsSubmitting(false); // Re-enable on error
+    }
+    // Note: Don't set isSubmitting to false on success, modal will close anyway
   };
+
+  // Reset state when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setIsSubmitting(false);
+      setNotes('');
+    }
+  }, [isOpen]);
 
   return (
     <AnimatePresence>
@@ -117,8 +135,9 @@ const SimpleCompletionOverlay = ({ isOpen, exerciseName, duration, onClose, onSu
                     onClick={handleSubmit}
                     size="lg"
                     className="flex-1"
+                    disabled={isSubmitting}
                   >
-                    Submit
+                    {isSubmitting ? 'Submitting...' : 'Submit'}
                   </Button>
                 </div>
               </CardContent>

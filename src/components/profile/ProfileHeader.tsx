@@ -10,7 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import AvatarSelector from "./AvatarSelector";
+import CarouselAvatarSelector from "./CarouselAvatarSelector";
 import UsernameInput from "./UsernameInput";
 import EmailChangeDialog from "./EmailChangeDialog";
 import PendingEmailChangeBanner from "./PendingEmailChangeBanner";
@@ -219,7 +219,7 @@ const ProfileHeader = () => {
                   />
                   <div className="space-y-2">
                     <div className="text-sm text-orange-100/90">Choose an avatar</div>
-                    <AvatarSelector
+                    <CarouselAvatarSelector
                       selectedUrl={editData.avatar_url}
                       onSelect={(url) => setEditData(prev => ({ ...prev, avatar_url: url }))}
                       className="mt-1"

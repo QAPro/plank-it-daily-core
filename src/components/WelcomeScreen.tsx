@@ -49,11 +49,12 @@ const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
         <motion.img
           src={innerFireLogo}
           alt="Inner Fire Logo"
-          className="h-24 w-auto object-contain mx-auto mb-4"
+          className="w-24 h-24 object-contain mx-auto mb-4"
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
         />
+        <h1 className="text-5xl font-bold text-gradient mb-2">Inner Fire</h1>
         <p className="text-xl text-muted-foreground font-medium">5 Minutes a Day, Just for You</p>
       </motion.div>
 

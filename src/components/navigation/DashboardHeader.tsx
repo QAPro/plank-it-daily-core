@@ -18,12 +18,13 @@ const DashboardHeader = ({ activeTab = 'home' }: DashboardHeaderProps) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
             <img 
               src={innerFireLogo} 
               alt="Inner Fire Logo" 
-              className="h-10 w-auto object-contain"
+              className="w-10 h-10 object-contain"
             />
+            <h1 className="text-2xl font-bold text-coral">inner fire</h1>
           </div>
           <button 
             onClick={() => navigate('/settings', { state: { fromTab: activeTab } })}

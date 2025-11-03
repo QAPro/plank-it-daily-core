@@ -89,10 +89,10 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
       center: 130 
     },
     desktop: { 
-      size: 340, 
-      radius: 165, 
+      size: 300, 
+      radius: 145, 
       strokeWidth: 8,
-      center: 170 
+      center: 150 
     }
   };
 

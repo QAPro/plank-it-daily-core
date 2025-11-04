@@ -138,7 +138,7 @@ const UsernameInput = ({
       case 'error':
         return 'text-orange-500';
       default:
-        return 'text-gray-500';
+        return 'text-white/90';
     }
   };
 

@@ -200,15 +200,17 @@ const ProfileHeader = () => {
             </div>
           )}
           
-          <div className="flex items-center space-x-4 relative">
-            <Avatar className="w-16 h-16 border-2 border-white/20">
-              <AvatarImage src={userProfile?.avatar_url} />
-              <AvatarFallback className="bg-white/20 text-white text-lg font-bold">
-                {getInitials()}
-              </AvatarFallback>
-            </Avatar>
+          <div className="flex items-start space-x-4 relative">
+            {!isEditing && (
+              <Avatar className="w-16 h-16 border-2 border-white/20">
+                <AvatarImage src={userProfile?.avatar_url} />
+                <AvatarFallback className="bg-white/20 text-white text-lg font-bold">
+                  {getInitials()}
+                </AvatarFallback>
+              </Avatar>
+            )}
             
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               {isEditing ? (
                 <div className="space-y-3">
                   <UsernameInput
@@ -266,31 +268,8 @@ const ProfileHeader = () => {
               )}
             </div>
             
-            <div className="absolute top-0 right-0 flex items-center gap-2">
-              {isEditing ? (
-                <>
-                  <Button 
-                    variant="secondary"
-                    size="sm"
-                    onClick={handleSave}
-                    disabled={loading}
-                    className="bg-white/20 text-white hover:bg-white/30 border-0"
-                  >
-                    <Check className="w-4 h-4 mr-1" />
-                    {loading ? 'Saving...' : 'Save'}
-                  </Button>
-                  <Button 
-                    variant="secondary"
-                    size="sm"
-                    onClick={handleCancel}
-                    disabled={loading}
-                    className="bg-white/10 text-white hover:bg-white/20 border-0"
-                  >
-                    <X className="w-4 h-4 mr-1" />
-                    Cancel
-                  </Button>
-                </>
-              ) : (
+            {!isEditing && (
+              <div className="absolute top-0 right-0">
                 <Button 
                   variant="secondary"
                   size="sm"
@@ -300,9 +279,34 @@ const ProfileHeader = () => {
                   <Edit className="w-4 h-4 mr-1" />
                   Edit
                 </Button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
+          
+          {isEditing && (
+            <div className="flex items-center justify-end gap-2 mt-3">
+              <Button 
+                variant="secondary"
+                size="sm"
+                onClick={handleSave}
+                disabled={loading}
+                className="bg-white/20 text-white hover:bg-white/30 border-0"
+              >
+                <Check className="w-4 h-4 mr-1" />
+                {loading ? 'Saving...' : 'Save'}
+              </Button>
+              <Button 
+                variant="secondary"
+                size="sm"
+                onClick={handleCancel}
+                disabled={loading}
+                className="bg-white/10 text-white hover:bg-white/20 border-0"
+              >
+                <X className="w-4 h-4 mr-1" />
+                Cancel
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 

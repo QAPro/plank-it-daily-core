@@ -25,7 +25,7 @@ const PrivacyBadge = ({ visibility, size = 'sm' }: PrivacyBadgeProps) => {
       icon: Lock,
       label: 'Private',
       description: 'Only visible to you',
-      className: 'bg-muted text-muted-foreground hover:bg-muted/80'
+      className: 'bg-white/20 text-white hover:bg-white/30 border-white/30'
     }
   }[visibility];
 

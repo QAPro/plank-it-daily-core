@@ -134,12 +134,10 @@ const CarouselAvatarSelector = ({ selectedUrl, onSelect, className }: CarouselAv
 
         {/* Navigation Arrows */}
         <CarouselPrevious 
-          className="left-0 -translate-x-1/2" 
-          variant="outline"
+          className="left-0 -translate-x-1/2 bg-white/90 text-foreground hover:bg-white border-white/30 disabled:opacity-50" 
         />
         <CarouselNext 
-          className="right-0 translate-x-1/2"
-          variant="outline"
+          className="right-0 translate-x-1/2 bg-white/90 text-foreground hover:bg-white border-white/30 disabled:opacity-50"
         />
       </Carousel>
     </div>

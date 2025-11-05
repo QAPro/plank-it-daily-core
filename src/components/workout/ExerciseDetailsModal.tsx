@@ -87,7 +87,7 @@ export const ExerciseDetailsModal = ({ exercise, isOpen, onClose, onStart, isLoc
               ) : (
                 <>
                   <Play className="h-4 w-4 mr-2" />
-                  Start Exercise
+                  Select
                 </>
               )}
             </Button>

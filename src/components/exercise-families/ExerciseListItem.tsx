@@ -87,7 +87,7 @@ const ExerciseListItem = ({
             className="h-8 px-3 text-xs"
           >
             <Play className="h-3 w-3 mr-1" />
-            Start
+            Select
           </Button>
         </div>
       </div>

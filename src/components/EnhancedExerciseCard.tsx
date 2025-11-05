@@ -165,7 +165,7 @@ const EnhancedExerciseCard = ({
                   className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold py-2 rounded-lg"
                 >
                   <Play className="w-4 h-4 mr-2" />
-                  Start Exercise
+                  Select
                 </Button>
                 <Button
                   variant="outline"

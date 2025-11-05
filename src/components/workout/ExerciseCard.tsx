@@ -75,7 +75,7 @@ export const ExerciseCard = ({ exercise, onStart, onViewDetails, index, isLocked
               ) : (
                 <>
                   <Play className="h-4 w-4 mr-2" />
-                  Start
+                  Select
                 </>
               )}
             </Button>

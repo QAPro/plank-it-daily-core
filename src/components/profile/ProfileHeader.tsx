@@ -226,9 +226,9 @@ const ProfileHeader = () => {
             {!isEditing ? (
               <>
                 {/* Avatar - Centered & Prominent */}
-                <Avatar className="w-24 h-24 md:w-28 md:h-28 border-4 border-white/20 mb-4">
+                <Avatar className="w-28 h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 border-4 border-white/20 mb-4">
                   <AvatarImage src={userProfile?.avatar_url} />
-                  <AvatarFallback className="bg-white/20 text-white text-2xl font-bold">
+                  <AvatarFallback className="bg-white/20 text-white text-3xl font-bold">
                     {getInitials()}
                   </AvatarFallback>
                 </Avatar>

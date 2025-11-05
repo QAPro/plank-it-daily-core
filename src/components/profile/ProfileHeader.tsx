@@ -195,63 +195,51 @@ const ProfileHeader = () => {
         />
       )}
       
-      <Card className="bg-gradient-to-br from-orange-500 to-amber-500 text-white border-0">
+      <Card className="bg-gradient-to-br from-orange-500 to-amber-500 text-white border-0 relative">
         <CardContent className="p-6">
-          {/* Privacy Badge */}
+          {/* Privacy Badge - Top Left */}
           {privacySettings && (
-            <div className="mb-4">
+            <div className="absolute top-4 left-4">
               <PrivacyBadge 
                 visibility={privacySettings.profile_visibility} 
                 size="md"
               />
             </div>
           )}
+
+          {/* Edit Button - Top Right */}
+          {!isEditing && (
+            <div className="absolute top-4 right-4">
+              <Button 
+                variant="secondary"
+                size="sm"
+                onClick={handleEdit}
+                className="bg-white/20 text-white hover:bg-white/30 border-0"
+              >
+                <Edit className="w-4 h-4 mr-1" />
+                Edit
+              </Button>
+            </div>
+          )}
           
-          <div className="flex items-start space-x-4 relative">
-            {!isEditing && (
-              <Avatar className="w-16 h-16 border-2 border-white/20">
-                <AvatarImage src={userProfile?.avatar_url} />
-                <AvatarFallback className="bg-white/20 text-white text-lg font-bold">
-                  {getInitials()}
-                </AvatarFallback>
-              </Avatar>
-            )}
-            
-            <div className="flex-1 min-w-0">
-              {isEditing ? (
-                <div className="space-y-3">
-                  <div className="space-y-2">
-                    <div className="text-sm text-orange-100/90">First Name (Optional)</div>
-                    <Input
-                      value={editData.first_name}
-                      onChange={(e) => setEditData(prev => ({ ...prev, first_name: e.target.value }))}
-                      placeholder="Enter your first name"
-                      className="bg-white/20 text-white placeholder:text-orange-100 border-white/30"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="text-sm text-orange-100/90">Username</div>
-                    <UsernameInput
-                      value={editData.username}
-                      onChange={(value) => setEditData(prev => ({ ...prev, username: value }))}
-                      currentUsername={userProfile?.username}
-                      className="bg-white/20 text-white placeholder:text-orange-100"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="text-sm text-orange-100/90">Choose an avatar</div>
-                    <CarouselAvatarSelector
-                      selectedUrl={editData.avatar_url}
-                      onSelect={(url) => setEditData(prev => ({ ...prev, avatar_url: url }))}
-                      className="mt-1"
-                    />
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <h3 className="text-xl font-bold mb-1">{getDisplayName()}</h3>
-                  <p className="text-orange-100 mb-2">{getSubtitle()}</p>
-                  <div className="flex items-center gap-2 mb-3">
+          <div className="flex flex-col items-center pt-8">
+            {!isEditing ? (
+              <>
+                {/* Avatar - Centered & Prominent */}
+                <Avatar className="w-24 h-24 md:w-28 md:h-28 border-4 border-white/20 mb-4">
+                  <AvatarImage src={userProfile?.avatar_url} />
+                  <AvatarFallback className="bg-white/20 text-white text-2xl font-bold">
+                    {getInitials()}
+                  </AvatarFallback>
+                </Avatar>
+
+                {/* Identity Section - Centered */}
+                <div className="text-center mb-4">
+                  <h3 className="text-2xl font-bold mb-1">{getDisplayName()}</h3>
+                  <p className="text-orange-100 text-lg mb-3">{getSubtitle()}</p>
+                  
+                  {/* Badges - Centered */}
+                  <div className="flex items-center justify-center gap-2">
                     <Badge variant="secondary" className="text-xs bg-white/20 text-white border-0">
                       <Star className="w-3 h-3 mr-1" />
                       Level {userProfile?.current_level || 1}
@@ -262,83 +250,99 @@ const ProfileHeader = () => {
                       className="shrink-0"
                     />
                   </div>
-                </>
-              )}
-              
-              {!isEditing && (
-                <div className="space-y-3">
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-orange-100 text-sm sm:text-base">
-                    <div className="flex items-center gap-1 w-full sm:w-auto">
-                      <Mail className="w-3 h-3 shrink-0" />
-                      <span className="break-all">{user?.email}</span>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setEmailChangeDialogOpen(true)}
-                        className="h-6 px-2 ml-1 text-orange-100 hover:bg-white/20 hover:text-white shrink-0"
-                      >
-                        Change Email
-                      </Button>
-                    </div>
-                    <div className="flex items-center gap-1 w-full sm:w-auto">
-                      <Calendar className="w-3 h-3 shrink-0" />
-                      <span>Member since {getMemberSinceDate()}</span>
-                    </div>
+                </div>
+
+                {/* Info Section - Well-spaced rows */}
+                <div className="w-full max-w-md space-y-3 mt-2">
+                  {/* Email row */}
+                  <div className="flex items-center justify-center gap-2 text-orange-100 text-sm">
+                    <Mail className="w-4 h-4 shrink-0" />
+                    <span className="break-all">{user?.email}</span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setEmailChangeDialogOpen(true)}
+                      className="h-7 px-2 text-orange-100 hover:bg-white/20 hover:text-white shrink-0"
+                    >
+                      Change Email
+                    </Button>
                   </div>
-                  <div>
+
+                  {/* Member Since row */}
+                  <div className="flex items-center justify-center gap-2 text-orange-100 text-sm">
+                    <Calendar className="w-4 h-4 shrink-0" />
+                    <span>Member since {getMemberSinceDate()}</span>
+                  </div>
+
+                  {/* Change Password row */}
+                  <div className="flex items-center justify-center">
                     <Button
                       size="sm"
                       variant="ghost"
                       onClick={() => setPasswordDialogOpen(true)}
                       className="h-8 px-3 text-orange-100 hover:bg-white/20 hover:text-white"
                     >
-                      <Lock className="w-3 h-3 mr-2" />
+                      <Lock className="w-4 h-4 mr-2" />
                       Change Password
                     </Button>
                   </div>
                 </div>
-              )}
-            </div>
-            
-            {!isEditing && (
-              <div className="absolute top-0 right-0">
-                <Button 
-                  variant="secondary"
-                  size="sm"
-                  onClick={handleEdit}
-                  className="bg-white/20 text-white hover:bg-white/30 border-0"
-                >
-                  <Edit className="w-4 h-4 mr-1" />
-                  Edit
-                </Button>
+              </>
+            ) : (
+              <div className="w-full max-w-md space-y-3">
+                <div className="space-y-2">
+                  <div className="text-sm text-orange-100/90">First Name (Optional)</div>
+                  <Input
+                    value={editData.first_name}
+                    onChange={(e) => setEditData(prev => ({ ...prev, first_name: e.target.value }))}
+                    placeholder="Enter your first name"
+                    className="bg-white/20 text-white placeholder:text-orange-100 border-white/30"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <div className="text-sm text-orange-100/90">Username</div>
+                  <UsernameInput
+                    value={editData.username}
+                    onChange={(value) => setEditData(prev => ({ ...prev, username: value }))}
+                    currentUsername={userProfile?.username}
+                    className="bg-white/20 text-white placeholder:text-orange-100"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <div className="text-sm text-orange-100/90">Choose an avatar</div>
+                  <CarouselAvatarSelector
+                    selectedUrl={editData.avatar_url}
+                    onSelect={(url) => setEditData(prev => ({ ...prev, avatar_url: url }))}
+                    className="mt-1"
+                  />
+                </div>
+
+                {/* Save/Cancel buttons */}
+                <div className="flex items-center justify-end gap-2 mt-4">
+                  <Button 
+                    variant="secondary"
+                    size="sm"
+                    onClick={handleSave}
+                    disabled={loading}
+                    className="bg-white/20 text-white hover:bg-white/30 border-0"
+                  >
+                    <Check className="w-4 h-4 mr-1" />
+                    {loading ? 'Saving...' : 'Save'}
+                  </Button>
+                  <Button 
+                    variant="secondary"
+                    size="sm"
+                    onClick={handleCancel}
+                    disabled={loading}
+                    className="bg-white/10 text-white hover:bg-white/20 border-0"
+                  >
+                    <X className="w-4 h-4 mr-1" />
+                    Cancel
+                  </Button>
+                </div>
               </div>
             )}
           </div>
-          
-          {isEditing && (
-            <div className="flex items-center justify-end gap-2 mt-3">
-              <Button 
-                variant="secondary"
-                size="sm"
-                onClick={handleSave}
-                disabled={loading}
-                className="bg-white/20 text-white hover:bg-white/30 border-0"
-              >
-                <Check className="w-4 h-4 mr-1" />
-                {loading ? 'Saving...' : 'Save'}
-              </Button>
-              <Button 
-                variant="secondary"
-                size="sm"
-                onClick={handleCancel}
-                disabled={loading}
-                className="bg-white/10 text-white hover:bg-white/20 border-0"
-              >
-                <X className="w-4 h-4 mr-1" />
-                Cancel
-              </Button>
-            </div>
-          )}
         </CardContent>
       </Card>
 

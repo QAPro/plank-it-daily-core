@@ -277,7 +277,7 @@ const ProfileHeader = () => {
                         onClick={() => setEmailChangeDialogOpen(true)}
                         className="h-6 px-2 ml-1 text-orange-100 hover:bg-white/20 hover:text-white shrink-0"
                       >
-                        Change
+                        Change Email
                       </Button>
                     </div>
                     <div className="flex items-center gap-1 w-full sm:w-auto">

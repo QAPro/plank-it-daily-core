@@ -12,8 +12,6 @@ import { useStreakTracking } from '@/hooks/useStreakTracking';
 import { useUserAchievements } from '@/hooks/useUserAchievements';
 import { useViewableProfile } from '@/hooks/useViewableProfile';
 import { usePrivacySettings } from '@/hooks/usePrivacySettings';
-import EditProfileDialog from '@/components/profile/EditProfileDialog';
-import ChangePasswordDialog from '@/components/profile/ChangePasswordDialog';
 import PrivateProfilePlaceholder from '@/components/privacy/PrivateProfilePlaceholder';
 import ProfileHeader from '@/components/profile/ProfileHeader';
 
@@ -23,8 +21,6 @@ const Profile = () => {
   const { user } = useAuth();
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
 
   // Determine if viewing own profile or someone else's
   const targetUserId = userId || user?.id;
@@ -255,22 +251,6 @@ const Profile = () => {
           </Card>
         </motion.div>
       </div>
-
-      {/* Dialogs - Only show for own profile */}
-      {isOwnProfile && (
-        <>
-          <EditProfileDialog
-            open={editDialogOpen}
-            onOpenChange={setEditDialogOpen}
-            userData={userData}
-            onUpdate={fetchUserData}
-          />
-          <ChangePasswordDialog
-            open={passwordDialogOpen}
-            onOpenChange={setPasswordDialogOpen}
-          />
-        </>
-      )}
     </div>
   );
 };

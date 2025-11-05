@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { User, Edit, Mail, Calendar, Check, X, Star } from "lucide-react";
+import { User, Edit, Mail, Calendar, Check, X, Star, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import CarouselAvatarSelector from "./CarouselAvatarSelector";
 import UsernameInput from "./UsernameInput";
 import EmailChangeDialog from "./EmailChangeDialog";
 import PendingEmailChangeBanner from "./PendingEmailChangeBanner";
+import ChangePasswordDialog from "./ChangePasswordDialog";
 import { validateUsernameFormat } from "@/utils/usernameValidation";
 import ReputationBadge from "@/components/shared/ReputationBadge";
 import { useReputation } from "@/hooks/useReputation";
@@ -30,9 +31,11 @@ const ProfileHeader = () => {
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [emailChangeDialogOpen, setEmailChangeDialogOpen] = useState(false);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [pendingEmailChange, setPendingEmailChange] = useState<string | null>(null);
   const [editData, setEditData] = useState({
     username: '',
+    first_name: '',
     avatar_url: '' as string | null,
   });
 
@@ -64,6 +67,7 @@ const ProfileHeader = () => {
         setUserProfile(data);
         setEditData({
           username: data.username || '',
+          first_name: data.first_name || '',
           avatar_url: data.avatar_url || '',
         });
       }
@@ -80,6 +84,7 @@ const ProfileHeader = () => {
     setIsEditing(false);
     setEditData({
       username: userProfile?.username || '',
+      first_name: userProfile?.first_name || '',
       avatar_url: userProfile?.avatar_url || '',
     });
   };
@@ -106,6 +111,7 @@ const ProfileHeader = () => {
         .from('users')
         .update({
           username: editData.username.trim() || null,
+          first_name: editData.first_name.trim() || null,
           avatar_url: editData.avatar_url || null,
           updated_at: new Date().toISOString()
         })
@@ -127,6 +133,7 @@ const ProfileHeader = () => {
       setUserProfile(prev => ({
         ...prev,
         username: editData.username.trim() || null,
+        first_name: editData.first_name.trim() || null,
         avatar_url: editData.avatar_url || null,
       }));
 
@@ -151,8 +158,8 @@ const ProfileHeader = () => {
   };
 
   const getSubtitle = () => {
-    if (user?.email) {
-      return user.email;
+    if (userProfile?.first_name) {
+      return userProfile.first_name;
     }
     return 'Inner Fire Member';
   };
@@ -213,12 +220,24 @@ const ProfileHeader = () => {
             <div className="flex-1 min-w-0">
               {isEditing ? (
                 <div className="space-y-3">
-                  <UsernameInput
-                    value={editData.username}
-                    onChange={(value) => setEditData(prev => ({ ...prev, username: value }))}
-                    currentUsername={userProfile?.username}
-                    className="bg-white/20 text-white placeholder:text-orange-100"
-                  />
+                  <div className="space-y-2">
+                    <div className="text-sm text-orange-100/90">First Name (Optional)</div>
+                    <Input
+                      value={editData.first_name}
+                      onChange={(e) => setEditData(prev => ({ ...prev, first_name: e.target.value }))}
+                      placeholder="Enter your first name"
+                      className="bg-white/20 text-white placeholder:text-orange-100 border-white/30"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="text-sm text-orange-100/90">Username</div>
+                    <UsernameInput
+                      value={editData.username}
+                      onChange={(value) => setEditData(prev => ({ ...prev, username: value }))}
+                      currentUsername={userProfile?.username}
+                      className="bg-white/20 text-white placeholder:text-orange-100"
+                    />
+                  </div>
                   <div className="space-y-2">
                     <div className="text-sm text-orange-100/90">Choose an avatar</div>
                     <CarouselAvatarSelector
@@ -247,22 +266,35 @@ const ProfileHeader = () => {
               )}
               
               {!isEditing && (
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-orange-100 text-sm sm:text-base">
-                  <div className="flex items-center gap-1 w-full sm:w-auto">
-                    <Mail className="w-3 h-3 shrink-0" />
-                    <span className="break-all">{user?.email}</span>
+                <div className="space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-orange-100 text-sm sm:text-base">
+                    <div className="flex items-center gap-1 w-full sm:w-auto">
+                      <Mail className="w-3 h-3 shrink-0" />
+                      <span className="break-all">{user?.email}</span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setEmailChangeDialogOpen(true)}
+                        className="h-6 px-2 ml-1 text-orange-100 hover:bg-white/20 hover:text-white shrink-0"
+                      >
+                        Change
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-1 w-full sm:w-auto">
+                      <Calendar className="w-3 h-3 shrink-0" />
+                      <span>Member since {getMemberSinceDate()}</span>
+                    </div>
+                  </div>
+                  <div>
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => setEmailChangeDialogOpen(true)}
-                      className="h-6 px-2 ml-1 text-orange-100 hover:bg-white/20 hover:text-white shrink-0"
+                      onClick={() => setPasswordDialogOpen(true)}
+                      className="h-8 px-3 text-orange-100 hover:bg-white/20 hover:text-white"
                     >
-                      Change
+                      <Lock className="w-3 h-3 mr-2" />
+                      Change Password
                     </Button>
-                  </div>
-                  <div className="flex items-center gap-1 w-full sm:w-auto">
-                    <Calendar className="w-3 h-3 shrink-0" />
-                    <span>Member since {getMemberSinceDate()}</span>
                   </div>
                 </div>
               )}
@@ -314,6 +346,11 @@ const ProfileHeader = () => {
         open={emailChangeDialogOpen}
         onOpenChange={setEmailChangeDialogOpen}
         currentEmail={user?.email || ''}
+      />
+      
+      <ChangePasswordDialog
+        open={passwordDialogOpen}
+        onOpenChange={setPasswordDialogOpen}
       />
     </motion.div>
   );

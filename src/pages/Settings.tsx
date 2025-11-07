@@ -175,12 +175,12 @@ const Settings = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <MenuItem 
-                  icon={SettingsIcon} 
-                  label="Admin Dashboard" 
-                  onClick={() => navigate('/')} 
-                  color="text-primary"
-                />
+              <MenuItem 
+                icon={SettingsIcon} 
+                label="Admin Dashboard" 
+                onClick={() => navigate('/', { state: { activeTab: 'admin' } })} 
+                color="text-primary"
+              />
               </CardContent>
             </Card>
           </motion.div>

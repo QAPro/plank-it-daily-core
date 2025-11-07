@@ -69,19 +69,28 @@ const KPICard = memo(({
             <Icon className="h-6 w-6 text-orange-600" />
           </div>
         </div>
-        <div className="mt-4 flex items-center">
-          {isPositive ? (
-            <TrendingUp className="h-4 w-4 text-green-600" />
-          ) : (
-            <TrendingDown className="h-4 w-4 text-red-600" />
-          )}
-          <span className={`ml-2 text-sm font-medium ${
-            isPositive ? 'text-green-600' : 'text-red-600'
-          }`}>
-            {isPositive ? '+' : ''}{trend.toFixed(1)}%
-          </span>
-          <span className="ml-2 text-sm text-muted-foreground">vs last month</span>
-        </div>
+        {trend !== 0 && (
+          <div className="mt-4 flex items-center">
+            {isPositive ? (
+              <TrendingUp className="h-4 w-4 text-green-600" />
+            ) : (
+              <TrendingDown className="h-4 w-4 text-red-600" />
+            )}
+            <span className={`ml-2 text-sm font-medium ${
+              isPositive ? 'text-green-600' : 'text-red-600'
+            }`}>
+              {isPositive ? '+' : ''}{trend.toFixed(1)}%
+            </span>
+            <span className="ml-2 text-sm text-muted-foreground">vs last month</span>
+          </div>
+        )}
+        {trend === 0 && (
+          <div className="mt-4">
+            <Badge variant="outline" className="text-xs">
+              Historical trends coming soon
+            </Badge>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

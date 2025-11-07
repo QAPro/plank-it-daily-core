@@ -6,16 +6,17 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   Users, 
-  TrendingUp, 
-  DollarSign, 
-  AlertTriangle,
   Activity,
   Target,
-  RefreshCw
+  DollarSign,
+  RefreshCw,
+  TrendingUp
 } from 'lucide-react';
 import AdminAnalyticsDashboard from '@/components/admin/analytics/AdminAnalyticsDashboard';
 import ConversionFunnelChart from '@/components/analytics/ConversionFunnelChart';
 import ChurnPredictionPanel from '@/components/analytics/ChurnPredictionPanel';
+import EnhancedSubscriptionAnalyticsDashboard from '@/components/admin/analytics/EnhancedSubscriptionAnalyticsDashboard';
+import RetentionCohortChart from '@/components/admin/analytics/RetentionCohortChart';
 import { useQuery } from '@tanstack/react-query';
 import { 
   getUserEngagementSummary,
@@ -125,122 +126,15 @@ const EnhancedAdminAnalytics = () => {
         <TabsContent value="conversion" className="space-y-6">
           <ConversionFunnelChart />
           
-          {/* Revenue Metrics */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Revenue Analytics</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span>Monthly Recurring Revenue</span>
-                    <Badge variant="secondary">$2,450</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Average Revenue Per User</span>
-                    <Badge variant="secondary">$4.99</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Customer Lifetime Value</span>
-                    <Badge variant="secondary">$89.50</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Free to Premium Conversion</span>
-                    <Badge variant="secondary">8.2%</Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Subscription Metrics</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span>Active Subscriptions</span>
-                    <Badge variant="default">156</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>New Subscriptions (30d)</span>
-                    <Badge variant="default">23</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Canceled Subscriptions (30d)</span>
-                    <Badge variant="destructive">8</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Monthly Churn Rate</span>
-                    <Badge variant="secondary">5.1%</Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          {/* Real Revenue & Subscription Metrics */}
+          <EnhancedSubscriptionAnalyticsDashboard />
         </TabsContent>
 
         <TabsContent value="retention" className="space-y-6">
           <ChurnPredictionPanel />
           
-          {/* Retention Cohorts */}
-          <Card>
-            <CardHeader>
-              <CardTitle>User Retention Cohorts</CardTitle>
-              <p className="text-sm text-gray-600">Track user retention over time by signup cohort</p>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left p-2">Cohort</th>
-                      <th className="text-center p-2">Users</th>
-                      <th className="text-center p-2">Week 1</th>
-                      <th className="text-center p-2">Week 2</th>
-                      <th className="text-center p-2">Week 4</th>
-                      <th className="text-center p-2">Week 8</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="border-b">
-                      <td className="p-2">Dec 2024</td>
-                      <td className="text-center p-2">42</td>
-                      <td className="text-center p-2">
-                        <Badge variant="default">85%</Badge>
-                      </td>
-                      <td className="text-center p-2">
-                        <Badge variant="secondary">72%</Badge>
-                      </td>
-                      <td className="text-center p-2">
-                        <Badge variant="secondary">58%</Badge>
-                      </td>
-                      <td className="text-center p-2">
-                        <Badge variant="outline">45%</Badge>
-                      </td>
-                    </tr>
-                    <tr className="border-b">
-                      <td className="p-2">Nov 2024</td>
-                      <td className="text-center p-2">38</td>
-                      <td className="text-center p-2">
-                        <Badge variant="default">82%</Badge>
-                      </td>
-                      <td className="text-center p-2">
-                        <Badge variant="secondary">68%</Badge>
-                      </td>
-                      <td className="text-center p-2">
-                        <Badge variant="secondary">55%</Badge>
-                      </td>
-                      <td className="text-center p-2">
-                        <Badge variant="outline">42%</Badge>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Real Retention Cohorts */}
+          <RetentionCohortChart monthsBack={6} />
         </TabsContent>
 
         <TabsContent value="features" className="space-y-6">

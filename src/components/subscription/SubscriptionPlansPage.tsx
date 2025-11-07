@@ -1,16 +1,39 @@
 
-// No React imports needed
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Check, Star, Crown, Zap } from 'lucide-react';
+import { Check, Star, Zap, Settings } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useToast } from '@/hooks/use-toast';
 import { formatPrice } from '@/utils/price';
 import type { SubscriptionPlan } from '@/services/subscriptionService';
 
 const SubscriptionPlansPage = () => {
-  const { plans, active, upgrade, loading, demoMode } = useSubscription();
+  const { plans, active, upgrade, loading, demoMode, openPortal, refreshStatus } = useSubscription();
+  const location = useLocation();
+  const { toast } = useToast();
+
+  // Handle success/cancel URL parameters
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('success') === 'true') {
+      toast({ 
+        title: "Subscription activated!", 
+        description: "Refreshing your subscription status..." 
+      });
+      refreshStatus();
+    }
+    if (params.get('canceled') === 'true') {
+      toast({ 
+        title: "Checkout canceled", 
+        description: "You can upgrade anytime.",
+        variant: "default" 
+      });
+    }
+  }, [location, toast, refreshStatus]);
 
   const getPlanIcon = (planName: string) => {
     if (planName.toLowerCase().includes('premium')) return Star;
@@ -74,11 +97,6 @@ const SubscriptionPlansPage = () => {
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gray-800 mb-2">Choose Your Plan</h1>
         <p className="text-gray-600 mb-4">Unlock premium features and take your fitness to the next level</p>
-        {demoMode && (
-          <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
-            Demo Mode - No real payments will be processed
-          </Badge>
-        )}
       </div>
 
       {/* Current Subscription Status */}
@@ -91,7 +109,7 @@ const SubscriptionPlansPage = () => {
           <Card className="bg-green-50 border-green-200">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
-                <div>
+                <div className="flex-1">
                   <h3 className="font-semibold text-green-800">Current Plan: {active.plan_name}</h3>
                   <p className="text-sm text-green-600">
                     {active.current_period_end ? 
@@ -100,7 +118,18 @@ const SubscriptionPlansPage = () => {
                     }
                   </p>
                 </div>
-                <Badge className="bg-green-600 text-white">Active</Badge>
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={openPortal}
+                    className="border-green-600 text-green-700 hover:bg-green-50"
+                  >
+                    <Settings className="w-4 h-4 mr-2" />
+                    Manage Subscription
+                  </Button>
+                  <Badge className="bg-green-600 text-white">Active</Badge>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -197,11 +226,13 @@ const SubscriptionPlansPage = () => {
         className="text-center text-sm text-gray-600 space-y-2"
       >
         <p>All plans include access to core workout features</p>
-        <p>Cancel anytime • No hidden fees • 30-day money-back guarantee</p>
+        <p>Cancel anytime • No hidden fees • Secure payments via Stripe</p>
         {demoMode && (
-          <p className="text-yellow-600 font-medium">
-            Demo mode: Subscriptions are simulated for testing purposes
-          </p>
+          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-yellow-700 font-medium">
+              ⚠️ Demo Mode Active - Use for testing only
+            </p>
+          </div>
         )}
       </motion.div>
     </motion.div>

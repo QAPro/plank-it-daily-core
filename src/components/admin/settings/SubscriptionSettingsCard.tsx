@@ -80,8 +80,13 @@ const SubscriptionSettingsCard: React.FC = () => {
           <div>
             <div className="font-medium">Demo Mode</div>
             <div className="text-sm text-muted-foreground">
-              Simulate upgrades without Stripe; auto-activates Premium on upgrade.
+              Enable demo mode for testing subscription flows without Stripe charges. Disable for production use with real payments.
             </div>
+            {localDemo && (
+              <div className="text-xs text-yellow-600 mt-1">
+                ⚠️ Demo mode is active - subscriptions will be simulated
+              </div>
+            )}
           </div>
           <Switch
             checked={localDemo}

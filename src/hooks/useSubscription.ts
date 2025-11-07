@@ -35,17 +35,18 @@ export const useSubscription = () => {
 
   const upgradeMutation = useMutation({
     mutationFn: async (plan: SubscriptionPlan) => {
-      const demoMode = Boolean(settings?.demo_mode ?? true);
+      const demoMode = Boolean(settings?.demo_mode ?? false);
       if (demoMode) {
+        // Demo mode for testing
         return subscriptionService.startDemoUpgrade(user!.id, plan);
       }
-      // Not demo: attempt to start checkout via stubbed edge function
+      // Real Stripe checkout
       const url = await subscriptionService.createCheckoutSession(plan);
       if (!url) {
         throw new Error("Could not create checkout session.");
       }
-      // Open Stripe checkout (when configured) in a new tab
-      window.open(url, "_blank");
+      // Redirect to Stripe checkout
+      window.location.href = url;
       return true;
     },
     onSuccess: () => {
@@ -91,6 +92,7 @@ export const useSubscription = () => {
     try {
       await supabase.functions.invoke('check-subscription');
       qc.invalidateQueries({ queryKey: ["subscription", "active", user?.id] });
+      qc.invalidateQueries({ queryKey: ["subscription-tier", user?.id] });
       toast({ title: "Status updated", description: "Subscription status refreshed." });
     } catch (error) {
       console.error('Manual subscription refresh failed:', error);
@@ -103,7 +105,7 @@ export const useSubscription = () => {
   };
 
   const enabled = Boolean(settings?.subscription_system_enabled ?? true);
-  const demoMode = Boolean(settings?.demo_mode ?? true);
+  const demoMode = Boolean(settings?.demo_mode ?? false);
 
   return {
     // Data

@@ -26,9 +26,22 @@ const ConversionFunnelChart = () => {
         
         const totalUsers = usersResult.count ?? 0;
 
-        // Since user_onboarding table doesn't exist in schema, simulate onboarding data
-        // In real app, this would query the actual onboarding table
-        const onboardedUsers = Math.floor(totalUsers * 0.8); // Simulate 80% completion
+        // Get users who completed onboarding
+        const onboardingQuery = await supabase
+          .from('user_onboarding')
+          .select('user_id');
+
+        if (onboardingQuery.error) throw onboardingQuery.error;
+        
+        const onboardedUsers = onboardingQuery.data?.filter((row: any) => row.is_completed === true).length ?? 0;
+
+        // Get users who completed at least one workout
+        const { data: workoutSessions } = await supabase
+          .from('user_sessions')
+          .select('user_id')
+          .not('completed_at', 'is', null);
+        
+        const uniqueWorkoutUsers = new Set(workoutSessions?.map(s => s.user_id) || []).size;
 
         // Get premium users
         const premiumResult = await supabase
@@ -65,9 +78,9 @@ const ConversionFunnelChart = () => {
           },
           {
             stage: 'First Workout',
-            users: Math.floor(onboardedUsers * 0.7), // Simulate 70% completion
-            conversionRate: onboardedUsers ? Math.round(Math.floor(onboardedUsers * 0.7) / onboardedUsers * 100) : 0,
-            dropoffRate: 30,
+            users: uniqueWorkoutUsers,
+            conversionRate: onboardedUsers ? Math.round((uniqueWorkoutUsers / onboardedUsers) * 100) : 0,
+            dropoffRate: onboardedUsers ? Math.round((1 - (uniqueWorkoutUsers / onboardedUsers)) * 100) : 0,
             icon: <Target className="w-5 h-5" />,
             color: 'bg-orange-500'
           },

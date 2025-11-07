@@ -109,7 +109,7 @@ const SimpleCompletionOverlay = ({ isOpen, exerciseName, duration, onClose, onSu
 
                 {/* Encouraging Message */}
                 <p className="text-sm text-muted-foreground italic">
-                  Every workout counts. Keep building your momentum!
+                  Every workout counts. Keep building momentum!
                 </p>
 
                 {/* Notes Field */}

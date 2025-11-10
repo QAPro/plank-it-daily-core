@@ -2222,6 +2222,36 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_schedules_streak_protection: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          send_time: string
+          time_zone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          send_time?: string
+          time_zone?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          send_time?: string
+          time_zone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       optimization_experiments: {
         Row: {
           created_at: string

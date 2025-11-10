@@ -1,51 +1,46 @@
-import { supabase } from '@/integrations/supabase/client';
 import { NotificationService } from './notificationService';
+import { messageTemplates, getRandomTemplate, personalizeMessage, getTimeOfDay } from '@/config/notificationMessages';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ContextualNotificationOptions {
   timeOfDay?: 'morning' | 'afternoon' | 'evening';
-  userStreak?: number;
+  currentStreak?: number;
   lastWorkoutDays?: number;
   preferredExercise?: string;
   preferredDuration?: number;
-  userId: string;
 }
 
 export class EnhancedNotificationService extends NotificationService {
-  
   /**
-   * Send context-aware workout reminder with direct deep linking
+   * Send context-aware workout reminder with personalization
    */
-  static async sendContextualWorkoutReminder(options: ContextualNotificationOptions) {
-    const { userId, timeOfDay, userStreak, lastWorkoutDays, preferredExercise, preferredDuration } = options;
-
-    // Choose exercise based on context
-    const exerciseId = preferredExercise || 'plank-basic';
-    const duration = preferredDuration || this.getRecommendedDuration(timeOfDay);
+  static async sendContextualWorkoutReminder(
+    userId: string,
+    options: ContextualNotificationOptions
+  ) {
+    const firstName = await NotificationService['getUserFirstName'](userId);
+    const timeOfDay = options.timeOfDay || getTimeOfDay();
     
-    // Create deep link for instant workout start
-    const workoutUrl = `/?exercise-id=${exerciseId}&duration=${duration}&auto-start=true&source=notification`;
-    const quickStartUrl = `/?quick-start=true&source=notification`;
-
-    // Context-aware messaging
-    const { title, body } = this.getContextualMessage(timeOfDay, userStreak, lastWorkoutDays);
-
+    // Get random template based on time of day
+    const template = getRandomTemplate(messageTemplates.workout_reminder[timeOfDay]);
+    const personalizedTemplate = personalizeMessage(template, { firstName });
+    
+    const duration = this.getRecommendedDuration(timeOfDay);
+    
     return this.sendToUser(userId, 'reminders', {
-      title,
-      body,
-      data: { 
-        url: workoutUrl,
-        quickStartUrl,
-        exerciseId,
-        duration,
-        category: 'contextual-reminder',
+      title: personalizedTemplate.title,
+      body: personalizedTemplate.body,
+      data: {
+        url: '/?tab=workout',
+        category: 'contextual_reminder',
         notification_type: 'reminders',
         timeOfDay,
-        userStreak
+        streak: options.currentStreak,
+        lastWorkout: options.lastWorkoutDays,
       },
       actions: [
         { action: 'start-workout', title: '🚀 Start Now' },
-        { action: 'quick-start', title: '⚡ Quick Start' },
-        { action: 'remind-later', title: '⏰ Later' }
+        { action: 'quick-workout', title: `⚡ Quick ${duration}s` }
       ]
     });
   }
@@ -53,14 +48,22 @@ export class EnhancedNotificationService extends NotificationService {
   /**
    * Send performance-based progression notification
    */
-  static async sendProgressionSuggestion(userId: string, currentDuration: number, suggestedDuration: number, exerciseId: string) {
-    const workoutUrl = `/?exercise-id=${exerciseId}&duration=${suggestedDuration}&auto-start=false&source=progression`;
+  static async sendProgressionSuggestion(
+    userId: string,
+    currentDuration: number,
+    suggestedDuration: number,
+    exerciseId: string
+  ) {
+    const firstName = await NotificationService['getUserFirstName'](userId);
+    const milestoneName = `${suggestedDuration}s workout`;
+    const template = getRandomTemplate(messageTemplates.milestone);
+    const personalizedTemplate = personalizeMessage(template, { firstName, milestoneName });
 
     return this.sendToUser(userId, 'milestones', {
-      title: '📈 Ready for the next challenge?',
-      body: `You've mastered ${currentDuration}s! Try ${suggestedDuration}s and push your limits.`,
-      data: { 
-        url: workoutUrl,
+      title: personalizedTemplate.title,
+      body: personalizedTemplate.body,
+      data: {
+        url: '/?tab=workout',
         exerciseId,
         currentDuration,
         suggestedDuration,
@@ -75,58 +78,69 @@ export class EnhancedNotificationService extends NotificationService {
   }
 
   /**
-   * Send streak maintenance notification with quick recovery options
+   * Send streak maintenance notification
    */
-  static async sendStreakRecovery(userId: string, streak: number, lastWorkoutHours: number) {
-    const quickStartUrl = `/?quick-start=true&source=streak-recovery`;
-    const urgency = lastWorkoutHours > 48 ? 'high' : 'medium';
-
-    const title = urgency === 'high' 
-      ? '🔥 Your streak is at risk!'
-      : '⏰ Keep your momentum going!';
-
-    const body = urgency === 'high'
-      ? `Your ${streak}-day streak could end today. A 30-second plank will keep it alive!`
-      : `${lastWorkoutHours}h since your last workout. A quick session will maintain your ${streak}-day streak.`;
-
+  static async sendStreakRecovery(
+    userId: string,
+    currentStreak: number,
+    daysSinceLastWorkout: number
+  ) {
+    const firstName = await NotificationService['getUserFirstName'](userId);
+    
+    // Get random streak protection template
+    const template = getRandomTemplate(messageTemplates.streak_protection);
+    const personalizedTemplate = personalizeMessage(template, { 
+      firstName, 
+      streakDays: currentStreak 
+    });
+    
     return this.sendToUser(userId, 'streaks', {
-      title,
-      body,
-      data: { 
-        url: quickStartUrl,
-        streak,
-        lastWorkoutHours,
-        urgency,
-        category: 'streak-recovery',
-        notification_type: 'streaks'
+      title: personalizedTemplate.title,
+      body: personalizedTemplate.body,
+      data: {
+        url: '/?tab=workout',
+        category: 'streak_recovery',
+        notification_type: 'streaks',
+        currentStreak,
+        daysSinceLastWorkout,
       },
       actions: [
-        { action: 'quick-plank', title: '⚡ 30s Quick Plank' },
-        { action: 'full-workout', title: '💪 Full Workout' }
+        { action: 'quick-workout', title: '⚡ 30s Plank' },
+        { action: 'full-workout', title: '💪 Full Session' }
       ]
     });
   }
 
   /**
-   * Send celebration notification with sharing options
+   * Send achievement celebration with personalization
    */
-  static async sendAchievementCelebration(userId: string, achievement: string, shareData?: any) {
-    const achievementUrl = `/?tab=achievements&highlight=${encodeURIComponent(achievement)}`;
-
+  static async sendAchievementCelebration(
+    userId: string,
+    achievementName: string,
+    achievementTier: string = 'gold'
+  ) {
+    const firstName = await NotificationService['getUserFirstName'](userId);
+    
+    // Get random achievement template
+    const template = getRandomTemplate(messageTemplates.achievement);
+    const personalizedTemplate = personalizeMessage(template, { 
+      firstName, 
+      achievementName 
+    });
+    
     return this.sendToUser(userId, 'achievements', {
-      title: '🎉 Outstanding Achievement!',
-      body: `You've unlocked "${achievement}"! Share your success with friends.`,
-      data: { 
-        url: achievementUrl,
-        achievement,
-        shareData,
-        category: 'celebration',
-        notification_type: 'achievements'
+      title: personalizedTemplate.title,
+      body: personalizedTemplate.body,
+      data: {
+        url: '/?tab=achievements',
+        category: 'achievement',
+        notification_type: 'achievements',
+        achievementName,
+        achievementTier
       },
       actions: [
-        { action: 'view-achievement', title: '🏆 View Achievement' },
-        { action: 'share-success', title: '📤 Share Success' },
-        { action: 'next-challenge', title: '🎯 Next Challenge' }
+        { action: 'view-achievement', title: '👀 View' },
+        { action: 'share', title: '📤 Share' }
       ]
     });
   }
@@ -137,72 +151,38 @@ export class EnhancedNotificationService extends NotificationService {
   private static getRecommendedDuration(timeOfDay?: string): number {
     switch (timeOfDay) {
       case 'morning':
-        return 45; // Energizing morning workout
+        return 45;
       case 'afternoon':
-        return 60; // Standard midday workout
+        return 60;
       case 'evening':
-        return 30; // Relaxing evening workout
+        return 30;
       default:
         return 60;
     }
   }
 
   /**
-   * Generate context-aware notification messages
-   */
-  private static getContextualMessage(timeOfDay?: string, streak?: number, lastWorkoutDays?: number) {
-    const streakMotivation = streak ? (streak >= 7 ? '🔥 Streak Champion!' : '💪 Building momentum!') : '🌟 Start strong!';
-    
-    if (lastWorkoutDays && lastWorkoutDays >= 3) {
-      return {
-        title: '👋 We miss you!',
-        body: `It's been ${lastWorkoutDays} days. Let's get back to building your core strength!`
-      };
-    }
-
-    switch (timeOfDay) {
-      case 'morning':
-        return {
-          title: '🌅 Morning Power-Up!',
-          body: `${streakMotivation} Start your day with a core-strengthening plank session.`
-        };
-      case 'afternoon':
-        return {
-          title: '⚡ Midday Energy Boost!',
-          body: `${streakMotivation} Take a productive break with a quick plank workout.`
-        };
-      case 'evening':
-        return {
-          title: '🌙 Evening Wind-Down',
-          body: `${streakMotivation} End your day strong with a relaxing plank session.`
-        };
-      default:
-        return {
-          title: '💪 Time for your plank workout!',
-          body: `${streakMotivation} Keep your core strong and your progress steady.`
-        };
-    }
-  }
-
-  /**
-   * Send surprise reward notification with XP bonus
+   * Send surprise reward notification
    */
   static async sendSurpriseRewardNotification(userId: string, xpAmount: number) {
-    const rewardUrl = `/?tab=stats&highlight=xp-boost&source=surprise-reward`;
+    const firstName = await NotificationService['getUserFirstName'](userId);
+    const milestoneName = `${xpAmount} bonus XP`;
+    const template = getRandomTemplate(messageTemplates.milestone);
+    const personalizedTemplate = personalizeMessage(template, { firstName, milestoneName });
 
-    return this.sendToUser(userId, 'rewards', {
-      title: '🎉 Surprise XP Bonus!',
-      body: `Lucky you! You've earned ${xpAmount} bonus XP just for being awesome!`,
-      data: { 
-        url: rewardUrl,
+    return this.sendToUser(userId, 'milestones', {
+      title: personalizedTemplate.title,
+      body: personalizedTemplate.body,
+      data: {
+        url: '/?tab=stats',
         xpAmount,
         rewardType: 'surprise_xp',
         category: 'reward',
-        notification_type: 'rewards'
+        notification_type: 'milestones'
       },
       actions: [
         { action: 'claim-reward', title: '🎁 Claim Reward' },
-        { action: 'share-luck', title: '✨ Share Luck' }
+        { action: 'share-luck', title: '✨ Share' }
       ]
     });
   }
@@ -210,17 +190,22 @@ export class EnhancedNotificationService extends NotificationService {
   /**
    * Send milestone approach notification
    */
-  static async sendMilestoneApproachNotification(userId: string, milestone: string, progress: number) {
-    const milestoneUrl = `/?tab=achievements&highlight=${encodeURIComponent(milestone)}`;
+  static async sendMilestoneApproachNotification(
+    userId: string,
+    milestone: string,
+    progress: number
+  ) {
+    const firstName = await NotificationService['getUserFirstName'](userId);
+    const template = getRandomTemplate(messageTemplates.milestone);
+    const personalizedTemplate = personalizeMessage(template, { firstName, milestoneName: milestone });
 
     return this.sendToUser(userId, 'milestones', {
-      title: '🎯 Milestone in Sight!',
-      body: `You're ${progress}% of the way to "${milestone}". Don't stop now!`,
-      data: { 
-        url: milestoneUrl,
+      title: personalizedTemplate.title,
+      body: `You're ${progress}% of the way there!`,
+      data: {
+        url: '/?tab=achievements',
         milestone,
         progress,
-        rewardType: 'milestone_nudge',
         category: 'motivation',
         notification_type: 'milestones'
       },
@@ -235,25 +220,31 @@ export class EnhancedNotificationService extends NotificationService {
    * Send comeback encouragement notification
    */
   static async sendComebackEncouragement(userId: string, daysSinceLastWorkout: number) {
-    const workoutUrl = `/?quick-start=true&source=comeback-encourage`;
+    const firstName = await NotificationService['getUserFirstName'](userId);
+    let template;
 
-    const message = daysSinceLastWorkout >= 5 
-      ? `It's been ${daysSinceLastWorkout} days - but every champion has comeback stories! Ready to write yours?`
-      : `${daysSinceLastWorkout} days away is nothing! Jump back in and reclaim your momentum.`;
+    if (daysSinceLastWorkout >= 14) {
+      template = getRandomTemplate(messageTemplates.re_engagement.days_14);
+    } else if (daysSinceLastWorkout >= 7) {
+      template = getRandomTemplate(messageTemplates.re_engagement.days_7);
+    } else {
+      template = getRandomTemplate(messageTemplates.re_engagement.days_3);
+    }
 
-    return this.sendToUser(userId, 'reminders', {
-      title: '👋 Your Comeback Awaits!',
-      body: message,
-      data: { 
-        url: workoutUrl,
+    const personalizedTemplate = personalizeMessage(template, { firstName });
+
+    return this.sendToUser(userId, 're_engagement', {
+      title: personalizedTemplate.title,
+      body: personalizedTemplate.body,
+      data: {
+        url: '/?tab=workout',
         daysSinceLastWorkout,
-        rewardType: 'comeback_encourage',
         category: 'comeback',
-        notification_type: 'reminders'
+        notification_type: 're_engagement'
       },
       actions: [
-        { action: 'start-comeback', title: '🚀 Start Comeback' },
-        { action: 'gentle-return', title: '🌱 Gentle Return' }
+        { action: 'start-comeback', title: '🚀 Start Now' },
+        { action: 'gentle-return', title: '🌱 Gentle Start' }
       ]
     });
   }
@@ -286,24 +277,16 @@ export class EnhancedNotificationService extends NotificationService {
 
         // Schedule based on user patterns
         if (daysSinceLastWorkout >= 2) {
-          await this.sendContextualWorkoutReminder({
-            userId,
+          await this.sendContextualWorkoutReminder(userId, {
             lastWorkoutDays: daysSinceLastWorkout,
             preferredExercise: userData.last_exercise_id,
             preferredDuration: userData.last_duration || userData.preferred_workout_duration,
-            timeOfDay: this.getCurrentTimeOfDay()
+            timeOfDay: getTimeOfDay()
           });
         }
       }
     } catch (error) {
       console.error('Error scheduling contextual reminders:', error);
     }
-  }
-
-  private static getCurrentTimeOfDay(): 'morning' | 'afternoon' | 'evening' {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'morning';
-    if (hour < 17) return 'afternoon';
-    return 'evening';
   }
 }

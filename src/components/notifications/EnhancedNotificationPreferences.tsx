@@ -4,7 +4,7 @@ import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { Clock, Globe, Bell, BellOff } from "lucide-react"
+import { Clock, Globe, Bell, BellOff, Shield } from "lucide-react"
 import { useUserPreferences } from "@/hooks/useUserPreferences"
 import { useNotificationSchedules } from "@/hooks/useNotificationSchedules"
 import { toast } from "@/hooks/use-toast"
@@ -39,7 +39,7 @@ const SLOT_DESCRIPTIONS = {
 
 export function EnhancedNotificationPreferences() {
   const { preferences, updatePreferences, loading } = useUserPreferences()
-  const { schedules, upsertSchedule, loading: schedulesLoading } = useNotificationSchedules()
+  const { schedules, streakProtection, upsertSchedule, loading: schedulesLoading } = useNotificationSchedules()
   
   // Local state for immediate UI updates
   const [localNotificationTypes, setLocalNotificationTypes] = useState(
@@ -49,42 +49,37 @@ export function EnhancedNotificationPreferences() {
       streaks: true,
       milestones: true,
       social: false,
+      re_engagement: false,
     }
   )
 
   const [localTimezone, setLocalTimezone] = useState<string | null>(null)
-
   const [localNotificationFrequency, setLocalNotificationFrequency] = useState<'minimal' | 'normal' | 'frequent' | null>(null)
 
   // Sync local state when preferences load from database
   useEffect(() => {
-    console.log('🔄 Notification Types Effect - loading:', loading, 'preferences:', preferences)
     if (!loading && preferences) {
-      console.log('✅ Setting notification types:', preferences.notification_types)
       setLocalNotificationTypes(preferences.notification_types || {
         reminders: true,
         achievements: true,
         streaks: true,
         milestones: true,
         social: false,
+        re_engagement: false,
       })
     }
   }, [loading, preferences])
 
   useEffect(() => {
-    console.log('🔄 Timezone Effect - loading:', loading, 'timezone:', preferences?.time_zone)
     if (!loading && preferences) {
       const tz = preferences.time_zone || 'UTC'
-      console.log('✅ Setting timezone to:', tz)
       setLocalTimezone(tz)
     }
   }, [loading, preferences])
 
   useEffect(() => {
-    console.log('🔄 Frequency Effect - loading:', loading, 'frequency:', preferences?.notification_frequency)
     if (!loading && preferences) {
       const freq = preferences.notification_frequency || 'normal'
-      console.log('✅ Setting frequency to:', freq)
       setLocalNotificationFrequency(freq)
     }
   }, [loading, preferences])
@@ -123,6 +118,7 @@ export function EnhancedNotificationPreferences() {
       streaks: true,
       milestones: true,
       social: false,
+      re_engagement: false,
     }
     const newTypes = { ...currentTypes, [type]: enabled }
     setLocalNotificationTypes(newTypes)
@@ -145,8 +141,42 @@ export function EnhancedNotificationPreferences() {
     }
   }
 
+  const handleMilestoneGroupChange = async (enabled: boolean) => {
+    // When "Milestone Celebrations" is toggled, update both achievements and milestones
+    const currentTypes = localNotificationTypes || {
+      reminders: true,
+      achievements: true,
+      streaks: true,
+      milestones: true,
+      social: false,
+      re_engagement: false,
+    }
+    const newTypes = {
+      ...currentTypes,
+      achievements: enabled,
+      milestones: enabled,
+    }
+    setLocalNotificationTypes(newTypes)
+    
+    try {
+      await updatePreferences({ notification_types: newTypes })
+      toast({
+        title: "Notification preferences updated",
+        description: `Milestone celebrations ${enabled ? 'enabled' : 'disabled'}`,
+      })
+    } catch (error) {
+      console.error('Error updating notification preferences:', error)
+      toast({
+        title: "Error",
+        description: "Failed to update notification preferences",
+        variant: "destructive",
+      })
+      setLocalNotificationTypes(localNotificationTypes)
+    }
+  }
+
   const handleFrequencyChange = async (frequency: 'minimal' | 'normal' | 'frequent') => {
-    setLocalNotificationFrequency(frequency) // Optimistic update
+    setLocalNotificationFrequency(frequency)
     
     try {
       await updatePreferences({ notification_frequency: frequency })
@@ -156,7 +186,6 @@ export function EnhancedNotificationPreferences() {
       })
     } catch (error) {
       console.error('Error updating notification frequency:', error)
-      // Revert on error
       setLocalNotificationFrequency(preferences?.notification_frequency || 'normal')
       toast({
         title: "Error", 
@@ -167,7 +196,7 @@ export function EnhancedNotificationPreferences() {
   }
 
   const handleTimezoneChange = async (timezone: string) => {
-    setLocalTimezone(timezone) // Optimistic update
+    setLocalTimezone(timezone)
     
     try {
       await updatePreferences({ time_zone: timezone })
@@ -177,7 +206,6 @@ export function EnhancedNotificationPreferences() {
       })
     } catch (error) {
       console.error('Error updating timezone:', error)
-      // Revert on error
       setLocalTimezone(preferences?.time_zone || 'UTC')
       toast({
         title: "Error",
@@ -228,6 +256,25 @@ export function EnhancedNotificationPreferences() {
     }
   }
 
+  const handleStreakProtectionChange = async (field: 'enabled' | 'send_time', value: boolean | string) => {
+    try {
+      const updatedSchedule = { [field]: value }
+      
+      await upsertSchedule('streak_protection' as any, updatedSchedule, 'streak_protection')
+      toast({
+        title: "Streak protection updated",
+        description: `Streak protection ${field === 'enabled' ? (value ? 'enabled' : 'disabled') : 'time updated'}`,
+      })
+    } catch (error) {
+      console.error('Error updating streak protection:', error)
+      toast({
+        title: "Error",
+        description: "Failed to update streak protection",
+        variant: "destructive",
+      })
+    }
+  }
+
   const generateTimeOptions = () => {
     const options = []
     for (let hour = 0; hour < 24; hour++) {
@@ -244,6 +291,9 @@ export function EnhancedNotificationPreferences() {
   }
 
   const timeOptions = generateTimeOptions()
+
+  // Check if either achievements or milestones is enabled for the group toggle
+  const isMilestoneGroupEnabled = localNotificationTypes.achievements || localNotificationTypes.milestones
 
   return (
     <Card>
@@ -325,16 +375,76 @@ export function EnhancedNotificationPreferences() {
 
         <Separator />
 
-        {/* Notification Types */}
+        {/* Streak Protection Timing */}
+        <div className="space-y-4">
+          <Label className="flex items-center gap-2 text-sm font-medium">
+            <Shield className="h-4 w-4" />
+            Streak Protection
+          </Label>
+          <div className="flex items-center justify-between p-3 border rounded-lg">
+            <div className="flex items-center gap-3">
+              <Switch
+                checked={streakProtection?.enabled ?? true}
+                onCheckedChange={(enabled) => handleStreakProtectionChange('enabled', enabled)}
+              />
+              <div>
+                <div className="font-medium">Daily Streak Check</div>
+                <div className="text-sm text-muted-foreground">
+                  We'll remind you if you haven't worked out yet today
+                </div>
+              </div>
+            </div>
+            {streakProtection?.enabled && (
+              <Select
+                value={normalizeTimeFormat(streakProtection?.send_time)}
+                onValueChange={(time) => handleStreakProtectionChange('send_time', time)}
+              >
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {timeOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Notification Types (Consolidated) */}
         <div className="space-y-4">
           <Label className="text-sm font-medium">Notification Types</Label>
           <div className="space-y-3">
             {[
-              { key: 'reminders', label: 'Workout Reminders', description: 'Daily workout notifications' },
-              { key: 'achievements', label: 'Achievements', description: 'When you unlock new achievements' },
-              { key: 'streaks', label: 'Streak Alerts', description: 'Streak milestones and risk alerts' },
-              { key: 'milestones', label: 'Milestones', description: 'Progress milestones and goals' },
-              { key: 'social', label: 'Social Activity', description: 'Friend activities and interactions' },
+              { 
+                key: 'reminders', 
+                label: '✅ Daily Reminders', 
+                description: 'Get reminders at your scheduled times',
+                single: true,
+              },
+              { 
+                key: 'milestone_celebrations', 
+                label: '🎉 Milestone Celebrations', 
+                description: 'Achievements, level-ups, and progress milestones',
+                single: false, // This is a group
+              },
+              { 
+                key: 'streaks', 
+                label: '🔥 Streak Protection', 
+                description: 'Alerts to keep your streak alive',
+                single: true,
+              },
+              { 
+                key: 'social', 
+                label: '👥 Social Updates', 
+                description: 'Activity from people you follow',
+                single: true,
+              },
             ].map((type) => (
               <div key={type.key} className="flex items-center justify-between">
                 <div className="space-y-0.5">
@@ -342,8 +452,16 @@ export function EnhancedNotificationPreferences() {
                   <div className="text-sm text-muted-foreground">{type.description}</div>
                 </div>
                 <Switch
-                  checked={localNotificationTypes[type.key] || false}
-                  onCheckedChange={(checked) => handleNotificationTypeChange(type.key, checked)}
+                  checked={
+                    type.single 
+                      ? (localNotificationTypes[type.key] || false)
+                      : isMilestoneGroupEnabled
+                  }
+                  onCheckedChange={(checked) => 
+                    type.single 
+                      ? handleNotificationTypeChange(type.key, checked)
+                      : handleMilestoneGroupChange(checked)
+                  }
                 />
               </div>
             ))}

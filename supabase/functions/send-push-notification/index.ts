@@ -103,6 +103,7 @@ interface NotificationPayload {
   body: string;
   data?: Record<string, any>;
   notification_type: string;
+  first_name?: string;
   actions?: Array<{
     action: string;
     title: string;

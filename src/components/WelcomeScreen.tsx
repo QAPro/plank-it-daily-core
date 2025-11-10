@@ -1,34 +1,49 @@
 import { motion } from "framer-motion";
-import { Flame, Target, TrendingUp, Award } from "lucide-react";
+import { Activity, User, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { User as AuthUser } from "@supabase/supabase-js";
 import innerFireLogo from "@/assets/inner-fire-logo.png";
 
 interface WelcomeScreenProps {
-  onGetStarted: () => void;
+  user: AuthUser;
+  onWorkoutSelected: (exerciseId: string, exerciseName: string) => void;
+  onSkip: () => void;
 }
 
-const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
-  const features = [
-    {
-      icon: Flame,
-      title: "Daily Fire",
-      description: "Build your streak with just 5 minutes a day"
-    },
-    {
-      icon: Target,
-      title: "Your Goals",
-      description: "Personalized workouts that adapt to you"
-    },
-    {
-      icon: TrendingUp,
-      title: "Track Progress",
-      description: "Watch your strength grow over time"
-    },
-    {
-      icon: Award,
-      title: "Earn Rewards",
-      description: "Unlock achievements as you improve"
+const WelcomeScreen = ({ user, onWorkoutSelected, onSkip }: WelcomeScreenProps) => {
+  // Extract first name from user metadata or email
+  const getFirstName = () => {
+    if (user.user_metadata?.name) {
+      return user.user_metadata.name.split(' ')[0];
     }
+    if (user.email) {
+      return user.email.split('@')[0];
+    }
+    return 'there';
+  };
+
+  const workouts = [
+    {
+      id: 'f5b8fe48-b477-43ee-918a-6a95e1edf147',
+      name: 'Forearm Plank',
+      duration: 30,
+      icon: Activity,
+      description: 'Core strength foundation',
+    },
+    {
+      id: 'b58c7718-ebc0-4394-bc3f-e3f6e7af2c6f',
+      name: 'Standard Wall Sit',
+      duration: 30,
+      icon: User,
+      description: 'Lower body endurance',
+    },
+    {
+      id: '1f8d6c5b-dc28-4e4f-958c-900212f6104e',
+      name: 'Alternating Leg Raises',
+      duration: 30,
+      icon: TrendingUp,
+      description: 'Build lower core power',
+    },
   ];
 
   return (
@@ -39,7 +54,7 @@ const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
       transition={{ duration: 0.5 }}
       className="min-h-screen bg-gradient-to-br from-background via-secondary/30 to-background flex flex-col items-center justify-center p-6 text-center"
     >
-      {/* Logo and Title */}
+      {/* Logo */}
       <motion.div
         initial={{ y: -30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -49,54 +64,57 @@ const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
         <motion.img
           src={innerFireLogo}
           alt="Inner Fire Logo"
-          className="w-24 h-24 object-contain mx-auto mb-4"
+          className="w-20 h-20 object-contain mx-auto mb-4"
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
         />
-        <h1 className="text-5xl font-bold text-gradient mb-2">Inner Fire</h1>
-        <p className="text-xl text-muted-foreground font-medium">5 Minutes a Day, Just for You</p>
+        <h1 className="text-4xl font-bold text-gradient mb-2">
+          Welcome to Inner Fire, {getFirstName()}!
+        </h1>
+        <p className="text-lg text-muted-foreground font-medium">
+          Let's begin your journey. Choose your first workout:
+        </p>
       </motion.div>
 
-      {/* Features Grid */}
+      {/* Workout Cards */}
       <motion.div
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.4, duration: 0.6 }}
-        className="grid grid-cols-2 gap-4 mb-12 max-w-2xl w-full"
+        className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 max-w-3xl w-full"
       >
-        {features.map((feature, index) => (
-          <motion.div
-            key={feature.title}
+        {workouts.map((workout, index) => (
+          <motion.button
+            key={workout.id}
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.6 + index * 0.1, duration: 0.4 }}
-            className="bg-card rounded-2xl p-6 shadow-soft hover:shadow-medium transition-shadow duration-200 border border-border/50"
+            onClick={() => onWorkoutSelected(workout.id, workout.name)}
+            className="bg-card rounded-2xl p-6 shadow-soft hover:shadow-medium transition-all duration-200 border border-border/50 hover:border-primary hover:scale-105 cursor-pointer group"
           >
-            <feature.icon className="w-10 h-10 text-coral mx-auto mb-3" />
-            <h3 className="font-semibold text-foreground mb-2">{feature.title}</h3>
-            <p className="text-sm text-muted-foreground">{feature.description}</p>
-          </motion.div>
+            <workout.icon className="w-12 h-12 text-coral mx-auto mb-3 group-hover:scale-110 transition-transform duration-200" />
+            <h3 className="font-semibold text-foreground mb-1 text-lg">{workout.name}</h3>
+            <p className="text-sm text-muted-foreground mb-2">{workout.description}</p>
+            <div className="inline-block px-3 py-1 bg-gradient-primary/10 rounded-full">
+              <span className="text-sm font-medium text-coral">{workout.duration} seconds</span>
+            </div>
+          </motion.button>
         ))}
       </motion.div>
 
-      {/* CTA */}
+      {/* Skip Link */}
       <motion.div
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.8, duration: 0.6 }}
-        className="w-full max-w-sm"
       >
-        <Button
-          onClick={onGetStarted}
-          size="lg"
-          className="w-full text-lg py-6 shadow-glow"
+        <button
+          onClick={onSkip}
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 underline underline-offset-4"
         >
-          Start Your Journey
-        </Button>
-        <p className="text-sm text-muted-foreground mt-4">
-          Transform yourself, one workout at a time
-        </p>
+          I'll explore on my own
+        </button>
       </motion.div>
     </motion.div>
   );

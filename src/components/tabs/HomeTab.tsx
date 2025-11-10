@@ -71,9 +71,17 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         // Show confetti for natural completion
         setShowConfetti(true);
         
-        // After 3 seconds, hide confetti and show overlay
+        // After 3 seconds, hide confetti, show toast, then overlay
         setTimeout(() => {
           setShowConfetti(false);
+          
+          // Show celebration toast
+          toast({
+            title: "Workout Complete! 🔥",
+            description: "You've started your streak! Keep the fire going tomorrow.",
+            duration: 5000,
+          });
+          
           setShowSimpleCompletion(true);
         }, 3000);
       }

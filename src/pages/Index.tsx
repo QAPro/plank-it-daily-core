@@ -5,13 +5,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import WelcomeScreen from "@/components/WelcomeScreen";
 import Dashboard from "@/components/Dashboard";
-import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
 import { StreakProvider } from "@/components/StreakProvider";
 import { LevelProgressionProvider } from "@/components/level/LevelProgressionProvider";
 import { AnimatePresence } from "framer-motion";
 
 const Index = () => {
   const [showWelcome, setShowWelcome] = useState(true);
+  const [initialWorkout, setInitialWorkout] = useState<{exerciseId: string, duration: number} | null>(null);
   const { user, loading: authLoading, error: authError } = useAuth();
   const { isOnboardingComplete, loading: onboardingLoading, markOnboardingComplete } = useOnboarding();
   const navigate = useNavigate();
@@ -37,28 +37,32 @@ const Index = () => {
 
     // Only make decisions when both auth and onboarding are done loading
     if (!authLoading && !onboardingLoading && user && isOnboardingComplete !== null) {
-      const hasSeenWelcome = localStorage.getItem('innerfire-welcome-seen');
-      
-      // If onboarding is complete OR user has seen welcome, hide welcome screen
-      if (isOnboardingComplete === true || hasSeenWelcome) {
-        console.log('Index: Hiding welcome screen - onboarding complete or welcome seen');
+      // If onboarding is complete, hide welcome screen
+      if (isOnboardingComplete === true) {
+        console.log('Index: Hiding welcome screen - onboarding complete');
         setShowWelcome(false);
-      } else if (isOnboardingComplete === false) {
-        console.log('Index: Onboarding incomplete, will show onboarding flow after welcome');
-        // Keep showWelcome true initially, but will transition to onboarding after welcome
       }
     }
   }, [user, authLoading, isOnboardingComplete, onboardingLoading, authError, navigate]);
 
-  const handleGetStarted = () => {
-    console.log('Index: Get started clicked');
-    localStorage.setItem('innerfire-welcome-seen', 'true');
+  const handleWorkoutSelected = async (exerciseId: string, exerciseName: string) => {
+    console.log('Index: Workout selected:', exerciseName);
+    
+    // Mark onboarding complete with default values
+    await markOnboardingComplete();
+    
+    // Navigate to Dashboard with selected exercise
+    setInitialWorkout({ exerciseId, duration: 30 });
     setShowWelcome(false);
   };
 
-  const handleOnboardingComplete = () => {
-    console.log('Index: Onboarding completed');
-    markOnboardingComplete();
+  const handleSkip = async () => {
+    console.log('Index: User chose to explore on their own');
+    
+    // Mark onboarding complete
+    await markOnboardingComplete();
+    
+    // Let HomeTab use its default (Forearm Plank)
     setShowWelcome(false);
   };
 
@@ -93,17 +97,6 @@ const Index = () => {
     );
   }
 
-  // Show onboarding flow ONLY if we're certain it's not complete
-  // Don't show if loading states aren't resolved yet
-  if (user && !authLoading && !onboardingLoading && isOnboardingComplete === false && !showWelcome) {
-    console.log('Index: Showing onboarding flow');
-    return (
-      <LevelProgressionProvider>
-        <OnboardingFlow onComplete={handleOnboardingComplete} />
-      </LevelProgressionProvider>
-    );
-  }
-
   console.log('Index: Rendering main content', { showWelcome });
 
   return (
@@ -112,9 +105,14 @@ const Index = () => {
         <div className="min-h-screen bg-gradient-to-b from-[#FFF9F5] to-[#FFFCFA]">
           <AnimatePresence mode="wait">
             {showWelcome ? (
-              <WelcomeScreen key="welcome" onGetStarted={handleGetStarted} />
+              <WelcomeScreen 
+                key="welcome" 
+                user={user}
+                onWorkoutSelected={handleWorkoutSelected}
+                onSkip={handleSkip}
+              />
             ) : (
-              <Dashboard key="dashboard" />
+              <Dashboard key="dashboard" initialWorkout={initialWorkout} />
             )}
           </AnimatePresence>
         </div>

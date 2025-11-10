@@ -21,11 +21,15 @@ import { EnhancedPushNotificationTest } from '@/components/EnhancedPushNotificat
 import { PushNotificationDebug } from '@/components/PushNotificationDebug';
 import { VapidKeyManager } from '@/components/VapidKeyManager';
 
-const Dashboard = () => {
+interface DashboardProps {
+  initialWorkout?: {exerciseId: string, duration: number} | null;
+}
+
+const Dashboard = ({ initialWorkout }: DashboardProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'home');
-  const [selectedWorkout, setSelectedWorkout] = useState<{exerciseId: string, duration: number} | null>(null);
+  const [selectedWorkout, setSelectedWorkout] = useState<{exerciseId: string, duration: number} | null>(initialWorkout || null);
   const { user } = useAuth();
   const isMobile = useIsMobile();
 

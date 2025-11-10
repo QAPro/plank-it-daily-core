@@ -95,10 +95,38 @@ export const useOnboarding = () => {
     }
   };
 
-  const markOnboardingComplete = () => {
-    console.log('[Onboarding] Marking complete');
-    setIsOnboardingComplete(true);
-    localStorage.setItem(ONBOARDING_CACHE_KEY, 'true');
+  const markOnboardingComplete = async () => {
+    if (!user) return;
+    
+    console.log('[Onboarding] Marking complete and saving to database');
+    
+    try {
+      // Insert minimal onboarding record with defaults
+      const { error } = await supabase
+        .from('user_onboarding')
+        .upsert({
+          user_id: user.id,
+          fitness_level: 2, // Default: Some experience
+          goals: [], // Empty - can be set later
+          experience_level: 'beginner',
+          preferred_duration: 30,
+          completed_at: new Date().toISOString(),
+        });
+
+      if (error) {
+        console.error('[Onboarding] Error saving to database:', error);
+        throw error;
+      }
+
+      console.log('[Onboarding] Successfully saved to database');
+      setIsOnboardingComplete(true);
+      localStorage.setItem(ONBOARDING_CACHE_KEY, 'true');
+    } catch (error) {
+      console.error('[Onboarding] Failed to mark onboarding complete:', error);
+      // Still set local state even if database fails
+      setIsOnboardingComplete(true);
+      localStorage.setItem(ONBOARDING_CACHE_KEY, 'true');
+    }
   };
 
   return {

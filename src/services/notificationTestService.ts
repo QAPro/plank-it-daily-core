@@ -138,6 +138,24 @@ export class NotificationTestService {
   }
 
   /**
+   * Test re-engagement notifications for inactive users
+   */
+  static async testReEngagementNotifications() {
+    try {
+      const { data, error } = await supabase.functions.invoke('schedule-re-engagement-notifications', {
+        body: {}
+      });
+
+      if (error) throw error;
+      console.log('Test re-engagement notifications completed:', data);
+      return data;
+    } catch (error) {
+      console.error('Error testing re-engagement notifications:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Get recent notification logs for a user
    */
   static async getUserNotificationLogs(userId: string, limit: number = 10) {

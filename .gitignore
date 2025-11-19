@@ -32,3 +32,22 @@ dist-ssr
 
 # Sensitive configuration
 config/secrets.js
+# Deployment and staging files (added for security)
+# Staging environment file (contains database credentials)
+.env.staging
+
+# VAPID keys (contains private key for push notifications)
+VAPID_KEYS.md
+
+# Temporary Supabase files
+supabase/.temp/
+
+# Combined migration file (temporary, can be regenerated)
+supabase/migrations/combined_all.sql
+
+# Shell scripts with credentials
+add-staging-env-vars.sh
+
+# Temporary analysis and planning files
+CODEBASE_ANALYSIS.md
+DEVELOPMENT_PLAN.md

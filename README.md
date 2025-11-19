@@ -1,73 +1,98 @@
-# Welcome to your Lovable project
+# Inner Fire - Fitness PWA
 
-## Project info
+A progressive web application for fitness tracking and community engagement.
 
-**URL**: https://lovable.dev/projects/4aa57771-221c-42da-a608-1dbc86a5a253
+## 🚀 Deployment
 
-## How can I edit this code?
+This project uses automated CI/CD with separate staging and production environments:
 
-There are several ways of editing your application.
+- **Production:** https://www.innerfire.fit (main branch)
+- **Staging:** https://inner-fire-git-develop-phils-projects-36ed4b87.vercel.app (develop branch)
 
-**Use Lovable**
+### Deployment Workflow
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/4aa57771-221c-42da-a608-1dbc86a5a253) and start prompting.
+- Push to `main` → Automatic production deployment
+- Push to `develop` → Automatic staging deployment  
+- Pull requests → Automatic preview deployment with URL comment
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
+## 🛠️ Technologies
 
 This project is built with:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- **Frontend:** React + TypeScript + Vite
+- **Styling:** Tailwind CSS + shadcn-ui
+- **Database:** Supabase (PostgreSQL)
+- **Deployment:** Vercel
+- **CI/CD:** GitHub Actions
 
-## How can I deploy this project?
+## 💻 Local Development
 
-Simply open [Lovable](https://lovable.dev/projects/4aa57771-221c-42da-a608-1dbc86a5a253) and click on Share -> Publish.
+### Prerequisites
 
-## Can I connect a custom domain to my Lovable project?
+- Node.js 18+ & npm - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
-Yes, you can!
+### Setup
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+```sh
+# Clone the repository
+git clone https://github.com/QAPro/plank-it-daily-core.git
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+# Navigate to the project directory
+cd plank-it-daily-core
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+```
+
+The app will be available at `http://localhost:5173`
+
+## 📝 Development Workflow
+
+1. Create a feature branch from `develop`
+2. Make your changes and test locally
+3. Push your branch and create a Pull Request
+4. Review the automatic preview deployment
+5. Merge to `develop` for staging
+6. Merge to `main` for production
+
+## 🔧 Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+
+## 📚 Documentation
+
+- [Deployment Summary](./DEPLOYMENT_SUMMARY.md)
+- [Custom Domain Setup](./CUSTOM_DOMAIN_SETUP.md)
+- [CI/CD Setup](./CI_CD_SETUP.md)
+- [Staging Environment](./STAGING.md)
+
+## 🔐 Environment Variables
+
+Required environment variables are managed through Vercel:
+
+- `VITE_SUPABASE_URL` - Supabase project URL
+- `VITE_SUPABASE_PUBLISHABLE_KEY` - Supabase anon key
+- `VITE_VAPID_PUBLIC_KEY` - Web push notification public key
+- `VAPID_PRIVATE_KEY` - Web push notification private key (server-side only)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is proprietary and confidential.
+
+---
+
+**Built with ❤️ for the Inner Fire community**

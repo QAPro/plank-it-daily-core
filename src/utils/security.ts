@@ -230,7 +230,7 @@ export const generateCSRFToken = (): string => {
 
 // Hardened security headers (client-side representation)
 // Note: Ensure your hosting layer applies these headers.
-const SUPABASE_ORIGIN = "https://kgwmplptoctmoaefnpfg.supabase.co";
+const SUPABASE_ORIGIN = import.meta.env.VITE_SUPABASE_URL;
 export const secureHeaders = {
   "Content-Security-Policy": [
     "default-src 'self'",
@@ -241,7 +241,7 @@ export const secureHeaders = {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "font-src 'self' data:",
-    `connect-src 'self' ${SUPABASE_ORIGIN} wss://kgwmplptoctmoaefnpfg.supabase.co`,
+    `connect-src 'self' ${SUPABASE_ORIGIN} ${SUPABASE_ORIGIN.replace('https://', 'wss://')}`,
     "form-action 'self'",
     "upgrade-insecure-requests"
   ].join("; "),

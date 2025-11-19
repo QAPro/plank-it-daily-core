@@ -2,7 +2,7 @@
 import { isInLovablePreview } from './iframe';
 
 export const generateCSPHeader = (): string => {
-  const SUPABASE_ORIGIN = "https://kgwmplptoctmoaefnpfg.supabase.co";
+  const SUPABASE_ORIGIN = import.meta.env.VITE_SUPABASE_URL;
   const isLovablePreview = isInLovablePreview();
   
   const cspDirectives = [
@@ -17,7 +17,7 @@ export const generateCSPHeader = (): string => {
     "style-src 'self' 'unsafe-inline'", // unsafe-inline needed for dynamic styles
     "img-src 'self' data: blob: https:",
     "font-src 'self' data:",
-    `connect-src 'self' ${SUPABASE_ORIGIN} wss://kgwmplptoctmoaefnpfg.supabase.co https://www.google-analytics.com https://analytics.google.com`,
+    `connect-src 'self' ${SUPABASE_ORIGIN} ${SUPABASE_ORIGIN.replace('https://', 'wss://')} https://www.google-analytics.com https://analytics.google.com`,
     "worker-src 'self' blob:",
     "manifest-src 'self'",
     "form-action 'self'",

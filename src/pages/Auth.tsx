@@ -106,6 +106,16 @@ const Auth = () => {
           title: "Account created",
           description: "Check your email to verify your account",
         });
+        
+        // Clear form fields
+        setFormData({
+          email: '',
+          password: '',
+          username: ''
+        });
+        
+        // Redirect to sign-in view
+        setIsLogin(true);
       }
     } catch (error: any) {
       console.error('Auth error:', error);

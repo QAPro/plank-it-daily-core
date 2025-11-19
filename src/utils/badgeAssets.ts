@@ -3,7 +3,7 @@
  * Handles badge image URLs for the achievement system
  */
 
-const SUPABASE_URL = "https://kgwmplptoctmoaefnpfg.supabase.co";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const BUCKET_NAME = "achievement-badges";
 
 /**

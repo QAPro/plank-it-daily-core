@@ -29,7 +29,7 @@ const FirstTimeOverlay = ({ visible, onGoToWorkouts, onDismiss }: FirstTimeOverl
           
           <div className="pr-6">
             <p className="text-sm text-foreground mb-4">
-              Start your journey with a plank now, or select the workout tab to choose your own starting point.
+              Start your journey with a workout now, or select the workout tab to choose your own starting point.
             </p>
             
             <div className="flex gap-3">

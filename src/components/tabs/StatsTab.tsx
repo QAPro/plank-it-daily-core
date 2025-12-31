@@ -55,7 +55,7 @@ const StatsTab = () => {
       {/* Header */}
       <div className="text-center pt-6 pb-4">
         <h2 className="text-2xl font-bold text-[#2C3E50] mb-1">Your Progress</h2>
-        <p className="text-[#7F8C8D] text-sm">Track your plank journey and transformation</p>
+        <p className="text-[#7F8C8D] text-sm">Track your fitness journey and transformation</p>
       </div>
 
       {/* Statistics Tabs */}

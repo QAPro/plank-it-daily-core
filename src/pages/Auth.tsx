@@ -164,7 +164,7 @@ const Auth = () => {
               {isForgotPassword
                 ? 'Enter your email to receive password reset instructions'
                 : isLogin 
-                ? 'Sign in to continue your plank journey' 
+                ? 'Sign in to continue your fitness journey' 
                 : 'Start your new fitness journey today'
               }
             </CardDescription>

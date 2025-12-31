@@ -69,7 +69,7 @@ const RecommendationsDashboard = ({ onExerciseSelect }: RecommendationsDashboard
     if (!stats || stats.thisWeekSessions === 0) {
       return {
         title: "Start Your Journey",
-        description: "Begin with a gentle plank to build your foundation",
+        description: "Begin with a gentle exercise to build your foundation",
         icon: Heart,
         color: "bg-green-500"
       };

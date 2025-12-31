@@ -84,7 +84,7 @@ const SessionHistory = () => {
             <Trophy className="w-12 h-12 mx-auto text-gray-300 mb-3" />
             <p className="text-gray-500">No sessions yet</p>
             <p className="text-sm text-gray-400">
-              Complete your first plank to see your history here
+              Complete your first workout to see your history here
             </p>
           </div>
         </CardContent>

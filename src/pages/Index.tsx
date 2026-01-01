@@ -48,22 +48,34 @@ const Index = () => {
   const handleWorkoutSelected = async (exerciseId: string, exerciseName: string) => {
     console.log('Index: Workout selected:', exerciseName);
     
-    // Mark onboarding complete with default values
-    await markOnboardingComplete();
-    
-    // Navigate to Dashboard with selected exercise
-    setInitialWorkout({ exerciseId, duration: 30 });
-    setShowWelcome(false);
+    try {
+      // Mark onboarding complete with default values
+      await markOnboardingComplete();
+      
+      // Navigate to Dashboard with selected exercise
+      setInitialWorkout({ exerciseId, duration: 30 });
+      setShowWelcome(false);
+    } catch (error) {
+      console.error('Index: Failed to save onboarding completion:', error);
+      // Show error to user but still let them proceed
+      alert('There was an issue saving your progress. Please try again or contact support if this persists.');
+    }
   };
 
   const handleSkip = async () => {
     console.log('Index: User chose to explore on their own');
     
-    // Mark onboarding complete
-    await markOnboardingComplete();
-    
-    // Let HomeTab use its default (Forearm Plank)
-    setShowWelcome(false);
+    try {
+      // Mark onboarding complete
+      await markOnboardingComplete();
+      
+      // Let HomeTab use its default (Forearm Plank)
+      setShowWelcome(false);
+    } catch (error) {
+      console.error('Index: Failed to save onboarding completion:', error);
+      // Show error to user but still let them proceed
+      alert('There was an issue saving your progress. Please try again or contact support if this persists.');
+    }
   };
 
   // Show loading while checking auth state or onboarding status

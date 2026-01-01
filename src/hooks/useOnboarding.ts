@@ -102,7 +102,7 @@ export const useOnboarding = () => {
     
     try {
       // Insert minimal onboarding record with defaults
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('user_onboarding')
         .upsert({
           user_id: user.id,
@@ -111,21 +111,24 @@ export const useOnboarding = () => {
           experience_level: 'beginner',
           preferred_duration: 30,
           completed_at: new Date().toISOString(),
-        });
+        }, {
+          onConflict: 'user_id'
+        })
+        .select();
 
       if (error) {
-        console.error('[Onboarding] Error saving to database:', error);
+        console.error('[Onboarding] Error saving to database:', error.message, error.details, error.hint);
         throw error;
       }
 
-      console.log('[Onboarding] Successfully saved to database');
+      console.log('[Onboarding] Successfully saved to database:', data);
       setIsOnboardingComplete(true);
       localStorage.setItem(ONBOARDING_CACHE_KEY, 'true');
-    } catch (error) {
-      console.error('[Onboarding] Failed to mark onboarding complete:', error);
-      // Still set local state even if database fails
-      setIsOnboardingComplete(true);
-      localStorage.setItem(ONBOARDING_CACHE_KEY, 'true');
+    } catch (error: any) {
+      console.error('[Onboarding] Failed to mark onboarding complete:', error?.message || error);
+      // DO NOT set local state if database fails - this causes the bug
+      // User will see welcome screen again, which is correct if save failed
+      throw error; // Re-throw so caller knows it failed
     }
   };
 

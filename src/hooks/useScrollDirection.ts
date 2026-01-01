@@ -1,20 +1,28 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, RefObject } from 'react';
 
 export type ScrollDirection = 'up' | 'down' | 'none';
 
 interface UseScrollDirectionOptions {
   threshold?: number; // Minimum scroll distance to trigger direction change
+  containerRef?: RefObject<HTMLElement>; // Optional scroll container ref
 }
 
-export const useScrollDirection = ({ threshold = 10 }: UseScrollDirectionOptions = {}) => {
+export const useScrollDirection = ({ 
+  threshold = 10,
+  containerRef 
+}: UseScrollDirectionOptions = {}) => {
   const [scrollDirection, setScrollDirection] = useState<ScrollDirection>('none');
   const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
+    const scrollElement = containerRef?.current || window;
     let ticking = false;
 
     const updateScrollDirection = () => {
-      const scrollY = window.scrollY;
+      // Get scroll position based on element type
+      const scrollY = containerRef?.current 
+        ? containerRef.current.scrollTop 
+        : window.scrollY;
 
       // If we're at the top, always show header
       if (scrollY <= 0) {
@@ -48,12 +56,21 @@ export const useScrollDirection = ({ threshold = 10 }: UseScrollDirectionOptions
       }
     };
 
-    window.addEventListener('scroll', onScroll, { passive: true });
+    // Add event listener to the appropriate element
+    if (containerRef?.current) {
+      containerRef.current.addEventListener('scroll', onScroll, { passive: true });
+    } else {
+      window.addEventListener('scroll', onScroll, { passive: true });
+    }
 
     return () => {
-      window.removeEventListener('scroll', onScroll);
+      if (containerRef?.current) {
+        containerRef.current.removeEventListener('scroll', onScroll);
+      } else {
+        window.removeEventListener('scroll', onScroll);
+      }
     };
-  }, [lastScrollY, threshold]);
+  }, [lastScrollY, threshold, containerRef]);
 
   return scrollDirection;
 };

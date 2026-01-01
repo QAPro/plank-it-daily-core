@@ -1,3 +1,4 @@
+import { RefObject } from "react";
 import { motion } from "framer-motion";
 import { Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -6,11 +7,15 @@ import { useScrollDirection } from "@/hooks/useScrollDirection";
 
 interface DashboardHeaderProps {
   activeTab?: string;
+  scrollContainerRef?: RefObject<HTMLDivElement>;
 }
 
-const DashboardHeader = ({ activeTab = 'home' }: DashboardHeaderProps) => {
+const DashboardHeader = ({ activeTab = 'home', scrollContainerRef }: DashboardHeaderProps) => {
   const navigate = useNavigate();
-  const scrollDirection = useScrollDirection({ threshold: 10 });
+  const scrollDirection = useScrollDirection({ 
+    threshold: 10,
+    containerRef: scrollContainerRef 
+  });
   
   // Determine if header should be hidden
   const isHidden = scrollDirection === 'down';

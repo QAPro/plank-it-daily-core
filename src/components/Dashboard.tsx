@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import NewBottomNav from './navigation/NewBottomNav';
@@ -32,6 +32,9 @@ const Dashboard = ({ initialWorkout }: DashboardProps) => {
   const [selectedWorkout, setSelectedWorkout] = useState<{exerciseId: string, duration: number} | null>(initialWorkout || null);
   const { user } = useAuth();
   const isMobile = useIsMobile();
+  
+  // Ref for the scroll container
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -88,10 +91,10 @@ const Dashboard = ({ initialWorkout }: DashboardProps) => {
   return (
     <div className="flex flex-col h-screen bg-gradient-to-b from-[#FFF9F5] to-[#FFFCFA]">
       {/* Header */}
-      <DashboardHeader activeTab={activeTab} />
+      <DashboardHeader activeTab={activeTab} scrollContainerRef={scrollContainerRef} />
       
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto pt-16 pb-32 min-h-0">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto pt-16 pb-32 min-h-0">
         <AnimatePresence mode="wait">
           {renderTabContent()}
         </AnimatePresence>
@@ -99,6 +102,15 @@ const Dashboard = ({ initialWorkout }: DashboardProps) => {
 
       {/* Navigation */}
       <NewBottomNav activeTab={activeTab} onTabChange={handleTabChange} />
+
+      {/* Dev Tools - Only visible in development */}
+      {import.meta.env.DEV && (
+        <>
+          <EnhancedPushNotificationTest />
+          <PushNotificationDebug />
+          <VapidKeyManager />
+        </>
+      )}
     </div>
   );
 };

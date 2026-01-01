@@ -15,14 +15,19 @@ export const useScrollDirection = ({
   const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
-    const scrollElement = containerRef?.current || window;
+    // Wait for the ref to be available
+    const element = containerRef?.current;
+    if (!element) {
+      console.log('[useScrollDirection] No container ref available yet');
+      return;
+    }
+
+    console.log('[useScrollDirection] Setting up scroll listener on container');
     let ticking = false;
 
     const updateScrollDirection = () => {
-      // Get scroll position based on element type
-      const scrollY = containerRef?.current 
-        ? containerRef.current.scrollTop 
-        : window.scrollY;
+      // Get scroll position from the container
+      const scrollY = element.scrollTop;
 
       // If we're at the top, always show header
       if (scrollY <= 0) {
@@ -39,12 +44,9 @@ export const useScrollDirection = ({
       }
 
       // Determine direction
-      if (scrollY > lastScrollY) {
-        setScrollDirection('down');
-      } else {
-        setScrollDirection('up');
-      }
-
+      const newDirection = scrollY > lastScrollY ? 'down' : 'up';
+      console.log('[useScrollDirection] Scroll detected:', { scrollY, lastScrollY, direction: newDirection });
+      setScrollDirection(newDirection);
       setLastScrollY(scrollY);
       ticking = false;
     };
@@ -56,21 +58,15 @@ export const useScrollDirection = ({
       }
     };
 
-    // Add event listener to the appropriate element
-    if (containerRef?.current) {
-      containerRef.current.addEventListener('scroll', onScroll, { passive: true });
-    } else {
-      window.addEventListener('scroll', onScroll, { passive: true });
-    }
+    // Add event listener to the container
+    element.addEventListener('scroll', onScroll, { passive: true });
+    console.log('[useScrollDirection] Scroll listener attached');
 
     return () => {
-      if (containerRef?.current) {
-        containerRef.current.removeEventListener('scroll', onScroll);
-      } else {
-        window.removeEventListener('scroll', onScroll);
-      }
+      console.log('[useScrollDirection] Cleaning up scroll listener');
+      element.removeEventListener('scroll', onScroll);
     };
-  }, [lastScrollY, threshold, containerRef]);
+  }, [lastScrollY, threshold]); // Removed containerRef from dependencies to prevent re-initialization
 
   return scrollDirection;
 };

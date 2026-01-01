@@ -52,7 +52,7 @@ const SimpleCompletionOverlay = ({ isOpen, exerciseName, duration, onClose, onSu
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto"
           onClick={onClose}
         >
           <motion.div
@@ -61,19 +61,21 @@ const SimpleCompletionOverlay = ({ isOpen, exerciseName, duration, onClose, onSu
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
             onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-sm my-auto"
           >
-            <Card className="bg-gradient-to-br from-primary/10 to-secondary/10 backdrop-blur-sm border-primary/20 max-w-sm">
-              <CardContent className="p-8 text-center space-y-6">
-                {/* Close Button */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onClose}
-                  className="absolute top-2 right-2 text-muted-foreground hover:text-foreground"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
+            <Card className="bg-gradient-to-br from-primary/10 to-secondary/10 backdrop-blur-sm border-primary/20 relative">
+              {/* Close Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onClose}
+                className="absolute top-2 right-2 text-muted-foreground hover:text-foreground z-10"
+              >
+                <X className="w-4 h-4" />
+              </Button>
 
+              {/* Scrollable Content */}
+              <CardContent className="p-6 sm:p-8 text-center space-y-4 sm:space-y-6">
                 {/* Trophy Icon */}
                 <motion.div
                   animate={{ 
@@ -100,7 +102,7 @@ const SimpleCompletionOverlay = ({ isOpen, exerciseName, duration, onClose, onSu
                 </div>
 
                 {/* Duration */}
-                <div className="py-4">
+                <div className="py-3">
                   <div className="text-sm text-muted-foreground mb-1">Time Completed</div>
                   <div className="text-4xl font-bold text-primary">
                     {formatTime(duration)}
@@ -117,12 +119,12 @@ const SimpleCompletionOverlay = ({ isOpen, exerciseName, duration, onClose, onSu
                   placeholder="Add notes about your workout (optional)"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  rows={3}
+                  rows={2}
                   className="resize-none"
                 />
 
-                {/* Action Buttons */}
-                <div className="flex gap-3">
+                {/* Action Buttons - Sticky on small screens */}
+                <div className="flex gap-3 pt-2">
                   <Button
                     onClick={onClose}
                     variant="outline"

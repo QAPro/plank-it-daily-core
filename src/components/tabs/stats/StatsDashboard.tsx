@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useStatsDashboard } from "@/hooks/useStatsDashboard";
+import { useValidatedStreak } from "@/hooks/useValidatedStreak";
 import { Button } from "@/components/ui/button";
 import { Crown } from "lucide-react";
 import RegularStatCard from "@/components/stats/RegularStatCard";
@@ -8,8 +9,9 @@ import MomentumActivityCard from "@/components/stats/MomentumActivityCard";
 
 const StatsDashboard = () => {
   const { keyMetrics, weeklyActivity, personalRecords, recentAchievements, isLoading } = useStatsDashboard();
+  const { currentStreak, isLoading: streakLoading } = useValidatedStreak();
 
-  if (isLoading) {
+  if (isLoading || streakLoading) {
     return (
       <div className="p-6 space-y-6">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -51,7 +53,7 @@ const StatsDashboard = () => {
         <RegularStatCard 
           emoji="🔥"
           title="Current Streak"
-          value={`${keyMetrics.currentStreak}`}
+          value={`${currentStreak}`}
           delay={0.1}
         />
         

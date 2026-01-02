@@ -21,15 +21,15 @@ export const NotificationPermissionDialog = ({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-background/80 backdrop-blur-sm p-4 overflow-y-auto">
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.2 }}
-            className="w-full max-w-md"
+            className="w-full max-w-md my-auto"
           >
-            <Card className="border-2 border-primary/20 shadow-xl">
+            <Card className="border-2 border-primary/20 shadow-xl max-h-[85vh] overflow-y-auto">
               <CardHeader className="relative pb-4">
                 <button
                   onClick={onClose}

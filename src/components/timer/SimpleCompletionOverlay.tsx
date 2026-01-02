@@ -9,11 +9,11 @@ interface SimpleCompletionOverlayProps {
   isOpen: boolean;
   exerciseName: string;
   duration: number;
-  onClose: () => void;
+  onSkip: () => Promise<void>;
   onSubmit: (notes: string) => Promise<void>;
 }
 
-const SimpleCompletionOverlay = ({ isOpen, exerciseName, duration, onClose, onSubmit }: SimpleCompletionOverlayProps) => {
+const SimpleCompletionOverlay = ({ isOpen, exerciseName, duration, onSkip, onSubmit }: SimpleCompletionOverlayProps) => {
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -21,6 +21,20 @@ const SimpleCompletionOverlay = ({ isOpen, exerciseName, duration, onClose, onSu
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleSkip = async () => {
+    if (isSubmitting) return; // Prevent double-clicks
+    
+    setIsSubmitting(true);
+    try {
+      await onSkip();
+      setNotes(''); // Clear notes after successful skip
+    } catch (error) {
+      console.error('Failed to skip workout:', error);
+      setIsSubmitting(false); // Re-enable on error
+    }
+    // Note: Don't set isSubmitting to false on success, modal will close anyway
   };
 
   const handleSubmit = async () => {
@@ -53,7 +67,6 @@ const SimpleCompletionOverlay = ({ isOpen, exerciseName, duration, onClose, onSu
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto"
-          onClick={onClose}
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
@@ -64,15 +77,7 @@ const SimpleCompletionOverlay = ({ isOpen, exerciseName, duration, onClose, onSu
             className="w-full max-w-sm my-auto"
           >
             <Card className="bg-gradient-to-br from-primary/10 to-secondary/10 backdrop-blur-sm border-primary/20 relative">
-              {/* Close Button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClose}
-                className="absolute top-2 right-2 text-muted-foreground hover:text-foreground z-10"
-              >
-                <X className="w-4 h-4" />
-              </Button>
+
 
               {/* Scrollable Content */}
               <CardContent className="p-6 sm:p-8 text-center space-y-4 sm:space-y-6">
@@ -126,12 +131,13 @@ const SimpleCompletionOverlay = ({ isOpen, exerciseName, duration, onClose, onSu
                 {/* Action Buttons - Sticky on small screens */}
                 <div className="flex gap-3 pt-2">
                   <Button
-                    onClick={onClose}
+                    onClick={handleSkip}
                     variant="outline"
                     size="lg"
                     className="flex-1"
+                    disabled={isSubmitting}
                   >
-                    Cancel
+                    {isSubmitting ? 'Saving...' : 'Skip'}
                   </Button>
                   <Button
                     onClick={handleSubmit}
@@ -139,7 +145,7 @@ const SimpleCompletionOverlay = ({ isOpen, exerciseName, duration, onClose, onSu
                     className="flex-1"
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? 'Submitting...' : 'Submit'}
+                    {isSubmitting ? 'Saving...' : 'Submit'}
                   </Button>
                 </div>
               </CardContent>

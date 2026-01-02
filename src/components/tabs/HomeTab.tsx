@@ -242,9 +242,23 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     handleReset();
   };
 
-  const handleCloseCompletion = () => {
+  const handleSkipWorkout = async () => {
+    const timeElapsed = duration - timeLeft;
+    
+    // Save the session WITHOUT notes
+    await completeSession(timeElapsed, '');
+    
+    // Trigger notification prompt after workout completion
+    triggerAfterWorkout();
+    
+    // Close overlay and reset timer
     setShowSimpleCompletion(false);
     handleReset();
+    
+    toast({
+      title: "Workout Saved!",
+      description: `Great work on ${formatTime(timeElapsed)}!`,
+    });
   };
 
   const handleSubmitWorkout = async (notes: string) => {
@@ -311,7 +325,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         isOpen={showSimpleCompletion}
         exerciseName={selectedExercise.name}
         duration={duration - timeLeft}
-        onClose={handleCloseCompletion}
+        onSkip={handleSkipWorkout}
         onSubmit={handleSubmitWorkout}
       />
 

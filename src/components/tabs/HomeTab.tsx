@@ -171,7 +171,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
 
   // Greeting logic
   const getGreeting = () => {
-    const displayName = firstName || username || 'there';
+    const displayName = username || firstName || 'there';
     return `Hello, ${displayName}!`;
   };
 

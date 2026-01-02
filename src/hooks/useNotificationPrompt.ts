@@ -78,18 +78,48 @@ export const useNotificationPrompt = () => {
 
     console.log('[NotificationPrompt] Workout completed, checking if should show prompt');
 
+    // Increment workout count
+    const newCompletedWorkouts = promptState.completedWorkouts + 1;
     const newState = {
       ...promptState,
-      completedWorkouts: promptState.completedWorkouts + 1
+      completedWorkouts: newCompletedWorkouts
     };
     saveState(newState);
 
+    console.log('[NotificationPrompt] Workout count:', newCompletedWorkouts);
+    console.log('[NotificationPrompt] isSupported:', isSupported);
+    console.log('[NotificationPrompt] isSubscribed:', isSubscribed);
+    console.log('[NotificationPrompt] hasBeenAsked:', promptState.hasBeenAsked);
+
+    // Don't show if not supported or already subscribed
+    if (!isSupported) {
+      console.log('[NotificationPrompt] Notifications not supported, skipping');
+      return;
+    }
+
+    if (isSubscribed) {
+      console.log('[NotificationPrompt] Already subscribed, skipping');
+      return;
+    }
+
+    // Check cooldown period if user has been asked before
+    if (promptState.hasBeenAsked && promptState.lastAskedDate) {
+      const lastAsked = new Date(promptState.lastAskedDate);
+      const now = new Date();
+      const daysSinceLastAsked = Math.floor((now.getTime() - lastAsked.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (daysSinceLastAsked < COOLDOWN_DAYS) {
+        console.log('[NotificationPrompt] Still in cooldown period, skipping');
+        return;
+      }
+    }
+
     // Show prompt after first workout
-    if (newState.completedWorkouts === 1 && checkShouldShow()) {
-      console.log('[NotificationPrompt] First workout completed, showing prompt');
+    if (newCompletedWorkouts === 1) {
+      console.log('[NotificationPrompt] First workout completed, showing prompt!');
       setShouldShowPrompt(true);
     }
-  }, [user, promptState, saveState, checkShouldShow]);
+  }, [user, promptState, saveState, isSupported, isSubscribed]);
 
   // Trigger prompt at streak milestone
   const triggerAtStreakMilestone = useCallback((streakDays: number) => {

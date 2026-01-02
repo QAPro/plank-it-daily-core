@@ -13,6 +13,7 @@ import { useCountdownTimer } from '@/hooks/useCountdownTimer';
 import { useEnhancedTimerAudio } from '@/hooks/useEnhancedTimerAudio';
 import { useEnhancedSessionTracking } from '@/hooks/useEnhancedSessionTracking';
 import SessionCompletionCelebration from '@/components/session/SessionCompletionCelebration';
+import AchievementNotification from '@/components/AchievementNotification';
 
 interface CountdownTimerProps {
   selectedExercise: any;
@@ -27,6 +28,11 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
   const [showConfetti, setShowConfetti] = useState(false);
   const [debugInfo, setDebugInfo] = useState<string>('');
   const [user, setUser] = useState<any>(null);
+  
+  // Achievement notification queue
+  const [achievementQueue, setAchievementQueue] = useState<any[]>([]);
+  const [currentAchievement, setCurrentAchievement] = useState<any | null>(null);
+  const [showAchievementModal, setShowAchievementModal] = useState(false);
 
   // Track auth state
   useEffect(() => {
@@ -145,12 +151,25 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
     }
   }, [selectedExercise, selectExercise]);
 
-  // Show celebration when session completes
+  // Show celebration when session completes - with achievement queue
   useEffect(() => {
     console.log('🎊 completedSession changed:', completedSession);
     if (completedSession) {
-      console.log('🎊 Setting showCelebration to true');
-      setShowCelebration(true);
+      const achievements = completedSession.achievements || [];
+      console.log('🏆 Achievements earned:', achievements.length);
+      
+      if (achievements.length > 0) {
+        // Queue achievements for sequential display
+        console.log('🎯 Queueing achievements for display');
+        setAchievementQueue(achievements);
+        setCurrentAchievement(achievements[0]);
+        setShowAchievementModal(true);
+        // Don't show celebration yet - wait for achievements
+      } else {
+        // No achievements, go straight to celebration
+        console.log('🎊 No achievements, showing celebration directly');
+        setShowCelebration(true);
+      }
     }
   }, [completedSession]);
 
@@ -216,6 +235,31 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
     setShowConfetti(false);
     clearCompletedSession();
     handleResetTimer();
+  };
+
+  const handleAchievementClose = () => {
+    console.log('🏆 Achievement modal closed');
+    setShowAchievementModal(false);
+    
+    // Remove current achievement from queue
+    const remaining = achievementQueue.slice(1);
+    console.log('🎯 Remaining achievements:', remaining.length);
+    
+    if (remaining.length > 0) {
+      // Show next achievement after brief delay
+      setTimeout(() => {
+        console.log('🎉 Showing next achievement');
+        setCurrentAchievement(remaining[0]);
+        setAchievementQueue(remaining);
+        setShowAchievementModal(true);
+      }, 300); // 300ms transition delay
+    } else {
+      // All achievements shown, now show celebration
+      console.log('✅ All achievements shown, showing celebration');
+      setTimeout(() => {
+        setShowCelebration(true);
+      }, 500); // Brief pause before celebration
+    }
   };
 
   if (showSetup) {
@@ -419,6 +463,15 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
           </CardContent>
         </Card>
       </div>
+
+      {/* Achievement Notification Modal */}
+      {showAchievementModal && currentAchievement && (
+        <AchievementNotification
+          achievement={currentAchievement}
+          onClose={handleAchievementClose}
+          isVisible={showAchievementModal}
+        />
+      )}
 
       {/* Session Completion Celebration */}
       {showCelebration && completedSession && (

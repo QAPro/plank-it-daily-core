@@ -101,17 +101,18 @@ const SessionCompletionCelebration: React.FC<SessionCompletionCelebrationProps> 
 
         <CardContent className="p-6 space-y-6">
           {achievements.length > 0 && (
-            <section className="space-y-3">
-              <h4 className="text-lg font-semibold text-gray-800">
-                Achievements Unlocked!
-              </h4>
-              <ul className="list-disc list-inside space-y-1">
-                {achievements.map((achievement) => (
-                  <li key={achievement.id} className="text-gray-700">
-                    {achievement.achievement_name}
-                  </li>
-                ))}
-              </ul>
+            <section className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg p-4 border border-orange-200">
+              <div className="flex items-center justify-center gap-3">
+                <Trophy className="w-8 h-8 text-orange-600" />
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-orange-800">
+                    {achievements.length} Achievement{achievements.length > 1 ? 's' : ''} Unlocked!
+                  </div>
+                  <div className="text-sm text-orange-600 mt-1">
+                    View in Achievements tab
+                  </div>
+                </div>
+              </div>
             </section>
           )}
 

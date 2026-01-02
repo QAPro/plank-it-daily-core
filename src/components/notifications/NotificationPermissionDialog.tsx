@@ -30,7 +30,7 @@ export const NotificationPermissionDialog = ({
             className="w-full max-w-md"
           >
             <Card className="border-2 border-primary/20 shadow-xl">
-              <CardHeader className="relative pb-3">
+              <CardHeader className="relative pb-4">
                 <button
                   onClick={onClose}
                   className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
@@ -39,51 +39,51 @@ export const NotificationPermissionDialog = ({
                   <X className="h-4 w-4" />
                 </button>
                 
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-3 rounded-full bg-gradient-primary">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-3 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 shadow-md">
                     <Bell className="w-6 h-6 text-white" />
                   </div>
-                  <CardTitle className="text-2xl">Stay on Track!</CardTitle>
+                  <CardTitle className="text-2xl font-bold">Stay on Track!</CardTitle>
                 </div>
-                <CardDescription className="text-base">
+                <CardDescription className="text-base font-medium text-gray-700 dark:text-gray-300">
                   Get helpful reminders to build your fitness habit and never miss a workout.
                 </CardDescription>
               </CardHeader>
 
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-5">
                 {/* Benefits List */}
-                <div className="space-y-3">
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-orange-500/10 flex-shrink-0">
-                      <Flame className="w-5 h-5 text-orange-500" />
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800">
+                    <div className="p-2 rounded-lg bg-white dark:bg-gray-800 shadow-sm flex-shrink-0">
+                      <Flame className="w-5 h-5 text-orange-600 dark:text-orange-400" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-sm mb-0.5">Protect Your Streak</h4>
-                      <p className="text-xs text-muted-foreground">
+                      <h4 className="font-bold text-base text-gray-900 dark:text-gray-100 mb-1">Protect Your Streak</h4>
+                      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                         Get reminded before your streak expires
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-yellow-500/10 flex-shrink-0">
-                      <Trophy className="w-5 h-5 text-yellow-600" />
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800">
+                    <div className="p-2 rounded-lg bg-white dark:bg-gray-800 shadow-sm flex-shrink-0">
+                      <Trophy className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-sm mb-0.5">Celebrate Achievements</h4>
-                      <p className="text-xs text-muted-foreground">
+                      <h4 className="font-bold text-base text-gray-900 dark:text-gray-100 mb-1">Celebrate Achievements</h4>
+                      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                         Get instant alerts when you unlock new milestones
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-blue-500/10 flex-shrink-0">
-                      <TrendingUp className="w-5 h-5 text-blue-500" />
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800">
+                    <div className="p-2 rounded-lg bg-white dark:bg-gray-800 shadow-sm flex-shrink-0">
+                      <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-sm mb-0.5">Track Your Progress</h4>
-                      <p className="text-xs text-muted-foreground">
+                      <h4 className="font-bold text-base text-gray-900 dark:text-gray-100 mb-1">Track Your Progress</h4>
+                      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                         Weekly summaries of your fitness journey
                       </p>
                     </div>
@@ -91,27 +91,27 @@ export const NotificationPermissionDialog = ({
                 </div>
 
                 {/* Info Box */}
-                <div className="bg-muted/50 rounded-lg p-3">
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    💡 <span className="font-medium">You're in control.</span> Customize notification types and timing in Settings anytime.
+                <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                    💡 <span className="font-bold">You're in control.</span> Customize notification types and timing in Settings anytime.
                   </p>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-col gap-2 pt-2">
+                <div className="flex flex-col gap-3 pt-2">
                   <Button
                     onClick={onEnable}
                     size="lg"
-                    className="w-full"
+                    className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-4 text-lg shadow-lg hover:shadow-xl transition-all"
                   >
-                    <Bell className="w-4 h-4 mr-2" />
+                    <Bell className="w-5 h-5 mr-2" />
                     Enable Notifications
                   </Button>
                   <Button
                     onClick={onLater}
-                    variant="ghost"
+                    variant="outline"
                     size="lg"
-                    className="w-full"
+                    className="w-full font-semibold py-3.5 text-base border-2"
                   >
                     Maybe Later
                   </Button>

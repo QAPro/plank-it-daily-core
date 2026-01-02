@@ -16,11 +16,14 @@ import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useMomentumScore } from "@/hooks/useMomentumScore";
 import { useValidatedStreak } from "@/hooks/useValidatedStreak";
+import { useNotificationPrompt } from "@/hooks/useNotificationPrompt";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 import CircularProgressTimer from '@/components/timer/CircularProgressTimer';
 import TimePickerModal from '@/components/timer/TimePickerModal';
 import SimpleCompletionOverlay from '@/components/timer/SimpleCompletionOverlay';
 import QuickStatsCards from '@/components/stats/QuickStatsCards';
 import EnhancedConfetti from '@/components/celebration/EnhancedConfetti';
+import { NotificationPermissionDialog } from '@/components/notifications/NotificationPermissionDialog';
 
 interface HomeTabProps {
   onExerciseSelect?: (exerciseId: string) => void;
@@ -40,6 +43,16 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
   const { data: stats } = useSessionStats();
   const { data: momentumData } = useMomentumScore();
   const { currentStreak: streakValue } = useValidatedStreak();
+  
+  // Notification prompt
+  const {
+    shouldShowPrompt,
+    triggerAfterWorkout,
+    handleEnable,
+    handleLater,
+    handleClose
+  } = useNotificationPrompt();
+  const { subscribe } = usePushNotifications();
   
   // State
   const [selectedExerciseId, setSelectedExerciseId] = useState<string>('');
@@ -240,6 +253,9 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     // Save the session with notes
     await completeSession(timeElapsed, notes);
     
+    // Trigger notification prompt after workout completion
+    triggerAfterWorkout();
+    
     // Close overlay and reset timer
     setShowSimpleCompletion(false);
     handleReset();
@@ -297,6 +313,17 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         duration={duration - timeLeft}
         onClose={handleCloseCompletion}
         onSubmit={handleSubmitWorkout}
+      />
+
+      {/* Notification Permission Dialog */}
+      <NotificationPermissionDialog
+        isOpen={shouldShowPrompt}
+        onEnable={async () => {
+          handleEnable();
+          await subscribe();
+        }}
+        onLater={handleLater}
+        onClose={handleClose}
       />
 
       {/* Header Section */}

@@ -3,6 +3,7 @@ import { Activity, User, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { User as AuthUser } from "@supabase/supabase-js";
 import innerFireLogo from "@/assets/inner-fire-logo.png";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 interface WelcomeScreenProps {
   user: AuthUser;
@@ -11,8 +12,13 @@ interface WelcomeScreenProps {
 }
 
 const WelcomeScreen = ({ user, onWorkoutSelected, onSkip }: WelcomeScreenProps) => {
-  // Extract first name from user metadata or email
-  const getFirstName = () => {
+  // Get username and firstName from database
+  const { username, firstName } = useUserProfile();
+  
+  // Prioritize username, then firstName, then email fallback
+  const getDisplayName = () => {
+    if (username) return username;
+    if (firstName) return firstName;
     if (user.user_metadata?.name) {
       return user.user_metadata.name.split(' ')[0];
     }
@@ -70,7 +76,7 @@ const WelcomeScreen = ({ user, onWorkoutSelected, onSkip }: WelcomeScreenProps) 
           transition={{ delay: 0.2, duration: 0.5 }}
         />
         <h1 className="text-4xl font-bold text-gradient mb-2">
-          Welcome to Inner Fire, {getFirstName()}!
+          Welcome to Inner Fire, {getDisplayName()}!
         </h1>
         <p className="text-lg text-muted-foreground font-medium">
           Let's begin your journey. Choose your first workout:

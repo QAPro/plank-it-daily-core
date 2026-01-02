@@ -121,7 +121,11 @@ export const useEnhancedSessionTracking = () => {
 
       const today = new Date();
       const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-      const lastWorkoutDate = userStreak?.last_workout_date ? new Date(userStreak.last_workout_date) : null;
+      
+      // Parse last_workout_date as local date (YYYY-MM-DD format)
+      const lastWorkoutDate = userStreak?.last_workout_date 
+        ? new Date(userStreak.last_workout_date + 'T00:00:00') // Force local timezone interpretation
+        : null;
 
       let newStreak = 1;
       let isNewStreak = false;

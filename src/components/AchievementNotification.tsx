@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Trophy, X } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import FlagGuard from '@/components/access/FlagGuard';
+
 import type { UserAchievement } from "@/hooks/useUserAchievements";
 
 interface AchievementNotificationProps {
@@ -55,7 +55,6 @@ const AchievementNotification = ({ achievement, onClose, isVisible }: Achievemen
   }, [isVisible]);
 
   return (
-    <FlagGuard featureName="achievement_notifications">
       <AnimatePresence>
         {isVisible && (
           <motion.div
@@ -182,7 +181,6 @@ const AchievementNotification = ({ achievement, onClose, isVisible }: Achievemen
           </motion.div>
         )}
       </AnimatePresence>
-    </FlagGuard>
   );
 };
 

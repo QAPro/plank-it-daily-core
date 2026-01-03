@@ -424,7 +424,9 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
           duration={duration}
           state={state}
           progress={progress}
-          onClick={handleTimeClick}
+          onStart={handleStartTimer}
+          onPause={handlePauseTimer}
+          onResume={handleResumeTimer}
         />
       </motion.div>
 
@@ -434,31 +436,44 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="flex items-center justify-center gap-4"
+          className="space-y-3"
         >
-          <Button
-            variant="outline"
-            onClick={() => handleQuickAdjust(-5)}
-            disabled={quickAdjustDisabled || duration <= 0}
-            className="h-12 px-6 bg-card border border-border rounded-lg shadow-soft hover:bg-background-tertiary hover:border-primary hover:text-primary hover:shadow-medium active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none"
-          >
-            <div className="flex items-center gap-2">
-              <Minus className="h-4 w-4" />
-              <span className="text-base font-semibold">5s</span>
-            </div>
-          </Button>
+          <div className="flex items-center justify-center gap-4">
+            <Button
+              variant="outline"
+              onClick={() => handleQuickAdjust(-5)}
+              disabled={quickAdjustDisabled || duration <= 0}
+              className="h-12 px-6 bg-card border border-border rounded-lg shadow-soft hover:bg-background-tertiary hover:border-primary hover:text-primary hover:shadow-medium active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none"
+            >
+              <div className="flex items-center gap-2">
+                <Minus className="h-4 w-4" />
+                <span className="text-base font-semibold">5s</span>
+              </div>
+            </Button>
 
-          <Button
-            variant="outline"
-            onClick={() => handleQuickAdjust(5)}
-            disabled={quickAdjustDisabled || duration >= 5999}
-            className="h-12 px-6 bg-card border border-border rounded-lg shadow-soft hover:bg-background-tertiary hover:border-primary hover:text-primary hover:shadow-medium active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none"
-          >
-            <div className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              <span className="text-base font-semibold">5s</span>
-            </div>
-          </Button>
+            <Button
+              variant="outline"
+              onClick={() => handleQuickAdjust(5)}
+              disabled={quickAdjustDisabled || duration >= 5999}
+              className="h-12 px-6 bg-card border border-border rounded-lg shadow-soft hover:bg-background-tertiary hover:border-primary hover:text-primary hover:shadow-medium active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none"
+            >
+              <div className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                <span className="text-base font-semibold">5s</span>
+              </div>
+            </Button>
+          </div>
+          
+          {/* Set Timer Pill Button */}
+          <div className="flex justify-center">
+            <Button
+              variant="ghost"
+              onClick={handleTimeClick}
+              className="h-8 px-4 text-sm font-medium text-muted-foreground hover:text-foreground border border-border/50 rounded-full shadow-soft hover:shadow-medium hover:border-primary transition-all duration-200"
+            >
+              Set Timer
+            </Button>
+          </div>
         </motion.div>
       )}
 
@@ -477,93 +492,45 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         </p>
       </motion.div>
 
-      {/* Primary Action Button */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="space-y-3"
-      >
-        <AnimatePresence mode="wait">
-          {(state === 'ready' || state === 'setup') && (
-            <motion.div
-              key="start"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="flex justify-center"
+      {/* Stop Button - Only visible when paused */}
+      <AnimatePresence mode="wait">
+        {state === 'paused' && (
+          <motion.div
+            key="stop"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ delay: 0.4 }}
+            className="flex justify-center"
+          >
+            <Button
+              onClick={handleStopTimer}
+              variant="outline"
+              className="h-10 px-8 text-sm font-semibold bg-card text-foreground border border-border rounded-xl shadow-soft hover:bg-secondary hover:border-destructive hover:text-destructive hover:shadow-medium active:scale-[0.98] transition-all duration-200"
             >
-              <Button
-                onClick={handleStartTimer}
-                className="h-12 px-10 text-base font-semibold bg-gradient-primary text-white rounded-xl shadow-soft hover:shadow-medium hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
-              >
-                Start Workout
-              </Button>
-            </motion.div>
-          )}
-
-          {state === 'running' && (
-            <motion.div
-              key="pause"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="flex justify-center"
+              Stop Workout
+            </Button>
+          </motion.div>
+        )}
+        
+        {state === 'completed' && (
+          <motion.div
+            key="completed"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ delay: 0.4 }}
+            className="flex justify-center"
+          >
+            <Button
+              onClick={handleResetTimer}
+              className="h-12 px-10 text-base font-semibold bg-gradient-primary text-white rounded-xl shadow-soft hover:shadow-medium hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
             >
-              <Button
-                onClick={handlePauseTimer}
-                variant="secondary"
-                className="h-12 px-10 text-base font-semibold bg-card text-foreground border border-border rounded-xl shadow-soft hover:bg-secondary hover:border-primary hover:shadow-medium hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
-              >
-                Pause
-              </Button>
-            </motion.div>
-          )}
-
-          {state === 'paused' && (
-            <motion.div
-              key="paused"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="flex justify-center"
-            >
-              <div className="flex gap-3 max-w-xs w-full">
-                <Button
-                  onClick={handleResumeTimer}
-                  className="flex-1 h-12 px-10 text-base font-semibold bg-gradient-primary text-white rounded-xl shadow-soft hover:shadow-medium hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
-                >
-                  Resume
-                </Button>
-                <Button
-                  onClick={handleStopTimer}
-                  variant="outline"
-                  className="flex-1 h-12 text-base font-semibold bg-card text-foreground border border-border rounded-xl shadow-soft hover:bg-secondary hover:border-primary hover:text-primary hover:shadow-medium active:scale-[0.98] transition-all duration-200"
-                >
-                  Stop
-                </Button>
-              </div>
-            </motion.div>
-          )}
-
-          {state === 'completed' && (
-            <motion.div
-              key="completed"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="flex justify-center"
-            >
-              <Button
-                onClick={handleResetTimer}
-                className="h-12 px-10 text-base font-semibold bg-gradient-primary text-white rounded-xl shadow-soft hover:shadow-medium hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
-              >
-                Start New Workout
-              </Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
+              Start New Workout
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Quick Stats Cards */}
       <motion.div

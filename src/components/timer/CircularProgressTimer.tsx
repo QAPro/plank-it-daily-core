@@ -1,6 +1,7 @@
 
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
+import { Play, Pause } from "lucide-react";
 
 type CountdownTimerState = 'setup' | 'ready' | 'running' | 'paused' | 'completed';
 
@@ -9,10 +10,38 @@ interface CircularProgressTimerProps {
   duration: number;
   state: CountdownTimerState;
   progress: number;
-  onClick?: () => void;
+  onStart?: () => void;
+  onPause?: () => void;
+  onResume?: () => void;
 }
 
-const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }: CircularProgressTimerProps) => {
+const CircularProgressTimer = ({ timeLeft, duration, state, progress, onStart, onPause, onResume }: CircularProgressTimerProps) => {
+  
+  // Handle timer click based on state
+  const handleTimerClick = () => {
+    if (state === 'ready' || state === 'setup') {
+      onStart?.();
+    } else if (state === 'running') {
+      onPause?.();
+    } else if (state === 'paused') {
+      onResume?.();
+    }
+  };
+  
+  // Determine if timer is clickable
+  const isClickable = state === 'ready' || state === 'setup' || state === 'running' || state === 'paused';
+  
+  // Get icon to display
+  const getIcon = () => {
+    if (state === 'ready' || state === 'setup') {
+      return <Play className="w-8 h-8 sm:w-10 sm:h-10" fill="white" />;
+    } else if (state === 'running') {
+      return <Pause className="w-8 h-8 sm:w-10 sm:h-10" fill="white" />;
+    } else if (state === 'paused') {
+      return <Play className="w-8 h-8 sm:w-10 sm:h-10" fill="white" />;
+    }
+    return null;
+  };
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -200,8 +229,8 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
         
         {/* Timer Display - Absolutely centered */}
         <div 
-          className={`absolute inset-0 flex flex-col items-center justify-center text-white z-20 ${onClick ? 'cursor-pointer' : ''}`}
-          onClick={onClick}
+          className={`absolute inset-0 flex flex-col items-center justify-center text-white z-20 ${isClickable ? 'cursor-pointer' : ''}`}
+          onClick={isClickable ? handleTimerClick : undefined}
         >
           <motion.div
             key={timeLeft}
@@ -233,6 +262,19 @@ const CircularProgressTimer = ({ timeLeft, duration, state, progress, onClick }:
               className="mt-1 text-xs sm:text-sm font-medium"
             >
               🔥 Final countdown!
+            </motion.div>
+          )}
+          
+          {/* Play/Pause Icon Indicator */}
+          {isClickable && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 0.8, y: 0 }}
+              whileHover={{ opacity: 1, scale: 1.1 }}
+              transition={{ duration: 0.2 }}
+              className="absolute bottom-8 sm:bottom-10 flex items-center justify-center"
+            >
+              {getIcon()}
             </motion.div>
           )}
         </div>

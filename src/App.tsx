@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AchievementEventProvider } from "@/contexts/AchievementEventContext";
 import { SessionTrackingProvider } from "@/contexts/SessionTrackingContext";
+import { StreakProvider } from "@/components/StreakProvider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
@@ -53,8 +54,9 @@ function App() {
       <ThemeProvider defaultTheme="light" storageKey="inner-fire-theme">
         <AuthProvider>
           <AchievementEventProvider>
-            <SessionTrackingProvider>
-              <Router>
+            <StreakProvider>
+              <SessionTrackingProvider>
+                <Router>
             <ServiceWorkerMessageHandler />
             <InstallPrompt />
             {process.env.NODE_ENV === 'development' && (
@@ -101,8 +103,9 @@ function App() {
             <Toaster />
             <SonnerToaster />
             <ProductionDiagnostics />
-              </Router>
-            </SessionTrackingProvider>
+                </Router>
+              </SessionTrackingProvider>
+            </StreakProvider>
         </AchievementEventProvider>
       </AuthProvider>
       </ThemeProvider>

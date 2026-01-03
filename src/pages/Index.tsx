@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import WelcomeScreen from "@/components/WelcomeScreen";
 import Dashboard from "@/components/Dashboard";
-import { StreakProvider } from "@/components/StreakProvider";
+
 import { LevelProgressionProvider } from "@/components/level/LevelProgressionProvider";
 import { AnimatePresence } from "framer-motion";
 
@@ -113,8 +113,7 @@ const Index = () => {
 
   return (
     <LevelProgressionProvider>
-      <StreakProvider>
-        <div className="min-h-screen bg-gradient-to-b from-[#FFF9F5] to-[#FFFCFA]">
+      <div className="min-h-screen bg-gradient-to-b from-[#FFF9F5] to-[#FFFCFA]">
           <AnimatePresence mode="wait">
             {showWelcome ? (
               <WelcomeScreen 
@@ -127,8 +126,7 @@ const Index = () => {
               <Dashboard key="dashboard" initialWorkout={initialWorkout} />
             )}
           </AnimatePresence>
-        </div>
-      </StreakProvider>
+      </div>
     </LevelProgressionProvider>
   );
 };

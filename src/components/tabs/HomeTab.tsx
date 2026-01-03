@@ -178,6 +178,24 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     setInitialized(true);
   }, [exercises, preferences, preferencesLoading, initialized, updatePreferences, setTimerDuration]);
 
+  // Sync with preference changes after initialization (when user selects new workout)
+  useEffect(() => {
+    if (!initialized) return; // Only after initial setup
+    if (!preferences) return; // Need preferences
+    if (preferencesLoading) return; // Wait for loading to complete
+    
+    // If preferences changed (new workout selected), update the display
+    if (preferences.last_exercise_id && preferences.last_exercise_id !== selectedExerciseId) {
+      console.log('[HomeTab] Preferences changed, updating selected exercise:', preferences.last_exercise_id);
+      setSelectedExerciseId(preferences.last_exercise_id);
+      
+      if (preferences.last_duration) {
+        setDuration(preferences.last_duration);
+        setTimerDuration(preferences.last_duration);
+      }
+    }
+  }, [preferences, initialized, preferencesLoading, selectedExerciseId, setTimerDuration]);
+
   // Handle incoming workout selection from Workout Hub
   useEffect(() => {
     if (selectedWorkout && selectedWorkout.exerciseId) {

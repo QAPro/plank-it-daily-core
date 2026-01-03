@@ -24,7 +24,6 @@ export class DatabaseAchievementService {
       .from('achievements')
       .select('*')
       .eq('id', id)
-      .eq('is_disabled', false)
       .single();
 
     if (error) {
@@ -40,7 +39,6 @@ export class DatabaseAchievementService {
       .from('achievements')
       .select('*')
       .eq('category', category as any)
-      .eq('is_disabled', false)
       .order('points', { ascending: true });
 
     if (error) {
@@ -56,7 +54,6 @@ export class DatabaseAchievementService {
       .from('achievements')
       .select('*')
       .eq('rarity', rarity as any)
-      .eq('is_disabled', false)
       .order('points', { ascending: true });
 
     if (error) {
@@ -71,7 +68,6 @@ export class DatabaseAchievementService {
     const { data, error } = await supabase
       .from('achievements')
       .select('*')
-      .eq('is_disabled', false)
       .order('category', { ascending: true })
       .order('points', { ascending: true });
 

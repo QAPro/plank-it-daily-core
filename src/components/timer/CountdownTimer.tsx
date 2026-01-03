@@ -153,7 +153,9 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
 
   // Show celebration when session completes - with achievement queue
   useEffect(() => {
-    console.log('🎊 completedSession changed:', completedSession);
+    console.log('🎊 [CountdownTimer] completedSession changed:', completedSession);
+    console.log('🎊 [CountdownTimer] completedSession type:', typeof completedSession);
+    console.log('🎊 [CountdownTimer] completedSession keys:', completedSession ? Object.keys(completedSession) : 'null');
     if (completedSession) {
       const achievements = completedSession.achievements || [];
       console.log('🏆 Achievements earned:', achievements.length);

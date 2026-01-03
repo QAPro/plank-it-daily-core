@@ -109,7 +109,7 @@ export const InstallPrompt = () => {
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">
             <Smartphone className="h-5 w-5 text-primary" />
-            <CardTitle className="text-lg">Install App Name Here</CardTitle>
+            <CardTitle className="text-lg">Install InnerFire</CardTitle>
           </div>
           <Button
             variant="ghost"

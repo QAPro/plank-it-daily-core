@@ -492,45 +492,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         </p>
       </motion.div>
 
-      {/* Stop Button - Only visible when paused */}
-      <AnimatePresence mode="wait">
-        {state === 'paused' && (
-          <motion.div
-            key="stop"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ delay: 0.4 }}
-            className="flex justify-center"
-          >
-            <Button
-              onClick={handleStopTimer}
-              variant="outline"
-              className="h-10 px-8 text-sm font-semibold bg-card text-foreground border border-border rounded-xl shadow-soft hover:bg-secondary hover:border-destructive hover:text-destructive hover:shadow-medium active:scale-[0.98] transition-all duration-200"
-            >
-              Stop Workout
-            </Button>
-          </motion.div>
-        )}
-        
-        {state === 'completed' && (
-          <motion.div
-            key="completed"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ delay: 0.4 }}
-            className="flex justify-center"
-          >
-            <Button
-              onClick={handleResetTimer}
-              className="h-12 px-10 text-base font-semibold bg-gradient-primary text-white rounded-xl shadow-soft hover:shadow-medium hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
-            >
-              Start New Workout
-            </Button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
 
       {/* Quick Stats Cards */}
       <motion.div

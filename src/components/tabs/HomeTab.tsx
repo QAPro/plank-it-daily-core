@@ -257,11 +257,6 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     // Close overlay and reset timer
     setShowSimpleCompletion(false);
     handleReset();
-    
-    toast({
-      title: "Workout Saved!",
-      description: `Great work on ${formatTime(timeElapsed)}!`,
-    });
   };
 
   const handleSubmitWorkout = async (notes: string) => {
@@ -276,11 +271,6 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     // Close overlay and reset timer
     setShowSimpleCompletion(false);
     handleReset();
-    
-    toast({
-      title: "Workout Saved!",
-      description: `Great work on ${formatTime(timeElapsed)}!`,
-    });
   };
 
   // Quick adjust buttons are disabled when not in ready or setup state

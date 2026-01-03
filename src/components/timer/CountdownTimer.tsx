@@ -11,7 +11,7 @@ import CircularProgressTimer from './CircularProgressTimer';
 import EnhancedConfetti from '@/components/celebration/EnhancedConfetti';
 import { useCountdownTimer } from '@/hooks/useCountdownTimer';
 import { useEnhancedTimerAudio } from '@/hooks/useEnhancedTimerAudio';
-import { useEnhancedSessionTracking } from '@/hooks/useEnhancedSessionTracking';
+import { useSessionTracking } from '@/contexts/SessionTrackingContext';
 import SessionCompletionCelebration from '@/components/session/SessionCompletionCelebration';
 import AchievementNotification from '@/components/AchievementNotification';
 
@@ -68,7 +68,7 @@ const CountdownTimer = ({ selectedExercise, onBack, onExerciseChange, quickStart
     selectExercise,
     handleFeedbackSubmission,
     autoLogFriction
-  } = useEnhancedSessionTracking();
+  } = useSessionTracking();
 
   const durationRef = useRef(60);
   const sessionNotesRef = useRef('');

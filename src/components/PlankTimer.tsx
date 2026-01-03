@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useEnhancedSessionTracking } from '@/hooks/useEnhancedSessionTracking';
+import { useSessionTracking } from '@/contexts/SessionTrackingContext';
 import CountdownTimer from '@/components/timer/CountdownTimer';
 
 
@@ -16,7 +16,7 @@ const PlankTimer = ({ selectedExercise, onExerciseChange, onBack, quickStartDura
   const {
     exercises,
     isLoadingExercises,
-  } = useEnhancedSessionTracking();
+  } = useSessionTracking();
 
   const [currentExercise, setCurrentExercise] = useState(selectedExercise);
 

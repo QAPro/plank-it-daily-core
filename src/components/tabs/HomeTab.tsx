@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNewExercises } from "@/hooks/useNewExercises";
 import { useCountdownTimer } from "@/hooks/useCountdownTimer";
 import { useEnhancedTimerAudio } from '@/hooks/useEnhancedTimerAudio';
-import { useEnhancedSessionTracking } from '@/hooks/useEnhancedSessionTracking';
+import { useSessionTracking } from '@/contexts/SessionTrackingContext';
 import { useSessionStats } from "@/hooks/useSessionHistory";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -64,7 +64,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
 
   // Audio and session tracking
   const { playCompletionSound } = useEnhancedTimerAudio();
-  const { completeSession, selectExercise } = useEnhancedSessionTracking();
+  const { completeSession, selectExercise } = useSessionTracking();
 
   // Timer hook
   const {

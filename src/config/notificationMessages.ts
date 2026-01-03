@@ -231,6 +231,7 @@ export function personalizeMessage(
   template: MessageTemplate,
   context: {
     firstName?: string;
+    username?: string;
     streakDays?: number;
     achievementName?: string;
     milestoneName?: string;
@@ -239,11 +240,10 @@ export function personalizeMessage(
 ): MessageTemplate {
   let { title, body } = template;
   
-  // Replace firstName
-  if (context.firstName) {
-    title = title.replace(/{firstName}/g, context.firstName);
-    body = body.replace(/{firstName}/g, context.firstName);
-  }
+  // Replace firstName with fallback: firstName → username → "friend"
+  const displayName = context.firstName || context.username || 'friend';
+  title = title.replace(/{firstName}/g, displayName);
+  body = body.replace(/{firstName}/g, displayName);
   
   // Replace streakDays
   if (context.streakDays !== undefined) {
@@ -285,4 +285,11 @@ export function getTimeOfDay(): 'morning' | 'afternoon' | 'evening' {
   } else {
     return 'evening';
   }
+}
+
+/**
+ * Get display name with fallback hierarchy: firstName → username → "friend"
+ */
+export function getDisplayName(firstName?: string, username?: string): string {
+  return firstName || username || 'friend';
 }

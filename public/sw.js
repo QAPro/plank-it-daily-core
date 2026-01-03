@@ -205,12 +205,13 @@ self.addEventListener('push', (event) => {
     registration: !!self.registration
   });
   
-  let title = 'Plank Coach';
+  // Improved fallback defaults with more context
+  let title = 'InnerFire Workout Reminder';
   let notificationType = 'reminder';
   let category = 'reminder';
   
   let options = {
-    body: 'Time for your workout!',
+    body: 'You have a new notification. Open the app to see details.',
     icon: '/icons/notification-workout.png',
     badge: '/icons/notification-workout.png',
     vibrate: [200, 100, 200],
@@ -235,8 +236,22 @@ self.addEventListener('push', (event) => {
       const rawText = event.data.text();
       console.log(`[SW] Raw push data (${pushId}):`, rawText);
       
+      // Warn if empty data
+      if (!rawText || rawText.trim() === '') {
+        console.warn(`[SW] Empty push data received (${pushId}), using fallback notification`);
+      }
+      
       const data = JSON.parse(rawText);
       console.log(`[SW] Parsed push data (${pushId}):`, data);
+      
+      // Warn if missing title or body
+      if (!data.title || !data.body) {
+        console.warn(`[SW] Missing title or body in push data (${pushId}):`, { 
+          hasTitle: !!data.title, 
+          hasBody: !!data.body,
+          data 
+        });
+      }
       
       title = data.title || title;
       options.body = data.body || options.body;

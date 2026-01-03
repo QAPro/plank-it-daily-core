@@ -160,6 +160,23 @@ serve(async (req) => {
 
     const { user_id, user_ids, title, body, data = {}, notification_type, actions = [] }: NotificationPayload = await req.json();
 
+    // Validate title and body are provided and non-empty
+    if (!title || title.trim() === '') {
+      console.error('Push notification rejected: Missing or empty title');
+      return new Response(
+        JSON.stringify({ error: 'Notification title is required and cannot be empty', success: false }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!body || body.trim() === '') {
+      console.error('Push notification rejected: Missing or empty body');
+      return new Response(
+        JSON.stringify({ error: 'Notification body is required and cannot be empty', success: false }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Determine target users
     const targetUserIds = user_ids || (user_id ? [user_id] : []);
     
@@ -310,13 +327,10 @@ serve(async (req) => {
           actions
         });
 
-        // For test notifications, use empty payload to avoid encryption requirements
-        const isTestNotification = notification_type === 'test';
-        const payloadToSend = isTestNotification ? '' : payload;
-
+        // Always send full payload with title and body
         const response = await sendWebPushNotification(
           subscription,
-          payloadToSend,
+          payload,
           vapidPublicKey,
           vapidPrivateKey
         );

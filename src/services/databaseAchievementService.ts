@@ -132,12 +132,16 @@ export class DatabaseAchievementService {
   }
 
   private async checkSingleAchievement(achievement: Achievement, sessionData: SessionData): Promise<boolean> {
+    console.log('🔍 [checkSingleAchievement] Checking:', achievement.name, 'ID:', achievement.id);
     const criteria = achievement.unlock_criteria as any;
+    console.log('📋 [checkSingleAchievement] Criteria:', JSON.stringify(criteria));
     
     if (!criteria || !criteria.type) {
+      console.log('⚠️ [checkSingleAchievement] No criteria or type found');
       return false;
     }
 
+    console.log('🎯 [checkSingleAchievement] Checking type:', criteria.type);
     switch (criteria.type) {
       case 'streak':
         return this.checkStreakAchievement(criteria.value);
@@ -176,17 +180,22 @@ export class DatabaseAchievementService {
   }
 
   private async checkSessionDurationAchievement(targetSeconds: number): Promise<boolean> {
-    const { data: sessions } = await supabase
+    console.log('⏱️ [checkSessionDurationAchievement] Target seconds:', targetSeconds);
+    const { data: sessions, error } = await supabase
       .from('user_sessions')
       .select('duration_seconds')
       .eq('user_id', this.userId)
       .gte('duration_seconds', targetSeconds)
       .limit(1);
 
-    return (sessions?.length || 0) > 0;
+    console.log('⏱️ [checkSessionDurationAchievement] Sessions found:', sessions?.length || 0, 'Error:', error);
+    const result = (sessions?.length || 0) > 0;
+    console.log('⏱️ [checkSessionDurationAchievement] Result:', result);
+    return result;
   }
 
   private async checkSessionCountAchievement(targetCount: number, category?: string): Promise<boolean> {
+    console.log('📊 [checkSessionCountAchievement] Target:', targetCount, 'Category:', category || 'any');
     let query = supabase
       .from('user_sessions')
       .select('id', { count: 'exact' })
@@ -196,8 +205,11 @@ export class DatabaseAchievementService {
       query = query.eq('category', category);
     }
 
-    const { count } = await query;
-    return (count || 0) >= targetCount;
+    const { count, error } = await query;
+    console.log('📊 [checkSessionCountAchievement] Count:', count, 'Error:', error);
+    const result = (count || 0) >= targetCount;
+    console.log('📊 [checkSessionCountAchievement] Result:', result, '(', count, '>=', targetCount, ')');
+    return result;
   }
 
   private async checkTimeBasedAchievement(targetCount: number, timeOfDay?: string): Promise<boolean> {
@@ -306,54 +318,63 @@ export class DatabaseAchievementService {
     return currentStreak >= targetDays;
   }
 
-  protected async awardAchievement(achievement: Achievement): Promise<UserAchievement | null> {
+  private async awardAchievement(achievement: Achievement): Promise<UserAchievement | null> {
     try {
-      // First, check if user already has this achievement
-      const { data: existingAchievement } = await supabase
+      console.log('🏆 [awardAchievement] Attempting to award:', achievement.name, 'ID:', achievement.id);
+      
+      // Double-check if already earned
+      const { data: existing } = await supabase
         .from('user_achievements')
-        .select('*')
+        .select('id')
         .eq('user_id', this.userId)
         .eq('achievement_type', achievement.id)
-        .maybeSingle();
+        .single();
 
-      // If already earned, return null to indicate no NEW achievement was awarded
-      if (existingAchievement) {
-        console.log('Achievement already earned (skipping):', achievement.name);
+      if (existing) {
+        console.log('⚠️ [awardAchievement] Achievement already earned (skipping):', achievement.name);
         return null;
       }
 
+      console.log('✅ [awardAchievement] No existing achievement found, proceeding with INSERT');
+      
       // Insert new achievement
+      const insertData = {
+        user_id: this.userId,
+        achievement_type: achievement.id,
+        achievement_name: achievement.name,
+        description: achievement.description,
+        metadata: {
+          icon: achievement.icon,
+          rarity: achievement.rarity,
+          points: achievement.points,
+          badge_file_name: achievement.badge_file_name
+        }
+      };
+      
+      console.log('📝 [awardAchievement] INSERT data:', JSON.stringify(insertData, null, 2));
+      
       const { data, error } = await supabase
         .from('user_achievements')
-        .insert({
-          user_id: this.userId,
-          achievement_type: achievement.id,
-          achievement_name: achievement.name,
-          description: achievement.description,
-          metadata: {
-            icon: achievement.icon,
-            rarity: achievement.rarity,
-            points: achievement.points,
-            badge_file_name: achievement.badge_file_name
-          }
-        })
+        .insert(insertData)
         .select()
         .single();
 
       if (error) {
         // Handle unique constraint violation gracefully
         if (error.code === '23505') { // Postgres unique violation code
-          console.log('Achievement already exists (caught by DB constraint):', achievement.name);
+          console.log('⚠️ [awardAchievement] Achievement already exists (caught by DB constraint):', achievement.name);
           return null;
         }
-        console.error('Error awarding achievement:', error);
+        console.error('❌ [awardAchievement] Error awarding achievement:', error);
+        console.error('❌ [awardAchievement] Error details:', JSON.stringify(error, null, 2));
         return null;
       }
 
-      console.log('Achievement awarded:', achievement.name);
+      console.log('🎉 [awardAchievement] Achievement awarded successfully!', achievement.name);
+      console.log('📊 [awardAchievement] Returned data:', JSON.stringify(data, null, 2));
       return data;
     } catch (error) {
-      console.error('Error awarding achievement:', error);
+      console.error('💥 [awardAchievement] Exception caught:', error);
       return null;
     }
   }

@@ -38,7 +38,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
   const { user } = useAuth();
   const { toast } = useToast();
   const { data: exercises, isLoading: exercisesLoading } = useNewExercises();
-  const { preferences, updatePreferences } = useUserPreferences();
+  const { preferences, loading: preferencesLoading, updatePreferences } = useUserPreferences();
   const { username, firstName } = useUserProfile();
   const { data: stats } = useSessionStats();
   const { data: momentumData } = useMomentumScore();
@@ -115,9 +115,8 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
   // Initialize from preferences or defaults
   useEffect(() => {
     // Wait for both exercises and preferences to load
-    // Note: preferences will be null initially while loading, then become an object or remain null if no prefs exist
     if (!exercises || exercises.length === 0) return;
-    if (preferences === undefined) return; // Still loading
+    if (preferencesLoading) return; // Wait for preferences to finish loading
     if (initialized) return; // Already initialized
 
     // Check if user has preferences
@@ -148,7 +147,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     }
 
     setInitialized(true);
-  }, [exercises, preferences, initialized, updatePreferences, setTimerDuration]);
+  }, [exercises, preferences, preferencesLoading, initialized, updatePreferences, setTimerDuration]);
 
   // Handle incoming workout selection from Workout Hub
   useEffect(() => {

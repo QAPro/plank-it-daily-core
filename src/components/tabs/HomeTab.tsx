@@ -20,7 +20,6 @@ import { useNotificationPrompt } from "@/hooks/useNotificationPrompt";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import CircularProgressTimer from '@/components/timer/CircularProgressTimer';
 import TimePickerModal from '@/components/timer/TimePickerModal';
-import SimpleCompletionOverlay from '@/components/timer/SimpleCompletionOverlay';
 import QuickStatsCards from '@/components/stats/QuickStatsCards';
 import EnhancedConfetti from '@/components/celebration/EnhancedConfetti';
 import { NotificationPermissionDialog } from "@/components/notifications/NotificationPermissionDialog";
@@ -59,7 +58,6 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
   const [selectedExerciseId, setSelectedExerciseId] = useState<string>('');
   const [duration, setDuration] = useState<number>(30); // Default 30 seconds
   const [showTimePicker, setShowTimePicker] = useState(false);
-  const [showSimpleCompletion, setShowSimpleCompletion] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
@@ -89,10 +87,18 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         // Show confetti for natural completion
         setShowConfetti(true);
         
-        // After 3 seconds, hide confetti, show toast, then overlay
+        // Auto-save session immediately (no notes)
+        const timeElapsed = duration;
+        await completeSession(timeElapsed, '');
+        
+        // Trigger notification prompt after workout completion
+        triggerAfterWorkout();
+        
+        // After 3 seconds, hide confetti and reset timer
         setTimeout(() => {
           setShowConfetti(false);
-          setShowSimpleCompletion(true);
+          // Reset timer after confetti (achievements will show if earned)
+          handleReset();
         }, 3000);
       }
     },
@@ -134,10 +140,9 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
   const handleAchievementClose = () => {
     setCurrentAchievement(null);
     
-    // If no more achievements, clear completed session and show completion overlay
+    // If no more achievements, clear completed session
     if (achievementQueue.length === 0) {
       clearCompletedSession();
-      setShowSimpleCompletion(true);
     }
   };
 
@@ -281,48 +286,8 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     handleResume();
   };
 
-  const handleStopTimer = () => {
-    const timeElapsed = duration - timeLeft;
-    
-    // Show completion overlay immediately (no confetti for stopped workouts)
-    setShowSimpleCompletion(true);
-  };
-
   const handleResetTimer = () => {
     handleReset();
-  };
-
-  const handleSkipWorkout = async () => {
-    const timeElapsed = duration - timeLeft;
-    
-    // Save the session WITHOUT notes
-    await completeSession(timeElapsed, '');
-    
-    // Trigger notification prompt after workout completion
-    triggerAfterWorkout();
-    
-    // Close overlay and reset timer
-    setShowSimpleCompletion(false);
-    handleReset();
-    
-    // Note: Achievement celebration will show automatically via useEffect if achievements were earned
-    // If no achievements, the overlay just closes
-  };
-
-  const handleSubmitWorkout = async (notes: string) => {
-    const timeElapsed = duration - timeLeft;
-    
-    // Save the session with notes
-    await completeSession(timeElapsed, notes);
-    
-    // Trigger notification prompt after workout completion
-    triggerAfterWorkout();
-    
-    // Close overlay and reset timer
-    setShowSimpleCompletion(false);
-    handleReset();
-    
-    // Note: Achievement celebration will show automatically via useEffect if achievements were earned
   };
 
   // Quick adjust buttons are disabled when not in ready or setup state
@@ -379,15 +344,6 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
           onClose={handleAchievementClose}
         />
       )}
-
-      {/* Simple Completion Overlay */}
-      <SimpleCompletionOverlay
-        isOpen={showSimpleCompletion}
-        exerciseName={selectedExercise.name}
-        duration={duration - timeLeft}
-        onSkip={handleSkipWorkout}
-        onSubmit={handleSubmitWorkout}
-      />
 
       {/* Notification Permission Dialog */}
       <NotificationPermissionDialog

@@ -114,7 +114,11 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
 
   // Initialize from preferences or defaults
   useEffect(() => {
-    if (initialized || !exercises || exercises.length === 0) return;
+    // Wait for both exercises and preferences to load
+    // Note: preferences will be null initially while loading, then become an object or remain null if no prefs exist
+    if (!exercises || exercises.length === 0) return;
+    if (preferences === undefined) return; // Still loading
+    if (initialized) return; // Already initialized
 
     // Check if user has preferences
     const hasPreferences = preferences?.last_exercise_id && preferences?.last_duration;

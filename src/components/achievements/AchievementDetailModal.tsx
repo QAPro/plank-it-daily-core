@@ -50,7 +50,7 @@ const AchievementDetailModal = ({ achievement, onClose, isVisible }: Achievement
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]"
           >
             {/* Modal Card */}
             <motion.div
@@ -59,7 +59,7 @@ const AchievementDetailModal = ({ achievement, onClose, isVisible }: Achievement
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ type: "spring", duration: 0.5 }}
               onClick={(e) => e.stopPropagation()}
-              className={`relative max-w-2xl w-full rounded-2xl ${getCategoryGradient(achievement.category)} p-8 shadow-2xl`}
+              className={`relative max-w-2xl w-full max-h-[calc(100vh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-2rem)] overflow-y-auto rounded-2xl ${getCategoryGradient(achievement.category)} p-6 sm:p-8 shadow-2xl`}
             >
               {/* Close Button */}
               <button
@@ -102,7 +102,7 @@ const AchievementDetailModal = ({ achievement, onClose, isVisible }: Achievement
                     transition={{ delay: 0.4, type: "spring", duration: 0.6 }}
                     src={badgeUrl}
                     alt={achievement.name}
-                    className="w-80 h-80 md:w-96 md:h-96 object-contain drop-shadow-2xl"
+                    className="w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 object-contain drop-shadow-2xl"
                   />
                 )}
 

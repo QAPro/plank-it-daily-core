@@ -24,7 +24,7 @@ import SimpleCompletionOverlay from '@/components/timer/SimpleCompletionOverlay'
 import QuickStatsCards from '@/components/stats/QuickStatsCards';
 import EnhancedConfetti from '@/components/celebration/EnhancedConfetti';
 import { NotificationPermissionDialog } from "@/components/notifications/NotificationPermissionDialog";
-import AchievementNotification from '@/components/AchievementNotification';
+import AchievementDetailModal from '@/components/achievements/AchievementDetailModal';
 
 interface HomeTabProps {
   onExerciseSelect?: (exerciseId: string) => void;
@@ -347,10 +347,16 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         onClose={() => setShowTimePicker(false)}
       />
 
-      {/* Achievement Notification */}
+      {/* Achievement Celebration Modal */}
       {currentAchievement && (
-        <AchievementNotification
-          achievement={currentAchievement}
+        <AchievementDetailModal
+          achievement={{
+            name: currentAchievement.achievement_name || currentAchievement.name,
+            description: currentAchievement.description,
+            badge_file_name: currentAchievement.metadata?.badge_file_name,
+            category: currentAchievement.category || 'Milestones',
+            points: currentAchievement.metadata?.points || 0,
+          }}
           isVisible={true}
           onClose={handleAchievementClose}
         />

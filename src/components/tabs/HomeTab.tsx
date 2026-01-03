@@ -23,7 +23,8 @@ import TimePickerModal from '@/components/timer/TimePickerModal';
 import SimpleCompletionOverlay from '@/components/timer/SimpleCompletionOverlay';
 import QuickStatsCards from '@/components/stats/QuickStatsCards';
 import EnhancedConfetti from '@/components/celebration/EnhancedConfetti';
-import { NotificationPermissionDialog } from '@/components/notifications/NotificationPermissionDialog';
+import { NotificationPermissionDialog } from "@/components/notifications/NotificationPermissionDialog";
+import AchievementNotification from '@/components/AchievementNotification';
 
 interface HomeTabProps {
   onExerciseSelect?: (exerciseId: string) => void;
@@ -64,7 +65,11 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
 
   // Audio and session tracking
   const { playCompletionSound } = useEnhancedTimerAudio();
-  const { completeSession, selectExercise } = useSessionTracking();
+  const { completeSession, selectExercise, completedSession, clearCompletedSession } = useSessionTracking();
+  
+  // Achievement celebration state
+  const [achievementQueue, setAchievementQueue] = useState<any[]>([]);
+  const [currentAchievement, setCurrentAchievement] = useState<any | null>(null);
 
   // Timer hook
   const {
@@ -87,14 +92,6 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         // After 3 seconds, hide confetti, show toast, then overlay
         setTimeout(() => {
           setShowConfetti(false);
-          
-          // Show celebration toast
-          toast({
-            title: "Workout Complete! 🔥",
-            description: "You've started your streak! Keep the fire going tomorrow.",
-            duration: 5000,
-          });
-          
           setShowSimpleCompletion(true);
         }, 3000);
       }
@@ -111,6 +108,38 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
       selectExercise(selectedExercise);
     }
   }, [selectedExercise, selectExercise]);
+
+  // Handle achievement celebrations when session completes
+  useEffect(() => {
+    if (completedSession && completedSession.achievements && completedSession.achievements.length > 0) {
+      console.log('🎊 [HomeTab] completedSession changed:', completedSession);
+      console.log('🏆 Achievements earned:', completedSession.achievements.length);
+      
+      // Queue achievements for display
+      setAchievementQueue(completedSession.achievements);
+      console.log('🎯 Queueing achievements for display');
+    }
+  }, [completedSession]);
+
+  // Display achievements one at a time
+  useEffect(() => {
+    if (achievementQueue.length > 0 && !currentAchievement) {
+      const [nextAchievement, ...remaining] = achievementQueue;
+      setCurrentAchievement(nextAchievement);
+      setAchievementQueue(remaining);
+    }
+  }, [achievementQueue, currentAchievement]);
+
+  // Handle achievement notification close
+  const handleAchievementClose = () => {
+    setCurrentAchievement(null);
+    
+    // If no more achievements, clear completed session and show completion overlay
+    if (achievementQueue.length === 0) {
+      clearCompletedSession();
+      setShowSimpleCompletion(true);
+    }
+  };
 
   // Initialize from preferences or defaults
   useEffect(() => {
@@ -257,6 +286,9 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     // Close overlay and reset timer
     setShowSimpleCompletion(false);
     handleReset();
+    
+    // Note: Achievement celebration will show automatically via useEffect if achievements were earned
+    // If no achievements, the overlay just closes
   };
 
   const handleSubmitWorkout = async (notes: string) => {
@@ -271,6 +303,8 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
     // Close overlay and reset timer
     setShowSimpleCompletion(false);
     handleReset();
+    
+    // Note: Achievement celebration will show automatically via useEffect if achievements were earned
   };
 
   // Quick adjust buttons are disabled when not in ready or setup state
@@ -312,6 +346,15 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
         onSave={handleTimeSave}
         onClose={() => setShowTimePicker(false)}
       />
+
+      {/* Achievement Notification */}
+      {currentAchievement && (
+        <AchievementNotification
+          achievement={currentAchievement}
+          isVisible={true}
+          onClose={handleAchievementClose}
+        />
+      )}
 
       {/* Simple Completion Overlay */}
       <SimpleCompletionOverlay

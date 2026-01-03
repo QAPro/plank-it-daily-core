@@ -53,12 +53,7 @@ export const useXPTracking = () => {
         loading 
       });
       
-      // Show error toast to user
-      toast({
-        title: "XP Award Failed",
-        description: "Unable to award XP. Please ensure you're logged in.",
-        variant: "destructive"
-      });
+      // Removed toast - XP not critical, silent failure
       
       return { success: false, error: errorMsg };
     }
@@ -157,11 +152,7 @@ export const useXPTracking = () => {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error tracking XP';
       console.error('❌ Error tracking XP:', error, { source, data });
       
-      toast({
-        title: "XP Award Error",
-        description: "Something went wrong while awarding XP. We'll try to fix this automatically.",
-        variant: "destructive"
-      });
+      // Removed toast - XP not critical, silent failure
       
       return { success: false, error: errorMsg };
     }

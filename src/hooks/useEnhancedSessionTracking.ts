@@ -281,11 +281,11 @@ const completeSession = useCallback(async (duration: number, notes?: string) => 
       
       if (!streakResult) {
         console.error('⚠️ Streak update returned nothing');
-        toast.error('Failed to update streak');
+        // Removed toast - silent failure, not critical
       }
     } catch (streakError) {
       console.error('❌ EXCEPTION updating streak:', streakError);
-      toast.error('Session saved but streak update failed');
+      // Removed toast - silent failure, not critical
       streakResult = { streak: 0, isNewStreak: false };
     }
 
@@ -310,13 +310,14 @@ const completeSession = useCallback(async (duration: number, notes?: string) => 
       
       if (!workoutXPResult?.success) {
         console.error('❌ Failed to award workout XP:', workoutXPResult?.error);
-        toast.error("Session saved, but XP award failed - we'll investigate!");
+        // Removed toast - XP not critical, silent failure
       } else {
-        toast.success(`+${workoutXPResult.xpAwarded || 0} XP earned!`);
+        // Removed success toast - XP visible in profile, no need for notification
+        console.log('✅ Workout XP awarded:', workoutXPResult.xpAwarded);
       }
     } catch (xpError) {
       console.error('❌ EXCEPTION awarding workout XP:', xpError);
-      toast.error('Session saved but XP system is offline');
+      // Removed toast - XP not critical, silent failure
     }
 
     // Award streak bonus XP if applicable
@@ -336,7 +337,8 @@ const completeSession = useCallback(async (duration: number, notes?: string) => 
         console.log('🔥 STREAK XP RESULT:', streakXPResult);
         
         if (streakXPResult?.success) {
-          toast.success(`🔥 ${streakResult.streak}-day streak bonus!`);
+          // Removed toast - streak visible in QuickStatsCards, no need for notification
+          console.log('✅ Streak XP awarded:', streakXPResult.xpAwarded);
         }
       } catch (streakError) {
         console.error('❌ EXCEPTION awarding streak XP:', streakError);

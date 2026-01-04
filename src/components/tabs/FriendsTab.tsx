@@ -52,12 +52,13 @@ const FriendsTab = () => {
 
   return (
     <motion.div 
-      className="bg-gradient-to-b from-[#FFF9F5] to-[#FFFCFA] min-h-screen p-4 pb-32 space-y-6"
+      className="bg-gradient-to-b from-[#FFF9F5] to-[#FFFCFA] min-h-screen pb-32"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="relative">
+      <div className="max-w-3xl mx-auto p-4 space-y-6">
+        <div className="relative">
         <div className="text-center space-y-2">
           <h2 className="text-3xl font-bold text-[#2C3E50]">Social</h2>
           <p className="text-[#7F8C8D]">Connect and compete with your fitness community</p>
@@ -98,6 +99,7 @@ const FriendsTab = () => {
           <MyCommunityTab />
         </TabsContent>
       </Tabs>
+      </div>
     </motion.div>
   );
 };

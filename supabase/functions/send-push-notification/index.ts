@@ -127,10 +127,15 @@ serve(async (req) => {
       );
     }
 
-    // Initialize Supabase client with user's JWT for authentication
+    // Check if this is a service_role token (for scheduled notifications from cron jobs)
+    const token = authHeader.replace('Bearer ', '');
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+    const isServiceRole = token === serviceRoleKey;
+
+    // Initialize Supabase client
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      isServiceRole ? serviceRoleKey : Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       {
         global: {
           headers: {
@@ -140,23 +145,33 @@ serve(async (req) => {
       }
     );
 
-    // Verify the user is authenticated
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (userError || !user) {
-      console.log('Push notification rejected: Invalid user token');
-      return new Response(
-        JSON.stringify({ error: 'Invalid authentication token', success: false }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    let user: any = null;
+    let isAdmin = false;
+
+    // For service_role tokens (scheduled notifications), skip user auth
+    if (isServiceRole) {
+      console.log('Service role token detected - allowing scheduled notification');
+      isAdmin = true; // Service role can send to any user
+    } else {
+      // For user tokens, verify authentication
+      const { data: { user: authUser }, error: userError } = await supabase.auth.getUser();
+      if (userError || !authUser) {
+        console.log('Push notification rejected: Invalid user token');
+        return new Response(
+          JSON.stringify({ error: 'Invalid authentication token', success: false }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      user = authUser;
+
+      // Check if user is admin/superadmin for multi-user notifications
+      const { data: userRoles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id);
+
+      isAdmin = userRoles?.some(r => r.role === 'admin' || r.role === 'superadmin') || false;
     }
-
-    // Check if user is admin/superadmin for multi-user notifications
-    const { data: userRoles, error: rolesError } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id);
-
-    const isAdmin = userRoles?.some(r => r.role === 'admin' || r.role === 'superadmin') || false;
 
     const { user_id, user_ids, title, body, data = {}, notification_type, actions = [] }: NotificationPayload = await req.json();
 
@@ -184,8 +199,8 @@ serve(async (req) => {
       throw new Error('No target users specified');
     }
 
-    // Authorization: Non-admins can only send to themselves
-    if (!isAdmin && targetUserIds.some(id => id !== user.id)) {
+    // Authorization: Non-admins can only send to themselves (skip for service_role)
+    if (!isAdmin && user && targetUserIds.some(id => id !== user.id)) {
       console.log(`Push notification rejected: User ${user.id} tried to send to other users without admin privileges`);
       return new Response(
         JSON.stringify({ error: 'Insufficient privileges to send notifications to other users', success: false }),
@@ -193,33 +208,35 @@ serve(async (req) => {
       );
     }
 
-    // Rate limiting: Check recent notification sends by this user
-    const rateLimitWindow = 2 * 60 * 1000; // 2 minutes in milliseconds
-    const maxNotifications = 3; // Max 3 notifications per 2 minutes
-    
-    // Use service role for reliable rate limit checks
-    const adminClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
-
-    const { data: recentNotifications, error: rateLimitError } = await adminClient
-      .from('notification_logs')
-      .select('created_at')
-      .eq('sender_user_id', user.id)
-      .gte('created_at', new Date(Date.now() - rateLimitWindow).toISOString());
-
-    if (rateLimitError) {
-      console.error('Error checking rate limit:', rateLimitError);
-    } else if (recentNotifications && recentNotifications.length >= maxNotifications) {
-      console.log(`Push notification rejected: Rate limit exceeded for user ${user.id}`);
-      return new Response(
-        JSON.stringify({ error: 'Rate limit exceeded. Please wait before sending more notifications.', success: false }),
-        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    // Rate limiting: Check recent notification sends by this user (skip for service_role)
+    if (!isServiceRole && user) {
+      const rateLimitWindow = 2 * 60 * 1000; // 2 minutes in milliseconds
+      const maxNotifications = 3; // Max 3 notifications per 2 minutes
+      
+      // Use service role for reliable rate limit checks
+      const adminClient = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
       );
+
+      const { data: recentNotifications, error: rateLimitError } = await adminClient
+        .from('notification_logs')
+        .select('created_at')
+        .eq('sender_user_id', user.id)
+        .gte('created_at', new Date(Date.now() - rateLimitWindow).toISOString());
+
+      if (rateLimitError) {
+        console.error('Error checking rate limit:', rateLimitError);
+      } else if (recentNotifications && recentNotifications.length >= maxNotifications) {
+        console.log(`Push notification rejected: Rate limit exceeded for user ${user.id}`);
+        return new Response(
+          JSON.stringify({ error: 'Rate limit exceeded. Please wait before sending more notifications.', success: false }),
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
-    console.log(`Sending notification from user ${user.id} to ${targetUserIds.length} users:`, { title, body, notification_type });
+    console.log(`Sending notification from ${isServiceRole ? 'service_role (scheduled)' : `user ${user?.id}`} to ${targetUserIds.length} users:`, { title, body, notification_type });
 
     // Get active push subscriptions for target users
     const { data: subscriptions, error: subscriptionsError } = await supabase
@@ -343,7 +360,7 @@ serve(async (req) => {
           .from('notification_logs')
           .insert({
             user_id: subscription.user_id,
-            sender_user_id: user.id,
+            sender_user_id: user?.id || null, // null for service_role (scheduled notifications)
             notification_type,
             title,
             body,

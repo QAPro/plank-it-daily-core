@@ -479,16 +479,29 @@ export const usePushNotifications = () => {
       
       // Update user_preferences to enable push notifications
       console.log('[PushNotifications] Updating user preferences...');
+      
+      // Fetch current preferences to preserve existing notification_types
+      const { data: currentPrefs } = await supabase
+        .from('user_preferences')
+        .select('notification_types')
+        .eq('user_id', user.id)
+        .single();
+
+      // Only set defaults if notification_types is null/empty, otherwise preserve
+      const notificationTypes = currentPrefs?.notification_types || {
+        reminders: true,
+        achievements: true,
+        streaks: true,
+        progress: true,
+        social: false,
+        re_engagement: false
+      };
+
       const { error: prefsError } = await supabase
         .from('user_preferences')
         .update({ 
           push_notifications_enabled: true,
-          notification_types: {
-            reminders: true,
-            achievements: true,
-            streaks: true,
-            progress: true
-          }
+          notification_types: notificationTypes  // Preserve existing or set defaults
         })
         .eq('user_id', user.id);
 

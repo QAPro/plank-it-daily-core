@@ -33,6 +33,14 @@ export const usePushNotifications = () => {
     }
   }, []);
 
+  // Check database first for fast initial state
+  useEffect(() => {
+    if (user) {
+      checkDatabaseSubscription();
+    }
+  }, [user]);
+
+  // Then verify with browser when service worker is ready
   useEffect(() => {
     if (swReady && user) {
       logDebug('Service worker ready and user authenticated, checking subscription status');
@@ -109,6 +117,39 @@ export const usePushNotifications = () => {
       });
     }
   }, []);
+
+  const checkDatabaseSubscription = useCallback(async () => {
+    if (!user) {
+      logDebug('Skipping database subscription check - no user');
+      return;
+    }
+
+    logDebug('Checking database for subscription status');
+    
+    try {
+      const { data, error } = await supabase
+        .from('push_subscriptions')
+        .select('id, is_active')
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (error) {
+        logError('Error checking database subscription', { error: error.message }, error);
+        return;
+      }
+
+      if (data) {
+        logDebug('Found active subscription in database');
+        setIsSubscribed(true);
+      } else {
+        logDebug('No active subscription in database');
+        setIsSubscribed(false);
+      }
+    } catch (error) {
+      logError('Exception checking database subscription', { error: error.message }, error);
+    }
+  }, [user]);
 
   const checkSubscriptionStatus = useCallback(async () => {
     if (!user || !isSupported || !swReady) {
@@ -331,9 +372,6 @@ export const usePushNotifications = () => {
       if (existingSubscription) {
         console.log('[PushNotifications] Already subscribed, updating state');
         setIsSubscribed(true);
-        toast.success("Already Subscribed", { 
-          description: "Push notifications are already enabled."
-        });
         return true;
       }
     } catch (error) {
@@ -344,9 +382,6 @@ export const usePushNotifications = () => {
     try {
       // Step 1: Request permission
       console.log('[PushNotifications] Step 1: Requesting permission...');
-      toast("Setting up notifications...", { 
-        description: "Step 1: Requesting permission"
-      });
       
       const hasPermission = await requestPermission();
       if (!hasPermission) {
@@ -357,16 +392,10 @@ export const usePushNotifications = () => {
 
       // Step 2: Get service worker registration
       console.log('[PushNotifications] Step 2: Getting service worker registration...');
-      toast("Setting up notifications...", { 
-        description: "Step 2: Preparing service worker"
-      });
       const registration = await navigator.serviceWorker.ready;
       
       // Step 3: Fetch VAPID public key from server
       console.log('[PushNotifications] Step 3: Fetching VAPID key...');
-      toast("Setting up notifications...", { 
-        description: "Step 3: Fetching server configuration"
-      });
       
       const vapidPublicKey = await fetchVapidPublicKey();
       if (!vapidPublicKey) {
@@ -404,9 +433,6 @@ export const usePushNotifications = () => {
       
       // Step 5: Subscribe to push manager
       console.log('[PushNotifications] Step 5: Subscribing to push manager...');
-      toast("Setting up notifications...", { 
-        description: "Step 5: Creating subscription"
-      });
       
       const pushSubscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
@@ -418,9 +444,6 @@ export const usePushNotifications = () => {
       
       // Step 6: Save to database
       console.log('[PushNotifications] Step 6: Saving to database...');
-      toast("Setting up notifications...", { 
-        description: "Step 6: Saving configuration"
-      });
       
       const subscriptionData = {
         user_id: user.id,
@@ -454,6 +477,48 @@ export const usePushNotifications = () => {
 
       console.log('[PushNotifications] Subscription saved successfully');
       
+      // Update user_preferences to enable push notifications
+      console.log('[PushNotifications] Updating user preferences...');
+      const { error: prefsError } = await supabase
+        .from('user_preferences')
+        .update({ 
+          push_notifications_enabled: true,
+          notification_types: {
+            reminders: true,
+            achievements: true,
+            streaks: true,
+            progress: true
+          }
+        })
+        .eq('user_id', user.id);
+
+      if (prefsError) {
+        console.error('[PushNotifications] Failed to update preferences:', prefsError);
+        // Don't fail the whole operation, just log it
+      } else {
+        console.log('[PushNotifications] User preferences updated successfully');
+      }
+
+      // Create default notification schedule (9am morning reminder)
+      console.log('[PushNotifications] Creating default notification schedule...');
+      const { error: scheduleError } = await supabase
+        .from('user_notification_schedules')
+        .upsert({
+          user_id: user.id,
+          slot: 'morning',
+          send_time: '09:00:00',
+          enabled: true
+        }, {
+          onConflict: 'user_id,slot'
+        });
+
+      if (scheduleError) {
+        console.error('[PushNotifications] Failed to create schedule:', scheduleError);
+        // Don't fail the whole operation, just log it
+      } else {
+        console.log('[PushNotifications] Default schedule created successfully');
+      }
+      
       // Update state
       setIsSubscribed(true);
       setSubscription({
@@ -465,7 +530,7 @@ export const usePushNotifications = () => {
       });
 
       toast.success("Notifications Enabled!", { 
-        description: "Push notifications have been set up successfully."
+        description: "You'll receive daily workout reminders at 9am."
       });
       
       setIsLoading(false);
@@ -525,6 +590,19 @@ export const usePushNotifications = () => {
         });
       } else {
         console.log('[PushNotifications] Successfully removed from database');
+      }
+
+      // Update user_preferences to disable push notifications
+      console.log('[PushNotifications] Updating user preferences...');
+      const { error: prefsError } = await supabase
+        .from('user_preferences')
+        .update({ push_notifications_enabled: false })
+        .eq('user_id', user.id);
+
+      if (prefsError) {
+        console.error('[PushNotifications] Failed to update preferences:', prefsError);
+      } else {
+        console.log('[PushNotifications] User preferences updated successfully');
       }
 
       // Update state

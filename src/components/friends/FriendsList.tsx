@@ -6,19 +6,57 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MoreVertical, MessageCircle, UserMinus, Trophy, Flame, Calendar, EyeOff } from 'lucide-react';
+import { MoreVertical, MessageCircle, UserMinus, Trophy, Flame, Calendar, EyeOff, UserPlus } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import FlagGuard from '@/components/access/FlagGuard';
 import { getVisibleProfileFields } from '@/utils/privacyHelpers';
 import { supabase } from '@/integrations/supabase/client';
+import { cheerService } from '@/services/cheerService';
 
 const FriendsList = () => {
   const { user } = useAuth();
   const [friends, setFriends] = useState<FriendProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [privacySettings, setPrivacySettings] = useState<Map<string, any>>(new Map());
+  const [sharing, setSharing] = useState(false);
+
+  const handleInvite = async () => {
+    if (!user) return;
+    
+    setSharing(true);
+    
+    try {
+      const referralLink = await cheerService.createReferralLink(user.id);
+      
+      // Try Web Share API first
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: 'Join me on my fitness journey!',
+            text: "I'm crushing my fitness goals. Join me!",
+            url: referralLink
+          });
+          toast.success('Invite sent!');
+        } catch (error: any) {
+          // User cancelled or share failed
+          if (error.name !== 'AbortError') {
+            throw error;
+          }
+        }
+      } else {
+        // Fallback to clipboard
+        await navigator.clipboard.writeText(referralLink);
+        toast.success('Invite link copied to clipboard!');
+      }
+    } catch (error) {
+      console.error('Error sharing invite:', error);
+      toast.error('Failed to create invite link');
+    } finally {
+      setSharing(false);
+    }
+  };
 
   useEffect(() => {
     if (user) {
@@ -94,14 +132,26 @@ const FriendsList = () => {
 
   if (friends.length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="mb-4">
-          <div className="w-20 h-20 bg-gradient-to-br from-orange-50 to-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <MessageCircle className="w-10 h-10 text-orange-500" />
-          </div>
-          <h3 className="text-lg font-semibold text-[#2C3E50] mb-2">No friends yet</h3>
-          <p className="text-[#7F8C8D] mb-6">Start building your fitness community by adding friends!</p>
-        </div>
+      <div className="flex flex-col items-center justify-center py-12 px-6">
+        <div className="text-6xl mb-4">💬</div>
+        <h3 className="text-xl font-semibold mb-2 text-[#2C3E50]">
+          No friends yet
+        </h3>
+        <p className="text-[#7F8C8D] text-center mb-6 max-w-md">
+          Start building your fitness community by adding friends!
+        </p>
+        <Button
+          onClick={handleInvite}
+          disabled={sharing}
+          size="lg"
+          className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white font-semibold shadow-lg"
+        >
+          <UserPlus className="h-5 w-5 mr-2" />
+          Invite Friends
+        </Button>
+        <p className="text-sm text-gray-400 mt-4">
+          or search for friends to follow
+        </p>
       </div>
     );
   }

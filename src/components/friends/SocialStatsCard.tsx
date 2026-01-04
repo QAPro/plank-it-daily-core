@@ -116,19 +116,7 @@ const SocialStatsCard = ({ userId }: SocialStatsCardProps) => {
           </div>
         </div>
 
-        <Button
-          onClick={handleInvite}
-          disabled={sharing}
-          className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold"
-          size="lg"
-        >
-          {sharing ? (
-            <Loader2 className="w-4 h-4 animate-spin mr-2" />
-          ) : (
-            <Share2 className="w-4 h-4 mr-2" />
-          )}
-          Invite Friends
-        </Button>
+
       </CardContent>
     </Card>
   );

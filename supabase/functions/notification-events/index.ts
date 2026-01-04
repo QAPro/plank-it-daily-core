@@ -523,6 +523,24 @@ async function handleEnhancedStreakRiskAlerts(supabase: any) {
   console.log('Processing enhanced streak risk alerts...');
   
   const today = new Date().toISOString().split('T')[0];
+  const nowUtc = new Date();
+  
+  // Helper function to get local time in minutes
+  const getLocalMinutes = (timeZone: string) => {
+    try {
+      const parts = new Intl.DateTimeFormat('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23',
+        timeZone,
+      }).formatToParts(nowUtc);
+      const hh = Number(parts.find((p) => p.type === 'hour')?.value || '0');
+      const mm = Number(parts.find((p) => p.type === 'minute')?.value || '0');
+      return hh * 60 + mm;
+    } catch {
+      return nowUtc.getUTCHours() * 60 + nowUtc.getUTCMinutes();
+    }
+  };
   
   const { data: atRiskUsers, error } = await supabase
     .from('user_streaks')
@@ -549,23 +567,43 @@ async function handleEnhancedStreakRiskAlerts(supabase: any) {
     try {
       const { data: prefs } = await supabase
         .from('user_preferences')
-        .select('push_notifications_enabled, notification_types')
+        .select('push_notifications_enabled, notification_types, time_zone, streak_check_time')
         .eq('user_id', user.user_id)
         .single();
 
       if (!prefs?.push_notifications_enabled || prefs?.notification_types?.streaks === false) {
         continue;
       }
+      
+      // Check if it's time for this user's streak check
+      const tz = prefs.time_zone || 'UTC';
+      const localNowMin = getLocalMinutes(tz);
+      
+      // Default streak check time is 20:00 (8:00 PM)
+      const streakCheckTime = prefs.streak_check_time || '20:00:00';
+      const [hh, mm] = streakCheckTime.split(':').map((n) => Number(n));
+      const targetMin = hh * 60 + mm;
+      const diff = Math.abs(localNowMin - targetMin);
+      
+      // Only send if within 15 minutes of scheduled streak check time
+      if (diff > 15) {
+        continue;
+      }
 
+      // Check if already sent today
+      const dayStartUtc = new Date(Date.UTC(nowUtc.getUTCFullYear(), nowUtc.getUTCMonth(), nowUtc.getUTCDate())).toISOString();
       const { data: recentAlert } = await supabase
         .from('notification_logs')
         .select('id')
         .eq('user_id', user.user_id)
         .eq('notification_type', 'streaks')
-        .gte('sent_at', new Date().toISOString().split('T')[0])
+        .gte('sent_at', dayStartUtc)
         .limit(1);
 
-      if (recentAlert?.length) continue;
+      if (recentAlert?.length) {
+        console.log(`Skipping user ${user.user_id}: streak alert already sent today`);
+        continue;
+      }
 
       const firstName = await getUserFirstName(supabase, user.user_id);
       const variant = await getOrAssignMessageVariant(supabase, user.user_id, 'streak_risk');

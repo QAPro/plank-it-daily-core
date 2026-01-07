@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Service Worker Debug Logs</title>
+  <style>
+    body {
+      font-family: monospace;
+      padding: 20px;
+      background: #1e1e1e;
+      color: #d4d4d4;
+    }
+    h1 {
+      color: #4ec9b0;
+    }
+    #logs {
+      background: #252526;
+      padding: 15px;
+      border-radius: 5px;
+      max-height: 70vh;
+      overflow-y: auto;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .log-entry {
+      margin-bottom: 8px;
+      padding: 5px;
+      border-left: 3px solid #4ec9b0;
+      padding-left: 10px;
+    }
+    .log-error {
+      border-left-color: #f48771;
+      color: #f48771;
+    }
+    .log-warn {
+      border-left-color: #dcdcaa;
+      color: #dcdcaa;
+    }
+    .timestamp {
+      color: #858585;
+      font-size: 10px;
+    }
+    button {
+      background: #0e639c;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 10px 5px 10px 0;
+    }
+    button:hover {
+      background: #1177bb;
+    }
+    .status {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      background: #264f78;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 Service Worker Debug Logs</h1>
+  
+  <div class="status" id="status">
+    Checking service worker status...
+  </div>
+  
+  <button onclick="clearLogs()">Clear Logs</button>
+  <button onclick="checkSW()">Check SW Status</button>
+  <button onclick="testNotification()">Test Notification</button>
+  
+  <div id="logs"></div>
+
+  <script>
+    const logsDiv = document.getElementById('logs');
+    const statusDiv = document.getElementById('status');
+    const logs = [];
+
+    function addLog(message, type = 'info') {
+      const timestamp = new Date().toISOString();
+      const entry = { timestamp, message, type };
+      logs.push(entry);
+      
+      const logEntry = document.createElement('div');
+      logEntry.className = `log-entry log-${type}`;
+      logEntry.innerHTML = `
+        <span class="timestamp">${timestamp}</span><br>
+        ${message}
+      `;
+      logsDiv.appendChild(logEntry);
+      logsDiv.scrollTop = logsDiv.scrollHeight;
+    }
+
+    function clearLogs() {
+      logs.length = 0;
+      logsDiv.innerHTML = '';
+      addLog('Logs cleared');
+    }
+
+    async function checkSW() {
+      addLog('Checking service worker registration...');
+      
+      if (!('serviceWorker' in navigator)) {
+        addLog('❌ Service Worker not supported', 'error');
+        statusDiv.textContent = '❌ Service Worker not supported';
+        return;
+      }
+
+      try {
+        const registration = await navigator.serviceWorker.getRegistration();
+        if (registration) {
+          addLog(`✅ Service Worker registered`);
+          addLog(`SW State: ${registration.active?.state || 'no active worker'}`);
+          addLog(`SW Script URL: ${registration.active?.scriptURL || 'N/A'}`);
+          
+          // Check push subscription
+          const subscription = await registration.pushManager.getSubscription();
+          if (subscription) {
+            addLog(`✅ Push subscription active`);
+            addLog(`Endpoint: ${subscription.endpoint.substring(0, 50)}...`);
+          } else {
+            addLog(`❌ No push subscription found`, 'warn');
+          }
+          
+          statusDiv.textContent = '✅ Service Worker is active';
+        } else {
+          addLog('❌ No service worker registered', 'error');
+          statusDiv.textContent = '❌ No service worker registered';
+        }
+      } catch (error) {
+        addLog(`❌ Error checking SW: ${error.message}`, 'error');
+        statusDiv.textContent = `❌ Error: ${error.message}`;
+      }
+    }
+
+    async function testNotification() {
+      addLog('Testing notification display...');
+      
+      try {
+        const permission = await Notification.requestPermission();
+        addLog(`Notification permission: ${permission}`);
+        
+        if (permission === 'granted') {
+          const registration = await navigator.serviceWorker.getRegistration();
+          if (registration) {
+            await registration.showNotification('🧪 Test Notification', {
+              body: 'This is a local test notification',
+              icon: '/icon-192.png',
+              badge: '/icon-192.png',
+              tag: 'test',
+              requireInteraction: false
+            });
+            addLog('✅ Test notification displayed');
+          } else {
+            addLog('❌ No service worker to show notification', 'error');
+          }
+        } else {
+          addLog(`❌ Notification permission denied: ${permission}`, 'error');
+        }
+      } catch (error) {
+        addLog(`❌ Error showing notification: ${error.message}`, 'error');
+      }
+    }
+
+    // Intercept console.log from service worker (if possible)
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'log') {
+          addLog(`[SW] ${event.data.message}`, event.data.level || 'info');
+        }
+      });
+    }
+
+    // Auto-check on load
+    window.addEventListener('load', () => {
+      addLog('Page loaded, checking service worker...');
+      checkSW();
+    });
+
+    // Listen for push events
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        addLog(`Message from SW: ${JSON.stringify(event.data)}`);
+      });
+    }
+  </script>
+</body>
+</html>

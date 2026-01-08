@@ -132,13 +132,16 @@ export const usePushNotifications = () => {
       
       console.log('[PushNotifications] Browser subscription check', { hasBrowserSub: !!browserSubscription });
       
-      // Step 2: Check database for subscription record
+      // Step 2: Check database for subscription record (get most recent)
       console.log('[PushNotifications] Step 3: Checking database for subscription...');
-      const { data: dbSubscription, error: dbError } = await supabase
+      const { data: dbSubscriptions, error: dbError } = await supabase
         .from('push_subscriptions')
-        .select('id, endpoint, is_active')
+        .select('id, endpoint, is_active, created_at')
         .eq('user_id', user.id)
-        .maybeSingle();
+        .order('created_at', { ascending: false });
+      
+      const dbSubscription = dbSubscriptions && dbSubscriptions.length > 0 ? dbSubscriptions[0] : null;
+      console.log('[PushNotifications] Found', dbSubscriptions?.length || 0, 'subscription records in database');
 
       if (dbError) {
         console.error('[PushNotifications] Error checking database subscription', dbError);

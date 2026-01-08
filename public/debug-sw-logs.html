@@ -3,189 +3,398 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Service Worker Debug Logs</title>
+  <title>🔍 Service Worker Debug Logs</title>
   <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: monospace;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #e0e0e0;
       padding: 20px;
-      background: #1e1e1e;
-      color: #d4d4d4;
+      min-height: 100vh;
     }
+    .container { max-width: 800px; margin: 0 auto; }
     h1 {
-      color: #4ec9b0;
+      font-size: 2rem;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #00d4ff, #00ff88);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
-    #logs {
-      background: #252526;
-      padding: 15px;
-      border-radius: 5px;
-      max-height: 70vh;
-      overflow-y: auto;
-      font-size: 12px;
-      line-height: 1.5;
+    .status-box {
+      background: rgba(0, 212, 255, 0.1);
+      border: 2px solid #00d4ff;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 20px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
-    .log-entry {
-      margin-bottom: 8px;
-      padding: 5px;
-      border-left: 3px solid #4ec9b0;
-      padding-left: 10px;
+    .status-box.error {
+      background: rgba(255, 68, 68, 0.1);
+      border-color: #ff4444;
     }
-    .log-error {
-      border-left-color: #f48771;
-      color: #f48771;
+    .status-box.success {
+      background: rgba(0, 255, 136, 0.1);
+      border-color: #00ff88;
     }
-    .log-warn {
-      border-left-color: #dcdcaa;
-      color: #dcdcaa;
-    }
-    .timestamp {
-      color: #858585;
-      font-size: 10px;
+    .btn-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 20px 0;
     }
     button {
-      background: #0e639c;
+      background: linear-gradient(135deg, #0066cc, #0099ff);
       color: white;
       border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
       cursor: pointer;
-      margin: 10px 5px 10px 0;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(0, 153, 255, 0.3);
     }
     button:hover {
-      background: #1177bb;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 153, 255, 0.4);
     }
-    .status {
+    button:active { transform: translateY(0); }
+    button.secondary {
+      background: linear-gradient(135deg, #444, #666);
+      box-shadow: 0 4px 15px rgba(100, 100, 100, 0.3);
+    }
+    button.test {
+      background: linear-gradient(135deg, #ff6b00, #ff9500);
+      box-shadow: 0 4px 15px rgba(255, 107, 0, 0.3);
+    }
+    .log-container {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 16px;
+      max-height: 500px;
+      overflow-y: auto;
+      margin-top: 20px;
+    }
+    .log-entry {
       padding: 10px;
-      margin: 10px 0;
-      border-radius: 5px;
-      background: #264f78;
+      margin: 6px 0;
+      border-left: 3px solid #00d4ff;
+      background: rgba(0, 212, 255, 0.05);
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .log-entry.error {
+      border-left-color: #ff4444;
+      background: rgba(255, 68, 68, 0.05);
+      color: #ffaaaa;
+    }
+    .log-entry.success {
+      border-left-color: #00ff88;
+      background: rgba(0, 255, 136, 0.05);
+      color: #aaffcc;
+    }
+    .log-entry .timestamp {
+      color: #888;
+      font-size: 11px;
+      margin-right: 8px;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 20px 0;
+    }
+    .info-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .info-card .label {
+      font-size: 12px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .info-card .value {
+      font-size: 16px;
+      font-weight: 600;
+      color: #00d4ff;
     }
   </style>
 </head>
 <body>
-  <h1>🔍 Service Worker Debug Logs</h1>
-  
-  <div class="status" id="status">
-    Checking service worker status...
+  <div class="container">
+    <h1>🔍 Service Worker Debug Logs</h1>
+    
+    <div id="swStatus" class="status-box">
+      <span style="font-size: 24px;">⏳</span>
+      <span>Checking service worker...</span>
+    </div>
+
+    <div class="btn-group">
+      <button onclick="clearLogs()" class="secondary">Clear Logs</button>
+      <button onclick="checkStatus()">Check SW Status</button>
+      <button onclick="testSubscription()" class="test">Test Subscription</button>
+      <button onclick="testNotification()" class="test">Test Notification</button>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="label">Permission</div>
+        <div class="value" id="permissionStatus">-</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Subscription</div>
+        <div class="value" id="subscriptionStatus">-</div>
+      </div>
+      <div class="info-card">
+        <div class="label">SW State</div>
+        <div class="value" id="swState">-</div>
+      </div>
+      <div class="info-card">
+        <div class="label">Endpoint</div>
+        <div class="value" id="endpointInfo" style="font-size: 11px; word-break: break-all;">-</div>
+      </div>
+    </div>
+
+    <div class="log-container" id="logContainer"></div>
   </div>
-  
-  <button onclick="clearLogs()">Clear Logs</button>
-  <button onclick="checkSW()">Check SW Status</button>
-  <button onclick="testNotification()">Test Notification</button>
-  
-  <div id="logs"></div>
 
   <script>
-    const logsDiv = document.getElementById('logs');
-    const statusDiv = document.getElementById('status');
     const logs = [];
-
+    
     function addLog(message, type = 'info') {
-      const timestamp = new Date().toISOString();
-      const entry = { timestamp, message, type };
-      logs.push(entry);
+      const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
+      const logEntry = { timestamp, message, type };
+      logs.push(logEntry);
       
-      const logEntry = document.createElement('div');
-      logEntry.className = `log-entry log-${type}`;
-      logEntry.innerHTML = `
-        <span class="timestamp">${timestamp}</span><br>
-        ${message}
-      `;
-      logsDiv.appendChild(logEntry);
-      logsDiv.scrollTop = logsDiv.scrollHeight;
+      const logContainer = document.getElementById('logContainer');
+      const logElement = document.createElement('div');
+      logElement.className = `log-entry ${type}`;
+      logElement.innerHTML = `<span class="timestamp">${timestamp}</span>${message}`;
+      logContainer.appendChild(logElement);
+      logContainer.scrollTop = logContainer.scrollHeight;
     }
 
     function clearLogs() {
       logs.length = 0;
-      logsDiv.innerHTML = '';
+      document.getElementById('logContainer').innerHTML = '';
       addLog('Logs cleared');
     }
 
-    async function checkSW() {
+    async function checkStatus() {
       addLog('Checking service worker registration...');
       
       if (!('serviceWorker' in navigator)) {
         addLog('❌ Service Worker not supported', 'error');
-        statusDiv.textContent = '❌ Service Worker not supported';
         return;
       }
 
       try {
-        const registration = await navigator.serviceWorker.getRegistration();
-        if (registration) {
-          addLog(`✅ Service Worker registered`);
-          addLog(`SW State: ${registration.active?.state || 'no active worker'}`);
-          addLog(`SW Script URL: ${registration.active?.scriptURL || 'N/A'}`);
+        const registration = await navigator.serviceWorker.ready;
+        addLog('✅ Service Worker registered', 'success');
+        
+        const state = registration.active?.state || 'unknown';
+        addLog(`SW State: ${state}`);
+        document.getElementById('swState').textContent = state;
+        
+        const scriptURL = registration.active?.scriptURL || 'unknown';
+        addLog(`SW Script URL: ${scriptURL}`);
+        
+        // Check push subscription
+        const subscription = await registration.pushManager.getSubscription();
+        
+        if (subscription) {
+          addLog('✅ Push subscription found!', 'success');
+          document.getElementById('subscriptionStatus').textContent = 'Active';
+          document.getElementById('endpointInfo').textContent = subscription.endpoint.substring(0, 50) + '...';
           
-          // Check push subscription
-          const subscription = await registration.pushManager.getSubscription();
-          if (subscription) {
-            addLog(`✅ Push subscription active`);
-            addLog(`Endpoint: ${subscription.endpoint.substring(0, 50)}...`);
-          } else {
-            addLog(`❌ No push subscription found`, 'warn');
-          }
-          
-          statusDiv.textContent = '✅ Service Worker is active';
+          const keys = subscription.toJSON().keys;
+          addLog(`Keys: p256dh=${keys.p256dh ? 'present' : 'missing'}, auth=${keys.auth ? 'present' : 'missing'}`);
         } else {
-          addLog('❌ No service worker registered', 'error');
-          statusDiv.textContent = '❌ No service worker registered';
+          addLog('❌ No push subscription found', 'error');
+          document.getElementById('subscriptionStatus').textContent = 'None';
+          document.getElementById('endpointInfo').textContent = 'No subscription';
         }
+        
+        // Check permission
+        const permission = Notification.permission;
+        addLog(`Notification permission: ${permission}`);
+        document.getElementById('permissionStatus').textContent = permission;
+        
       } catch (error) {
-        addLog(`❌ Error checking SW: ${error.message}`, 'error');
-        statusDiv.textContent = `❌ Error: ${error.message}`;
+        addLog(`❌ Error: ${error.message}`, 'error');
+        console.error('Status check error:', error);
+      }
+    }
+
+    async function testSubscription() {
+      addLog('🧪 Testing subscription flow...');
+      
+      try {
+        // Step 1: Check permission
+        addLog('Step 1: Checking notification permission...');
+        let permission = Notification.permission;
+        addLog(`Current permission: ${permission}`);
+        
+        if (permission === 'default') {
+          addLog('Requesting permission...');
+          permission = await Notification.requestPermission();
+          addLog(`Permission result: ${permission}`);
+        }
+        
+        if (permission !== 'granted') {
+          addLog('❌ Permission not granted', 'error');
+          return;
+        }
+        
+        // Step 2: Get service worker
+        addLog('Step 2: Getting service worker registration...');
+        const registration = await navigator.serviceWorker.ready;
+        addLog('✅ Service worker ready', 'success');
+        
+        // Step 3: Check existing subscription
+        addLog('Step 3: Checking existing subscription...');
+        let subscription = await registration.pushManager.getSubscription();
+        
+        if (subscription) {
+          addLog('⚠️ Subscription already exists', 'error');
+          addLog(`Endpoint: ${subscription.endpoint.substring(0, 60)}...`);
+          return;
+        }
+        
+        // Step 4: Fetch VAPID key
+        addLog('Step 4: Fetching VAPID public key...');
+        const response = await fetch('https://kgwmplptoctmoaefnpfg.supabase.co/functions/v1/get-vapid-public-key');
+        
+        if (!response.ok) {
+          addLog(`❌ VAPID fetch failed: ${response.status} ${response.statusText}`, 'error');
+          return;
+        }
+        
+        const data = await response.json();
+        const vapidKey = data.publicKey;
+        
+        if (!vapidKey) {
+          addLog('❌ No VAPID key in response', 'error');
+          return;
+        }
+        
+        addLog(`✅ VAPID key received (length: ${vapidKey.length})`, 'success');
+        
+        // Step 5: Convert VAPID key
+        addLog('Step 5: Converting VAPID key...');
+        function urlBase64ToUint8Array(base64String) {
+          const padding = '='.repeat((4 - base64String.length % 4) % 4);
+          const base64 = (base64String + padding)
+            .replace(/\-/g, '+')
+            .replace(/_/g, '/');
+          const rawData = atob(base64);
+          const outputArray = new Uint8Array(rawData.length);
+          for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+          }
+          return outputArray;
+        }
+        
+        const applicationServerKey = urlBase64ToUint8Array(vapidKey);
+        addLog(`✅ VAPID key converted (array length: ${applicationServerKey.length})`, 'success');
+        
+        // Step 6: Subscribe
+        addLog('Step 6: Subscribing to push manager...');
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: applicationServerKey
+        });
+        
+        addLog('🎉 Subscription created successfully!', 'success');
+        addLog(`Endpoint: ${subscription.endpoint.substring(0, 60)}...`);
+        
+        const keys = subscription.toJSON().keys;
+        addLog(`Keys: p256dh=${keys.p256dh ? 'present' : 'missing'}, auth=${keys.auth ? 'present' : 'missing'}`);
+        
+        // Update status display
+        document.getElementById('subscriptionStatus').textContent = 'Active';
+        document.getElementById('endpointInfo').textContent = subscription.endpoint.substring(0, 50) + '...';
+        
+      } catch (error) {
+        addLog(`❌ Subscription failed: ${error.message}`, 'error');
+        console.error('Subscription error:', error);
       }
     }
 
     async function testNotification() {
-      addLog('Testing notification display...');
+      addLog('🔔 Testing notification display...');
       
       try {
-        const permission = await Notification.requestPermission();
-        addLog(`Notification permission: ${permission}`);
+        const permission = Notification.permission;
         
-        if (permission === 'granted') {
-          const registration = await navigator.serviceWorker.getRegistration();
-          if (registration) {
-            await registration.showNotification('🧪 Test Notification', {
-              body: 'This is a local test notification',
-              icon: '/icon-192.png',
-              badge: '/icon-192.png',
-              tag: 'test',
-              requireInteraction: false
-            });
-            addLog('✅ Test notification displayed');
-          } else {
-            addLog('❌ No service worker to show notification', 'error');
-          }
-        } else {
-          addLog(`❌ Notification permission denied: ${permission}`, 'error');
+        if (permission !== 'granted') {
+          addLog('❌ Notification permission not granted', 'error');
+          return;
         }
+        
+        const registration = await navigator.serviceWorker.ready;
+        
+        await registration.showNotification('Test Notification', {
+          body: 'This is a test notification from the debug page',
+          icon: '/icon-192.png',
+          badge: '/icon-192.png',
+          tag: 'test-notification',
+          requireInteraction: false
+        });
+        
+        addLog('✅ Notification displayed', 'success');
+        
       } catch (error) {
-        addLog(`❌ Error showing notification: ${error.message}`, 'error');
+        addLog(`❌ Notification failed: ${error.message}`, 'error');
+        console.error('Notification error:', error);
       }
-    }
-
-    // Intercept console.log from service worker (if possible)
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.addEventListener('message', (event) => {
-        if (event.data && event.data.type === 'log') {
-          addLog(`[SW] ${event.data.message}`, event.data.level || 'info');
-        }
-      });
     }
 
     // Auto-check on load
     window.addEventListener('load', () => {
-      addLog('Page loaded, checking service worker...');
-      checkSW();
+      addLog('Page loaded, initializing...');
+      checkStatus();
     });
 
-    // Listen for push events
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.addEventListener('message', (event) => {
-        addLog(`Message from SW: ${JSON.stringify(event.data)}`);
-      });
+    // Update SW status indicator
+    async function updateSwStatus() {
+      const statusBox = document.getElementById('swStatus');
+      
+      if (!('serviceWorker' in navigator)) {
+        statusBox.className = 'status-box error';
+        statusBox.innerHTML = '<span style="font-size: 24px;">❌</span><span>Service Worker not supported</span>';
+        return;
+      }
+      
+      try {
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.getSubscription();
+        
+        if (subscription) {
+          statusBox.className = 'status-box success';
+          statusBox.innerHTML = '<span style="font-size: 24px;">✅</span><span>Service Worker is active with push subscription</span>';
+        } else {
+          statusBox.className = 'status-box error';
+          statusBox.innerHTML = '<span style="font-size: 24px;">⚠️</span><span>Service Worker active but no push subscription</span>';
+        }
+      } catch (error) {
+        statusBox.className = 'status-box error';
+        statusBox.innerHTML = '<span style="font-size: 24px;">❌</span><span>Service Worker error</span>';
+      }
     }
+
+    updateSwStatus();
   </script>
 </body>
 </html>

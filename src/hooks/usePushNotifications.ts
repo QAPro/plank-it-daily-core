@@ -196,14 +196,54 @@ export const usePushNotifications = () => {
           });
         }
       } else if (!browserSubscription && dbSubscription && dbSubscription.is_active) {
-        // Database has active subscription but browser doesn't - mark as inactive (stale data)
-        logWarn('Database has active subscription but browser does not - marking as inactive');
-        await supabase
-          .from('push_subscriptions')
-          .update({ is_active: false })
-          .eq('id', dbSubscription.id);
-        setIsSubscribed(false);
-        setSubscription(null);
+        // Database has active subscription but browser doesn't - recreate browser subscription
+        // This happens when service worker updates and clears the subscription
+        console.log('[PushNotifications] Database has active subscription but browser does not - recreating browser subscription');
+        console.log('[PushNotifications] This is likely due to service worker update (skipWaiting)');
+        
+        // Recreate the subscription
+        try {
+          console.log('[PushNotifications] Fetching VAPID key to recreate subscription...');
+          const vapidKey = await fetchVapidPublicKey();
+          if (!vapidKey) {
+            console.error('[PushNotifications] Failed to fetch VAPID key for recreation');
+            setIsSubscribed(false);
+            setSubscription(null);
+            return;
+          }
+          
+          console.log('[PushNotifications] Converting VAPID key...');
+          const convertedVapidKey = urlBase64ToUint8Array(vapidKey);
+          
+          console.log('[PushNotifications] Subscribing to push manager...');
+          const newSubscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: convertedVapidKey
+          });
+          
+          console.log('[PushNotifications] Browser subscription recreated successfully');
+          
+          // Update database with new subscription
+          await saveBrowserSubscriptionToDatabase(newSubscription);
+          
+          setIsSubscribed(true);
+          setSubscription({
+            endpoint: newSubscription.endpoint,
+            keys: {
+              p256dh: newSubscription.toJSON().keys?.p256dh || '',
+              auth: newSubscription.toJSON().keys?.auth || ''
+            }
+          });
+        } catch (error) {
+          console.error('[PushNotifications] Failed to recreate browser subscription', error);
+          // Mark as inactive if we can't recreate
+          await supabase
+            .from('push_subscriptions')
+            .update({ is_active: false })
+            .eq('id', dbSubscription.id);
+          setIsSubscribed(false);
+          setSubscription(null);
+        }
       } else {
         // Neither has subscription
         logDebug('No subscription in browser or database');

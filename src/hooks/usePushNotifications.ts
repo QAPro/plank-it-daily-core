@@ -4,6 +4,25 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/sonner';
 import { logInfo, logError, logWarn, logDebug } from '@/utils/productionLogger';
 
+// Helper function to convert base64 VAPID key to Uint8Array
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  try {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+      .replace(/\-/g, '+')
+      .replace(/_/g, '/');
+    const rawData = atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  } catch (error) {
+    console.error('[PushNotifications] Error converting VAPID key:', error);
+    throw new Error('Invalid VAPID key format');
+  }
+}
+
 interface PushSubscription {
   id?: string;
   endpoint: string;
@@ -495,24 +514,6 @@ export const usePushNotifications = () => {
       
       // Step 4: Convert base64 to Uint8Array for VAPID key
       console.log('[PushNotifications] Step 4: Converting VAPID key...');
-      function urlBase64ToUint8Array(base64String: string): Uint8Array {
-        try {
-          const padding = '='.repeat((4 - base64String.length % 4) % 4);
-          const base64 = (base64String + padding)
-            .replace(/\-/g, '+')
-            .replace(/_/g, '/');
-          const rawData = atob(base64);
-          const outputArray = new Uint8Array(rawData.length);
-          for (let i = 0; i < rawData.length; ++i) {
-            outputArray[i] = rawData.charCodeAt(i);
-          }
-          return outputArray;
-        } catch (error) {
-          console.error('[PushNotifications] Error converting VAPID key:', error);
-          throw new Error('Invalid VAPID key format');
-        }
-      }
-      
       const applicationServerKey = urlBase64ToUint8Array(vapidPublicKey);
       console.log('[PushNotifications] VAPID key converted, array length:', applicationServerKey.length);
       

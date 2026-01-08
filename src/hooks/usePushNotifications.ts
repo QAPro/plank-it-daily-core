@@ -35,11 +35,14 @@ export const usePushNotifications = () => {
 
   // Check browser subscription when service worker is ready (browser is source of truth)
   useEffect(() => {
+    console.log('[PushNotifications] useEffect triggered', { swReady, hasUser: !!user });
     if (swReady && user) {
-      logDebug('Service worker ready and user authenticated, checking subscription status');
+      console.log('[PushNotifications] Calling checkAndReconcileSubscription...');
       checkAndReconcileSubscription();
+    } else {
+      console.log('[PushNotifications] Skipping reconciliation - requirements not met', { swReady, hasUser: !!user });
     }
-  }, [swReady, user]);
+  }, [swReady, user, checkAndReconcileSubscription]);
 
   // Monitor permission changes and page visibility
   useEffect(() => {
@@ -112,21 +115,25 @@ export const usePushNotifications = () => {
   }, []);
 
   const checkAndReconcileSubscription = useCallback(async () => {
+    console.log('[PushNotifications] checkAndReconcileSubscription called', { hasUser: !!user });
     if (!user) {
-      logDebug('Skipping subscription check - no user');
+      console.log('[PushNotifications] Skipping subscription check - no user');
       return;
     }
 
-    logDebug('Checking and reconciling subscription status (browser is source of truth)');
+    console.log('[PushNotifications] Checking and reconciling subscription status (browser is source of truth)');
     
     try {
       // Step 1: Check browser for push subscription (SOURCE OF TRUTH)
+      console.log('[PushNotifications] Step 1: Getting service worker registration...');
       const registration = await navigator.serviceWorker.ready;
+      console.log('[PushNotifications] Step 2: Checking browser for push subscription...');
       const browserSubscription = await registration.pushManager.getSubscription();
       
-      logDebug('Browser subscription check', { hasBrowserSub: !!browserSubscription });
+      console.log('[PushNotifications] Browser subscription check', { hasBrowserSub: !!browserSubscription });
       
       // Step 2: Check database for subscription record
+      console.log('[PushNotifications] Step 3: Checking database for subscription...');
       const { data: dbSubscription, error: dbError } = await supabase
         .from('push_subscriptions')
         .select('id, endpoint, is_active')
@@ -134,10 +141,10 @@ export const usePushNotifications = () => {
         .maybeSingle();
 
       if (dbError) {
-        logError('Error checking database subscription', { error: dbError.message }, dbError);
+        console.error('[PushNotifications] Error checking database subscription', dbError);
       }
       
-      logDebug('Database subscription check', { hasDbSub: !!dbSubscription, isActive: dbSubscription?.is_active });
+      console.log('[PushNotifications] Database subscription check', { hasDbSub: !!dbSubscription, isActive: dbSubscription?.is_active });
       
       // Step 3: Reconcile mismatches
       if (browserSubscription && !dbSubscription) {

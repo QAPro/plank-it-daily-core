@@ -33,18 +33,11 @@ export const usePushNotifications = () => {
     }
   }, []);
 
-  // Check database first for fast initial state
-  useEffect(() => {
-    if (user) {
-      checkDatabaseSubscription();
-    }
-  }, [user]);
-
-  // Then verify with browser when service worker is ready
+  // Check browser subscription when service worker is ready (browser is source of truth)
   useEffect(() => {
     if (swReady && user) {
       logDebug('Service worker ready and user authenticated, checking subscription status');
-      checkSubscriptionStatus();
+      checkAndReconcileSubscription();
     }
   }, [swReady, user]);
 
@@ -56,14 +49,14 @@ export const usePushNotifications = () => {
       logDebug('Permission state changed', { permission: Notification.permission });
       if (Notification.permission === 'granted' && swReady && user) {
         logDebug('Permission granted, rechecking subscription status');
-        checkSubscriptionStatus();
+        checkAndReconcileSubscription();
       }
     };
 
     const handleVisibilityChange = () => {
       if (!document.hidden && swReady && user) {
         logDebug('Page became visible, rechecking subscription status');
-        checkSubscriptionStatus();
+        checkAndReconcileSubscription();
       }
     };
 
@@ -118,90 +111,132 @@ export const usePushNotifications = () => {
     }
   }, []);
 
-  const checkDatabaseSubscription = useCallback(async () => {
+  const checkAndReconcileSubscription = useCallback(async () => {
     if (!user) {
-      logDebug('Skipping database subscription check - no user');
+      logDebug('Skipping subscription check - no user');
       return;
     }
 
-    logDebug('Checking database for subscription status');
+    logDebug('Checking and reconciling subscription status (browser is source of truth)');
     
     try {
-      const { data, error } = await supabase
+      // Step 1: Check browser for push subscription (SOURCE OF TRUTH)
+      const registration = await navigator.serviceWorker.ready;
+      const browserSubscription = await registration.pushManager.getSubscription();
+      
+      logDebug('Browser subscription check', { hasBrowserSub: !!browserSubscription });
+      
+      // Step 2: Check database for subscription record
+      const { data: dbSubscription, error: dbError } = await supabase
         .from('push_subscriptions')
-        .select('id, is_active')
+        .select('id, endpoint, is_active')
         .eq('user_id', user.id)
-        .eq('is_active', true)
         .maybeSingle();
 
-      if (error) {
-        logError('Error checking database subscription', { error: error.message }, error);
-        return;
+      if (dbError) {
+        logError('Error checking database subscription', { error: dbError.message }, dbError);
       }
-
-      if (data) {
-        logDebug('Found active subscription in database');
-        setIsSubscribed(true);
-      } else {
-        logDebug('No active subscription in database');
-        setIsSubscribed(false);
-      }
-    } catch (error) {
-      logError('Exception checking database subscription', { error: error.message }, error);
-    }
-  }, [user]);
-
-  const checkSubscriptionStatus = useCallback(async () => {
-    if (!user || !isSupported || !swReady) {
-      logDebug('Skipping subscription check - missing requirements', { 
-        hasUser: !!user, 
-        isSupported, 
-        swReady 
-      });
-      return;
-    }
-
-    logDebug('Checking subscription status', { permission: Notification.permission });
-    
-    try {
-      const registration = await navigator.serviceWorker.ready;
-      logDebug('Got registration for subscription check', {
-        scope: registration.scope,
-        active: !!registration.active
-      });
       
-      const subscription = await registration.pushManager.getSubscription();
-      logDebug('Push manager subscription check result', { hasSubscription: !!subscription });
+      logDebug('Database subscription check', { hasDbSub: !!dbSubscription, isActive: dbSubscription?.is_active });
       
-      if (subscription) {
-        logDebug('Found existing subscription', {
-          endpoint: subscription.endpoint.substring(0, 50) + '...',
-          expirationTime: subscription.expirationTime,
-          hasKeys: !!(subscription.getKey && subscription.getKey('p256dh'))
-        });
-        
+      // Step 3: Reconcile mismatches
+      if (browserSubscription && !dbSubscription) {
+        // Browser has subscription, database doesn't - save to database
+        logInfo('Browser has subscription but database does not - saving to database');
+        await saveBrowserSubscriptionToDatabase(browserSubscription);
         setIsSubscribed(true);
         setSubscription({
-          endpoint: subscription.endpoint,
+          endpoint: browserSubscription.endpoint,
           keys: {
-            p256dh: subscription.toJSON().keys?.p256dh || '',
-            auth: subscription.toJSON().keys?.auth || ''
+            p256dh: browserSubscription.toJSON().keys?.p256dh || '',
+            auth: browserSubscription.toJSON().keys?.auth || ''
           }
         });
+      } else if (browserSubscription && dbSubscription) {
+        // Both exist - verify they match
+        if (browserSubscription.endpoint === dbSubscription.endpoint) {
+          if (!dbSubscription.is_active) {
+            // Reactivate in database
+            logInfo('Reactivating subscription in database');
+            await supabase
+              .from('push_subscriptions')
+              .update({ is_active: true })
+              .eq('id', dbSubscription.id);
+          }
+          logDebug('Browser and database subscriptions match');
+          setIsSubscribed(true);
+          setSubscription({
+            endpoint: browserSubscription.endpoint,
+            keys: {
+              p256dh: browserSubscription.toJSON().keys?.p256dh || '',
+              auth: browserSubscription.toJSON().keys?.auth || ''
+            }
+          });
+        } else {
+          // Endpoints don't match - browser is newer, update database
+          logWarn('Browser and database subscriptions mismatch - updating database');
+          await saveBrowserSubscriptionToDatabase(browserSubscription);
+          setIsSubscribed(true);
+          setSubscription({
+            endpoint: browserSubscription.endpoint,
+            keys: {
+              p256dh: browserSubscription.toJSON().keys?.p256dh || '',
+              auth: browserSubscription.toJSON().keys?.auth || ''
+            }
+          });
+        }
+      } else if (!browserSubscription && dbSubscription && dbSubscription.is_active) {
+        // Database has active subscription but browser doesn't - mark as inactive (stale data)
+        logWarn('Database has active subscription but browser does not - marking as inactive');
+        await supabase
+          .from('push_subscriptions')
+          .update({ is_active: false })
+          .eq('id', dbSubscription.id);
+        setIsSubscribed(false);
+        setSubscription(null);
       } else {
-        logDebug('No existing subscription found');
+        // Neither has subscription
+        logDebug('No subscription in browser or database');
         setIsSubscribed(false);
         setSubscription(null);
       }
     } catch (error) {
-      logError('Error checking subscription status', { error: error.message }, error);
+      logError('Error reconciling subscription', { error: error.message }, error);
       setIsSubscribed(false);
       setSubscription(null);
-      toast.error("Subscription Check Failed", { 
-        description: "Unable to check push notification status. Please try again."
-      });
     }
-  }, [user, isSupported, swReady]);
+  }, [user]);
+
+  const saveBrowserSubscriptionToDatabase = async (browserSubscription: PushSubscription) => {
+    if (!user) return;
+    
+    try {
+      const subscriptionData = {
+        user_id: user.id,
+        endpoint: browserSubscription.endpoint,
+        p256dh_key: browserSubscription.toJSON().keys?.p256dh || '',
+        auth_key: browserSubscription.toJSON().keys?.auth || '',
+        user_agent: navigator.userAgent,
+        is_active: true
+      };
+
+      const { error } = await supabase
+        .from('push_subscriptions')
+        .upsert(subscriptionData, {
+          onConflict: 'user_id,endpoint'
+        });
+
+      if (error) {
+        logError('Failed to save subscription to database', { error: error.message }, error);
+      } else {
+        logInfo('Subscription saved to database successfully');
+      }
+    } catch (error) {
+      logError('Exception saving subscription to database', { error: error.message }, error);
+    }
+  };
+
+
 
   const requestPermission = useCallback(async (): Promise<boolean> => {
     logDebug('Requesting permission', { currentPermission: Notification.permission });
@@ -589,20 +624,20 @@ export const usePushNotifications = () => {
         console.log('[PushNotifications] Successfully unsubscribed from push manager');
       }
 
-      // Remove from database
-      console.log('[PushNotifications] Removing from database...');
+      // Mark as inactive in database (soft delete for analytics)
+      console.log('[PushNotifications] Marking subscription as inactive in database...');
       const { error: dbError } = await supabase
         .from('push_subscriptions')
-        .delete()
+        .update({ is_active: false })
         .eq('user_id', user.id);
 
       if (dbError) {
-        console.error('[PushNotifications] Database removal error:', dbError);
+        console.error('[PushNotifications] Database update error:', dbError);
         toast.error("Database Error", { 
-          description: "Failed to remove notification settings from server."
+          description: "Failed to update notification settings on server."
         });
       } else {
-        console.log('[PushNotifications] Successfully removed from database');
+        console.log('[PushNotifications] Successfully marked subscription as inactive');
       }
 
       // Update user_preferences to disable push notifications

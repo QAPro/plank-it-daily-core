@@ -42,7 +42,7 @@ export const usePushNotifications = () => {
     } else {
       console.log('[PushNotifications] Skipping reconciliation - requirements not met', { swReady, hasUser: !!user });
     }
-  }, [swReady, user, checkAndReconcileSubscription]);
+  }, [swReady, user]);
 
   // Monitor permission changes and page visibility
   useEffect(() => {

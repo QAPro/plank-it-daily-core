@@ -424,6 +424,8 @@ async function handleEnhancedDailyReminders(supabase: any) {
     return;
   }
 
+  console.log(`Found ${schedules.length} active reminder slots`);
+
   const userIds = Array.from(new Set(schedules.map((s) => s.user_id)));
   const { data: prefsList, error: prefsErr } = await supabase
     .from('user_preferences')
@@ -455,10 +457,19 @@ async function handleEnhancedDailyReminders(supabase: any) {
   for (const sched of schedules) {
     try {
       const prefs = prefMap.get(sched.user_id);
-      if (!prefs) continue;
+      if (!prefs) {
+        console.log(`Skipping user ${sched.user_id} - no preferences found`);
+        continue;
+      }
 
-      if (prefs.push_notifications_enabled === false) continue;
-      if (prefs.notification_types?.reminders === false) continue;
+      if (prefs.push_notifications_enabled === false) {
+        console.log(`Skipping user ${sched.user_id} - push notifications disabled`);
+        continue;
+      }
+      if (prefs.notification_types?.reminders === false) {
+        console.log(`Skipping user ${sched.user_id} - reminder notifications disabled`);
+        continue;
+      }
 
       const tz = prefs.time_zone || 'UTC';
       const localNowMin = getLocalMinutes(tz);
@@ -467,7 +478,12 @@ async function handleEnhancedDailyReminders(supabase: any) {
       const targetMin = hh * 60 + mm;
       const diff = Math.abs(localNowMin - targetMin);
 
-      if (diff > 15) continue;
+      console.log(`User ${sched.user_id} ${sched.slot}: localTime=${localNowMin}min, targetTime=${targetMin}min, diff=${diff}min`);
+
+      if (diff > 15) {
+        console.log(`Skipping user ${sched.user_id} ${sched.slot} - time difference too large (${diff} > 15)`);
+        continue;
+      }
 
       const dayStartUtc = new Date(Date.UTC(nowUtc.getUTCFullYear(), nowUtc.getUTCMonth(), nowUtc.getUTCDate())).toISOString();
       const { data: recent } = await supabase
@@ -479,7 +495,12 @@ async function handleEnhancedDailyReminders(supabase: any) {
         .gte('sent_at', dayStartUtc)
         .limit(1);
 
-      if (recent?.length) continue;
+      if (recent?.length) {
+        console.log(`Skipping user ${sched.user_id} ${sched.slot} - already sent today`);
+        continue;
+      }
+
+      console.log(`Sending ${sched.slot} notification to user ${sched.user_id}`);
 
       const firstName = await getUserFirstName(supabase, sched.user_id);
       const variant = await getOrAssignMessageVariant(supabase, sched.user_id, 'daily_reminder', sched.slot);

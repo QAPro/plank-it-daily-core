@@ -14,6 +14,9 @@ const ESSENTIAL_RESOURCES = [
   '/sounds/notification-achievement.mp3'
 ];
 
+// Workbox precache manifest injection point
+self.__WB_MANIFEST;
+
 // Install event - cache essential resources including workout data
 self.addEventListener('install', (event) => {
   console.log('[SW] Installing enhanced service worker');

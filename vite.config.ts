@@ -14,37 +14,34 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === 'development' && componentTagger(),
     mode === 'production' && VitePWA({
-      registerType: 'autoUpdate',
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,vue,txt,woff2}'],
-        maximumFileSizeToCacheInBytes: 6 * 1024 * 1024, // 6MB limit
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/kgwmplptoctmoaefnpfg\.supabase\.co\/rest\/v1\/plank_exercises(\?.*)?$/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'supabase-plank-exercises',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
-              }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/kgwmplptoctmoaefnpfg\.supabase\.co\/storage\/v1\/object\/public\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'supabase-public-storage',
-              expiration: {
-                maxEntries: 200,
-                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-              }
-            }
-          }
-        ]
+  strategies: 'injectManifest',
+  srcDir: 'public',
+  filename: 'sw.js',
+  registerType: 'autoUpdate',
+  injectManifest: {
+    globPatterns: ['**/*.{js,css,html,ico,png,svg,json,txt,woff2}'],
+    maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
+  },
+  manifest: {
+    name: 'InnerFire',
+    short_name: 'InnerFire',
+    description: 'Your workout companion',
+    theme_color: '#ffffff',
+    icons: [
+      {
+        src: '/icon-192x192.png',
+        sizes: '192x192',
+        type: 'image/png'
       },
-      includeAssets: ['favicon.ico', 'robots.txt', 'manifest.json']
-    })
+      {
+        src: '/icon-512x512.png',
+        sizes: '512x512',
+        type: 'image/png'
+      }
+    ]
+  },
+  includeAssets: ['favicon.ico', 'robots.txt', 'manifest.json']
+})
   ].filter(Boolean),
   resolve: {
     alias: {

@@ -2,9 +2,10 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
+import { copyFileSync } from 'fs';
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig(({ mode } ) => ({
   server: {
     host: "::",
     port: 8080,
@@ -12,18 +13,15 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     mode === 'development' && componentTagger(),
-mode === 'production' && {
-  name: 'copy-sw',
-  closeBundle() {
-    const fs = require('fs');
-    const path = require('path');
-    fs.copyFileSync(
-      path.resolve(__dirname, 'public/sw.js'),
-      path.resolve(__dirname, 'dist/sw.js')
-    );
-  }
-}
-
+    mode === 'production' && {
+      name: 'copy-sw',
+      closeBundle() {
+        copyFileSync(
+          path.resolve(__dirname, 'public/sw.js'),
+          path.resolve(__dirname, 'dist/sw.js')
+        );
+      }
+    }
   ].filter(Boolean),
   resolve: {
     alias: {

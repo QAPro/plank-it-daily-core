@@ -13,35 +13,18 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     mode === 'development' && componentTagger(),
-    mode === 'production' && VitePWA({
-  strategies: 'injectManifest',
-  srcDir: 'public',
-  filename: 'sw.js',
-  registerType: 'autoUpdate',
-  injectManifest: {
-    globPatterns: ['**/*.{js,css,html,ico,png,svg,json,txt,woff2}'],
-    maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
-  },
-  manifest: {
-    name: 'InnerFire',
-    short_name: 'InnerFire',
-    description: 'Your workout companion',
-    theme_color: '#ffffff',
-    icons: [
-      {
-        src: '/icon-192x192.png',
-        sizes: '192x192',
-        type: 'image/png'
-      },
-      {
-        src: '/icon-512x512.png',
-        sizes: '512x512',
-        type: 'image/png'
-      }
-    ]
-  },
-  includeAssets: ['favicon.ico', 'robots.txt', 'manifest.json']
-})
+mode === 'production' && {
+  name: 'copy-sw',
+  closeBundle() {
+    const fs = require('fs');
+    const path = require('path');
+    fs.copyFileSync(
+      path.resolve(__dirname, 'public/sw.js'),
+      path.resolve(__dirname, 'dist/sw.js')
+    );
+  }
+}
+
   ].filter(Boolean),
   resolve: {
     alias: {

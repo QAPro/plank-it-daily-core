@@ -236,16 +236,24 @@ self.addEventListener('push', (event) => {
   // Parse notification data if available
   if (event.data) {
     try {
-      const rawText = event.data.text();
-      console.log(`[SW] Raw push data (${pushId}):`, rawText);
-      
-      // Warn if empty data
-      if (!rawText || rawText.trim() === '') {
-        console.warn(`[SW] Empty push data received (${pushId}), using fallback notification`);
+      // Try to get data as JSON first (for object-based push data)
+      let data;
+      try {
+        data = event.data.json();
+        console.log(`[SW] Push data (using .json()) (${pushId}):`, data);
+      } catch (jsonError) {
+        // Fallback to text-based parsing
+        const rawText = event.data.text();
+        console.log(`[SW] Raw push data (using .text()) (${pushId}):`, rawText);
+        
+        if (!rawText || rawText.trim() === '') {
+          console.warn(`[SW] Empty push data received (${pushId}), using fallback notification`);
+          throw new Error('Empty push data');
+        }
+        
+        data = JSON.parse(rawText);
+        console.log(`[SW] Parsed push data (${pushId}):`, data);
       }
-      
-      const data = JSON.parse(rawText);
-      console.log(`[SW] Parsed push data (${pushId}):`, data);
       
       // Warn if missing title or body
       if (!data.title || !data.body) {

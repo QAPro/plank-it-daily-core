@@ -101,6 +101,7 @@ function personalizeMessage(
   template: MessageTemplate,
   context: { 
     firstName?: string;
+    username?: string;
     streakDays?: number;
     achievementName?: string;
     milestone?: string;
@@ -111,9 +112,18 @@ function personalizeMessage(
   let title = template.title;
   let body = template.body;
 
-  if (context.firstName) {
-    title = title.replace(/{firstName}/g, context.firstName);
-    body = body.replace(/{firstName}/g, context.firstName);
+  // Use fallback: firstName → username → remove the greeting entirely
+  const displayName = context.firstName || context.username || '';
+  if (displayName) {
+    title = title.replace(/{firstName}/g, displayName);
+    body = body.replace(/{firstName}/g, displayName);
+  } else {
+    // Remove greeting patterns when no name is available
+    title = title.replace(/,?\s*{firstName}[!,]?/g, '');
+    body = body.replace(/,?\s*{firstName}[!,]?/g, '');
+    // Clean up any double spaces or punctuation
+    title = title.replace(/\s+/g, ' ').replace(/^[,\s]+|[,\s]+$/g, '').trim();
+    body = body.replace(/\s+/g, ' ').replace(/^[,\s]+|[,\s]+$/g, '').trim();
   }
   if (context.streakDays !== undefined) {
     title = title.replace(/{streakDays}/g, context.streakDays.toString());
@@ -146,23 +156,29 @@ function getTimeOfDay(): 'morning' | 'afternoon' | 'evening' {
   return 'evening';
 }
 
-async function getUserFirstName(supabase: any, userId: string): Promise<string> {
+async function getUserDisplayInfo(supabase: any, userId: string): Promise<{ firstName: string; username: string }> {
   try {
     const { data, error } = await supabase
       .from('users')
-      .select('first_name')
+      .select('first_name, username')
       .eq('id', userId)
       .single();
 
-    if (error || !data?.first_name) {
-      return '';
+    if (error || !data) {
+      return { firstName: '', username: '' };
     }
 
-    return data.first_name;
+    return { firstName: data.first_name || '', username: data.username || '' };
   } catch (error) {
-    console.error('Error fetching user first name:', error);
-    return '';
+    console.error('Error fetching user display info:', error);
+    return { firstName: '', username: '' };
   }
+}
+
+// Legacy function for backward compatibility
+async function getUserFirstName(supabase: any, userId: string): Promise<string> {
+  const { firstName } = await getUserDisplayInfo(supabase, userId);
+  return firstName;
 }
 
 serve(async (req) => {
@@ -486,6 +502,21 @@ async function handleEnhancedDailyReminders(supabase: any) {
       }
 
       const dayStartUtc = new Date(Date.UTC(nowUtc.getUTCFullYear(), nowUtc.getUTCMonth(), nowUtc.getUTCDate())).toISOString();
+      
+      // Check if user has already worked out today
+      const { data: todayWorkouts } = await supabase
+        .from('workout_sessions')
+        .select('id')
+        .eq('user_id', sched.user_id)
+        .gte('created_at', dayStartUtc)
+        .limit(1);
+
+      if (todayWorkouts?.length) {
+        console.log(`Skipping user ${sched.user_id} ${sched.slot} - already worked out today`);
+        continue;
+      }
+      
+      // Check if notification was already sent today
       const { data: recent } = await supabase
         .from('notification_logs')
         .select('id')
@@ -502,15 +533,21 @@ async function handleEnhancedDailyReminders(supabase: any) {
 
       console.log(`Sending ${sched.slot} notification to user ${sched.user_id}`);
 
-      const firstName = await getUserFirstName(supabase, sched.user_id);
+      const { firstName, username } = await getUserDisplayInfo(supabase, sched.user_id);
       const variant = await getOrAssignMessageVariant(supabase, sched.user_id, 'daily_reminder', sched.slot);
 
       if (variant) {
+        // Personalize the variant message with firstName/username fallback
+        const personalizedVariant = personalizeMessage(
+          { title: variant.content.title, body: variant.content.body },
+          { firstName: firstName || undefined, username: username || undefined }
+        );
+        
         await supabase.functions.invoke('send-push-notification', {
           body: {
             user_id: sched.user_id,
-            title: variant.content.title,
-            body: variant.content.body,
+            title: personalizedVariant.title,
+            body: personalizedVariant.body,
             first_name: firstName,
             notification_type: 'reminders',
             data: { ...variant.content.data, slot: sched.slot, variant_id: variant.id },
@@ -519,7 +556,7 @@ async function handleEnhancedDailyReminders(supabase: any) {
       } else {
         const timeOfDay = getTimeOfDay();
         const template = getRandomTemplate(messageTemplates.workout_reminder[timeOfDay]);
-        const message = personalizeMessage(template, { firstName });
+        const message = personalizeMessage(template, { firstName: firstName || undefined, username: username || undefined });
         
         await supabase.functions.invoke('send-push-notification', {
           body: {

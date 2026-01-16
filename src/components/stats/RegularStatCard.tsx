@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { LucideIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { format } from 'date-fns';
 
 interface RegularStatCardProps {
   icon?: LucideIcon;
@@ -19,8 +20,16 @@ const RegularStatCard = ({ icon: Icon, title, value, delay = 0, emoji }: Regular
       <Card className="bg-card rounded-xl shadow-soft">
         <CardContent className="p-4 text-center">
           {emoji && (
-            <div className="text-3xl mb-2">
-              {emoji}
+            <div className="text-3xl mb-2 flex justify-center">
+              {emoji === '📅' ? (
+                <div className="relative w-12 h-12 flex flex-col items-center justify-center bg-gradient-to-b from-red-500 to-red-600 rounded-lg shadow-sm">
+                  <div className="absolute top-0 left-0 right-0 h-2.5 bg-red-700 rounded-t-lg"></div>
+                  <div className="text-[11px] font-bold text-white uppercase mt-1.5">{format(new Date(), 'MMM')}</div>
+                  <div className="text-xl font-bold text-white leading-none">{format(new Date(), 'd')}</div>
+                </div>
+              ) : (
+                emoji
+              )}
             </div>
           )}
           {Icon && !emoji && (

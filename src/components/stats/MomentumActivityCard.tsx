@@ -48,15 +48,15 @@ const MomentumActivityCard = ({ weeklyActivity }: MomentumActivityCardProps) => 
                 <p className="text-white/90 text-xs font-medium">7-Day Activity</p>
                 <Trophy className="w-4 h-4 text-white/80" />
               </div>
-              <div className="flex items-center justify-between gap-1">
+              <div className="flex items-center justify-end gap-0.5 sm:gap-1">
                 {weeklyActivity.map((day, index) => (
                   <div
                     key={index}
-                    className={`w-7 h-7 rounded-full border-2 ${
+                    className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 ${
                       day.workoutCount > 0
                         ? "bg-white border-white"
                         : "bg-transparent border-white/40"
-                    } transition-all`}
+                    } transition-all flex-shrink-0`}
                     title={`${day.label}: ${day.workoutCount} workout${day.workoutCount !== 1 ? 's' : ''}`}
                   />
                 ))}

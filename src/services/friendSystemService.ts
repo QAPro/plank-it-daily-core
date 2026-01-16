@@ -278,13 +278,14 @@ export class FriendSystemManager {
       console.log('[FriendSystem] Getting pending requests for user:', userId);
 
       // Query database for pending requests where user is the recipient
+      // Use explicit foreign key name for the join
       const { data: requests, error } = await supabase
         .from('friends')
         .select(`
           id,
           user_id,
           created_at,
-          users:user_id (
+          users!friends_user_id_fkey (
             id,
             username,
             full_name,

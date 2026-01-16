@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { format, subDays, startOfDay } from 'date-fns';
+import { format, subDays, startOfDay, addDays } from 'date-fns';
 
 export const useStatsDashboard = () => {
   const { user } = useAuth();
@@ -80,23 +80,30 @@ export const useStatsDashboard = () => {
     queryFn: async () => {
       if (!user) return [];
 
-      const sevenDaysAgo = startOfDay(subDays(new Date(), 6)).toISOString();
+      // Get the start of the current week (Sunday)
+      const today = new Date();
+      const currentDayOfWeek = today.getDay(); // 0 = Sunday, 6 = Saturday
+      const startOfWeek = startOfDay(subDays(today, currentDayOfWeek));
+      const endOfWeek = startOfDay(subDays(today, currentDayOfWeek - 6));
+
       const { data: sessions } = await supabase
         .from('user_sessions')
         .select('completed_at')
         .eq('user_id', user.id)
-        .gte('completed_at', sevenDaysAgo);
+        .gte('completed_at', startOfWeek.toISOString())
+        .lte('completed_at', endOfWeek.toISOString());
 
-      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      // Fixed calendar week: Sunday to Saturday
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       const activity = Array.from({ length: 7 }, (_, i) => {
-        const date = subDays(new Date(), 6 - i);
+        const date = addDays(startOfWeek, i);
         const dateStr = format(date, 'yyyy-MM-dd');
         const workoutCount = sessions?.filter(
           s => format(new Date(s.completed_at!), 'yyyy-MM-dd') === dateStr
         ).length || 0;
 
         return {
-          label: days[date.getDay() === 0 ? 6 : date.getDay() - 1],
+          label: days[i],
           hasWorkout: workoutCount > 0,
           workoutCount,
         };

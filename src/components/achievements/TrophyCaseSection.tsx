@@ -65,7 +65,7 @@ const TrophyCard = ({
         transition: { duration: 0.3, ease: "easeOut" }
       }}
       className="cursor-pointer"
-      onClick={() => onAchievementClick(achievement)}
+      onClick={() => onAchievementClick({ ...achievement, earned_at: userAchievement.earned_at })}
     >
       <div className="text-center space-y-2">
         {/* Badge Image */}

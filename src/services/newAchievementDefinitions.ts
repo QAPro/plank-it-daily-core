@@ -45,7 +45,7 @@ export const NEW_ACHIEVEMENT_DEFINITIONS: NewAchievement[] = [
   {
     id: 'ACH_002',
     name: 'Streak Starter',
-    description: 'Complete 3 workouts in a row',
+    description: 'Complete 3 consecutive days of workouts',
     category: 'Consistency',
     rarity: 'Common',
     points: 25,
@@ -59,7 +59,7 @@ export const NEW_ACHIEVEMENT_DEFINITIONS: NewAchievement[] = [
   {
     id: 'ACH_003',
     name: 'Week Warrior',
-    description: 'Complete 7 workouts in a row',
+    description: 'Complete 7 consecutive days of workouts',
     category: 'Milestones',
     rarity: 'Uncommon',
     points: 50,
@@ -73,7 +73,7 @@ export const NEW_ACHIEVEMENT_DEFINITIONS: NewAchievement[] = [
   {
     id: 'ACH_004',
     name: 'Dedication',
-    description: 'Complete 14 workouts in a row',
+    description: 'Complete 14 consecutive days of workouts',
     category: 'Milestones',
     rarity: 'Uncommon',
     points: 100,
@@ -87,7 +87,7 @@ export const NEW_ACHIEVEMENT_DEFINITIONS: NewAchievement[] = [
   {
     id: 'ACH_005',
     name: 'Consistency King',
-    description: 'Complete 30 workouts in a row',
+    description: 'Complete 30 consecutive days of workouts',
     category: 'Milestones',
     rarity: 'Rare',
     points: 200,

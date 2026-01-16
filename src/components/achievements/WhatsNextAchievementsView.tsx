@@ -86,6 +86,7 @@ const WhatsNextAchievementsView = () => {
           achievement={selectedAchievement}
           onClose={() => setSelectedAchievement(null)}
           isVisible={!!selectedAchievement}
+          isEarned={selectedAchievement.earned_at != null}
         />
       )}
     </div>

@@ -61,7 +61,7 @@ const AchievementDetailModal = ({ achievement, onClose, isVisible, isEarned = fa
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ type: "spring", duration: 0.5 }}
               onClick={(e) => e.stopPropagation()}
-              className={`relative max-w-2xl w-full max-h-[calc(100vh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-2rem)] overflow-y-auto rounded-2xl ${getCategoryGradient(achievement.category)} p-6 sm:p-8 shadow-2xl`}
+              className={`relative max-w-2xl w-full max-h-[calc(100vh-8rem)] overflow-y-auto rounded-2xl ${getCategoryGradient(achievement.category)} p-6 sm:p-8 shadow-2xl`}
             >
               {/* Close Button */}
               <button
@@ -91,7 +91,7 @@ const AchievementDetailModal = ({ achievement, onClose, isVisible, isEarned = fa
                   initial={{ y: -20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.3 }}
-                  className={`text-3xl font-bold ${textColor} mt-16 px-20`}
+                  className={`text-2xl sm:text-3xl font-bold ${textColor} mt-12 px-16 leading-tight`}
                 >
                   {achievement.name}
                 </motion.h2>
@@ -104,7 +104,7 @@ const AchievementDetailModal = ({ achievement, onClose, isVisible, isEarned = fa
                     transition={{ delay: 0.4, type: "spring", duration: 0.6 }}
                     src={badgeUrl}
                     alt={achievement.name}
-                    className="w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 object-contain drop-shadow-2xl"
+                    className="w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 object-contain drop-shadow-2xl"
                   />
                 )}
 

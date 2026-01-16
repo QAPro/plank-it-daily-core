@@ -31,7 +31,7 @@ const MomentumActivityCard = ({ weeklyActivity }: MomentumActivityCardProps) => 
       transition={{ duration: 0.3 }}
     >
       <Card className="bg-gradient-to-r from-[#FF6B35] to-[#3B82F6] shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden">
-        <CardContent className="p-6">
+        <CardContent className="p-6 pr-4">
           <div className="flex items-center justify-between gap-6">
             {/* Left side - Momentum Score */}
             <div className="flex-1">
@@ -43,10 +43,10 @@ const MomentumActivityCard = ({ weeklyActivity }: MomentumActivityCardProps) => 
             </div>
 
             {/* Right side - 7-Day Activity */}
-            <div className="flex-1 relative pr-2">
-              <div className="flex items-center justify-between mb-2 gap-2">
-                <p className="text-white/90 text-xs font-medium">7-Day Activity</p>
+            <div className="flex-1 relative">
+              <div className="flex items-center gap-1.5 mb-2">
                 <Trophy className="w-4 h-4 text-white/80 flex-shrink-0" />
+                <p className="text-white/90 text-xs font-medium">7-Day Activity</p>
               </div>
               <div className="flex items-center justify-end gap-0.5 sm:gap-1">
                 {weeklyActivity.map((day, index) => (

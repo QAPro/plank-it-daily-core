@@ -89,7 +89,7 @@ const AchievementDetailModal = ({ achievement, onClose, isVisible }: Achievement
                   initial={{ y: -20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.3 }}
-                  className={`text-3xl font-bold ${textColor} mt-3`}
+                  className={`text-3xl font-bold ${textColor} mt-16 px-20`}
                 >
                   {achievement.name}
                 </motion.h2>

@@ -278,20 +278,9 @@ export class FriendSystemManager {
       console.log('[FriendSystem] Getting pending requests for user:', userId);
 
       // Query database for pending requests where user is the recipient
-      // Use explicit foreign key name for the join
       const { data: requests, error } = await supabase
         .from('friends')
-        .select(`
-          id,
-          user_id,
-          created_at,
-          users!friends_user_id_fkey (
-            id,
-            username,
-            full_name,
-            avatar_url
-          )
-        `)
+        .select('id, user_id, created_at')
         .eq('friend_id', userId)
         .eq('status', 'pending');
 
@@ -305,14 +294,36 @@ export class FriendSystemManager {
         return [];
       }
 
-      console.log('[FriendSystem] Found pending requests:', requests);
+      console.log('[FriendSystem] Found pending requests (raw):', requests);
 
-      // Format the response
-      return requests.map(request => ({
-        id: request.id,
-        created_at: request.created_at,
-        users: request.users
-      }));
+      // Fetch user data separately for each request
+      const requestsWithUsers = await Promise.all(
+        requests.map(async (request) => {
+          const { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('id, username, full_name, avatar_url')
+            .eq('id', request.user_id)
+            .single();
+
+          if (userError) {
+            console.error('[FriendSystem] Error fetching user data:', userError);
+            return {
+              id: request.id,
+              created_at: request.created_at,
+              users: null
+            };
+          }
+
+          return {
+            id: request.id,
+            created_at: request.created_at,
+            users: userData
+          };
+        })
+      );
+
+      console.log('[FriendSystem] Found pending requests with users:', requestsWithUsers);
+      return requestsWithUsers;
     } catch (error) {
       console.error('[FriendSystem] Error getting pending requests:', error);
       return [];

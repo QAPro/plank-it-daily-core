@@ -284,7 +284,7 @@ export class FriendSystemManager {
           id,
           user_id,
           created_at,
-          users!friends_user_id_fkey (
+          users:user_id (
             id,
             username,
             full_name,

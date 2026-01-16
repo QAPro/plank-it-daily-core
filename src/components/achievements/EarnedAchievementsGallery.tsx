@@ -179,7 +179,10 @@ const EarnedAchievementsGallery = ({ onBackClick }: EarnedAchievementsGalleryPro
   }, [filteredProgress]);
 
   const handleAchievementClick = (achievementProgress: any) => {
-    setSelectedAchievement(achievementProgress.achievement);
+    setSelectedAchievement({
+      ...achievementProgress.achievement,
+      isEarned: achievementProgress.isEarned
+    });
   };
 
   const handleShare = () => {
@@ -398,6 +401,7 @@ const EarnedAchievementsGallery = ({ onBackClick }: EarnedAchievementsGalleryPro
           onClose={() => setSelectedAchievement(null)}
           onShare={handleShare}
           isVisible={!!selectedAchievement}
+          isEarned={selectedAchievement?.isEarned}
         />
       )}
     </div>

@@ -1,11 +1,13 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { getBadgeUrl } from '@/utils/badgeAssets';
+import { formatAchievementDescription } from '@/utils/achievementTextFormatter';
 
 interface AchievementDetailModalProps {
   achievement: any;
   onClose: () => void;
   isVisible: boolean;
+  isEarned?: boolean;
 }
 
 const getCategoryGradient = (category: string) => {
@@ -35,7 +37,7 @@ const getCategoryPillStyle = (category: string) => {
   return category === 'Social' ? 'bg-slate-800/20 text-slate-800' : 'bg-white/20 text-white';
 };
 
-const AchievementDetailModal = ({ achievement, onClose, isVisible }: AchievementDetailModalProps) => {
+const AchievementDetailModal = ({ achievement, onClose, isVisible, isEarned = false }: AchievementDetailModalProps) => {
   const badgeUrl = achievement.badge_file_name ? getBadgeUrl(achievement.badge_file_name) : '';
   const textColor = getCategoryTextColor(achievement.category);
   const pillStyle = getCategoryPillStyle(achievement.category);
@@ -113,7 +115,7 @@ const AchievementDetailModal = ({ achievement, onClose, isVisible }: Achievement
                   transition={{ delay: 0.5 }}
                   className={`text-base ${textColor} opacity-90 max-w-lg`}
                 >
-                  {achievement.description}
+                  {formatAchievementDescription(achievement.description, isEarned)}
                 </motion.p>
               </div>
             </motion.div>

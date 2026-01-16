@@ -341,6 +341,7 @@ const HomeTab = ({ onExerciseSelect, onTabChange, onUpgradeClick, onStartWorkout
             points: currentAchievement.metadata?.points || 0,
           }}
           isVisible={true}
+          isEarned={true}
           onClose={handleAchievementClose}
         />
       )}

@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Clock, Trophy, Star } from "lucide-react";
 import { getCategoryGradient, getCategoryGlow } from "@/utils/categoryGradients";
+import { formatAchievementDescription } from "@/utils/achievementTextFormatter";
 import type { AchievementWithProgress } from "@/hooks/useExpandedAchievementProgress";
 
 interface EnhancedAchievementCardProps {
@@ -86,7 +87,7 @@ const EnhancedAchievementCard = ({ achievementProgress, onClick }: EnhancedAchie
               <p className={`text-sm ${
                 isEarned ? 'text-gray-700' : 'text-gray-500'
               }`}>
-                {achievement.description}
+                {formatAchievementDescription(achievement.description, isEarned)}
               </p>
             </div>
           </div>

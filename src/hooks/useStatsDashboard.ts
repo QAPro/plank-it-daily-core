@@ -39,16 +39,37 @@ export const useStatsDashboard = () => {
         .order('completed_at', { ascending: false });
 
       let currentStreak = 0;
-      let checkDate = startOfDay(new Date());
       
       if (allSessions && allSessions.length > 0) {
-        const sessionDates = new Set(
-          allSessions.map(s => format(new Date(s.completed_at!), 'yyyy-MM-dd'))
-        );
+        // Get unique dates with proper timezone handling
+        const sessionDates = [...new Set(
+          allSessions.map(s => {
+            const date = new Date(s.completed_at!);
+            return format(startOfDay(date), 'yyyy-MM-dd');
+          })
+        )].sort().reverse(); // Sort descending
 
-        while (sessionDates.has(format(checkDate, 'yyyy-MM-dd'))) {
-          currentStreak++;
-          checkDate = subDays(checkDate, 1);
+        // Check if there's a workout today or yesterday (grace period)
+        const today = format(startOfDay(new Date()), 'yyyy-MM-dd');
+        const yesterday = format(startOfDay(subDays(new Date(), 1)), 'yyyy-MM-dd');
+        
+        let checkDate: Date;
+        if (sessionDates.includes(today)) {
+          checkDate = startOfDay(new Date());
+        } else if (sessionDates.includes(yesterday)) {
+          checkDate = startOfDay(subDays(new Date(), 1));
+        } else {
+          // No recent workouts, streak is 0
+          currentStreak = 0;
+          checkDate = startOfDay(new Date());
+        }
+
+        // Count consecutive days backwards
+        if (currentStreak === 0 && (sessionDates.includes(today) || sessionDates.includes(yesterday))) {
+          while (sessionDates.includes(format(checkDate, 'yyyy-MM-dd'))) {
+            currentStreak++;
+            checkDate = subDays(checkDate, 1);
+          }
         }
       }
 

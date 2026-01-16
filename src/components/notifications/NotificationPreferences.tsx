@@ -1,13 +1,18 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Target, Trophy, Users, Zap } from "lucide-react";
+import { Clock, Target, Trophy, Users, Zap, ChevronDown, ChevronRight, UserPlus, UserCheck, Heart, MessageSquare, Activity, Award, TrendingUp, Flame } from "lucide-react";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 export const NotificationPreferences = () => {
   const { preferences, updatePreferences, loading } = useUserPreferences();
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    social: false,
+  });
 
   if (loading || !preferences) {
     return (
@@ -21,12 +26,34 @@ export const NotificationPreferences = () => {
   }
 
   const notificationTypes = preferences.notification_types || {};
+  const socialSettings = typeof notificationTypes.social === 'object' 
+    ? notificationTypes.social 
+    : { enabled: notificationTypes.social ?? false };
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
 
   const handleNotificationTypeChange = (type: string, enabled: boolean) => {
     updatePreferences({
       notification_types: {
         ...notificationTypes,
         [type]: enabled
+      }
+    });
+  };
+
+  const handleSocialSettingChange = (setting: string, enabled: boolean) => {
+    updatePreferences({
+      notification_types: {
+        ...notificationTypes,
+        social: {
+          ...socialSettings,
+          [setting]: enabled
+        }
       }
     });
   };
@@ -57,6 +84,7 @@ export const NotificationPreferences = () => {
           <h4 className="font-medium">Notification Types</h4>
           
           <div className="space-y-3">
+            {/* Workout Reminders */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Clock className="h-4 w-4 text-muted-foreground" />
@@ -72,6 +100,7 @@ export const NotificationPreferences = () => {
               />
             </div>
 
+            {/* Achievements */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Trophy className="h-4 w-4 text-muted-foreground" />
@@ -87,6 +116,7 @@ export const NotificationPreferences = () => {
               />
             </div>
 
+            {/* Streak Alerts */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Zap className="h-4 w-4 text-muted-foreground" />
@@ -102,6 +132,7 @@ export const NotificationPreferences = () => {
               />
             </div>
 
+            {/* Milestones */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Target className="h-4 w-4 text-muted-foreground" />
@@ -117,20 +148,172 @@ export const NotificationPreferences = () => {
               />
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Users className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <Label htmlFor="social">Social Activity</Label>
-                  <p className="text-sm text-muted-foreground">Friends' achievements and challenges</p>
+            {/* Social Activity - Collapsible */}
+            <Collapsible
+              open={expandedSections.social}
+              onOpenChange={() => toggleSection('social')}
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <CollapsibleTrigger className="flex items-center gap-3 flex-1 hover:opacity-70 transition-opacity">
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex-1 text-left">
+                      <Label className="cursor-pointer">Social Activity</Label>
+                      <p className="text-sm text-muted-foreground">Friend requests, cheers, and activity</p>
+                    </div>
+                    {expandedSections.social ? (
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </CollapsibleTrigger>
+                  <Switch
+                    id="social"
+                    checked={socialSettings.enabled ?? true}
+                    onCheckedChange={(checked) => handleSocialSettingChange('enabled', checked)}
+                    className="ml-2"
+                  />
                 </div>
+
+                <CollapsibleContent className="space-y-3 pl-7 pt-2">
+                  {/* Friend Requests */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <UserPlus className="h-3.5 w-3.5 text-muted-foreground" />
+                      <div>
+                        <Label htmlFor="friend_requests" className="text-sm">Friend Requests</Label>
+                        <p className="text-xs text-muted-foreground">New friend requests received</p>
+                      </div>
+                    </div>
+                    <Switch
+                      id="friend_requests"
+                      checked={socialSettings.friend_requests ?? true}
+                      onCheckedChange={(checked) => handleSocialSettingChange('friend_requests', checked)}
+                      disabled={!socialSettings.enabled}
+                    />
+                  </div>
+
+                  {/* Friend Accepted */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <UserCheck className="h-3.5 w-3.5 text-muted-foreground" />
+                      <div>
+                        <Label htmlFor="friend_accepted" className="text-sm">Friend Accepted</Label>
+                        <p className="text-xs text-muted-foreground">When someone accepts your request</p>
+                      </div>
+                    </div>
+                    <Switch
+                      id="friend_accepted"
+                      checked={socialSettings.friend_accepted ?? true}
+                      onCheckedChange={(checked) => handleSocialSettingChange('friend_accepted', checked)}
+                      disabled={!socialSettings.enabled}
+                    />
+                  </div>
+
+                  {/* Cheers Received */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Heart className="h-3.5 w-3.5 text-muted-foreground" />
+                      <div>
+                        <Label htmlFor="cheers_received" className="text-sm">Cheers Received</Label>
+                        <p className="text-xs text-muted-foreground">When friends cheer your workouts</p>
+                      </div>
+                    </div>
+                    <Switch
+                      id="cheers_received"
+                      checked={socialSettings.cheers_received ?? true}
+                      onCheckedChange={(checked) => handleSocialSettingChange('cheers_received', checked)}
+                      disabled={!socialSettings.enabled}
+                    />
+                  </div>
+
+                  {/* Reactions Received */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
+                      <div>
+                        <Label htmlFor="reactions_received" className="text-sm">Reactions Received</Label>
+                        <p className="text-xs text-muted-foreground">Daily digest of reactions</p>
+                      </div>
+                    </div>
+                    <Switch
+                      id="reactions_received"
+                      checked={socialSettings.reactions_received ?? false}
+                      onCheckedChange={(checked) => handleSocialSettingChange('reactions_received', checked)}
+                      disabled={!socialSettings.enabled}
+                    />
+                  </div>
+
+                  {/* Friend Workouts */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Activity className="h-3.5 w-3.5 text-muted-foreground" />
+                      <div>
+                        <Label htmlFor="friend_workouts" className="text-sm">Friend Workouts</Label>
+                        <p className="text-xs text-muted-foreground">Daily digest of friend workouts</p>
+                      </div>
+                    </div>
+                    <Switch
+                      id="friend_workouts"
+                      checked={socialSettings.friend_workouts ?? false}
+                      onCheckedChange={(checked) => handleSocialSettingChange('friend_workouts', checked)}
+                      disabled={!socialSettings.enabled}
+                    />
+                  </div>
+
+                  {/* Friend Achievements */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Award className="h-3.5 w-3.5 text-muted-foreground" />
+                      <div>
+                        <Label htmlFor="friend_achievements" className="text-sm">Friend Achievements</Label>
+                        <p className="text-xs text-muted-foreground">Daily digest of friend achievements</p>
+                      </div>
+                    </div>
+                    <Switch
+                      id="friend_achievements"
+                      checked={socialSettings.friend_achievements ?? false}
+                      onCheckedChange={(checked) => handleSocialSettingChange('friend_achievements', checked)}
+                      disabled={!socialSettings.enabled}
+                    />
+                  </div>
+
+                  {/* Friend Level Ups */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
+                      <div>
+                        <Label htmlFor="friend_levelups" className="text-sm">Friend Level Ups</Label>
+                        <p className="text-xs text-muted-foreground">Daily digest when friends level up</p>
+                      </div>
+                    </div>
+                    <Switch
+                      id="friend_levelups"
+                      checked={socialSettings.friend_levelups ?? false}
+                      onCheckedChange={(checked) => handleSocialSettingChange('friend_levelups', checked)}
+                      disabled={!socialSettings.enabled}
+                    />
+                  </div>
+
+                  {/* Friend Streaks */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Flame className="h-3.5 w-3.5 text-muted-foreground" />
+                      <div>
+                        <Label htmlFor="friend_streaks" className="text-sm">Friend Streak Milestones</Label>
+                        <p className="text-xs text-muted-foreground">Daily digest of friend streak milestones</p>
+                      </div>
+                    </div>
+                    <Switch
+                      id="friend_streaks"
+                      checked={socialSettings.friend_streaks ?? false}
+                      onCheckedChange={(checked) => handleSocialSettingChange('friend_streaks', checked)}
+                      disabled={!socialSettings.enabled}
+                    />
+                  </div>
+                </CollapsibleContent>
               </div>
-              <Switch
-                id="social"
-                checked={notificationTypes.social ?? false}
-                onCheckedChange={(checked) => handleNotificationTypeChange('social', checked)}
-              />
-            </div>
+            </Collapsible>
           </div>
         </div>
 

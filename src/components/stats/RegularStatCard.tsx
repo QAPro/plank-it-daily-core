@@ -20,15 +20,15 @@ const RegularStatCard = ({ icon: Icon, title, value, delay = 0, emoji }: Regular
       <Card className="bg-card rounded-xl shadow-soft">
         <CardContent className="p-4 text-center">
           {emoji && (
-            <div className="text-3xl mb-2 flex justify-center">
+            <div className="mb-2 flex justify-center items-center" style={{ minHeight: '48px' }}>
               {emoji === '📅' ? (
-                <div className="relative w-12 h-12 flex flex-col items-center justify-center bg-gradient-to-b from-red-500 to-red-600 rounded-lg shadow-sm">
-                  <div className="absolute top-0 left-0 right-0 h-2.5 bg-red-700 rounded-t-lg"></div>
-                  <div className="text-[11px] font-bold text-white uppercase mt-1.5">{format(new Date(), 'MMM')}</div>
-                  <div className="text-xl font-bold text-white leading-none">{format(new Date(), 'd')}</div>
+                <div className="relative w-10 h-10 flex flex-col items-center justify-center bg-gradient-to-b from-red-500 to-red-600 rounded-md shadow-sm">
+                  <div className="absolute top-0 left-0 right-0 h-2 bg-red-700 rounded-t-md"></div>
+                  <div className="text-[9px] font-bold text-white uppercase mt-0.5">{format(new Date(), 'MMM')}</div>
+                  <div className="text-base font-bold text-white leading-none">{format(new Date(), 'd')}</div>
                 </div>
               ) : (
-                emoji
+                <span className="text-3xl">{emoji}</span>
               )}
             </div>
           )}

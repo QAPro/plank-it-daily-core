@@ -13,6 +13,8 @@ import { useXPTracking } from './useXPTracking';
 import { useWorkoutFeedback } from './useWorkoutFeedback';
 import { useAutoHookTracking } from './useHookModelTracking';
 import type { WorkoutFeedback } from '@/components/feedback/WorkoutFeedback';
+import { toZonedTime, fromZonedTime, formatInTimeZone } from 'date-fns-tz';
+import { startOfDay, subDays } from 'date-fns';
 
 interface CompletedSession {
   id: string;
@@ -107,6 +109,34 @@ export const useEnhancedSessionTracking = () => {
     if (!user) return { streak: 0, isNewStreak: false };
 
     try {
+      // Fetch user's timezone from preferences
+      const { data: userPrefs, error: prefsError } = await supabase
+        .from('user_preferences')
+        .select('time_zone')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (prefsError) {
+        logError("Error fetching user preferences", { error: prefsError.message }, prefsError);
+      }
+
+      // Default to UTC if no timezone is set
+      const userTimezone = userPrefs?.time_zone || 'UTC';
+      console.log('🌍 User timezone:', userTimezone);
+
+      // Get current time in user's timezone
+      const nowUtc = new Date();
+      const nowInUserTz = toZonedTime(nowUtc, userTimezone);
+      const todayInUserTz = startOfDay(nowInUserTz);
+      const todayDateString = formatInTimeZone(todayInUserTz, userTimezone, 'yyyy-MM-dd');
+
+      console.log('📅 Today in user timezone:', { 
+        timezone: userTimezone, 
+        date: todayDateString,
+        nowInUserTz: nowInUserTz.toISOString(),
+        todayInUserTz: todayInUserTz.toISOString()
+      });
+
       // Fetch the user's current streak
       let { data: userStreak, error: streakError } = await supabase
         .from('user_streaks')
@@ -119,42 +149,50 @@ export const useEnhancedSessionTracking = () => {
         return { streak: 0, isNewStreak: false };
       }
 
-      const today = new Date();
-      const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-      
-      // Parse last_workout_date as local date (YYYY-MM-DD format)
-      const lastWorkoutDate = userStreak?.last_workout_date 
-        ? new Date(userStreak.last_workout_date + 'T00:00:00') // Force local timezone interpretation
-        : null;
+      // Check if user already worked out today
+      if (userStreak?.last_workout_date === todayDateString) {
+        console.log('✅ Workout already recorded today, returning existing streak:', userStreak.current_streak);
+        return { streak: userStreak.current_streak, isNewStreak: false };
+      }
 
+      // Calculate new streak
       let newStreak = 1;
       let isNewStreak = false;
-      
-      if (lastWorkoutDate) {
-        const lastWorkoutMidnight = new Date(lastWorkoutDate.getFullYear(), lastWorkoutDate.getMonth(), lastWorkoutDate.getDate());
-        const timeDiff = todayMidnight.getTime() - lastWorkoutMidnight.getTime();
-        const dayDiff = timeDiff / (1000 * 3600 * 24);
 
-        if (dayDiff === 1) {
-          // Continue the streak
-          newStreak = (userStreak?.current_streak || 0) + 1;
+      if (userStreak?.last_workout_date) {
+        // Parse last workout date in user's timezone
+        const lastWorkoutDateInUserTz = new Date(userStreak.last_workout_date + 'T00:00:00');
+        const yesterdayInUserTz = startOfDay(subDays(todayInUserTz, 1));
+        const yesterdayDateString = formatInTimeZone(yesterdayInUserTz, userTimezone, 'yyyy-MM-dd');
+
+        console.log('📊 Streak calculation:', {
+          lastWorkoutDate: userStreak.last_workout_date,
+          yesterdayDate: yesterdayDateString,
+          todayDate: todayDateString,
+          currentStreak: userStreak.current_streak
+        });
+
+        if (userStreak.last_workout_date === yesterdayDateString) {
+          // Continue the streak - worked out yesterday
+          newStreak = (userStreak.current_streak || 0) + 1;
           isNewStreak = true;
-        } else if (dayDiff > 1) {
-          // Streak broken
+          console.log('🔥 Continuing streak! New streak:', newStreak);
+        } else {
+          // Streak broken - missed one or more days
           newStreak = 1;
           isNewStreak = true;
-        } else {
-          // Workout already recorded today
-          return { streak: userStreak?.current_streak || 1, isNewStreak: false };
+          console.log('💔 Streak broken, resetting to 1');
         }
       } else {
+        // First workout ever
         isNewStreak = true;
+        console.log('🎉 First workout! Starting streak at 1');
       }
 
       // Update streak - separate data for INSERT and UPDATE
       const updateData = {
         current_streak: newStreak,
-        last_workout_date: todayMidnight.toISOString().split('T')[0],
+        last_workout_date: todayDateString,
         longest_streak: Math.max(newStreak, userStreak?.longest_streak || 0),
       };
 

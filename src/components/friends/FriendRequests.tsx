@@ -114,60 +114,65 @@ const FriendRequests = () => {
         Friend Requests ({pendingRequests.length})
       </h2>
       
-      {pendingRequests.map((request) => (
-        <Card key={request.id} className="hover:shadow-medium transition-all duration-300 hover:-translate-y-0.5">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <Avatar className="w-12 h-12">
-                  <AvatarImage src={request.users.avatar_url} alt={request.users.username} />
-                  <AvatarFallback>
-                    {request.users.username?.charAt(0) || 'U'}
-                  </AvatarFallback>
-                </Avatar>
+      {pendingRequests.map((request) => {
+        // Handle case where users relationship might be null
+        const sender = request.users || { username: 'Unknown User', avatar_url: undefined };
+        
+        return (
+          <Card key={request.id} className="hover:shadow-medium transition-all duration-300 hover:-translate-y-0.5">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <Avatar className="w-12 h-12">
+                    <AvatarImage src={sender.avatar_url} alt={sender.username} />
+                    <AvatarFallback>
+                      {sender.username?.charAt(0) || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
 
-                <div>
-                  <h4 className="font-semibold text-[#2C3E50] mb-1">
-                    {request.users.username}
-                  </h4>
-                  <p className="text-sm text-[#7F8C8D]">
-                    Sent {formatDistanceToNow(new Date(request.created_at), { addSuffix: true })}
-                  </p>
+                  <div>
+                    <h4 className="font-semibold text-[#2C3E50] mb-1">
+                      {sender.username}
+                    </h4>
+                    <p className="text-sm text-[#7F8C8D]">
+                      Sent {formatDistanceToNow(new Date(request.created_at), { addSuffix: true })}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Button
+                    onClick={() => acceptRequest(request.id, sender.username)}
+                    disabled={processingRequests.has(request.id)}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    size="sm"
+                  >
+                    {processingRequests.has(request.id) ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Check className="w-4 h-4" />
+                    )}
+                  </Button>
+                  
+                  <Button
+                    onClick={() => declineRequest(request.id, sender.username)}
+                    disabled={processingRequests.has(request.id)}
+                    variant="outline"
+                    className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+                    size="sm"
+                  >
+                    {processingRequests.has(request.id) ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <X className="w-4 h-4" />
+                    )}
+                  </Button>
                 </div>
               </div>
-
-              <div className="flex items-center space-x-2">
-                <Button
-                  onClick={() => acceptRequest(request.id, request.users.username)}
-                  disabled={processingRequests.has(request.id)}
-                  className="bg-green-600 hover:bg-green-700 text-white"
-                  size="sm"
-                >
-                  {processingRequests.has(request.id) ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Check className="w-4 h-4" />
-                  )}
-                </Button>
-                
-                <Button
-                  onClick={() => declineRequest(request.id, request.users.username)}
-                  disabled={processingRequests.has(request.id)}
-                  variant="outline"
-                  className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
-                  size="sm"
-                >
-                  {processingRequests.has(request.id) ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <X className="w-4 h-4" />
-                  )}
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 };

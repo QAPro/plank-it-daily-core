@@ -35,3 +35,4 @@ if ('serviceWorker' in navigator) {
       });
   });
 }
+// Force rebuild to clear service worker cache - Sat Jan 17 04:53:02 EST 2026

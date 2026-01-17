@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
+import { socialActivityManager } from './socialActivityService';
 
 export interface UserLevel {
   current_level: number;
@@ -240,6 +241,27 @@ export const awardXP = async (userId: string, source: string, data: any): Promis
     if (leveledUp) {
       console.log('🎉 LEVEL UP! Handling level up...');
       await handleLevelUp(userId, oldLevel.current_level, newLevel.current_level);
+      
+      // Track level-up activity for friends feed
+      try {
+        // Get user's privacy settings
+        const { data: privacySettings } = await supabase
+          .from('user_preferences')
+          .select('activity_visibility')
+          .eq('user_id', userId)
+          .maybeSingle();
+        
+        // Only track if not private
+        if (privacySettings?.activity_visibility !== 'private') {
+          const visibility = privacySettings?.activity_visibility === 'public' ? 'public' : 'friends';
+          await socialActivityManager.createLevelUpActivity(userId, {
+            old_level: oldLevel.current_level,
+            new_level: newLevel.current_level
+          }, visibility);
+        }
+      } catch (activityError) {
+        console.error('Failed to track level-up activity:', activityError);
+      }
     }
     
     const result = { xpAmount, leveledUp, newLevel: leveledUp ? newLevel : undefined };

@@ -12,6 +12,7 @@ import { DatabaseAchievementService } from '@/services/databaseAchievementServic
 import { useXPTracking } from './useXPTracking';
 import { useWorkoutFeedback } from './useWorkoutFeedback';
 import { useAutoHookTracking } from './useHookModelTracking';
+import { useFriendActivityTracking } from './useFriendActivityTracking';
 import type { WorkoutFeedback } from '@/components/feedback/WorkoutFeedback';
 import { toZonedTime, fromZonedTime, formatInTimeZone } from 'date-fns-tz';
 import { startOfDay, subDays } from 'date-fns';
@@ -41,6 +42,7 @@ export const useEnhancedSessionTracking = () => {
   const { trackXP } = useXPTracking();
   const { submitFeedback } = useWorkoutFeedback();
   const { autoStartWorkoutCycle, autoCompleteWorkoutCycle, autoLogFriction } = useAutoHookTracking();
+  const { trackWorkoutActivity, trackLevelUpActivity, trackAchievementActivity, trackStreakMilestoneActivity } = useFriendActivityTracking();
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
@@ -385,6 +387,15 @@ const completeSession = useCallback(async (duration: number, notes?: string) => 
           // Removed toast - streak visible in QuickStatsCards, no need for notification
           console.log('✅ Streak XP awarded:', streakXPResult.xpAwarded);
         }
+        
+        // Track streak milestone activity for friends feed (every 7 days)
+        try {
+          await trackStreakMilestoneActivity({
+            streak_length: streakResult.streak
+          });
+        } catch (activityError) {
+          console.error('Failed to track streak milestone activity:', activityError);
+        }
       } catch (streakError) {
         console.error('❌ EXCEPTION awarding streak XP:', streakError);
       }
@@ -472,9 +483,32 @@ const completeSession = useCallback(async (duration: number, notes?: string) => 
         });
         
         console.log('🎯 ACHIEVEMENT XP RESULT:', achievementXPResult);
+        
+        // Track achievement activity for friends feed
+        try {
+          await trackAchievementActivity({
+            achievement_id: achievement.achievement_id,
+            achievement_name: achievement.achievement_name,
+            rarity: achievement.rarity || 'common'
+          });
+        } catch (activityError) {
+          console.error('Failed to track achievement activity:', activityError);
+        }
       }
     } else {
       console.log('⏭️ NO ACHIEVEMENTS EARNED - Skipping achievement XP');
+    }
+
+    // Track workout activity for friends feed
+    try {
+      await trackWorkoutActivity({
+        exercise_id: selectedExercise.id,
+        exercise_name: selectedExercise.name,
+        duration_seconds: duration,
+        category: selectedExercise.exercise_categories?.name || 'Uncategorized'
+      });
+    } catch (activityError) {
+      console.error('Failed to track workout activity:', activityError);
     }
 
     setCompletedSession({
@@ -506,7 +540,7 @@ const completeSession = useCallback(async (duration: number, notes?: string) => 
   } finally {
     setIsCompleting(false);
   }
-}, [user, selectedExercise, trackXP, currentHookCycleId, autoCompleteWorkoutCycle, updateStreak]);
+}, [user, selectedExercise, trackXP, currentHookCycleId, autoCompleteWorkoutCycle, updateStreak, trackWorkoutActivity, trackAchievementActivity, trackStreakMilestoneActivity]);
 
   const handleFeedbackSubmission = useCallback(async (feedback: WorkoutFeedback) => {
     if (completedSession?.id) {

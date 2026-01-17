@@ -1,5 +1,5 @@
 
-import { useEffect } from "react";
+
 import { motion } from "framer-motion";
 import { Flame, Trophy, Target, Calendar } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,15 +16,10 @@ const StreakDisplay = ({ variant = "detailed" }: StreakDisplayProps) => {
   const {
     streak,
     isLoading,
-    checkStreakMaintenance,
     getStreakStatus,
     getStreakMilestone,
     getMotivationalMessage,
   } = useStreakTracking();
-
-  useEffect(() => {
-    checkStreakMaintenance();
-  }, []);
 
   if (isLoading) {
     return (

@@ -33,38 +33,8 @@ export const useStreakTracking = () => {
     enabled: !!user,
   });
 
-  const checkStreakMaintenance = async () => {
-    if (!user || !streak) return;
-
-    const today = new Date().toISOString().split('T')[0];
-    const lastWorkoutDate = streak.last_workout_date;
-    
-    if (!lastWorkoutDate) return;
-
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
-
-    // Check if streak should be broken
-    if (lastWorkoutDate < yesterdayStr && lastWorkoutDate !== today) {
-      // Streak is broken, reset to 0
-      await supabase
-        .from('user_streaks')
-        .update({
-          current_streak: 0,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('user_id', user.id);
-
-      queryClient.invalidateQueries({ queryKey: ['user-streak', user.id] });
-      
-      toast({
-        title: "Streak Reset",
-        description: "Don't worry! Start fresh today and build your streak back up.",
-        variant: "destructive",
-      });
-    }
-  };
+  // Removed checkStreakMaintenance - streak maintenance should only happen
+  // via backend cron job at end of day, not on client side
 
   const getStreakStatus = () => {
     if (!streak) return { status: 'new', message: 'Start your first streak!' };
@@ -145,7 +115,6 @@ export const useStreakTracking = () => {
     streak,
     isLoading,
     error,
-    checkStreakMaintenance,
     getStreakStatus,
     getStreakMilestone,
     getMotivationalMessage,

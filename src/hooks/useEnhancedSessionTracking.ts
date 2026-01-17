@@ -169,7 +169,14 @@ export const useEnhancedSessionTracking = () => {
           lastWorkoutDate: userStreak.last_workout_date,
           yesterdayDate: yesterdayDateString,
           todayDate: todayDateString,
-          currentStreak: userStreak.current_streak
+          currentStreak: userStreak.current_streak,
+          comparison: {
+            lastWorkoutDate: userStreak.last_workout_date,
+            yesterdayDateString: yesterdayDateString,
+            areEqual: userStreak.last_workout_date === yesterdayDateString,
+            lastWorkoutType: typeof userStreak.last_workout_date,
+            yesterdayType: typeof yesterdayDateString
+          }
         });
 
         if (userStreak.last_workout_date === yesterdayDateString) {
